@@ -8,9 +8,11 @@ import (
 )
 
 type Config struct {
-	Address string
-	Token   string
-	DataDir string
+	Address      string
+	Token        string
+	DataDir      string
+	AllowedHosts []string
+	CAFile       string
 }
 
 func Load() (Config, error) {
@@ -22,6 +24,10 @@ func Load() (Config, error) {
 	if cfg.DataDir == "" {
 		cfg.DataDir = "./data"
 	}
+	if raw := os.Getenv("DBM_ALLOWED_HOSTS"); raw != "" {
+		cfg.AllowedHosts = strings.Split(raw, ",")
+	}
+	cfg.CAFile = os.Getenv("DBM_DB_CA_FILE")
 	tokenFile := os.Getenv("DBM_TOKEN_FILE")
 	if tokenFile == "" {
 		return cfg, fmt.Errorf("DBM_TOKEN_FILE ist erforderlich")

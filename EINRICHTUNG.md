@@ -1,10 +1,10 @@
 # Einrichtung und Bootstrap
 
-Vorhanden ist eine baubare Go-HTTP-Grundlage mit Bearer-Token, API-Vertragskandidat
-und Docker Compose-/Swarm-Dateien. Die Platzhalter-Engine meldet keine Treiber;
-eine nutzbare Datenbank-App oder echte SQL-Ausführung ist damit noch nicht vorhanden.
-Python 3 ist für die Dokumentations-/Deploymentprüfung erforderlich;
-Git und GitHub CLI zusätzlich für Initialisierung und Veröffentlichung.
+Vorhanden ist eine Go-API mit Bearer-Token und echten SQLite-/MySQL-/MariaDB-/PostgreSQL-
+Adaptern. Der persönliche Server speichert keine DB-Zugangsdaten; jede Anfrage liefert
+sie erneut. Eine eingebettete Weboberfläche und vollständige Administrationsparität
+sind noch nicht vorhanden. Python 3, Docker/Compose und OpenSSL werden für Liveproben
+benötigt; Git/GitHub CLI zusätzlich für Veröffentlichung.
 
 ## Go und Container prüfen
 
@@ -21,14 +21,36 @@ Compose und die Möglichkeit eines privilegierten isolierten Testcontainers bere
 
 ```sh
 python3 scripts/test-deployment.py
+python3 scripts/test-engine.py
+python3 scripts/test-engine-container.py
 ```
 
-Das Skript baut das Image, prüft Compose und einen eigenen Docker-in-Docker-Swarm
+`test-deployment.py` baut das Image, prüft Compose und einen eigenen Docker-in-Docker-Swarm
 und entfernt seine Ressourcen. Es verändert den Host-Swarm nicht. Für einen
 bewusst auf Compose begrenzten Lauf `--skip-swarm` verwenden; dies belegt keinen
 Swarmbetrieb. Start, Tokenanlage, Netzwerkgrenzen und Volumeverhalten beschreibt
 [Betrieb](docs/BETRIEB.md); tatsächliche Prüfungen und Grenzen stehen im
-[P4a-Handoff](docs/handoffs/P4a.md). Clientvorlagen und historischer Bootstrap folgen
+[P4a-Handoff](docs/handoffs/P4a.md) und [B1-Handoff](docs/handoffs/B1.md).
+`test-engine.py` erzeugt eindeutig benannte Wegwerf-DBs und eine eigene Test-CA,
+prüft echte Netzwerkabfragen samt TLS-/Fehler-/Größenfällen und entfernt seine Container.
+`test-engine-container.py` prüft tatsächliche SQLite-Abfragen, UID, schreibgeschütztes Root
+und Neustartpersistenz im eigenen Compose-Projekt; dessen Volume wird danach entfernt.
+Einzelne Netzwerk-Go-Tests ohne Fixture-Portvariablen werden ausdrücklich übersprungen.
+
+Direkter Start mit lokalem Datenverzeichnis:
+
+```sh
+python3 scripts/create-dev-token.py
+DBM_TOKEN_FILE=secrets/api_token go run ./cmd/db-manager
+```
+
+Der Server bindet standardmäßig an Loopback; SQLite-ID `beispiel` verwendet intern
+`data/beispiel.sqlite`. API-Vertrag und Tokenbedienung siehe
+[Verträge](contracts/README.md) und [Betrieb](docs/BETRIEB.md). Externe DB-Ziele benötigen
+`DBM_ALLOWED_HOSTS`; eine private CA kann über `DBM_DB_CA_FILE` hinzugefügt werden.
+Das CA-Bundle muss im tatsächlich ausführenden Prozess/Container lesbar sein.
+
+Clientvorlagen und historischer Bootstrap folgen
 unten; sie bilden keinen aktuellen App-Build ab.
 
 ## Dokumentation prüfen

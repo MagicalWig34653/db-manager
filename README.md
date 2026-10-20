@@ -4,10 +4,13 @@ Geplante moderne Datenbankverwaltung: Go-Backend mit Svelte/shadcn-svelte-Webobe
 und eigenständiger Swift/SwiftUI-App für macOS und iPadOS. Ziel ist vollständige
 phpMyAdmin-Parität und Unterstützung mehrerer Datenbanksysteme.
 
-**Aktueller Zwischenstand:** Go-HTTP-Grundlage mit versioniertem API-Vertragskandidaten,
-Tokenanmeldung sowie geprüfter Docker-Compose-/Swarm-Bereitstellung vorhanden.
-Die Datenbank-Engine ist noch ein Platzhalter; es gibt noch keine nutzbare Datenbank-App.
-Swift soll direkt mit Datenbanken arbeiten können; das Go-Backend bleibt dort optional.
+**Aktueller Zwischenstand:** Go-API 0.1.0 mit Tokenanmeldung, echter SQL-Ausführung,
+Verbindungstest und Tabellen-/View-Katalog für SQLite, MySQL/MariaDB und PostgreSQL.
+SQLite ist auf einen exklusiven lokalen Einzelinstanzbetrieb begrenzt. Compose startet
+als UID 10001 mit schreibgeschütztem Root und beschreibbarem Datenvolume; SQLite-Daten
+überstehen den Neustart. Der Webclient ist noch nicht in das Go-Image eingebunden.
+Unabhängige Gesamt-/Releaseabnahme und vollständige phpMyAdmin-Parität stehen aus.
+Swift arbeitet in seinem eigenen Repository; das Go-Backend bleibt dort optional.
 
 - [Projektplan](docs/PROJEKTPLAN.md), [Konzept](docs/KONZEPT.md)
 - [Status](docs/STATUS.md), [Arbeitsplan](docs/ARBEITSPLAN.md)
