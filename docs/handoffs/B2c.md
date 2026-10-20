@@ -95,3 +95,23 @@ Loopbackports und temporäre öffentliche Testzertifikate; vor Start Ressourcen 
 alle eigenen Container/Volumes nach jedem Lauf entfernt. Fremde A2-/F3-/Entwicklungs-
 ressourcen unangetastet. Vor Übergabe alle lokalen Jobs abschließen, Commits und
 CI-IDs sichern; anschließend idle für unabhängige QA. Lead allein integriert/friert den Vertrag.
+
+## Commit- und CI-Checkpoint
+
+Produktcommit `eccbad3a30a54160d800ac5dbdb8cbaed1f0afb0` auf
+`origin/feat/row-insert` gepusht. Letzter tatsächlicher TLS-Racelauf nach allen
+Quelländerungen erneut erfolgreich. Alle lokalen Jobs beendet, keine eigenen
+B2c-Container/Volumes vorhanden. Reiner lokaler Handoffcheckpoint folgt ohne erneuten
+Push unveränderten Produktcodes; Worktree anschließend sauber und Worker idle.
+
+Zum Checkpoint läuft die native CI noch; kein Erfolg daraus vorweggenommen:
+
+- [Einzelnes strukturiertes Einfügen](https://github.com/MagicalWig34653/db-manager/actions/runs/39502283586)
+- [Strukturierte Einzelzeilenänderungen](https://github.com/MagicalWig34653/db-manager/actions/runs/39502283492)
+- [Tabellenmetadaten und Lesen](https://github.com/MagicalWig34653/db-manager/actions/runs/39502283563)
+- [Datenbankengine](https://github.com/MagicalWig34653/db-manager/actions/runs/39502283479)
+- [Backend und Container](https://github.com/MagicalWig34653/db-manager/actions/runs/39502283430)
+- [Echter Web-Datenbank-Pfad](https://github.com/MagicalWig34653/db-manager/actions/runs/39502283498)
+- [Dokumentation](https://github.com/MagicalWig34653/db-manager/actions/runs/39502283453) bereits erfolgreich.
+
+Keine Produkt-/Vertragsfreigabe vor unabhängigem Review, CI-Gates und Leadentscheidung.
