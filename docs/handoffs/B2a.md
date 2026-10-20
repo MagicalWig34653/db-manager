@@ -90,3 +90,18 @@ keine fremden Ressourcen angehalten. Keine lokalen Prüfjobs mehr aktiv.
 CI-IDs und Commit werden nach Push als Übergabecheckpoint ergänzt.
 Nächster Schritt: unabhängiger Review und nativer Linuxamd64-Nachweis; anschließend
 Leadentscheidung über Integration und gesonderten 0.2.0-Freeze vor Clientarbeit.
+
+## Commit- und CI-Checkpoint
+
+Produktcommit `62f129755a06922da6108c294e324b9171c268c4` auf
+`origin/feat/table-browse` gepusht. Der reine Übergabecheckpoint folgt lokal und
+ändert den geprüften Produkt-/Schemaquellstand nicht. Zum Übergabezeitpunkt stehen
+folgende Jobs am Produktcommit in der Queue; dies ist noch kein Erfolgsnachweis:
+
+- [Tabellenmetadaten und Lesen, native Linuxamd64](https://github.com/MagicalWig34653/db-manager/actions/runs/39495448336)
+- [Datenbankengine](https://github.com/MagicalWig34653/db-manager/actions/runs/39495448305)
+- [Backend und Container](https://github.com/MagicalWig34653/db-manager/actions/runs/39495448282)
+- [Dokumentation](https://github.com/MagicalWig34653/db-manager/actions/runs/39495448176)
+
+Keine weiteren lokalen Jobs oder eigenen Dockerressourcen. Worker ist für den
+unabhängigen Review idle; Jobausgänge kontrolliert die koordinierende/prüfende Rolle.
