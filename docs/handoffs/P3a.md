@@ -66,3 +66,11 @@ Lead beauftragt unabhängigen Review des Commits vor Integration, entscheidet da
 bleibt bis Integration bei diesem Paket. Die neue Docker-Compose-/Swarm-Anforderung
 ist im Entwurf und in den Abnahmen enthalten; zentrale Architekturentscheidung
 bleibt beim Lead. Keine unintegrierte externe Nebenarbeit außerhalb dieser Dateien.
+
+## Unabhängige Abnahme und Integration
+
+Am 20.10.2026 durch QA & Release als Untersuchung und Spike freigegeben,
+keine wesentlichen offenen Befunde. Unabhängig Go-Racetests, `go vet` und native
+PRF-Typecheckprobe für macOS15 bestanden. AEAD-Rollbackgrenze, Betreibervertrauen,
+Recovery- und reale Geräte-/Providergrenzen bestätigt. Ursprung `d25d660`, integriert
+als `b836dbf`. Keine Freigabe für produktiven Tresor, PRF, Sync oder Teamfreigaben.

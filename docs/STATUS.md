@@ -59,7 +59,8 @@ Die Abschlussdokumentation folgt in eigenen Commits; Anfangscommits oben bleiben
 
 Kein freigegebener API-Vertrag, keine App, keine Produktabhängigkeiten oder Builds.
 Keine Treiber-/Gerätetests, tatsächlichen iCloud-/Passkey-Prüfungen oder Migrationen.
-Keine Produktdienste oder Hintergrundjobs gestartet; keine unintegrierte Workerarbeit.
+Keine produktiven Dienste oder Migrationen gestartet. Aktive Workeränderungen und
+taskeigene Prüfjobs siehe Fortsetzungsstand und Arbeitsplan.
 Der Lead pflegt zentrale Dokumente und installierte Clientstatusdateien;
 der unabhängige Reviewer arbeitete ausschließlich lesend.
 
@@ -78,3 +79,14 @@ Architekturentscheidungen bleiben bis zu bestätigten Befunden offen.
 
 Grundlagen: [Einrichtung](../EINRICHTUNG.md), [Projektplan](PROJEKTPLAN.md),
 [Projektübergabe](../PROJEKTUEBERGABE.md).
+
+## Aktive Fortsetzung
+
+Seit 20.10.2026 19:36 UTC autonome Umsetzung bis spätestens 21.10.2026 02:00 UTC.
+P1a/P2a/P3a laufen in eigenen Worktrees; Dateibesitz und Agents im Arbeitsplan.
+Go 1.27.1, Node 26.5.0, Swift 6.4 / Xcode 27.1 sowie Docker mit erreichbarem
+Colima-Daemon tatsächlich vorhanden. Keine Produktimplementierung bereits abgenommen.
+Docker Compose und Swarm verbindlich ergänzt. Lead koordiniert ausschließlich;
+Implementierung erfolgt durch Agents mit getrennten Worktrees. P3a-Commit `d25d660`
+ist nach unabhängigem QA-Review als `b836dbf` integriert (nur Untersuchung, kein produktiver Tresor); Architecture & Security hat die unintegrierte P4a-Grundlage
+übernommen. Tatsächliche Teamrollen und Jobs stehen im Arbeitsplan.

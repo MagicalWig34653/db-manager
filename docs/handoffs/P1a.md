@@ -96,3 +96,13 @@ QA-/Peer-Findings im eigenen Worktree korrigiert, Dateibesitz unverändert:
   sieben Tabellenspalten, Stand `O` und vorgeschlagene Priorität in jeder PMA-Zeile.
 - Keine Produktänderungen, gestarteten Dienste, Änderungen fremder Dateien oder Jobs.
   Folgecommit zur unabhängigen QA-Nachprüfung; Integration durch Lead bleibt ausstehend.
+
+## Unabhängige Abnahme und Integration
+
+Am 20.10.2026 durch QA & Release unabhängig geprüft. 181 eindeutige IDs,
+16 Bereiche, sieben Spalten und durchgehend offener Implementierungsstand bestätigt;
+Referenzversion und Datum offiziell gegengeprüft. Backend-Peerreview ohne Blocker.
+QA-Befund zur Teambesetzung und Peerhinweis zum TLS-Downgrade-Abnahmetest im
+Autorenfolgecommit `f2721e4` korrigiert und durch QA nachgeprüft.
+Dokumentationsprüfung und Diffchecks bestanden; Paket zur Integration freigegeben.
+Kein Nachweis umgesetzter Produktfunktionen und keine vollständige Parität.
