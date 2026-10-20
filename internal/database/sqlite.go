@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/MagicalWig34653/db-manager/internal/core"
 	sqlite "github.com/ncruces/go-sqlite3"
@@ -22,7 +23,29 @@ func sqliteQuery(ctx context.Context, db *sql.DB, request core.QueryRequest, sta
 		return result, safe(ctx, err)
 	}
 	defer connection.Close()
-	err = connection.Raw(func(raw any) error {
+	set, err := sqliteRead(ctx, connection, request.SQL, request.MaxRows, args...)
+	result.Results = append(result.Results, set)
+	if err != nil {
+		return core.QueryResult{}, safe(ctx, err)
+	}
+	result.DurationMS = time.Since(start).Milliseconds()
+	encoded, err := json.Marshal(result)
+	if err != nil {
+		return core.QueryResult{}, public("result_error", "Ergebnis konnte nicht verarbeitet werden.")
+	}
+	if len(encoded)+1 > MaxResponseBytes {
+		return core.QueryResult{}, public("result_too_large", "Ergebnis überschreitet die erlaubte Größe.")
+	}
+	return result, nil
+}
+
+// sqliteRead preserves native storage classes on the caller's pinned connection.
+func sqliteRead(ctx context.Context, connection *sql.Conn, query string, maxRows int, args ...any) (core.ResultSet, error) {
+	return sqliteReadMode(ctx, connection, query, maxRows, false, args...)
+}
+func sqliteReadMode(ctx context.Context, connection *sql.Conn, query string, maxRows int, strictStorage bool, args ...any) (core.ResultSet, error) {
+	var result core.ResultSet
+	err := connection.Raw(func(raw any) error {
 		driver, ok := raw.(sqliteDriver.Conn)
 		if !ok {
 			return public("result_error", "SQLite-Verbindung konnte nicht verarbeitet werden.")
@@ -30,7 +53,7 @@ func sqliteQuery(ctx context.Context, db *sql.DB, request core.QueryRequest, sta
 		native := driver.Raw()
 		oldContext := native.SetInterrupt(ctx)
 		defer native.SetInterrupt(oldContext)
-		statement, tail, err := native.Prepare(request.SQL)
+		statement, tail, err := native.Prepare(query)
 		if err != nil {
 			return err
 		}
@@ -56,6 +79,8 @@ func sqliteQuery(ctx context.Context, db *sql.DB, request core.QueryRequest, sta
 				err = statement.BindBlob(index+1, typed)
 			case bool:
 				err = statement.BindBool(index+1, typed)
+			case nil:
+				err = statement.BindNull(index + 1)
 			default:
 				return public("invalid_filter", "Filterwert ist nicht unterstützt.")
 			}
@@ -81,7 +106,7 @@ func sqliteQuery(ctx context.Context, db *sql.DB, request core.QueryRequest, sta
 			if ctx.Err() != nil {
 				return ctx.Err()
 			}
-			if len(set.Rows) == request.MaxRows {
+			if len(set.Rows) == maxRows {
 				set.Truncated = true
 				break
 			}
@@ -97,6 +122,9 @@ func sqliteQuery(ctx context.Context, db *sql.DB, request core.QueryRequest, sta
 					value = statement.ColumnFloat(index)
 				case sqlite.TEXT:
 					value = statement.ColumnText(index)
+					if strictStorage && !utf8.ValidString(value.(string)) {
+						return public("mutation_not_supported", "Ungültiges UTF-8 in SQLite-TEXT ist für Änderungen nicht freigegeben.")
+					}
 				case sqlite.BLOB:
 					value = statement.ColumnRawBlob(index)
 				default:
@@ -117,19 +145,8 @@ func sqliteQuery(ctx context.Context, db *sql.DB, request core.QueryRequest, sta
 		if err := statement.Err(); err != nil {
 			return err
 		}
-		result.Results = append(result.Results, set)
+		result = set
 		return nil
 	})
-	if err != nil {
-		return core.QueryResult{}, safe(ctx, err)
-	}
-	result.DurationMS = time.Since(start).Milliseconds()
-	encoded, err := json.Marshal(result)
-	if err != nil {
-		return core.QueryResult{}, public("result_error", "Ergebnis konnte nicht verarbeitet werden.")
-	}
-	if len(encoded)+1 > MaxResponseBytes {
-		return core.QueryResult{}, public("result_too_large", "Ergebnis überschreitet die erlaubte Größe.")
-	}
-	return result, nil
+	return result, err
 }

@@ -36,7 +36,13 @@ func (e *Engine) Describe(ctx context.Context, request core.DescribeRequest) (co
 	}
 	return result, nil
 }
-func describe(ctx context.Context, db *sql.DB, c core.Connection, ref core.TableRef) (core.TableDescription, error) {
+
+type metadataQuerier interface {
+	QueryContext(context.Context, string, ...any) (*sql.Rows, error)
+	QueryRowContext(context.Context, string, ...any) *sql.Row
+}
+
+func describe(ctx context.Context, db metadataQuerier, c core.Connection, ref core.TableRef) (core.TableDescription, error) {
 	d := core.TableDescription{Table: ref, Columns: []core.TableColumn{}, PrimaryKey: []string{}, ReadOnly: true, Transactional: "unknown"}
 	var rows *sql.Rows
 	var err error
