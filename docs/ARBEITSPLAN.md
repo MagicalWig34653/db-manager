@@ -1,167 +1,59 @@
 # Arbeitsplan
 
-Stand: 20.10.2026, autonome Umsetzung. Zeitgrenze 21.10.2026 04:00 Europe/Berlin
-(02:00 UTC) oder vorher vollständiger Projektabschluss. [Team und Gates](TEAM.md).
-Lead: ausschließlich Projektleitung, Koordination, Revieworganisation, Integration
-und zentrale Statuspflege. Produktcode schreiben die Agents.
+Stand: 20.10.2026, 22:00 UTC. Autonom bis vollständig umgesetzt oder
+21.10.2026 04:00 Europe/Berlin (=02:00 UTC). Lead koordiniert, organisiert Reviews,
+integriert und pflegt zentrale Dokumente. Agents implementieren Produktcode.
+Tatsächliche Ergebnisse und feste Vertragspins: [STATUS](STATUS.md).
 
-## Abgenommene Grundlagen
+## Aktive Pakete und Dateibesitz
 
-| Paket | Ergebnis | Integration / unabhängiger Review |
+| ID / Rolle | Repo / Branch / Worktree | Ziel und Abnahme |
 | --- | --- | --- |
-| P0 | Drei öffentliche Repos, AGPL-3.0-only, Prozess und Dokumentations-CI | abgeschlossen, [Review](handoffs/P0-review.md) |
-| P1a | Referenz phpMyAdmin5.2.3, 181 prüfbare Fälle, Teammodell | `83388e3`/`109cd3e`, QA und Backendpeer; [Handoff](handoffs/P1a.md) |
-| P2a | Go-/Swift-/iPad-Simulator-Treiberspikes, TLS-Downgradebefund | `0017043`/`d3da4b7`, QA-P2-01 geschlossen; [Handoff](handoffs/P2a.md) |
-| P3a | Bedrohungsmodell, Tresor-/Sync-Stufen, Sicherheitsprüffälle/Spikes | `b836dbf`, QA; keine produktive Tresorfreigabe; [Handoff](handoffs/P3a.md) |
-| P4a | Authentifizierte Go-HTTP-Grundlage, API0.1.0, Docker Compose und Swarm | `bb37904`/`80f203b`, QA-P4-01 geschlossen, unabhängige reale Deploytests; [Handoff](handoffs/P4a.md) |
-| P2b | ncruces/Authorizer/Root-VFS-Untersuchung | `7d2ed07`, unabhängige Mac-/Linuxarm64-Suite, ADR0004 nur eingeschränkt für B1 akzeptiert; [Handoff](handoffs/P2b.md) |
+| F4 / Frontend & UX | Web / feat/row-workbench / .worktrees/row-workbench, Basis ffdd2a0 | Gepinnte API0.3/0.4, verpflichtende v4-Fähigkeiten auf Backend72855cf und v3-Eignung. Bestätigte Einzelzeilen-Inserts/Edits/Deletes mit Default/NULL/Leerwert-/Präzisionsunterscheidung, vollständigem altem typisiertem Snapshot und tatsächlicher Rücklese. Keine automatischen Retries; 409 fordert Neuladen, Unknown/Transportabbruch nach Versand als möglicher Commit. Session-/Quellenwechsel räumt Werte auf, generischer Unknown-Hinweis darf bleiben. Besitz Webprodukt/Vertragskopien/Build/Tests/Lizenzen/README/Einrichtung/Handoff, keine zentralen Statusdateien. Echte SQLite-/PG-TLS-Browserfälle einschließlich konkurrierender Änderung und verloren gegangener Antwort nach tatsächlichem Commit; CSP/Lizenz-/Sessionregressionen. Unabhängige QA vor Webintegration; Rootassetpin F4b separat. |
+| S2a / Apple & Security | Apple / feat/vault-core / .worktrees/vault-core, Basis7cbeb38 | Eigenständiger Core im neuen Packages/DBManagerVault, eigene Tests/Fixtures/Originaltexte/CI/Skripte, ADR-A003/Sicherheitsdokumente/Handoff. S1-Format exakt, Actor-Locksession, verwaltetes privates Root mit festen Zufallsnamen und sicheren Dateideskriptoren, flock/CAS/temp0600/fsync/rename/dirfsync. Unabhängiger Anchor reserviert lebenslange Root-AEAD-Nutzung dauerhaft vor Verschlüsselung, bestätigt Hash/Generation erst nach dauerhafter Datei; Pending nur bekannte alte/neue Zustände. Fehlender/zurückrollbarer importierter Anchor erlaubt keine schreibende Produktsession. Nur Testanker in Testtarget, kein stiller InMemory-Produktfallback. Recovery darf mit einem überlebenden alten Faktor in neuen Tresor mit beiden neuen rückgelesenen Faktoren migrieren; Original erhalten. Keine App-/Xcode-/Rootpackage-/A2-/zentralen Statusänderungen. Unabhängige Dateisystem-/Fehler-/Concurrency-/Bounds-/Interop-QA vor Integration. |
+| B3a / Backend & Platform | Hauptrepo / neuer eigener Worktree nach Scopevorschlag | Lesende Index-/Constraintmetadaten für Strukturansicht, additive API, v1-v4 unverändert. Keine DDL/SQL-Fragmente; konservative Aussagen statt erratener Eigenschaften. Konkreter Scope und Besitz vor Implementierung. Echte vier Treiber/TLS, Go-Race/Vet, Vertrags-/Sondernamen-/Ausdrucks-/Partial-/Include-/Kollationsfälle und unabhängiger Review. |
 
-## Aktive Tickets und Dateibesitz
-
-Alle schreibenden Worker haben eigene Branches und Worktrees. Kein paralleles
-Schreiben in denselben Dateien; gemeinsame Verträge vor abhängiger Arbeit einfrieren.
-Maximal drei aktive Worker, QA wird nach fertig gemeldeten Paketen eingeplant.
-
-| Ticket / Rolle | Repo / Branch / Worktree | Ziel, Besitz und Abnahme |
-| --- | --- | --- |
-| A2 – Apple Engineer (`p3a_security`) | Applerepo, `feat/apple-postgres`, `.worktrees/apple-postgres`, Basis `ce0aedb` | Direkte PostgreSQL-Verbindung ohne Go, TLS verpflichtend mit vollständiger Zertifikat-/Hostprüfung, flüchtige Credentials, Katalog/SQL und getaggte begrenzte Resultate. Besitz Produktmodule/SwiftUI, Package/Lock/Xcode/Entitlements, eigene Prüfungen/CI, Lizenzen/Originaltexte, README/Einrichtung/ADR/Handoff; keine zentralen Status-/Planungsdateien. SQLite erhalten. Echte TLS-Positiv-/Negativfälle, präzise Werte, tatsächlich beobachteter Abbruch und saubere Sessionwechsel; Mac-/iPad-Zielbuild, Gerätegrenzen offen. Kein MySQL/SSH/Vault/CloudKit/Teamumfang. |
-| F3b – Frontend & UX (`p1a_parity`) | Hauptrepo, `feat/table-web-runtime`, `.worktrees/table-web-runtime`, Basis `7f3191a` | Freigegebene Quelle `6c6eb33` reproduzierbar einbetten; Besitz Rootassets/Manifest/Lock, enge Build-/Wrapper-/Dockerprovenienz, Runtimebrowser-/TCP-TLS-Readinessprüfungen/CI, Einrichtung/Betrieb/Webbuild/Lizenzen/Handoff. Kein DB/Core/HTTP/GoMod-/API-/Webquellschreiben. Originalbytes/CSP, echter SQLite-/PostgreSQL-Browserpfad und Compose-/isolierte-Swarm-Persistenz sowie sauberer Go-/Imagecheckout ohne Node/npm/Siblings prüfen. |
-
-Alle Tickets: technische Bezeichner/Code/Kommentare/Tests Englisch, Dokumentation/UI
-Deutsch. Keine echten Zugangsdaten, keine privaten Pfade oder produktiven SQL-Daten.
-Keine fremden Docker-/Simulatorressourcen verändern. Worker dokumentieren genaue
-Prüfbefehle, Grenzen, laufende Jobs und nächste Schritte im jeweiligen Handoff.
-Zentrale STATUS-/ARBEITSPLAN-Dateien aller Repos gehören dem Lead.
-
-## Gemeinsamer Vertrag und Betriebsentscheidungen
-
-API0.1.0 ist nach unabhängigem QA-Review ausdrücklich als Clientvertrag freigegeben.
-Herkunft `80f203b3e0c7fa3f7f4aa5ec06825cb83bc0c5d0`, SHA256
-`4b598dc69a1904685e67a717997412654440ac10f47c17f7a025ccd114e294be`.
-Clients pinnen Kopie und Provenienz; keine zufällige Geschwisterrepo-Abhängigkeit.
-Die abgenommene B1-Engine meldet reale SQLite-/MySQL-/MariaDB-/PostgreSQL-Treiber.
-API0.2.0 nach geschlossenem B2a-Review und erfolgreicher nativer Fix-CI für Clients
-freigegeben: Herkunft `427444d7bcb8e30c9563ded2000ec3d5e19646c4`, Schema-SHA256
-`c15a848f01bb779429fd68a2b6eb6bba1575d3e07a4c68e6796cf7840a661838`.
-API0.1.0 und v1-Capabilities bleiben unverändert.
-
-ADR0003: Compose und Swarm verbindlich. ADR0004: SQLite zunächst SingleReplica,
-exklusives lokales Volume, eine aktive Verbindung jeDB, DELETE-Journal; kein WAL,
-keine fremden SQLite-Prozesse. Kein HA-/Powerloss-/umfassendes Sandboxversprechen.
-Native MySQLNIO-Netzwerkadapter bleiben wegen realem TLS-Downgrade gesperrt.
+A2 ist fachlich nach unabhängiger Kalenderfixprüfung freigegeben; Integration wartet
+noch exakte native CI39503396485 an b72e62c. Bestehender eigener Worktree
+Apple/feat/apple-postgres/.worktrees/apple-postgres bleibt Provenienz. NIOssl-Pin
+ist begründete eingeschränkte Abhängigkeitsentscheidung mit dokumentiertem Risiko.
+Signing, echte Geräte und OS-UI bleiben offen.
 
 ## Review- und Integrationsqueue
 
-QA & Release (`p0_publication_review`) prüft fertig gemeldete Commits unabhängig;
-Implementierer gehen bei benötigtem Slot vorübergehend idle. Findings zurück an den
-Eigentümer, eng nachprüfen, erst danach Leadintegration und Gesamtprüfung.
+1. F3b ist unabhängig abgenommen und im Hauptrepo integriert. Neue kombinierte
+   Haupt-CIs nach Veröffentlichung kontrollieren; lokale Integrationschecks bestanden.
+2. A2 nach erfolgreicher exakter CI integrieren und Apple-Hauptprüfung durchführen;
+   ADR-A002 und zentrale Apple-Dokumente entsprechend freigeben.
+3. F4 nach Autorenabschluss unabhängig prüfen; Konflikt-/Unknown-/Sessionfälle und
+   reale DB-Semantik sind Abnahmegates. Danach separater reproduzierbarer RootpinF4b.
+4. S2a unabhängig prüfen. Reale Keychain-/signierte Anchorintegration und Appablauf
+   sind ein separates S2b-Gate; weder Testspeicher noch Build ist Produktpersistenz.
+5. B3a nach Scopeentscheidung implementieren und separat prüfen. Weitere Pakete
+   aus der Paritätsmatrix anschließend zuschneiden: Schemafunktionen, Import/Export,
+   Verlauf/Favoriten und sichere native Netzwerkadapter. Jede Freigabe separat.
 
-1. B1, F1/F1b, A1 und F2a sind unabhängig abgenommen und integriert; jeweilige
-   Grenzen gelten weiter, insbesondere keine vollständige Parität oder Tresorfreigabe.
-2. Durchgehenden echten Web→Go→Wegwerf-DB-Pfad prüfen; Webbuild reproduzierbar und
-   mit Herkunft in das Go-/Containerprodukt einbinden. Compose und Swarm erneut mit
-   tatsächlicher Produktengine testen.
-3. Nativen eigenständigen SQLite-Pfad praktisch prüfen und Vertragswertfälle vergleichen.
-4. Weitere Produktpakete aus Paritätsmatrix nach Nutzen/Abhängigkeit zuschneiden:
-   Datenbearbeitung, Schemafunktionen, Import/Export, Verlauf/Favoriten und sichere
-   Netzwerkadapter. Jeweils eigenes Ticket, Dateibesitz und Abnahme.
-5. Produktiven Tresor, Recovery, Passkeys, CloudKit-Sync und Teams erst nach den
-   gesonderten P3-Gates umsetzen/freigeben. Offene Betreiber-/Gerätegrenzen dokumentieren.
+QA & Release p0_publication_review und qualifizierte nicht beteiligte Peers übernehmen
+unabhängige Reviews. Bei vier Laufzeitplätzen einschließlich Lead wechseln Worker und
+Reviewer geordnet. Nachträglich erhöhte lokale Konfiguration wird hier nicht neu geladen;
+kein Neustart oder Umgehungsprozess. Kein paralleles Schreiben derselben Dateien.
+Lead besitzt zentrale STATUS-/ARBEITSPLAN-Dateien aller Repos.
 
-## Tatsächlicher Prüfstand und Übergabe
+## Verbindliche Grenzen und Übergabe
 
-[STATUS](STATUS.md) ist kanonisch für tatsächliche Ergebnisse. Am kombinierten
-Hauptstand `6009e1d` sind Backend-/Container-, Engine-, Webpfad-, Tabellen- und
-Dokumentations-CI erfolgreich; Nachweise dort verlinkt. Neuere Produktcommits separat
-verifizieren. Reine Planungsupdates lösen keine unnötige Vollwiederholung aus.
-Keine produktiven Migrationen oder Dienste gestartet. Aktive Prüfjobs sind in den
-Workerübergaben zu erfassen; Taskcontainer nach Tests entfernen, Images/Buildcaches
-nicht mit fremden Ressourcen verwechseln. Alte saubere Worktrees bleiben Provenienz.
-Vor der Zeitgrenze alle Worker geordnet checkpointen, laufende eigene Jobs erfassen,
-prüfbare Commits sichern, offene Funktionen/Tests und nächsten Schritt dokumentieren.
+Eigener Code AGPL-3.0-only, Originaltexte/Abhängigkeitsinventare erhalten. Deutsch für
+UI/Dokumentation, Englisch für Code/Tests/Kommentare/technische Bezeichner.
+Keine echten Secrets, privaten Pfade oder produktiven SQL-Verläufe veröffentlichen;
+vorhandene Git-Autoridentität erhalten. Gemeinsame Verträge vor Clientbindung abnehmen.
+Compose und Swarm verpflichtend; SQLite nach ADR0004 eingeschränkt. Native MySQLNIO-
+Adapter wegen realem TLS-Downgrade gesperrt. Kein HA-/Powerloss-/Exactly-onceversprechen.
 
-## Aktueller Review-/Clientcheckpoint
+Nur eigene kurzlebige Testcontainer/-volumes/-netze/-simulatoren verwenden und bereinigen;
+keine fremden Ressourcen, Host-Swarm oder Systemrechte verändern. Keine produktiven
+Migrationen/Dienste. Laufende Jobs vor erneutem Start prüfen. Nicht ausgeführte Prüfungen
+explizit offenlassen. Vor Zeitgrenze alle Worker checkpointen: Dateien/Branch/Commits,
+Tests/Befunde, unintegrierte Arbeit, Jobs/Ressourcen und nächster konkreter Schritt im
+Handoff; zentrale Gesamtübergabe durch Lead. Alte saubere Worktrees bleiben Provenienz.
 
-- A1 nach QA inklusive UI-Lifecyclefix und erfolgreicher Feature-/Main-CI im Apple-main
-  integriert, Statuscommit `ce0aedb`. Echte Geräte/Signing/interaktive OS-UI bleiben offen.
-- F1/F1b nach QA inklusive Session-/Zeilenzahlfix und CSP-tauglichen Validatoren
-  freigegeben. Quelle `4e5abee` unverändert in Web-main, Statuscommit `ec8dcea`;
-  öffentliche Frontend-/Dokumentations-CI erfolgreich.
-- B1: alle vier Befunde im Fix `4ecd15f` unabhängig geschlossen; integrierte
-  Go-Race/Vet-Prüfung und native öffentliche CIs erfolgreich. Produktcode im Hauptrepo
-  `87caed8`/`063209e`, Handoff `4056c99`, zentraler Abnahmecheckpoint `520ca42`.
-- F2a `42a0dec` plus `d236076` nach unabhängiger öffentlicher Reproduktion als
-  `15b339e`/`c9cac01` integriert. Assetbytes/Manifest/Notices exakt; strikte CSP,
-  MIME/Cache/Traversal/API-Passthrough geprüft. Noch keine Serververdrahtung.
-- S1 nach unabhängiger QA als Formatgrundlage integriert (`7969f63`/`bc5dd4c`),
-  ADR0005 akzeptiert; weiterhin keine produktive Credentialpersistenz.
-  B2b-Mutation folgt separat
-  mit Konflikt-/Transaktionsabnahme; kein vorgezogener Verbraucher des B2a-Kandidaten.
-
-Die aktive Sitzung bietet vier gleichzeitige Plätze einschließlich Lead. Die lokale
-nachträgliche Konfiguration höherer Limits wird von den verfügbaren Laufzeitwerkzeugen
-nicht neu geladen. Kein Neustart oder Umgehungsprozess; drei Implementierer und
-unabhängige QA wechseln sich geordnet ab.
-
-## Folgepakete und Voraussetzungen
-
-| Paket | Voraussetzung | Geplanter begrenzter Umfang und Abnahme |
-| --- | --- | --- |
-| F3 – Tabellenarbeitsplatz (beauftragt, siehe oben) | B2a-Vertrag unabhängig freigegeben; F2b integriert | Gepinnter v2-Client, strukturierte Metadaten/Tabellenansicht mit Seitennavigation, Sortierung und parametrisierten Filtern; eindeutige Anzeige instabiler Reihenfolge, unbekannter Eigenschaften und fehlender Schreibfunktion. Echte Browserproben gegen SQLite und PostgreSQL; keine Mutation oder heimliche SQL-Fragmentbildung. Neue Quellcode-/Lizenzverweise im Webclient und anschließend neu reproduzierter Go-Webpin. |
-| B2b – Datenbearbeitung (beauftragt, siehe oben) | B2a abgenommen; eigener neuer Vertragskandidat | Zunächst klar begrenzte einzelne Zeilen mit sicherem Primärschlüssel; validierte Metadaten, parametrisierte Werte, Transaktions-/Konfliktregeln und ausdrückliche Behandlung unsicherer Tabellen. Kein Erfolg bei unbekanntem Commitausgang; konkurrierende Änderungen und Abbruch praktisch prüfen. Neuer Vertrag vor Frontendverbrauch separat abnehmen. |
-| A2 – Native Netzwerkverbindung (beauftragt, siehe oben) | Geprüfter P2a-Treiberpfad | Zunächst PostgreSQL direkt ohne Go, flüchtige Zugangsdaten, verpflichtend verifiziertes TLS und unverfälschte Werttypen; Verbindungswechsel/Abbruch/Fehlerfreigabe sowie lokaler SQLitebetrieb erhalten. Keine native MySQL-/MariaDB-Freigabe aus dem bestehenden Downgradebefund ableiten. Mac-/iPad-Zielbuild und echte synthetische TLS-Datenbankproben; Gerätegrenzen ausdrücklich offen. |
-| S2 – Optionale Tresorpersistenz | S1-Format/ADR unabhängig abgenommen; getrenntes Produktdesign | Atomare Speicherung, Recovery-Rückleseablauf, gesperrte/entsperrte Zustände, Dateischutz, Aktualisierungs-/Rotationszähler und Abbruch-/Crashverhalten. Produktplattform und Dateibesitz vor Beginn festlegen; keine Speicherung echter Geheimnisse allein aufgrund erfolgreicher Interopproben. CloudKit/Passkeys/Teams bleiben eigene Pakete. |
-
-Diese Tabelle bereitet Folgearbeit vor und ist keine Implementierung oder Freigabe.
-Konkrete Branches, Dateibesitz und Reviewer werden erst bei Beauftragung zugewiesen.
-
-B2a `62f1297`/`573e392`/`3b5a54c` unabhängig abgenommen und als
-`cb07ebb`/`19673b3`/`427444d` integriert; beide Befunde geschlossen, vier Fix-CIs
-erfolgreich. Engine nach einmaligem DockerHub-HTTP502-Jobneustart erfolgreich.
-F2b `f2c92ee`/`c9ced80` unabhängig abgenommen und als `df0b291`/`c7e1a1d` integriert.
-S1-Originalworktree bleibt sauber, keine dortigen Jobs. QA hat den Formatreview beendet.
-
-B2b nach unabhängigem P0-QA-Review ohne Befunde als `946241d`/`e4465ac`
-integriert; sechs Feature-CIs erfolgreich. API0.3.0 ausdrücklich freigegeben,
-Herkunft `946241d7f10f7444e9e5efebbe8b3a38a8120a9b`, Schema-SHA256
-`ec77c9739cda11df3f4cb9fe756a632e67840fdc0f6190deee1aa1d1333dc308`.
-Web-Schreiboberfläche erst als eigenes Paket nach F3 und F3b beauftragen.
-
-F3b nach angenommener F3-Webquelle: neuer reproduzierbarer öffentlicher Webpin,
-Asset-/Manifest-/Noticereproduktion und echter durchgehender Rootpfad. Zusätzlich
-Root-Testhelfer `scripts/web_test_support.py` eng auf TCP/TLS-Readiness härten:
-Unix-Socket-pg_isready kann PostgreSQL-Bootstrap zu früh akzeptieren. F3 hat dafür
-eine deterministische Initialisierungsbarriere und positive TLS-Probe vor negativem
-Hosttest eingeführt; keinen Produktfehler aus der Test-Race behaupten.
-
-Reviewqueue: F3-Erstreview an `d36bb65`/`2605931` bis auf QA-F3-01 grün;
-Frontendautor korrigiert atomare Filter-/Sortzustandsübernahme. P0 prüft anschließend
-gezielt Paging-/Aktualisierungsrepro. Root-WebpinF3b weiter gesperrt. A2 wartet
-Autorenabschluss und eigenen unabhängigen Review inklusive neuem NIOssl-Revisionspin.
-
-F3 ist nach P3-Nachprüfung von QA-F3-01 im Web-main integriert (`8ab07fb`/`ffdd2a0`),
-Quelle `6c6eb33c93eed355a10cd114f61ce27be7f3f55e` freigegeben. F3b ist beauftragt:
-Root-Assets/Manifest/Lock/Provenienz, nötige enge Build-/Wrapper-/Dockerlabels,
-Runtimebrowser-/Readinessprüfungen/CI, Betrieb/Einrichtung/Webbuild/Lizenzen/Handoff.
-Keine DB/Core/HTTP/GoMod-/Vertrags-/Webquelländerungen.
-
-QA-B2b-01 hoch nach Erstabnahme bestätigt und geschlossen: SQLite-UPDATE konnte
-schemaeigenes REPLACE ausführen. Fix `20492c2` unabhängig geprüft, sechs Feature-CIs
-erfolgreich; Backport `ea304ef`/`8d0fe29`. Neue Schreibclients benötigen mindestens
-diesen Backendstand, Schema0.3.0 unverändert. A2-Fix QA-A2-01 läuft beim Autor;
-übriger nativer Erstreview und konkreter NIOssl-Abhängigkeitspin unabhängig bestanden.
-
-Nächster priorisierter Review: PostgreSQL-Rules-Backport `5ef6a5` im separaten
-Worktree `.worktrees/postgres-mutation-rules`; belegte UPDATE-/DELETE-Umleitung
-muss vor Web-Schreiboberfläche konservativ gesperrt werden. P0 prüft nach freiem
-Slot unabhängig, danach separater Backport. B2c-Autor schließt eigenes Insertpaket
-ab und gibt den Slot frei; kein neuer Randfall oder Client vor Review/Freeze.
-
-B2c ist als `72855cf`/`bb39358` nach P0-QA ohne neue Findings integriert, sieben
-Feature-CIs erfolgreich. API0.4.0 ausdrücklich freigegeben, Herkunft
-`72855cf57ceb6620dead42856ee6c9d52d0612bd`, Schema-SHA256
-`4763ebf8632a9ef977cf7d3a6037299fc4dafde0a581fe10cb34d844f8356fbf`.
-PG-Rules-Backport unabhängig angenommen und als `cce0b43`/`fa4b9f9` integriert;
-beide v3-Schutzfixes geschlossen und im gemeinsamen Backendpin enthalten.
-P2 prüft F3b unabhängig; nächstes Frontendpaket F4 nutzt separat freigegebene
-v3-/v4-Verträge und ausschließlich diesen korrigierten Backendstand.
+Abgeschlossene Pakete samt historischen Befunden stehen in STATUS und den verlinkten
+Handoffs; Planung und Produkt-/Geräte-/Cloud-/Tresorfreigaben bleiben getrennt.

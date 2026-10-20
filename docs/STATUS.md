@@ -1,217 +1,81 @@
 # Tatsächlicher Projektstand
 
-Stand: 20.10.2026, laufende autonome Umsetzung. Zeitgrenze: 21.10.2026 04:00
-Europe/Berlin (=02:00 UTC), sofern das Gesamtprojekt nicht vorher vollständig abgenommen ist.
-Lead koordiniert, reviewed und integriert ausschließlich; Agents implementieren.
-Docker Compose und Docker Swarm sind verbindliche Betriebsziele (ADR-0003).
+Stand: 20.10.2026, 22:00 UTC. Autonome Umsetzung bis zum vollständigen Abschluss
+oder spätestens 21.10.2026 04:00 Europe/Berlin (=02:00 UTC).
+Lead koordiniert, organisiert unabhängige Reviews und integriert; Agents implementieren.
+Docker Compose und Docker Swarm sind verbindlich (ADR-0003).
 
 ## Abgenommen und integriert
 
 | Paket | Tatsächliches Ergebnis | Nachweis |
 | --- | --- | --- |
-| P0 | Drei öffentliche Git-Repos auf main, Lizenz/Prozess/CI, frische Checkouts geprüft | [P0-Review](handoffs/P0-review.md) |
-| P1a | phpMyAdmin5.2.3-Referenz, 181 prüfbare PMA-Fälle, 6 eigene Produktziele; alle Implementierungsstände noch offen | [Paritätsmatrix](PARITAET.md), [Handoff](handoffs/P1a.md) |
-| P2a | Go-/Swift-Treiberspikes, echte Wegwerf-DBs, native iPad-Simulatorproben; QA-Abbruchtestbefund korrigiert | [Handoff](handoffs/P2a.md), [Inventar](../spikes/drivers/LIZENZEN.md) |
-| P3a | Bedrohungsmodell, Tresor-/Sync-Stufen, 36 Prüf-/Untersuchungsfälle, AEAD- und PRF-Compile-Spikes | [Handoff](handoffs/P3a.md), [Sicherheitsentwurf](security/TRESOR-UND-SYNC.md) |
-| P4a | Baubare Go-HTTP-Grundlage mit Authentifizierung, Limits, sicheren Fehlern, API0.1.0 sowie Compose-/Swarm-Konfiguration | [Handoff](handoffs/P4a.md), [Betrieb](BETRIEB.md) |
+| P0–P4a, P2b | Öffentliche Repos, Anforderungen/Paritätsreferenz, Treiber-/Securityspikes, HTTP/Auth-/Containergrundlage, eingeschränkte SQLite-VFS-Entscheidung | [P0](handoffs/P0-review.md), [P1a](handoffs/P1a.md), [P2a](handoffs/P2a.md), [P3a](handoffs/P3a.md), [P4a](handoffs/P4a.md), [P2b](handoffs/P2b.md) |
+| B1 | Reale SQLite-/MySQL-/MariaDB-/PostgreSQL-Engine mit verifiziertem Netzwerk-TLS und begrenzten typisierten Ergebnissen; vier Reviewbefunde geschlossen | [B1](handoffs/B1.md) |
+| A1 | Eigenständiger nativer SwiftUI-/SQLite-Arbeitsplatz ohne Go; zehn Tests und Mac-/iPad-Simulator-Build, Dateiwechselfix geprüft | [Applerepo](https://github.com/MagicalWig34653/db-manager-apple), dort Handoff A1 |
+| F1/F1b, F2a/F2b | Deutscher Web-SQL-Arbeitsplatz, reproduzierbare Offlineassets, echtes Browser→Go→DB-Produkt; Session-/CSP-Befunde geschlossen | [F2a](handoffs/F2a.md), [F2b](handoffs/F2b.md) |
+| B2a | Strukturierte Tabellenmetadaten, Sortierung, gebundene AND-Filter und Pagination; Pflichtfeld-/Kollationsbefunde geschlossen | [B2a](handoffs/B2a.md) |
+| B2b | Bestätigtes Einzelzeilen-UPDATE/DELETE mit typisiertem Erwartungssnapshot, echten Locks/Transaktionen und ehrlichem unbekanntem Commitausgang | [B2b](handoffs/B2b.md) |
+| B2b-Schutzfixes | SQLite OR ABORT verhindert fremde REPLACE-Löschungen; PostgreSQL-Rewrite-Tabellen werden gesperrt. Beide nachträglichen Integritätsbefunde unabhängig geschlossen | [SQLite](handoffs/B2b-konfliktstrategie.md), [PostgreSQL](handoffs/B2b-rewrite-regeln.md) |
+| B2c | Bestätigtes einzelnes INSERT mit getrennten Default-/NULL-Werten, konservativer PK-Ermittlung und tatsächlicher Rücklese nach Triggern | [B2c](handoffs/B2c.md) |
+| F3/F3b | Strukturierte Web-Tabellenoberfläche und Quellen-/Originallizenzdialog, exakt reproduziert im Go-/Dockerprodukt eingebettet. Filterzustandsbefund QA-F3-01 geschlossen | [F3b](handoffs/F3b.md), [unabhängiger Review](handoffs/F3b-backend-review.md) |
+| S1 | Interoperables versioniertes Tresorformat mit Argon2id/AES-GCM/Recovery; ausschließlich Formatgrundlage, keine produktive Credentialpersistenz | [S1](handoffs/S1.md), [Format](security/VAULT-FORMAT-V1.md) |
 
-Alle Pakete erhielten unabhängiges Review. P4a integriert als `bb37904` und `80f203b`.
-API0.1.0 nach geschlossenem QA-P4-01 ausdrücklich als Clientvertrag freigegeben:
-[OpenAPI](../contracts/api-v0.1.0.json), Herkunft `80f203b3e0c7fa3f7f4aa5ec06825cb83bc0c5d0`,
-SHA256 `4b598dc69a1904685e67a717997412654440ac10f47c17f7a025ccd114e294be`.
-B1 ist nach unabhängiger QA als reale SQLite-/MySQL-/MariaDB-/PostgreSQL-Engine
-integriert (`87caed8`/`063209e`, Handoffcheckpoint `4056c99`). Der Server meldet diese
-Treiber im dokumentierten eingeschränkten Betrieb. Go-Webpaket `15b339e`/`c9cac01`
-und reale Serververdrahtung F2b `df0b291`/`c7e1a1d` sind integriert. Echter
-Browser→Go→SQLite/PostgreSQL-TLS-Pfad sowie Compose-/Swarm-Persistenz unabhängig
-geprüft. Der native SQLite-Client ist
-inzwischen als begrenztes eigenständiges Entwicklungsinkrement integriert;
-keine vollständige Datenbankverwaltung oder Parität.
+F3-Webquelle `6c6eb33c93eed355a10cd114f61ce27be7f3f55e`, Web-main `ffdd2a0`.
+F3b-Produktquelle `639ba44`, Teststand `7500ed2`, Handoff `3f7a863`, unabhängiger
+Review `e274068`; integriert als `0767969`/`22fdf78`/`cc175a5`/`5cb604a`.
+Die ausführlichen historischen Befunde und Prüfbefehle bleiben in den Handoffs.
 
-## Tatsächliche Prüfungen
+## Freigegebene Verträge
 
-- Go-Racetests, `go vet`, Format-/Diffchecks und Dokumentationsprüfungen für P4a
-  durch Implementierer und QA bestanden; nach Integration `go test ./...` bestanden.
-- Image tatsächlich gebaut; Compose sowie echter Swarm auf eigenem isolierten
-  DinD-Daemon durch Implementierer und QA geprüft: Secretübergabe, Authentifizierung,
-  Healthchecks, Swarm-Placement und Routing Mesh. Eigene Testressourcen entfernt;
-  fremde Container und Host-Swarm unverändert. Kein HA-/Multinode-Nachweis.
-- P2a Go: MySQL/MariaDB/PostgreSQL/SQLite gegen Wegwerfziele; Swift und iPad-Simulator:
-  SQLite/MariaDB/PostgreSQL dokumentiert. QA wiederholte SQLite und Abbruchklassifikation,
-  keine Live-Netzwerkproben. Kein echtes iPad getestet.
-- Native MySQLNIO-TLS-Konfiguration kann tatsächlich unverschlüsselt verbinden;
-  Downgrade reproduziert, native MySQL-/MariaDB-Produktadapter bleiben gesperrt.
-- P3a-Spikes belegen AEAD-Manipulationsschutz und SDK-PRF-Verfügbarkeit; kein
-  praktischer Provider-/Geräte-/Recovery-/CloudKit-Nachweis oder produktiver Tresor.
-
-## Native App und Clientstand
-
-A1 im Applerepo nach unabhängiger QA und erfolgreicher Apple-/Dokumentations-CI
-integriert: `8ea3c7c`/`ec3bbe9`/`4404f91`, Statuscheckpoint `ce0aedb`.
-Zehn Swift-Tests sowie Mac-/iPad-Simulator-Build belegt; UI-Dateiwechselbefund geschlossen.
-[Native Quellen und Status](https://github.com/MagicalWig34653/db-manager-apple).
-Signing/Sandboxdurchsetzung, interaktive OS-UI und echte Geräte bleiben offen.
-
-F1/F1b-Webclient nach QA inklusive Session-/Zeilenzahlfix und CSP-tauglichen
-Standalone-Validatoren freigegeben. Produktquelle `4e5abee` im Webrepo;
-öffentliche Frontend-/Dokumentations-CI erfolgreich; per FastForward integriert,
-zentraler Webstatuscommit `ec8dcea`. Reale B1-Integration über F2b abgenommen.
-
-## Laufende Arbeit und Dateibesitz
-
-F2b und B2a sind abgenommen und integriert; API0.2.0 ist für Clients freigegeben.
-Frontend implementiert F3, Apple-Engineer A2. B2b ist unabhängig abgenommen;
-B2c ist unabhängig abgenommen und integriert; Backendpeer prüft F3b.
-Die laufende Sitzung bietet weiterhin vier Plätze einschließlich
-Lead. Nachträglich lokal konfigurierte höhere Limits sind hier nicht wirksam geworden.
-
-| Paket / Rolle | Branch / Worktree | Tatsächlicher Auftrag |
+| Vertrag | Herkunft | SHA256 |
 | --- | --- | --- |
-| A2 / Apple Engineer | Applerepo, `feat/apple-postgres`, `.worktrees/apple-postgres`, Basis `ce0aedb` | Direkter PostgreSQL-Pfad ohne Go, verpflichtend verifiziertes TLS, flüchtige Credentials, Katalog/einzelne SQL-Anweisung und begrenzte getaggte Ergebnisse. Besitz Apple-Produktmodule/SwiftUI, Package/Lock/Xcode, eigene Prüfungen/CI/Lizenzen/ADR/Einrichtung/Handoff; zentrale Status-/Planungsdateien ausgenommen. SQLitebetrieb erhalten; keine native MySQL-Freigabe. |
-| F3 / Frontend & UX | Webrepo, `feat/table-workbench`, `.worktrees/table-workbench`, Basis `ec8dcea` | Sichtbare Quellcode-/Lizenzverweise und strukturierte Tabellenmetadaten/-ansicht mit gepinntem API0.2-Vertrag, Sortierung, AND-Filtern und Pagination; echte SQLite-/PostgreSQL-TLS-Browserproben. Besitz Webprodukt/Build/Vertragskopien/Tests/Lizenzen/README/Einrichtung/Handoff; keine zentralen Status-/Planungsdateien. Kein Mutation-/Persistenzumfang. |
+| API0.1.0 | `80f203b3e0c7fa3f7f4aa5ec06825cb83bc0c5d0` | `4b598dc69a1904685e67a717997412654440ac10f47c17f7a025ccd114e294be` |
+| API0.2.0 | `427444d7bcb8e30c9563ded2000ec3d5e19646c4` | `c15a848f01bb779429fd68a2b6eb6bba1575d3e07a4c68e6796cf7840a661838` |
+| API0.3.0 | `946241d7f10f7444e9e5efebbe8b3a38a8120a9b` | `ec77c9739cda11df3f4cb9fe756a632e67840fdc0f6190deee1aa1d1333dc308` |
+| API0.4.0 | `72855cf57ceb6620dead42856ee6c9d52d0612bd` | `4763ebf8632a9ef977cf7d3a6037299fc4dafde0a581fe10cb34d844f8356fbf` |
+| Tresorformat1 | `1a4eb3c`/`03bd3f4`, ADR0005 | `b688656056fe2e23848ce17149bc817609c7369f230a3f49dd91f05db4d3f4dd` |
 
-S1 nach unabhängiger QA ohne bestätigte Befunde als Formatgrundlage integriert:
-`7969f63`/`bc5dd4c`, Herkunft `1a4eb3c`/`03bd3f4`. Vier Go-/vier Swift-Tests,
-Race/Vet, 24 positive und 232 negative wechselseitige CLI-Fälle sowie Originalquellen-/
-Lizenzprüfung unabhängig bestätigt. ADR0005 akzeptiert; Schema-SHA256
-`b688656056fe2e23848ce17149bc817609c7369f230a3f49dd91f05db4d3f4dd`.
-Keine produktive Credentialpersistenz. [Abnahme und Grenzen](handoffs/S1.md).
+Die APIversionen sind getrennt; v1-Capabilities bleiben unverändert.
+**Neue Schreibclients pinnen Backend `72855cf57ceb6620dead42856ee6c9d52d0612bd`**:
+Dieser enthält beide v3-Schutzfixes. Die frühere v3-Implementierung ist für SQLite-
+REPLACE- und PostgreSQL-Rewrite-Tabellen unsicher; identische Vertragsbytes beweisen
+keinen gefixten Server. [Vertragsindex](../contracts/README.md).
 
-B2a `62f1297`/`573e392` plus Fix `3b5a54c` nach unabhängiger Fixnachprüfung und
-erfolgreicher nativer Fix-CI integriert als `cb07ebb`/`19673b3`/`427444d`.
-API0.2.0 für Clientbindung freigegeben, Herkunft
-`427444d7bcb8e30c9563ded2000ec3d5e19646c4`, Schema-SHA256
-`c15a848f01bb779429fd68a2b6eb6bba1575d3e07a4c68e6796cf7840a661838`.
-Pflichtfeld-/Kollationsbefunde geschlossen. [Abnahme/CI](handoffs/B2a.md).
-Integrierte Go-Race/Vet-, Vertrags- und Dokumentationsprüfung bestanden.
+## Tatsächlicher Prüfstand
 
-Gemeinsame Verträge benötigen vor abhängiger Produktarbeit unabhängige Abnahme.
-Kein paralleles Schreiben derselben Dateien. Zentrale Status-/Planungsdateien gehören
-dem Lead. Alte saubere Worktrees bleiben als Provenienz erhalten.
+- Hauptstand `03926cc`: alle sieben CIs erfolgreich: [Backend/Container](https://github.com/MagicalWig34653/db-manager/actions/runs/39503099272), [Engine](https://github.com/MagicalWig34653/db-manager/actions/runs/39503099334), [Tabellen](https://github.com/MagicalWig34653/db-manager/actions/runs/39503099117), [Mutationen](https://github.com/MagicalWig34653/db-manager/actions/runs/39503099112), [Inserts](https://github.com/MagicalWig34653/db-manager/actions/runs/39503099130), [Webpfad](https://github.com/MagicalWig34653/db-manager/actions/runs/39503099124), [Dokumentation](https://github.com/MagicalWig34653/db-manager/actions/runs/39503099293).
+- F3b-Teststand `7500ed2`: alle sechs damaligen CIs erfolgreich, einschließlich [Engine](https://github.com/MagicalWig34653/db-manager/actions/runs/39502849585), [Backend](https://github.com/MagicalWig34653/db-manager/actions/runs/39502849685) und [Webpfad](https://github.com/MagicalWig34653/db-manager/actions/runs/39502849674). Unabhängig zweimal bytegleich öffentlich gebaut; fünf echte Browserfälle, Compose und eigener isolierter DinD-Swarm einschließlich SQLite-Neustart/Taskersatzpersistenz bestanden. Positiver PostgreSQL-TLS-Test geht Negativtest voraus; TCP-/Bootstrapbarriere schließt Readinessrace.
+- Integrierter F3b-Hauptstand `5cb604a`: Go-Race/Vet, Manifest mit fünf Originalassets, acht Python-Buildprüfungen, Insertvertrag und Dokumentation266/0 bestanden. Neue kombinierte Haupt-CIs nach Veröffentlichung noch abzuwarten.
+- S1 unabhängig: vier Go-/vier Swift-Tests, Race/Vet, 24 positive und 232 negative wechselseitige CLI-Fälle, 14 Originalquellvergleiche und Lizenzen bestanden.
+- Tests verwendeten ausschließlich eigene Wegwerfressourcen. Host-Swarm blieb inaktiv, fremde Container unverändert. Keine eigenen Leadprüfjobs offen; Workerjobs stehen in ihren Handoffs. Originale generierte JS-/Lizenzbytes bleiben unverändert.
 
-Aktive Produktänderungen sind noch nicht integriert. Prüfjobs liegen bei den
-jeweiligen Workern; keine produktiven Dienste oder Migrationen. Keine echten
-Zugangsdaten speichern, keine fremden Docker-/Simulatorressourcen verändern.
+## Laufende Arbeit und unabhängige Gates
 
-## Repositories und Fortsetzung
+| Paket / Rolle | Repo, Branch / Worktree | Tatsächlicher Stand und Dateibesitz |
+| --- | --- | --- |
+| A2 / Apple & Security | Apple, `feat/apple-postgres`, `.worktrees/apple-postgres` | Direkter PostgreSQL-Pfad ohne Go; Code `89b2683`/`abaa3dc`, Kalenderfix `b72e62c`. Unabhängiger Review einschließlich konkretem unveröffentlichtem NIOssl-Revisionspin bestanden; QA-A2-01 geschlossen. 1.008 Datums-/4.032 Timestampvektoren und drei echte TLS-PG-Kalenderfälle unabhängig geprüft. Vor Integration fehlt exakter erfolgreicher nativer CI39503396485; Docs-CI erfolgreich. Kein offener Produktbefund. |
+| F4 / Frontend & UX (`p1a_parity`) | Web, `feat/row-workbench`, `.worktrees/row-workbench`, Basis `ffdd2a0` | Einzelzeilen-Insert/Edit/Delete, bestätigte Aktionen, frische Eignung und vollständige Snapshots, ehrlicher Konflikt-/Unknown-Ausgang. Besitz Webprodukt/Vertragskopien/Build/Tests/Lizenzen/Einrichtung/Handoff. Keine zentralen Statusdateien. v4-Fähigkeiten und v3-Eignung verpflichtend, Referenzbackend72855cf. Unabhängige QA und separater Root-Webpin folgen. |
+| S2a / Apple & Security (`p3a_security`) | Apple, `feat/vault-core`, `.worktrees/vault-core`, Basis `7cbeb38` | Ausschließlich eigenständiges neues Paket Packages/DBManagerVault samt Prüfungen/Originaltexten, eigenen CI/Skripten, ADR-A003/Sicherheitsdokumenten/Handoff. Actor-Session, sichere lokale atomare Dateiablage, extern verankerte CAS-/Lebenszeit-AEAD-Reservierung und Recovery mit neuen Faktoren. Keine App-/Xcode-/Rootpackage-/A2-/zentralen Statusänderungen. Produktiver nicht zurückrollbarer Anchor bleibt gesondertes Gate; nur Testanker noch keine Produktfreigabe. |
+| B3a / Backend & Platform | Hauptrepo, neuer eigener Worktree/Branch wird vorgeschlagen | Begrenzte lesende Index-/Constraintmetadaten vorbereiten. Erst Scope-/Vertragsentscheidung, keine DDL; noch kein Implementierungsnachweis. |
 
-Alle drei Repos öffentlich unter `https://github.com/MagicalWig34653/<name>`:
-`db-manager`, `db-manager-web`, `db-manager-apple`, jeweils `main` mit origin-Tracking.
-Git-/GitHub-Schreibblockaden der vorbereitenden Sitzung sind behoben.
-Go1.27.1, Node26.5.0, Swift6.4/Xcode27.1 und Docker/Colima tatsächlich verfügbar.
+Zentrale STATUS-/ARBEITSPLAN-Dateien aller Repos gehören dem Lead. Jeder Writer hat
+eigenen Worktree/Branch; unabhängiger Review vor Integration. Laufzeit weiterhin vier
+Plätze einschließlich Lead, nachträglich konfigurierte höhere Limits hier nicht wirksam.
 
-Nächste Pakete: Frontend F3 und separate Datenmutation B2b auf dem
-freigegebenen B2a-Vertrag. S1-Format ist abgenommen; produktive Persistenz S2
-bleibt separat. A2 erweitert Apple um den direkten PostgreSQL-Pfad.
-Offen bleiben insbesondere vollständige Parität, produktiver Tresor/Recovery/Sync,
-Passkey-Entsperren, Teamkonten/Rechte, native sichere Netzwerkadapter und echte Geräte.
-Planung ist kein Funktionsnachweis. Konkrete Aufträge: [Arbeitsplan](ARBEITSPLAN.md),
-Team: [TEAM](TEAM.md), Einrichtung: [EINRICHTUNG](../EINRICHTUNG.md).
+## Grenzen und Fortsetzung
 
-Kombinierter Hauptstand `6009e1d`: [Backend-/Container-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39497034390),
-[Engine-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39497034250),
-[Webpfad-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39497034273),
-[Tabellen-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39497034292) und
-[Dokumentations-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39497034293)
-tatsächlich erfolgreich. Nachfolgende reine Planungscommits ändern keinen Produktcode;
-spätere Produktänderungen separat prüfen.
+Keine vollständige phpMyAdmin-Parität: [Referenzmatrix](PARITAET.md) enthält Ziele,
+keinen pauschalen Implementierungsnachweis. Keine produktive Tresor-/Passkey-/CloudKit-/
+Teamfreigabe, keine nativen MySQL-/MariaDB-Adapter wegen belegtem TLS-Downgrade.
+Keine echten Geräte, Signing-/Sandboxdurchsetzung oder interaktive OS-UI abgenommen.
+SQLite nach ADR0004: SingleReplica, exklusives lokales Volume, eine aktive Verbindung,
+DELETE-Journal; kein WAL/NFS/fremder SQLiteprozess/HA-/Powerlossversprechen.
+Abbruch bedeutet keine garantierte Rücknahme, unbekannter Commit kein automatischer
+Retry; Trigger-/externe Nebenwirkungen, ABA und Exactly-once bleiben begrenzt.
 
-## B1-Abnahmecheckpoint
-
-Produktcode `fc1d68f` plus Fix `4ecd15f` und Handoffcheckpoints wurden nach
-unabhängigen funktionalen und Securityreviews integriert. Alle vier Befunde
-(SQLite-Typsemantik hoch, Metadata-IP-/Loggerpolicy mittel, Catalogfilter niedrig)
-geschlossen. Kein konkretes Passwortleck/Metadata-HTTP-Exfiltration behauptet.
-Go-Race/Vet nach Integration bestanden. Native Linuxamd64 und Container-CIs am Fix:
-[Engine](https://github.com/MagicalWig34653/db-manager/actions/runs/39492062555),
-[Backend/Container](https://github.com/MagicalWig34653/db-manager/actions/runs/39492062646),
-[Dokumentation](https://github.com/MagicalWig34653/db-manager/actions/runs/39492062458),
-alle erfolgreich. Exakte JSON-Grenze berücksichtigt Escaping/Base64/HTTP-Newline.
-Keine umfassende Sandbox-/Powerloss-/HA-/Web-/Vault-/Team-/Paritätsfreigabe.
-
-F2a nach unabhängiger öffentlicher Reproduktion abgenommen und integriert:
-Assetbytes/Manifest/Notices exakt, strikte CSP, MIME/Cache/Traversal/API-Passthrough
-geprüft. Originaler generierter JS-Leerraum unverändert; eigene Quellen diff-sauber.
-Integrierte Go-Race/Vet-, Offline- und Pythonprüfungen bestanden. B2a-Backendticket
-für strukturierte Tabellenmetadaten/-ansicht im Worktree `.worktrees/table-browse`,
-Branch `feat/table-browse` beauftragt, neuer Vertrag erst nach eigener QA freigeben.
-
-## F2b-Abnahmecheckpoint
-
-`f2c92ee`/`c9ced80` nach unabhängigem Review ohne bestätigte Befunde integriert
-als `df0b291`/`c7e1a1d`. QA wiederholte sauberen Archivbuild, Go-Race/Vet,
-Manifest-/sechs Pythonprüfungen, echten Chromium→Go→SQLite/PostgreSQL-TLS-Pfad
-und Compose-Neustart-/isolierte-Swarm-Taskersatzpersistenz. DB-Arbeit vor Abbruch
-und tatsächliche Freigabe danach beobachtet; Typen/Auth/Tokenwechsel/CSP bestätigt.
-Image ohne Node/npm, Original-Lizenzen/Assets/Provenienz geprüft. Integrierte
-Go-Race/Vet-, Manifest-/Python- und Dokumentationsprüfung ebenfalls bestanden.
-Feature-CIs [Webpfad](https://github.com/MagicalWig34653/db-manager/actions/runs/39495523677),
-[Backend/Container](https://github.com/MagicalWig34653/db-manager/actions/runs/39495523685),
-[Engine](https://github.com/MagicalWig34653/db-manager/actions/runs/39495523709),
-[Dokumentation](https://github.com/MagicalWig34653/db-manager/actions/runs/39495523691)
-alle erfolgreich. Keine eigenen Jobs/Ressourcen verblieben, Host-Swarm unverändert.
-Keine Paritäts-/HA-/Vault-/Distributionsfreigabe. [Handoff](handoffs/F2b.md).
-
-## B2b-Abnahmecheckpoint
-
-Einzelzeilen-UPDATE/DELETE nach unabhängiger QA ohne Befunde integriert:
-`946241d`/`e4465ac`, Herkunft `6ad5833`/`a80b934`. Vollständige typisierte
-Erwartungssnapshots, echte Transaktionen/Rowlocks, konservative Eignung und
-unbekannter Commitausgang unabhängig geprüft; zusätzliche Trigger-/No-op-Proben
-bestanden. Alle sechs Feature-CIs erfolgreich, integrierte Go-Race/Vet-/Vertrags-/
-Dokumentationsprüfung ebenfalls. [Nachweise und Grenzen](handoffs/B2b.md).
-API0.3.0 ausdrücklich zur Clientbindung freigegeben, Herkunft
-`946241d7f10f7444e9e5efebbe8b3a38a8120a9b`, Schema-SHA256
-`ec77c9739cda11df3f4cb9fe756a632e67840fdc0f6190deee1aa1d1333dc308`.
-Keine geprüfte Web-Schreiboberfläche, kein Insert/ABA-/Exactly-once-/HA-Versprechen.
-
-## Aktuelle unintegrierte Reviewstände
-
-F3 nach vollständigem P0-Erstreview und unabhängigem P3-Fixreview im Web-main
-integriert (Merge `8ab07fb`, Status `ffdd2a0`). QA-F3-01 geschlossen; Quelle
-`6c6eb33c93eed355a10cd114f61ce27be7f3f55e` für Rootpaket F3b freigegeben.
-Alle Fix-CIs, integrierte Typecheck-/19-Unit-/Dualvertrags-/Buildprüfungen erfolgreich.
-Frontendworker setzt F3b in `.worktrees/table-web-runtime`, Branch
-`feat/table-web-runtime` ab `7f3191a` um: neue reproduzierbare eingebettete Assets,
-Provenienz und engere TCP-/TLS-Testreadiness. Noch nicht im Go-Embed integriert.
-
-A2-Code `89b2683`/`abaa3dc` vollständig unabhängig geprüft; ein mittlerer Befund
-QA-A2-01 blockiert Integration: Foundationformatierung verfälscht historische
-proleptische Datums-/Timestampwerte und BC/AD. P3 korrigiert gezielt. Offizieller unveränderlicher NIOssl-Revisionspin mit konkret belegten
-BoringSSL-Originaltexten ist eine ausdrückliche ADR-/QA-Entscheidung, noch nicht
-abgenommen als begründete Abhängigkeitsentscheidung; Produktintegration weiterhin
-wegen Datumsbefund blockiert. Keine Geräte-/Signing-/interaktive OS-Freigabe.
-
-## Geschlossener Datenintegritätsbefund QA-B2b-01
-
-Nach der ersten B2b-Abnahme zusätzlich gefunden und unabhängig bestätigt: SQLite
-UNIQUE ON CONFLICT REPLACE konnte bei einem strukturierten UPDATE eine zweite Zeile
-löschen, während RowsAffected1 Erfolg meldete. Minimaler Fix `20492c2` unabhängig
-nachgeprüft und nach sechs erfolgreichen Feature-CIs als `ea304ef`/`8d0fe29`
-integriert: SQLite-UPDATE erzwingt OR ABORT. Repro nun Fehler und beide Originalzeilen
-unverändert. Integrierte Go-Race/Vet-, Vertrags-/Dokumentationsprüfung bestanden.
-[Details](handoffs/B2b-konfliktstrategie.md). Schema0.3.0 unverändert; neue
-Schreibclients benötigen einen Backendstand mit diesem Fix. Ältere SQLite-
-Mutationsimplementierungen sind nicht freigegeben.
-
-## Geschlossener PostgreSQL-Mutationsbefund
-
-Rewrite-Regeln konnten strukturierte UPDATE-/DELETE-Aufträge auf fremde Zeilen
-umlenken. Autor und unabhängiger P0-Review reproduzierten den Fall tatsächlich.
-Fix `5ef6a5` mit sechs erfolgreichen Feature-CIs integriert als `cce0b43`/`fa4b9f9`:
-Tabellen mit relhasrules vor Mutation und nach Rowlock konservativ sperren.
-Quelle und Fremdzeilen bleiben in den Regressionen unverändert. Integrierte
-Go-Race/Vet-, Vertrags-/Dokumentationsprüfung bestanden. APIbytes unverändert.
-[Details](handoffs/B2b-rewrite-regeln.md). Beide nachträglichen v3-Befunde sind geschlossen.
-
-## B2c-Abnahmecheckpoint
-
-Einzelnes INSERT nach unabhängigem Review ohne neue Findings integriert als
-`72855cf`/`bb39358`, Herkunft `eccbad3`/`7dae21b`. Alle sieben nativen Feature-CIs
-und integrierte Go-Race/Vet-/Vertrags-/Dokumentationsprüfungen erfolgreich.
-API0.4.0 für Clientbindung freigegeben, Herkunft
-`72855cf57ceb6620dead42856ee6c9d52d0612bd`, Schema-SHA256
-`4763ebf8632a9ef977cf7d3a6037299fc4dafde0a581fe10cb34d844f8356fbf`.
-Dieser gemeinsame Stand enthält beide v3-Schutzfixes und ist der Referenzbackendpin
-für neue Schreibclients. Keine Web-Schreiboberfläche aus der Backendabnahme ableiten.
-[Prüfungen und Grenzen](handoffs/B2c.md).
+Drei öffentliche Repos `db-manager`, `db-manager-web`, `db-manager-apple` unter
+https://github.com/MagicalWig34653, main mit origin-Tracking. Git funktioniert;
+Go1.27.1, Node26.5.0/npm11.17.0, Swift6.4/Xcode27.1 und Docker/Colima verfügbar.
+Nächste konkrete Schritte: neue Haupt-CIs kontrollieren, A2 nach exakter CI integrieren,
+F4 und S2a unabhängig prüfen, B3a zuschneiden. [Arbeitsplan](ARBEITSPLAN.md),
+[Team](TEAM.md), [Einrichtung](../EINRICHTUNG.md).
