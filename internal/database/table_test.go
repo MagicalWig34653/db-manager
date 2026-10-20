@@ -262,3 +262,23 @@ func TestBrowseLookaheadDoesNotConsumeResponseBudget(t *testing.T) {
 		t.Fatalf("lookahead %#v %v", page, err)
 	}
 }
+
+func TestSQLitePrimaryKeyCollationTieBreak(t *testing.T) {
+	e := testEngine(t)
+	c := sqliteConnection()
+	execute(t, e, c, `CREATE TABLE collated(a TEXT COLLATE NOCASE NOT NULL, PRIMARY KEY(a COLLATE BINARY))`)
+	execute(t, e, c, `INSERT INTO collated VALUES('a'),('A')`)
+	for _, direction := range []string{"", "asc", "desc"} {
+		request := core.BrowseRequest{Connection: c, Table: core.TableRef{Name: "collated"}, PageSize: 1}
+		if direction != "" {
+			request.Sort = []core.TableSort{{Column: "a", Direction: direction}}
+		}
+		for offset, want := range []string{"A", "a"} {
+			request.Offset = offset
+			page, err := e.Browse(context.Background(), request)
+			if err != nil || !page.StableOrder || len(page.Result.Rows) != 1 || page.Result.Rows[0][0].Value != want {
+				t.Fatalf("sort=%s offset=%d page=%#v err=%v", direction, offset, page, err)
+			}
+		}
+	}
+}

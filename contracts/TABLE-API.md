@@ -69,7 +69,9 @@ die Pagination beschreibt. Ein exakter Gesamtzähler wird nicht geliefert.
 
 Sortierung enthält ausschließlich vorhandene Metadatenspalten und `asc`/`desc`.
 Nicht bereits gewählte PK-Spalten werden in ihrer Schlüsselreihenfolge aufsteigend
-angehängt. Ohne Sortierung wird der PK verwendet, soweit vorhanden. `stable_order=true`
+angehängt. SQLite hängt stets alle PK-Spalten zusätzlich mit festem `COLLATE BINARY`
+aufsteigend als letzten Tiebreak an, auch wenn sie bereits explizit sortiert wurden.
+Damit erzeugen abweichende Spalten-/PK-Indexkollationen keine unerkannten Gleichstände. Ohne Sortierung wird der PK verwendet, soweit vorhanden. `stable_order=true`
 bedeutet nachgewiesene eindeutige PK-Ordnung mit nicht-nullbaren Schlüsselspalten.
 Ohne PK oder bei nullable SQLite-PK gilt `stable_order=false`, auch wenn eine vom Nutzer
 gewählte Sortierung zufällig eindeutige Werte enthält. SQLite-INTEGER-Rowid-Alias und

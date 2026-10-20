@@ -54,7 +54,7 @@ func TestTableRoutesPreserveV1AndRequireAuthentication(t *testing.T) {
 	if current.Code != 200 || currentBody["contract_version"] != "0.2.0" || currentBody["mutations"] != false {
 		t.Fatalf("v2 capabilities %s", current.Body.String())
 	}
-	for _, sql := range []string{"CREATE TABLE sample(id INTEGER PRIMARY KEY,value TEXT)", "INSERT INTO sample VALUES(1,'kept')"} {
+	for _, sql := range []string{"CREATE TABLE sample(id INTEGER PRIMARY KEY,value TEXT)", "INSERT INTO sample VALUES(1,'kept')", `CREATE TABLE emptyfields("" BLOB,value TEXT)`, `INSERT INTO emptyfields VALUES(X'','')`} {
 		payload, _ := json.Marshal(map[string]any{"connection": map[string]string{"driver": "sqlite", "database": "test"}, "sql": sql})
 		if got := request(http.MethodPost, "/api/v1/query", string(payload), true); got.Code != 200 {
 			t.Fatalf("setup: %s", got.Body.String())
@@ -79,4 +79,37 @@ func TestTableRoutesPreserveV1AndRequireAuthentication(t *testing.T) {
 			t.Fatalf("bad request accepted %s", body)
 		}
 	}
+	prefix := `{"connection":{"driver":"sqlite","database":"test"},"table":{"name":"emptyfields"},`
+	for _, kind := range []string{"text", "binary", "timestamp", "decimal", "integer", "float", "boolean"} {
+		for _, value := range []string{`{"kind":"` + kind + `"}`, `{"kind":"` + kind + `","value":null}`} {
+			body := prefix + `"filters":[{"column":"value","operator":"eq","value":` + value + `}]}`
+			if got := request(http.MethodPost, "/api/v2/tables/browse", body, true); got.Code != 400 {
+				t.Fatalf("missing/null filter value accepted %s: %d", body, got.Code)
+			}
+		}
+	}
+	for _, suffix := range []string{
+		`"filters":[{"column":"value","operator":"eq","value":{"value":""}}]}`,
+		`"filters":[{"operator":"eq","value":{"kind":"binary","value":""}}]}`,
+		`"sort":[{"direction":"asc"}]}`,
+	} {
+		if got := request(http.MethodPost, "/api/v2/tables/browse", prefix+suffix, true); got.Code != 400 {
+			t.Fatalf("missing required field accepted %s: %d", suffix, got.Code)
+		}
+	}
+	for _, filter := range []string{
+		`{"column":"value","operator":"eq","value":{"kind":"text","value":""}}`,
+		`{"column":"","operator":"eq","value":{"kind":"binary","value":""}}`,
+	} {
+		got := request(http.MethodPost, "/api/v2/tables/browse", prefix+`"sort":[{"column":"","direction":"asc"}],"filters":[`+filter+`]}`, true)
+		var body struct {
+			Result struct {
+				Rows [][]any `json:"rows"`
+			} `json:"result"`
+		}
+		if err := json.Unmarshal(got.Body.Bytes(), &body); err != nil || got.Code != 200 || len(body.Result.Rows) != 1 {
+			t.Fatalf("explicit empty value/column rejected: %d %s", got.Code, got.Body.String())
+		}
+	}
+
 }

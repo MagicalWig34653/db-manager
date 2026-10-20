@@ -124,7 +124,11 @@ func browseSQL(request core.BrowseRequest, description core.TableDescription) (s
 		order = append(order, quote(item.Column)+" "+strings.ToUpper(item.Direction))
 	}
 	for _, key := range description.PrimaryKey {
-		if !sorted[key] {
+		if driver == "sqlite" {
+			// Column and PK-index collations may differ. A binary final key also
+			// resolves ties when an explicit user sort already names the PK.
+			order = append(order, quote(key)+" COLLATE BINARY ASC")
+		} else if !sorted[key] {
 			order = append(order, quote(key)+" ASC")
 		}
 	}

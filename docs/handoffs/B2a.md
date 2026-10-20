@@ -105,3 +105,33 @@ folgende Jobs am Produktcommit in der Queue; dies ist noch kein Erfolgsnachweis:
 
 Keine weiteren lokalen Jobs oder eigenen Dockerressourcen. Worker ist für den
 unabhängigen Review idle; Jobausgänge kontrolliert die koordinierende/prüfende Rolle.
+
+## Nacharbeit nach unabhängigem Erstreview
+
+Die ursprünglichen vier CI-Jobs am `62f1297` sind inzwischen tatsächlich erfolgreich.
+Der unabhängige Architecture-/Securityreview fand zwei mittlere Vertragsfehler;
+noch kein 0.2.0-Freeze oder Integrationsnachweis.
+
+- **B2a-01, Pflichtfeldpräsenz:** JSON ohne `FilterValue.value` wurde als Leerstring
+  interpretiert. Auch fehlendes Filter-/Sortier-`column` konnte eine vorhandene leere
+  Spaltenbezeichnung treffen. Die v2-HTTP-Grenze verwendet nun Präsenzpointer für
+  Filterwert-Art/-Wert und Spaltenbezeichner; fehlende Felder werden mit HTTP400
+  abgewiesen. Explizites JSON-NULL bleibt durch die bestehende Tokenprüfung gesperrt.
+  Explizite `value:""` für Text/Blob sowie `column:""` bleiben gültig. Alle übrigen
+  neuen Pflichtfelder wurden geprüft: fehlender Tabellenname, Filteroperator und
+  Sortierrichtung ergeben bereits ungültige Werte und werden abgewiesen.
+- **B2a-02, SQLite-PK-Kollation:** Ein PK mit Indexkollation BINARY bei Spaltenkollation
+  NOCASE wurde fälschlich bereits durch das normale Spalten-ORDER-BY eindeutig geordnet.
+  SQLite hängt jetzt alle PK-Spalten mit festem `COLLATE BINARY ASC` als letzten
+  Tiebreak an, einschließlich schon explizit sortierter PK-Spalten. Der Ansatz wurde
+  mit dem unabhängigen Reviewer abgestimmt; keine API-kontrollierte Kollation eingeführt.
+
+Regressionsprüfungen: fehlender bzw. NULL-Filterwert für sämtliche sieben zulässigen
+Nicht-NULL-Arten; fehlende Kind-/Filterspalten-/Sortierspaltenfelder; echte leere
+Text-/Blobwerte und leerer Spaltenidentifier. SQLite-Test mit NOCASE-Spalte und
+BINARY-PK, Werten `a`/`A`, zwei Einzelseiten bei Default-, asc- und desc-Sortierung.
+`go test -race -count=1 ./...`, `go vet ./...`, Vertragsprüfung und Diffprüfung
+nach diesen Fixes erfolgreich. Kein neues Deployment oder lokale Netzwerkcontainer
+für die eng begrenzten HTTP-/SQLite-Fixes notwendig. Schemahash bleibt unverändert.
+Fixcommit wird gepusht und benötigt eigene native CI sowie unabhängigen engen Nachreview.
+Keine lokalen Prüfjobs oder eigenen Container aktiv; anschließend Worker idle.
