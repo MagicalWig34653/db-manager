@@ -177,3 +177,23 @@ Veröffentlichung mit expliziten Git-/gh-Befehlen, nicht erneutem Bootstrap.
 Abschließende Indexprüfung durch Lead: exakt 70/19/19 Pfade und
 `git diff --cached --check` in allen drei Repos erfolgreich. Nächster Schritt:
 Anfangscommits, öffentliche Remote-Erstellung, Push sowie tatsächlichen CI-Stand prüfen.
+
+
+## Abschluss nach tatsächlicher Veröffentlichung
+
+Am 20.10.2026 Anfangscommits und öffentliche Remote-Erstellung abgeschlossen.
+Unabhängiger lesender Abschlussreview des Dokumentationsdiffs in allen drei Repos:
+keine offenen Befunde. Reviewer bestätigte nochmals öffentlich sichtbare Repos,
+Standardbranch `main`, erfolgreiche Push-CI an den in STATUS dokumentierten
+Anfangscommits, bestandene Dokumentationsprüfung und `git diff --check` in allen Repos.
+
+Lead prüfte zusätzlich mit `git ls-remote origin refs/heads/main` die Übereinstimmung
+der lokalen und entfernten Anfangscommits und führte in frischen temporären öffentlichen
+Checkouts jeweils `python3 scripts/check-docs.py` erfolgreich aus (70/19/19 Dateien,
+0 Fehler); Checkouts entfernt. Reviewer wiederholte diesen Clone-Test nicht.
+
+Abschlussdiff enthält ausschließlich Dokumentation des tatsächlichen P0-Ergebnisses und
+zukünftige begrenzte P1a/P2a/P3a-Pakete. Keine Produktarbeit begonnen. P0 abgenommen;
+PR-CI nur statisch geprüft, keine Produkt-/Geräte-/Treiber-/Tresortests behauptet.
+Keine laufenden Produktjobs oder unintegrierte Workeränderungen. Abschlussdokumentation
+wird separat committet und gepusht; nächste fachliche Aufgabe ist P1a laut Arbeitsplan.

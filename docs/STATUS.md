@@ -32,18 +32,36 @@ Am 20.10.2026 in dieser Sitzung:
 - Vorheriger unabhängiger [Gerüstreview](handoffs/P0-review.md): bestätigte Befunde geschlossen;
   Installations-/Commitablauf und Wiederholung in isolierten Kopien geprüft.
 
-## Noch offen
+## Veröffentlichung und Abnahme P0
 
-Aktueller Checkpoint: noch keine Commits, Remotes, Pushes oder GitHub-CI-Läufe.
-Unabhängiger lesender Review des tatsächlichen Veröffentlichungsstands läuft.
-Anschließend Anfangscommits erstellen, öffentliche Repositories unter
-`MagicalWig34653` anlegen, pushen und Remote-/CI-Ergebnisse hier dokumentieren.
+Unabhängiger Veröffentlichungsreview abgeschlossen: keine offenen bestätigten Befunde,
+Ergebnis im [Handoff](handoffs/P0-review.md). Ausschließlich 70 Hauptdateien und
+je 19 Clientdateien aufgenommen; lokale Zusatzartefakte ausgeschlossen.
+
+Alle drei Repos wurden öffentlich erstellt und `main` nach `origin` gepusht.
+`gh repo view` bestätigt jeweils `PUBLIC` und Standardbranch `main`.
+`git ls-remote origin refs/heads/main` stimmt jeweils mit dem lokalen Anfangscommit überein:
+
+| Repo | Anfangscommit | Erfolgreiche GitHub-Dokumentations-CI |
+| --- | --- | --- |
+| [db-manager](https://github.com/MagicalWig34653/db-manager) | `5bf98b0` | [Lauf 39484043273](https://github.com/MagicalWig34653/db-manager/actions/runs/39484043273) |
+| [db-manager-web](https://github.com/MagicalWig34653/db-manager-web) | `89e7fcf` | [Lauf 39484060992](https://github.com/MagicalWig34653/db-manager-web/actions/runs/39484060992) |
+| [db-manager-apple](https://github.com/MagicalWig34653/db-manager-apple) | `f2344f0` | [Lauf 39484079203](https://github.com/MagicalWig34653/db-manager-apple/actions/runs/39484079203) |
+
+Zusätzlich alle drei öffentlichen Repos mit `git clone --depth=1` in temporäre
+Verzeichnisse geklont und dort `python3 scripts/check-docs.py` ausgeführt:
+70/19/19 Dateien, jeweils 0 Fehler. Temporäre Checkouts entfernt.
+Damit sind tatsächliche Installation, Anfangscommits, Veröffentlichung und Push-CI
+für P0 nachgewiesen. Der Pull-Request-Pfad der CI wurde weiterhin nur statisch geprüft.
+Die Abschlussdokumentation folgt in eigenen Commits; Anfangscommits oben bleiben Referenz.
+
+## Grenzen
 
 Kein freigegebener API-Vertrag, keine App, keine Produktabhängigkeiten oder Builds.
 Keine Treiber-/Gerätetests, tatsächlichen iCloud-/Passkey-Prüfungen oder Migrationen.
 Keine Produktdienste oder Hintergrundjobs gestartet; keine unintegrierte Workerarbeit.
-Der Lead besitzt Status, Arbeitsplan, Einrichtung, Repositoryübersicht, Projektplan und
-installierte Clientstatusdateien; der Reviewer arbeitet ausschließlich lesend.
+Der Lead pflegt zentrale Dokumente und installierte Clientstatusdateien;
+der unabhängige Reviewer arbeitete ausschließlich lesend.
 
 ## Frühere Umgebungsblockade
 
@@ -54,8 +72,8 @@ keinen aktuellen Anmeldefehler. Veröffentlichung ist separat nachzuweisen.
 
 ## Fortsetzung
 
-P0 mit Review, Anfangscommits, Veröffentlichung und tatsächlichen CI-Ergebnissen abschließen.
-Danach P1/P2/P3 als begrenzte Pakete konkretisieren; DB-/OS-Ziele und weitere
+P0 abgeschlossen. Als Nächstes Paket P1a gemäß [Arbeitsplan](ARBEITSPLAN.md):
+phpMyAdmin-Referenz mit Primärquellen und prüfbarer Paritätsmatrix erheben; DB-/OS-Ziele und weitere
 Architekturentscheidungen bleiben bis zu bestätigten Befunden offen.
 
 Grundlagen: [Einrichtung](../EINRICHTUNG.md), [Projektplan](PROJEKTPLAN.md),

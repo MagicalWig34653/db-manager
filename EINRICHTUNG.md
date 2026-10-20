@@ -51,7 +51,9 @@ Status und Arbeitsplan danach mit echten Commit-/Remote-/Prüfergebnissen aktual
 
 Am 20.10.2026 wurde `--apply` im tatsächlichen Workspace erfolgreich ausgeführt:
 drei Git-Repos auf `main`, 38 installierte Clientdateien und drei bestandene lokale
-Dokumentationsprüfungen. GitHub-Anmeldung als `MagicalWig34653` bestätigt.
+Dokumentationsprüfungen. GitHub-Anmeldung als `MagicalWig34653` bestätigt. Alle drei Repos anschließend
+öffentlich erstellt und gepusht; erste Dokumentations-CI-Läufe erfolgreich.
+Dokumentationsprüfung zusätzlich in drei frischen GitHub-Checkouts bestanden.
 Die frühere Schreib-/DNS-Blockade wurde dabei nicht mehr reproduziert.
 Aktueller Commit-, Remote- und CI-Stand: [Status](docs/STATUS.md).
 

@@ -1,6 +1,6 @@
 # Projektplan DB Manager
 
-Stand: 20.10.2026. Plan zur Umsetzung freigegeben; P0-Gerüste lokal installiert, Veröffentlichung in Vorbereitung. Keine Produktimplementierung.
+Stand: 20.10.2026. Plan zur Umsetzung freigegeben; P0 abgeschlossen: drei öffentliche Repos, Dokumentations-CI grün. Keine Produktimplementierung.
 
 ## Grundlage und Verbindlichkeit
 
@@ -196,5 +196,6 @@ Vor Teams: Rollen, Freigaben, Jobberechtigungen und Schlüsselrotation.
 Vor Distribution: App-Verteilungswege, Signierung und CloudKit-Umgebungen.
 iPhone ist weiterhin eine mögliche spätere Erweiterung, kein zugesagtes Erstziel.
 
-Aktueller nächster Schritt: P0 nach unabhängiger Prüfung committen und veröffentlichen; siehe STATUS und EINRICHTUNG. Technische Machbarkeit
+Aktueller nächster Schritt: P1a mit Quellen und prüfbarer Paritätsmatrix gemäß ARBEITSPLAN;
+P0-Nachweise siehe STATUS und EINRICHTUNG. Technische Machbarkeit
 der Produktfunktionen wurde bisher nicht behauptet oder getestet.

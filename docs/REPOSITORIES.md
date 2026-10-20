@@ -8,7 +8,10 @@
 
 GitHub-Owner: `MagicalWig34653`, mit `gh api user` am 20.10.2026 bestätigt.
 Alle drei lokalen Repos sind auf `main` initialisiert; Clientgerüste installiert.
-Noch keine Commits oder Remotes; Veröffentlichung und CI-Prüfung folgen nach Review.
+Alle drei Repos sind öffentlich unter `https://github.com/MagicalWig34653/<name>`
+verfügbar und besitzen `origin` mit Tracking von `main`. Anfangscommits und erfolgreiche
+Push-CI-Läufe sind im [Status](STATUS.md) nachgewiesen. Frische unabhängige Checkouts
+bestehen die Dokumentationsprüfung; noch keine Produktbuilds.
 Alle Repos sollen öffentlich sein. Kein automatisches Überschreiben vorhandener Remote-Repos.
 
 Gemeinsame Verträge im Hauptrepo; Clients pinnen Version/Commit und Prüfsumme.
