@@ -45,3 +45,13 @@ Alle eigenen Container/Volumes entfernt, fremde Ressourcen unverändert; keine l
 Jobs mehr aktiv. Nativer Feature-CI-Ausgang nach Push noch offen. Nächster Schritt:
 unabhängige P0-Prüfung und Lead-Backport; bis dahin keine v3-Schreibfreigabe.
 B2c bleibt eigenständiger noch nicht freigegebener Kandidat und übernimmt diese Grenze.
+
+## Commit-/Jobcheckpoint
+
+Produktcommit `5ef6a573afd82fa358ee34a292208f3fe3c80cfc` ist auf
+`origin/fix/postgres-mutation-rules` gepusht. Nativer Featurestand zum Checkpoint:
+Mutation39502111486, Engine39502111146, Table39502111299, Web39502111262,
+Backend39502111409 in Arbeit; Docs39502111295 erfolgreich (GitHubActions-Run-IDs
+im Hauptrepo). Reiner lokaler Dokumentationscheckpoint, kein erneuter Push des
+unveränderten Produktcodes. Worktree danach sauber, keine eigenen lokalen Jobs
+oder Dockerressourcen. Unabhängiger Nachreview/Leadintegration bleiben offen.
