@@ -4,6 +4,7 @@ package driverspike
 import (
 	"context"
 	"database/sql"
+	"errors"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	_ "modernc.org/sqlite"
@@ -51,12 +52,41 @@ func TestDrivers(t *testing.T) {
 				defer stop()
 				start := time.Now()
 				_, err = db.ExecContext(deadline, tc.sleep)
-				if err == nil || time.Since(start) > 2*time.Second {
+				if !isDeadlineCancellation(deadline.Err(), err, time.Since(start)) {
 					t.Fatalf("cancellation failed: %v", err)
 				}
 				if err := db.PingContext(ctx); err != nil {
 					t.Fatalf("pool unavailable after cancellation: %v", err)
 				}
+			}
+		})
+	}
+}
+
+// isDeadlineCancellation checks the context state captured as the query returns.
+func isDeadlineCancellation(contextErr, queryErr error, elapsed time.Duration) bool {
+	return errors.Is(contextErr, context.DeadlineExceeded) &&
+		errors.Is(queryErr, context.DeadlineExceeded) && elapsed <= 2*time.Second
+}
+
+func TestDeadlineCancellationClassification(t *testing.T) {
+	for _, tc := range []struct {
+		name                 string
+		contextErr, queryErr error
+		elapsed              time.Duration
+		want                 bool
+	}{
+		{"expired deadline", context.DeadlineExceeded, context.DeadlineExceeded, 100 * time.Millisecond, true},
+		{"syntax error before deadline", nil, errors.New("syntax error"), time.Millisecond, false},
+		{"permission error before deadline", nil, errors.New("permission denied"), time.Millisecond, false},
+		{"unrelated error after deadline", context.DeadlineExceeded, errors.New("syntax error"), 100 * time.Millisecond, false},
+		{"deadline error without expired context", nil, context.DeadlineExceeded, time.Millisecond, false},
+		{"late cancellation", context.DeadlineExceeded, context.DeadlineExceeded, 3 * time.Second, false},
+		{"successful query after deadline", context.DeadlineExceeded, nil, 100 * time.Millisecond, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := isDeadlineCancellation(tc.contextErr, tc.queryErr, tc.elapsed); got != tc.want {
+				t.Fatalf("classification = %v, want %v", got, tc.want)
 			}
 		})
 	}

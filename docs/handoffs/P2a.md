@@ -125,3 +125,23 @@ Lead entscheidet DB-/OS-Ziele und Adapter-ADR nach unabhängigem Review. Danach 
 Engine-Vertrag umsetzen und Go-Adapter zunächst an synthetischen Wegwerfdaten prüfen.
 Apple zuerst SQLite; PostgreSQL nach TLS-Test; MySQL/MariaDB benötigen Fehlerbehebung.
 Abschließender Stand: vier eigene Container samt anonymen Volumes entfernt, temporäre Crossbuild-Dateien gelöscht. Keine laufenden eigenen Jobs. Standard-Swift-Buildcache bleibt lokal ignoriert. Dokumentationsprüfung bestanden. Eigene Änderungen sind bis Lead-Integration unintegriert.
+
+## Nacharbeit QA-P2-01
+
+Der unabhängige Review beanstandete zu Recht, dass eine beliebige schnelle Fehlermeldung
+als Abbrucherfolg galt. Die Go-Probe verlangt nun zugleich einen beim Query-Rücklauf
+abgelaufenen Deadline-Context, `errors.Is(queryErr, context.DeadlineExceeded)` und eine
+Rückkehr innerhalb von zwei Sekunden. Es wurde kein zusätzliches Treiberäquivalent
+benötigt: MySQL 8.4.11, MariaDB 12.3.3 und PostgreSQL 18.6 erfüllen diese Fehlerklasse.
+Sieben gezielte Klassifikationsfälle prüfen insbesondere, dass Syntax-/Rechtefehler,
+ein unpassender Fehler nach Deadline, fehlender Deadlinezustand und verspätete Rückkehr
+nicht als Abbruch bestehen.
+
+Prüfungen am 20.10.2026: aktuelle Docker-Ressourcen zuerst gelesen; ausschließlich die
+bekannten drei eigenen Netzwerk-Fixtures erneut erzeugt. `go test -v ./...` mit allen
+vier DSNs bestand einschließlich der verschärften echten Deadlineprüfungen und sieben
+Klassifikationsfälle; `go vet ./...` bestand. `python3 scripts/check-docs.py` und
+`git diff --check` bestanden. Danach die drei eigenen Container samt anonymen Volumes
+entfernt; fremde Ressourcen unverändert. Keine laufenden eigenen Jobs.
+Nur `spikes/drivers/go/main_test.go` und diese Übergabe geändert. Erneuter unabhängiger
+QA-Review des Folgecommits bleibt vor Integration erforderlich.
