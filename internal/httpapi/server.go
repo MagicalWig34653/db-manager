@@ -40,6 +40,7 @@ func New(engine core.Engine, token string) *API {
 	mux.Handle("POST /api/v1/connections/test", a.auth(http.HandlerFunc(a.test)))
 	mux.Handle("POST /api/v1/catalog", a.auth(http.HandlerFunc(a.catalog)))
 	mux.Handle("POST /api/v1/query", a.auth(http.HandlerFunc(a.query)))
+	a.registerTables(mux)
 	a.handler = mux
 	return a
 }
