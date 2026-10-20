@@ -100,3 +100,32 @@ Runtime-Schritt und die weiteren regulären Workflows waren beim Zwischenstand n
 aktiv. Der finale Test-/Dokucommit startet erneut die regulären Branchprüfungen;
 deren IDs werden im abschließenden reinen Handoffcheckpoint ergänzt. Keine eigene
 Abnahme, unabhängige QA und Integration durch den Lead erforderlich.
+
+## Öffentlicher Abschlusscheckpoint
+
+Endgültiger Test-/Dokukandidat `7500ed2b5764894afe2bdee50e16da2c1f61892d`, Produkt-/Asset-
+Implementierung `639ba447edeeb92486013e78360de2f47f333531`; Webquelle bleibt ausschließlich
+`6c6eb33c93eed355a10cd114f61ce27be7f3f55e`. Keine neue UI-/API-Funktion.
+Alle sechs öffentlichen Workflows des ersten Kandidaten sind inzwischen erfolgreich:
+[Web39502414582](https://github.com/MagicalWig34653/db-manager/actions/runs/39502414582),
+[Backend39502414522](https://github.com/MagicalWig34653/db-manager/actions/runs/39502414522),
+[Engine39502414571](https://github.com/MagicalWig34653/db-manager/actions/runs/39502414571),
+[Tabellen39502414542](https://github.com/MagicalWig34653/db-manager/actions/runs/39502414542),
+[Einzelzeilen39502414532](https://github.com/MagicalWig34653/db-manager/actions/runs/39502414532),
+[Doku39502414538](https://github.com/MagicalWig34653/db-manager/actions/runs/39502414538).
+Der Webworkflow belegt damit sowohl Linux-Neubau mit bytegleichen freigegebenen
+Originalassets als auch die fünf echten Root-Embed-Browserfälle.
+
+Für den abschließenden zusätzlichen Dialog-CSP-Collector und die Prüfdokumentation
+läuft erneut die öffentliche CI; bei Übergabe noch queued/aktiv, Beobachtung durch Lead:
+[Web39502849674](https://github.com/MagicalWig34653/db-manager/actions/runs/39502849674),
+[Backend39502849685](https://github.com/MagicalWig34653/db-manager/actions/runs/39502849685),
+[Engine39502849585](https://github.com/MagicalWig34653/db-manager/actions/runs/39502849585),
+[Tabellen39502849640](https://github.com/MagicalWig34653/db-manager/actions/runs/39502849640),
+[Einzelzeilen39502849624](https://github.com/MagicalWig34653/db-manager/actions/runs/39502849624),
+[Doku39502849655](https://github.com/MagicalWig34653/db-manager/actions/runs/39502849655).
+
+Dieser reine Handoffcheckpoint vermeidet mit `[skip ci]` eine dritte identische Serie.
+Doku-/Diffprüfung bestanden; Arbeitsbaum sauber, keine eigenen lokalen Jobs/Ressourcen,
+Host-Swarm weiterhin `inactive`, fremde Dienste unverändert. Worker gibt den Slot frei.
+Unabhängiger Reviewer wird durch den Lead zugewiesen; keine Selbstfreigabe/Integration.
