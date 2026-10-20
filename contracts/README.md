@@ -28,6 +28,16 @@ Eigene v3-Fähigkeiten/Eignung und bestätigtes UPDATE/DELETE mit typisiertem
 Erwartungssnapshot. Kein Insert, Massenänderung oder Exactly-once-Versprechen;
 v1/v2 bleiben unverändert. Clientintegration benötigt ein eigenes geprüftes Paket.
 
+Additives einzelnes INSERT `0.4.0`: [OpenAPI](api-v0.4.0.json),
+[Verhaltensvertrag](ROW-INSERT-API.md), unabhängig freigegeben am 20.10.2026.
+Herkunft `72855cf57ceb6620dead42856ee6c9d52d0612bd`, SHA-256
+`4763ebf8632a9ef977cf7d3a6037299fc4dafde0a581fe10cb34d844f8356fbf`.
+Explizite Bestätigung, begrenzte sichere Identitätspfade, tatsächliche Nachherzeile
+und ehrlicher unbekannter Commitausgang; kein Upsert/Replace/Ignore/Batch.
+Dieser Backendstand enthält beide nachträglichen v3-Schutzkorrekturen für
+SQLite-Konfliktstrategien und PostgreSQL-Rewrite-Regeln. Neue Schreibclients pinnen
+diesen geprüften gemeinsamen Implementierungsstand oder eine nachgeprüfte Nachfolge.
+
 Persönliches Tresorformat `1`: [Schema](vault-v1.schema.json),
 [Byte-/Verhaltensvertrag](../docs/security/VAULT-FORMAT-V1.md),
 [synthetische Fixtures](fixtures/vault-v1/README.md). Herkunft `1a4eb3c`/`03bd3f4`,

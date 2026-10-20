@@ -61,7 +61,7 @@ zentraler Webstatuscommit `ec8dcea`. Reale B1-Integration über F2b abgenommen.
 
 F2b und B2a sind abgenommen und integriert; API0.2.0 ist für Clients freigegeben.
 Frontend implementiert F3, Apple-Engineer A2. B2b ist unabhängig abgenommen;
-Backend implementiert B2c als separate begrenzte Insert-Erweiterung.
+B2c ist unabhängig abgenommen und integriert; Backendpeer prüft F3b.
 Die laufende Sitzung bietet weiterhin vier Plätze einschließlich
 Lead. Nachträglich lokal konfigurierte höhere Limits sind hier nicht wirksam geworden.
 
@@ -69,7 +69,6 @@ Lead. Nachträglich lokal konfigurierte höhere Limits sind hier nicht wirksam g
 | --- | --- | --- |
 | A2 / Apple Engineer | Applerepo, `feat/apple-postgres`, `.worktrees/apple-postgres`, Basis `ce0aedb` | Direkter PostgreSQL-Pfad ohne Go, verpflichtend verifiziertes TLS, flüchtige Credentials, Katalog/einzelne SQL-Anweisung und begrenzte getaggte Ergebnisse. Besitz Apple-Produktmodule/SwiftUI, Package/Lock/Xcode, eigene Prüfungen/CI/Lizenzen/ADR/Einrichtung/Handoff; zentrale Status-/Planungsdateien ausgenommen. SQLitebetrieb erhalten; keine native MySQL-Freigabe. |
 | F3 / Frontend & UX | Webrepo, `feat/table-workbench`, `.worktrees/table-workbench`, Basis `ec8dcea` | Sichtbare Quellcode-/Lizenzverweise und strukturierte Tabellenmetadaten/-ansicht mit gepinntem API0.2-Vertrag, Sortierung, AND-Filtern und Pagination; echte SQLite-/PostgreSQL-TLS-Browserproben. Besitz Webprodukt/Build/Vertragskopien/Tests/Lizenzen/README/Einrichtung/Handoff; keine zentralen Status-/Planungsdateien. Kein Mutation-/Persistenzumfang. |
-| B2c / Backend & Platform | `feat/row-insert`, `.worktrees/row-insert`, Basis `31dd06f` | Einzelnes strukturiertes INSERT mit bestätigter Schreibabsicht, echter Transaktion und belegter Nachheridentität. Separater0.4-Kandidat; v1-v3 unverändert. Neue DB/Core/HTTP-Insertdateien, enge Helper/Routingregistrierung, Vertrag/eigene Doku/Prüfungen/CI/Handoff; keine Root-/Frontend-/Vaultänderungen. Kein Upsert/Replace/Ignore/Batch. |
 
 S1 nach unabhängiger QA ohne bestätigte Befunde als Formatgrundlage integriert:
 `7969f63`/`bc5dd4c`, Herkunft `1a4eb3c`/`03bd3f4`. Vier Go-/vier Swift-Tests,
@@ -195,14 +194,24 @@ unverändert. Integrierte Go-Race/Vet-, Vertrags-/Dokumentationsprüfung bestand
 Schreibclients benötigen einen Backendstand mit diesem Fix. Ältere SQLite-
 Mutationsimplementierungen sind nicht freigegeben.
 
-## Offener begrenzter PostgreSQL-Mutationsbefund
+## Geschlossener PostgreSQL-Mutationsbefund
 
-Autor hat am älteren integrierten v3-Pfad tatsächlich reproduziert: PostgreSQL-
-INSTEAD-Rewrite-Regeln können UPDATE/DELETE auf eine andere Tabelle umlenken;
-der adressierte Datensatz bleibt dabei unverändert. Separater Fixkandidat
-`5ef6a573afd82fa358ee34a292208f3fe3c80cfc` auf `fix/postgres-mutation-rules`,
-Worktree `.worktrees/postgres-mutation-rules`, sperrt solche Tabellen über
-`relhasrules` vor Mutation und nach Rowlock. Eigene Regressionen und echte
-TLS-Mutationssuite beim Autor grün; unabhängige Repro/Nachprüfung und native CI
-noch offen. Noch kein Backport, keine Web-Schreibfreigabe aus dem alten v3-Stand.
-B2c bleibt separat und darf diesen belegten Backport nicht verdecken.
+Rewrite-Regeln konnten strukturierte UPDATE-/DELETE-Aufträge auf fremde Zeilen
+umlenken. Autor und unabhängiger P0-Review reproduzierten den Fall tatsächlich.
+Fix `5ef6a5` mit sechs erfolgreichen Feature-CIs integriert als `cce0b43`/`fa4b9f9`:
+Tabellen mit relhasrules vor Mutation und nach Rowlock konservativ sperren.
+Quelle und Fremdzeilen bleiben in den Regressionen unverändert. Integrierte
+Go-Race/Vet-, Vertrags-/Dokumentationsprüfung bestanden. APIbytes unverändert.
+[Details](handoffs/B2b-rewrite-regeln.md). Beide nachträglichen v3-Befunde sind geschlossen.
+
+## B2c-Abnahmecheckpoint
+
+Einzelnes INSERT nach unabhängigem Review ohne neue Findings integriert als
+`72855cf`/`bb39358`, Herkunft `eccbad3`/`7dae21b`. Alle sieben nativen Feature-CIs
+und integrierte Go-Race/Vet-/Vertrags-/Dokumentationsprüfungen erfolgreich.
+API0.4.0 für Clientbindung freigegeben, Herkunft
+`72855cf57ceb6620dead42856ee6c9d52d0612bd`, Schema-SHA256
+`4763ebf8632a9ef977cf7d3a6037299fc4dafde0a581fe10cb34d844f8356fbf`.
+Dieser gemeinsame Stand enthält beide v3-Schutzfixes und ist der Referenzbackendpin
+für neue Schreibclients. Keine Web-Schreiboberfläche aus der Backendabnahme ableiten.
+[Prüfungen und Grenzen](handoffs/B2c.md).

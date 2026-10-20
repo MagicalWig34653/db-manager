@@ -115,3 +115,25 @@ Zum Checkpoint läuft die native CI noch; kein Erfolg daraus vorweggenommen:
 - [Dokumentation](https://github.com/MagicalWig34653/db-manager/actions/runs/39502283453) bereits erfolgreich.
 
 Keine Produkt-/Vertragsfreigabe vor unabhängigem Review, CI-Gates und Leadentscheidung.
+
+## Unabhängige Abnahme und API0.4-Freeze
+
+P0 hat `eccbad3`/`7dae21b` ohne neue Findings zur Produktintegration und getrennt
+zur API0.4.0-Clientbindung freigegeben. Eigenes sauberes Archiv: vollständige
+Go-Race-Suite, Vet, drei Vertragsprüfungen und Dokumentation249/0 bestanden.
+Echte SQLite-/MySQL-/MariaDB-/PostgreSQL-Insertproben belegen UInt64-Autoidentität,
+Trigger-Endzustand und Identitätsrollback, Konflikt-/REPLACE-Abwehr, Default/NULL,
+Konkurrenz, JSON-Expansion vor Commit, Lockfreigabe und unbekannte Commitausgänge.
+Alte v1-v3 und beide v3-Backportguards bleiben erhalten.
+
+Alle sieben CIs am exakten Quellcommit erfolgreich:
+[Insert](https://github.com/MagicalWig34653/db-manager/actions/runs/39502283586),
+[Mutation](https://github.com/MagicalWig34653/db-manager/actions/runs/39502283492),
+[Tabellen](https://github.com/MagicalWig34653/db-manager/actions/runs/39502283563),
+[Engine](https://github.com/MagicalWig34653/db-manager/actions/runs/39502283479),
+[Backend](https://github.com/MagicalWig34653/db-manager/actions/runs/39502283430),
+[Web](https://github.com/MagicalWig34653/db-manager/actions/runs/39502283498),
+[Dokumentation](https://github.com/MagicalWig34653/db-manager/actions/runs/39502283453).
+Lead integrierte `72855cf`/`bb39358`; integrierte Go-Race/Vet-, Vertrags- und
+Dokumentationsprüfung bestanden. Schema unverändert. Keine Ressourcen oder Jobs
+zurückgelassen. Keine umfassende Trigger-/Exactly-once-/Rollback-/HA-Garantie.

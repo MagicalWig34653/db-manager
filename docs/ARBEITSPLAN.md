@@ -26,7 +26,6 @@ Maximal drei aktive Worker, QA wird nach fertig gemeldeten Paketen eingeplant.
 | --- | --- | --- |
 | A2 – Apple Engineer (`p3a_security`) | Applerepo, `feat/apple-postgres`, `.worktrees/apple-postgres`, Basis `ce0aedb` | Direkte PostgreSQL-Verbindung ohne Go, TLS verpflichtend mit vollständiger Zertifikat-/Hostprüfung, flüchtige Credentials, Katalog/SQL und getaggte begrenzte Resultate. Besitz Produktmodule/SwiftUI, Package/Lock/Xcode/Entitlements, eigene Prüfungen/CI, Lizenzen/Originaltexte, README/Einrichtung/ADR/Handoff; keine zentralen Status-/Planungsdateien. SQLite erhalten. Echte TLS-Positiv-/Negativfälle, präzise Werte, tatsächlich beobachteter Abbruch und saubere Sessionwechsel; Mac-/iPad-Zielbuild, Gerätegrenzen offen. Kein MySQL/SSH/Vault/CloudKit/Teamumfang. |
 | F3b – Frontend & UX (`p1a_parity`) | Hauptrepo, `feat/table-web-runtime`, `.worktrees/table-web-runtime`, Basis `7f3191a` | Freigegebene Quelle `6c6eb33` reproduzierbar einbetten; Besitz Rootassets/Manifest/Lock, enge Build-/Wrapper-/Dockerprovenienz, Runtimebrowser-/TCP-TLS-Readinessprüfungen/CI, Einrichtung/Betrieb/Webbuild/Lizenzen/Handoff. Kein DB/Core/HTTP/GoMod-/API-/Webquellschreiben. Originalbytes/CSP, echter SQLite-/PostgreSQL-Browserpfad und Compose-/isolierte-Swarm-Persistenz sowie sauberer Go-/Imagecheckout ohne Node/npm/Siblings prüfen. |
-| B2c – Backend & Platform (`p2a_drivers`) | Hauptrepo, `feat/row-insert`, `.worktrees/row-insert`, Basis `31dd06f` | Einzelnes INSERT mit expliziter Bestätigung, Default versus NULL, validierten Metadaten/gebundenen Werten, echter Transaktion und verlustarm belegter Identität/Nachherzeile nach Triggern. Eigene neue DB/Core/HTTP-Dateien plus enge Helper/Routingregistrierung, separater0.4-Kandidat, Doku/Prüfungen/CI/Handoff. Kein main/Docker/GoMod/Web/Vault/zentraler Vertragsindex. Kein Upsert/Replace/Ignore/Batch; v1-v3 unverändert. Echte SQLite/3TLSDB-Constraint-/Konkurrenz-/Trigger-/Timeout-/Commitfehlerproben und unabhängiger Freeze vor Clients. |
 
 Alle Tickets: technische Bezeichner/Code/Kommentare/Tests Englisch, Dokumentation/UI
 Deutsch. Keine echten Zugangsdaten, keine privaten Pfade oder produktiven SQL-Daten.
@@ -157,3 +156,12 @@ Worktree `.worktrees/postgres-mutation-rules`; belegte UPDATE-/DELETE-Umleitung
 muss vor Web-Schreiboberfläche konservativ gesperrt werden. P0 prüft nach freiem
 Slot unabhängig, danach separater Backport. B2c-Autor schließt eigenes Insertpaket
 ab und gibt den Slot frei; kein neuer Randfall oder Client vor Review/Freeze.
+
+B2c ist als `72855cf`/`bb39358` nach P0-QA ohne neue Findings integriert, sieben
+Feature-CIs erfolgreich. API0.4.0 ausdrücklich freigegeben, Herkunft
+`72855cf57ceb6620dead42856ee6c9d52d0612bd`, Schema-SHA256
+`4763ebf8632a9ef977cf7d3a6037299fc4dafde0a581fe10cb34d844f8356fbf`.
+PG-Rules-Backport unabhängig angenommen und als `cce0b43`/`fa4b9f9` integriert;
+beide v3-Schutzfixes geschlossen und im gemeinsamen Backendpin enthalten.
+P2 prüft F3b unabhängig; nächstes Frontendpaket F4 nutzt separat freigegebene
+v3-/v4-Verträge und ausschließlich diesen korrigierten Backendstand.

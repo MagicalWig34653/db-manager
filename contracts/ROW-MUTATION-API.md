@@ -5,7 +5,10 @@ Herkunft `946241d7f10f7444e9e5efebbe8b3a38a8120a9b`, Schema-SHA256
 `ec77c9739cda11df3f4cb9fe756a632e67840fdc0f6190deee1aa1d1333dc308`.
 SQLite-Mutationen benötigen mindestens den unabhängig geprüften Konfliktfix
 `ea304ef0cfe229f6ea7f4a09c4d64ab0b3e8f73b`; frühere Implementierungen können
-tabelleneigenes REPLACE beim UPDATE übernehmen. Schema und APIbytes unverändert. [OpenAPI](api-v0.3.0.json), [Übergabe](../docs/handoffs/B2b.md).
+tabelleneigenes REPLACE beim UPDATE übernehmen. Schema und APIbytes unverändert.
+PostgreSQL-Mutationen benötigen außerdem den Rewrite-Regel-Fix
+`cce0b4301ddda90b6c4985e37f3d86ed7d4e0ec8`. Gemeinsamer Referenzstand für neue
+Schreibclients: `72855cf57ceb6620dead42856ee6c9d52d0612bd` mit beiden Korrekturen. [OpenAPI](api-v0.3.0.json), [Übergabe](../docs/handoffs/B2b.md).
 Die Dateien, Routen und Capabilities von API0.1.0 und0.2.0 bleiben unverändert.
 Insbesondere bleibt `read_only=true` im v2-Describe die dort angebotene
 Produktfähigkeit; neue v3-Fähigkeiten sind getrennt davon zu bewerten.

@@ -55,3 +55,15 @@ Backend39502111409 in Arbeit; Docs39502111295 erfolgreich (GitHubActions-Run-IDs
 im Hauptrepo). Reiner lokaler Dokumentationscheckpoint, kein erneuter Push des
 unveränderten Produktcodes. Worktree danach sauber, keine eigenen lokalen Jobs
 oder Dockerressourcen. Unabhängiger Nachreview/Leadintegration bleiben offen.
+
+## Unabhängige Abnahme und Backport
+
+P0 reproduzierte vor Fix in einem eigenen sauberen Archiv mit echter TLS-PG-
+Verbindung beide Fremdzeilenwirkungen trotz positivem Commit. Gegen `5ef6a5`
+werden UPDATE/DELETE mit `mutation_not_supported` abgewiesen; Eligibility meldet
+`unsupported_table`, Quelle und Fremdzeile bleiben unverändert. Enger Diffreview
+bestätigt nur relhasrules-Prüfung vor Mutation und erneut nach Rowlock, keine
+API-/Dependencyänderung. Alle sechs Feature-CIs am Fix erfolgreich.
+Lead integrierte `cce0b43`/`fa4b9f9` nach dem SQLite-Schutzfix; integrierte
+Go-Race/Vet-, Vertrags- und Dokumentationsprüfung bestanden. Keine eigenen Jobs
+oder Ressourcen offen. Neue Schreibclients benötigen beide Schutzkorrekturen.

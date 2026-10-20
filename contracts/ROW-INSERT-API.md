@@ -1,6 +1,8 @@
-# Einzelnes strukturiertes Einfügen – Vertragskandidat0.4.0
+# Einzelnes strukturiertes Einfügen – freigegebener Vertrag0.4.0
 
-Status: noch kein unabhängiger Freeze oder Clientvertrag. [OpenAPI](api-v0.4.0.json),
+Status: **nach unabhängigem Integritätsreview und sieben erfolgreichen nativen CIs für Clientbindung freigegeben**.
+Herkunft `72855cf57ceb6620dead42856ee6c9d52d0612bd`, Schema-SHA256
+`4763ebf8632a9ef977cf7d3a6037299fc4dafde0a581fe10cb34d844f8356fbf`. [OpenAPI](api-v0.4.0.json),
 [Handoff](../docs/handoffs/B2c.md). Die eingefrorenen API0.1–0.3-Dateien, Routen und
 Capabilityantworten bleiben unverändert. Alle neuen Routen benötigen die bestehende
 Bearerauthentifizierung; Credentials bleiben flüchtig pro Request.
