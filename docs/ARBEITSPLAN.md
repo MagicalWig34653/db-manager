@@ -70,15 +70,25 @@ vollständigen Nachweis sowie Aufräumen ausschließlich taskeigener Ressourcen.
 
 ## Aktuelle Umsetzungstickets
 
-- P2b: Backend & Platform, neuer eigener Worktree/Branch für
+- P2b: durch QA als Untersuchung geprüft und als `7d2ed07` integriert; Dateien:
   `spikes/sqlite-sandbox/`, `docs/handoffs/P2b.md` und ADR-0004-Vorschlag.
-  Öffentlichen Authorizer und tatsächliche Dateizugriffs-Negativtests nachweisen;
-  kein SQLite-Sandboxversprechen ohne Beleg. Danach B1-Engineimplementierung.
-- P4a: Architecture & Security, API0.1.0-Kandidat technisch eingefroren für QA,
-  noch nicht freigegeben. Compose und isolierter Swarm nach Workerbericht grün.
+  Eingeschränkte Wiederverwendung gemäß ADR0004 akzeptiert; keine umfassende Sandbox-/Durabilitätsfreigabe.
+- P4a: abgenommen und integriert als `bb37904`/`80f203b`; API0.1.0 freigegeben.
+  Compose und isolierter Swarm durch Worker und QA tatsächlich grün.
 - F1: Frontend & UX im Webrepo-Worktree `.worktrees/web-workbench`,
-  Branch `feat/web-workbench`. Zunächst Framework/Bedienoberfläche/Tests;
-  API-Bindung erst nach unabhängig geprüftem Vertragsfreeze. Keine Credentialpersistenz.
+  Branch `feat/web-workbench`. API0.1.0 ist inzwischen freigegeben und die exakte Bindung erlaubt. Keine Credentialpersistenz.
 - A1: anschließend Architecture-/Apple-Engineer im Apple-Worktree
   `.worktrees/apple-workbench`, Branch `feat/apple-workbench`: eigenständiger
   lokaler SQLite-/SwiftUI-Arbeitsplatz; Netzwerkadapter erst nach Sicherheitsnachweis.
+
+## B1 und aktuelle Integrationsreihenfolge
+
+Backend & Platform implementiert B1 im Worktree `.worktrees/backend-engine`,
+Branch `feat/backend-engine`, Ausgangspunkt `7d2ed07`. Besitz: `internal/database/`,
+`internal/sqlitesandbox/`, Go-Moduldateien, begrenzte main-/Dockerverdrahtung, eigene
+Engineprüfskripte/CI, Lizenzinventar, Betrieb und Handoff B1. Kein HTTP-/Core-/Schema-
+oder Webcode ohne vorherige Abstimmung. ADR0004-Grenzen und eigene B1-Nachweise
+verpflichtend. Frontend F1 und Apple A1 laufen parallel in ihren Clientworktrees.
+QA prüft jeweils nach fertig gemeldeten Commits; bei Slotknappheit Implementierer idle.
+Die Backend-/Container-CI am Hauptstand `9f1880f` ist tatsächlich erfolgreich:
+[GitHub-Lauf](https://github.com/MagicalWig34653/db-manager/actions/runs/39487622613).

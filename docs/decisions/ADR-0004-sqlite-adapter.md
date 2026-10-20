@@ -1,7 +1,9 @@
 # ADR-0004: Eingeschränkter SQLite-Adapter mit autorisiertem Dateizugriff
 
-Status: **Vorschlag aus P2b**, nicht akzeptiert und keine Produktfreigabe.
-Datum: 20.10.2026. Unabhängiger Architektur-/QA-Review vor Entscheidung erforderlich.
+Status: **akzeptiert für die eingeschränkte B1-Implementierung**, keine Produktfreigabe.
+Datum: 20.10.2026. Lead-Entscheidung nach unabhängigem QA-Review von P2b und
+Zustimmung des Architecture-/Security-Verantwortlichen. Die nachfolgenden Grenzen
+sind verpflichtend; eine Produktfreigabe setzt die gesonderten B1-Nachweise voraus.
 
 ## Kontext und Befunde
 
@@ -17,7 +19,7 @@ Recovery nach real getötetem Schreibprozess. Quellen, Code, genaue Befehle und
 Grenzen stehen in [P2b](../handoffs/P2b.md) und [Spike](../../spikes/sqlite-sandbox/README.md).
 Linux amd64 ist nur kompiliert; lokale Emulation schlug vor Testausgabe fehl.
 
-## Vorgeschlagene Entscheidung
+## Entscheidung
 
 Für den ersten Go-SQLite-Adapter ncruces mit dauerhaft installiertem `SetAuthorizer`
 und einem über `os.Root` verankerten eigenen VFS weiterverwenden. Öffnen ausschließlich
@@ -64,3 +66,12 @@ Kein Schutz gegen privilegierte Hostangreifer und keine Zusage zur Stromausfalls
 zwischen allen Sync-Schritten sind nicht geprüft. Abhängigkeiten MIT/MIT-0/BSD-3-Clause
 und ursprünglicher SQLite-Public-Domain-Anteil sind inventarisiert; endgültige
 Distributionsprüfung bleibt erforderlich. Eigener Code bleibt AGPL-3.0-only.
+
+## Zusätzliche Abnahmegates aus dem Review
+
+- Linux amd64 muss tatsächlich nativ laufen; ein erfolgreicher Crossbuild genügt nicht.
+- Busy/Abbruch darf nicht in unendlichem Lockwarten enden.
+- Journalneuanlage und erforderliche Directory-Syncs im Produktadapter geordnet
+  implementieren und prüfen; der Untersuchungsspike allein belegt keine Stromausfalldurabilität.
+- Reale JSON-Gesamtantwortgröße, Zellgrenze, Root-/Connection-Lifecycle, öffentliche
+  Fehler, Containerbenutzer und Persistenz sind eigene B1-Abnahmekriterien.

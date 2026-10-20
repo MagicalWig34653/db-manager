@@ -79,3 +79,16 @@ an Colimas nicht identischem `/tmp`; der erfolgreiche Lauf verwendet `docker cp`
 Keine produktiven Daten oder Migrationen; alle Fixturedateien automatisch entfernt.
 Eigene temporäre Crossbuild-Binärdateien werden vor Übergabe gelöscht. Keine laufenden
 eigenen Prozesse oder Container. Eigenarbeit bleibt bis Lead-Integration unintegriert.
+
+## Unabhängige Abnahme und Architekturentscheidung
+
+QA & Release prüfte `8fd8909` unabhängig ohne offene bestätigte Findings:
+Mac-Racesuite inklusive echtem Prozessabbruch/Hotjournal-Recovery, Linuxarm64-Suite
+im netzlosen eigenen Container, Vet, Modverify, Format-/Diff-/Dokprüfung bestanden.
+Original-Lizenztexte mit fixierten Quellen bytegleich bestätigt. Eigene Ressourcen
+entfernt, fremde unverändert. Integriert als `7d2ed07`.
+Architecture & Security und Lead akzeptieren ADR0004 ausschließlich für eingeschränkte
+B1-Implementierung; SingleReplica/exklusivesVolume/eineConn/DELETEJournal ohne WAL
+oder fremde SQLite-Prozesse sind verpflichtend. Nativeamd64, tatsächliche JSONlimits,
+Lifecycle, Containerpersistenz und geordnete Journal-/DirectorySyncs bleiben B1-Gates.
+Keine umfassende Sandbox-, Stromausfall-, DoS- oder Produktfreigabe.

@@ -41,8 +41,9 @@ Noch keine nutzbare Datenbank-App oder vollständige Parität.
 ## Laufende Arbeit und Dateibesitz
 
 - Backend & Platform: P2b in `.worktrees/p2b`, Branch `spikes/p2b-sqlite-sandbox`;
-  ncruces/Authorizer/VFS untersuchen, reale Datei-Ausbruchs-/Crashfälle und Lizenzen.
-  Noch kein Sicherheitsversprechen oder integrierter Produktadapter.
+  ncruces/Authorizer/VFS nach unabhängigem QA-Review als Untersuchung integriert
+  (`7d2ed07`). ADR0004 eingeschränkt für B1 akzeptiert, keine Produktfreigabe.
+  B1 jetzt in `.worktrees/backend-engine`, Branch `feat/backend-engine`: reale Go-Engine.
 - Frontend & UX: F1 im Webrepo `.worktrees/web-workbench`, Branch `feat/web-workbench`;
   Svelte/shadcn-svelte-Workbench, jetzt Bindung an freigegebenen Vertrag erlaubt.
 - Architecture/Security und Apple: A1 im Applerepo `.worktrees/apple-workbench`,
@@ -61,9 +62,13 @@ Alle drei Repos öffentlich unter `https://github.com/MagicalWig34653/<name>`:
 Git-/GitHub-Schreibblockaden der vorbereitenden Sitzung sind behoben.
 Go1.27.1, Node26.5.0, Swift6.4/Xcode27.1 und Docker/Colima tatsächlich verfügbar.
 
-Nächste Integration: P2b nach QA, dann B1 reale Go-Engine. F1 und A1 getrennt
+Nächste Integration: B1 reale Go-Engine nach eigener QA. F1 und A1 getrennt
 fertigstellen/reviewen, danach echten durchgehenden Web-/Docker-/Apple-Pfad prüfen.
 Offen bleiben insbesondere vollständige Parität, produktiver Tresor/Recovery/Sync,
 Passkey-Entsperren, Teamkonten/Rechte, native sichere Netzwerkadapter und echte Geräte.
 Planung ist kein Funktionsnachweis. Konkrete Aufträge: [Arbeitsplan](ARBEITSPLAN.md),
 Team: [TEAM](TEAM.md), Einrichtung: [EINRICHTUNG](../EINRICHTUNG.md).
+
+Hauptstand `9f1880f`: [Backend-/Container-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39487622613)
+und [Dokumentations-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39487622656)
+tatsächlich erfolgreich. Neuere reine Status-/Untersuchungscommits separat prüfen.
