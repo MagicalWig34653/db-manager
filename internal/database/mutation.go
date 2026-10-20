@@ -46,14 +46,17 @@ func (e *Engine) Eligibility(ctx context.Context, r core.DescribeRequest) (core.
 	}
 	result := eligibility(d)
 	if r.Connection.Driver == "postgres" && result.Eligible {
-		var children bool
-		err = db.QueryRowContext(ctx, `SELECT c.relkind<>'r' OR c.relispartition OR c.relhassubclass OR EXISTS(SELECT 1 FROM pg_catalog.pg_inherits i WHERE i.inhrelid=c.oid) FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname=$1 AND c.relname=$2`, d.Table.Schema, d.Table.Name).Scan(&children)
+		var children, rules bool
+		err = db.QueryRowContext(ctx, `SELECT c.relkind<>'r' OR c.relispartition OR c.relhassubclass OR EXISTS(SELECT 1 FROM pg_catalog.pg_inherits i WHERE i.inhrelid=c.oid),c.relhasrules FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname=$1 AND c.relname=$2`, d.Table.Schema, d.Table.Name).Scan(&children, &rules)
 		if err != nil {
 			return result, safe(ctx, err)
 		}
-		if children {
+		if children || rules {
 			result.Eligible = false
 			result.Reason = "unsupported_inheritance"
+			if rules {
+				result.Reason = "unsupported_table"
+			}
 			result.WritableColumns = []string{}
 		}
 	}
@@ -168,28 +171,7 @@ func (e *Engine) mutate(ctx context.Context, r core.MutationRequest, deleting bo
 	}
 	defer conn.Close()
 	session := &mutationSession{conn: conn, driver: r.Connection.Driver}
-	if session.driver == "sqlite" {
-		// Mutations enforce declared FK constraints on this request's connection.
-		err = conn.Raw(func(raw any) error {
-			driver, ok := raw.(sqliteDriver.Conn)
-			if !ok {
-				return public("mutation_failed", "SQLite-Verbindung ist nicht verfügbar.")
-			}
-			enabled, err := driver.Raw().Config(sqlite.DBCONFIG_ENABLE_FKEY, true)
-			if err != nil {
-				return err
-			}
-			if !enabled {
-				return public("mutation_failed", "Fremdschlüsselprüfung konnte nicht aktiviert werden.")
-			}
-			return nil
-		})
-		if err == nil {
-			_, err = conn.ExecContext(ctx, "BEGIN IMMEDIATE")
-		}
-	} else {
-		session.tx, err = conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
-	}
+	err = session.begin(ctx)
 	if err != nil {
 		return empty, safe(ctx, err)
 	}
@@ -203,13 +185,13 @@ func (e *Engine) mutate(ctx context.Context, r core.MutationRequest, deleting bo
 		return empty, public("mutation_not_supported", "Tabelle ist für strukturierte Änderungen nicht freigegeben.")
 	}
 	if session.driver == "postgres" {
-		var inherited bool
-		err = session.QueryRowContext(ctx, `SELECT c.relkind<>'r' OR c.relispartition OR c.relhassubclass OR EXISTS(SELECT 1 FROM pg_catalog.pg_inherits i WHERE i.inhrelid=c.oid) FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname=$1 AND c.relname=$2`, d.Table.Schema, d.Table.Name).Scan(&inherited)
+		var inherited, rules bool
+		err = session.QueryRowContext(ctx, `SELECT c.relkind<>'r' OR c.relispartition OR c.relhassubclass OR EXISTS(SELECT 1 FROM pg_catalog.pg_inherits i WHERE i.inhrelid=c.oid),c.relhasrules FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname=$1 AND c.relname=$2`, d.Table.Schema, d.Table.Name).Scan(&inherited, &rules)
 		if err != nil {
 			return empty, safe(ctx, err)
 		}
-		if inherited {
-			return empty, public("mutation_not_supported", "Vererbte Tabellen sind nicht freigegeben.")
+		if inherited || rules {
+			return empty, public("mutation_not_supported", "Tabelleneigenschaften sind für Änderungen nicht freigegeben.")
 		}
 	}
 	if len(d.Columns) != len(r.Expected.Columns) {
@@ -274,6 +256,17 @@ func (e *Engine) mutate(ctx context.Context, r core.MutationRequest, deleting bo
 	if !reflect.DeepEqual(d, fresh) {
 		return empty, rowConflict()
 	}
+	// The row lock now also holds the relation lock against rule changes.
+	if session.driver == "postgres" {
+		var rules bool
+		err = session.QueryRowContext(ctx, `SELECT c.relhasrules FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname=$1 AND c.relname=$2`, d.Table.Schema, d.Table.Name).Scan(&rules)
+		if err != nil {
+			return empty, safe(ctx, err)
+		}
+		if rules {
+			return empty, public("mutation_not_supported", "Tabelleneigenschaften sind für Änderungen nicht freigegeben.")
+		}
+	}
 	assignments := []string{}
 	seen := map[string]bool{}
 	same := true
@@ -307,7 +300,11 @@ func (e *Engine) mutate(ctx context.Context, r core.MutationRequest, deleting bo
 		}
 		query := "DELETE FROM " + table + " WHERE " + strings.Join(predicates, " AND ")
 		if !deleting {
-			query = "UPDATE " + table + " SET " + strings.Join(assignments, ",") + " WHERE " + strings.Join(predicates, " AND ")
+			updatePrefix := "UPDATE "
+			if session.driver == "sqlite" {
+				updatePrefix = "UPDATE OR ABORT "
+			}
+			query = updatePrefix + table + " SET " + strings.Join(assignments, ",") + " WHERE " + strings.Join(predicates, " AND ")
 		}
 		result, err := session.exec(ctx, query, args...)
 		if err != nil {
@@ -357,4 +354,31 @@ func mutationValue(c core.Cell) (any, error) {
 		return nil, nil
 	}
 	return filterValue(c)
+}
+
+func (s *mutationSession) begin(ctx context.Context) error {
+	var err error
+	if s.driver == "sqlite" {
+		// Mutations enforce declared FK constraints on this request's connection.
+		err = s.conn.Raw(func(raw any) error {
+			driver, ok := raw.(sqliteDriver.Conn)
+			if !ok {
+				return public("mutation_failed", "SQLite-Verbindung ist nicht verfügbar.")
+			}
+			enabled, err := driver.Raw().Config(sqlite.DBCONFIG_ENABLE_FKEY, true)
+			if err != nil {
+				return err
+			}
+			if !enabled {
+				return public("mutation_failed", "Fremdschlüsselprüfung konnte nicht aktiviert werden.")
+			}
+			return nil
+		})
+		if err == nil {
+			_, err = s.conn.ExecContext(ctx, "BEGIN IMMEDIATE")
+		}
+	} else {
+		s.tx, err = s.conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
+	}
+	return err
 }
