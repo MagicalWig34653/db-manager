@@ -1,0 +1,38 @@
+name: Backend und Container
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Öffentlichen Quellstand abrufen
+        env:
+          REPOSITORY: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          git init --initial-branch=ci .
+          git remote add origin "https://github.com/${REPOSITORY}.git"
+          if [ -n "$PR_NUMBER" ]; then
+            git fetch --depth=1 origin "refs/pull/${PR_NUMBER}/merge"
+          else
+            git fetch --depth=1 origin "$COMMIT"
+          fi
+          git checkout --detach FETCH_HEAD
+      - name: Go einrichten
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version: '1.27.1'
+          cache: false
+      - name: Go prüfen
+        run: |
+          test -z "$(gofmt -l cmd internal)"
+          go test -race -count=1 ./...
+          go vet ./...
+          go build ./cmd/db-manager
+      - name: Dokumentation prüfen
+        run: python3 scripts/check-docs.py
+      - name: Compose und isolierten Swarm ausführen
+        run: python3 scripts/test-deployment.py

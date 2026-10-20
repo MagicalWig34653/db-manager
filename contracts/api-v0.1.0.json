@@ -1,0 +1,523 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "DB Manager API",
+    "version": "0.1.0",
+    "license": {
+      "name": "AGPL-3.0-only"
+    }
+  },
+  "paths": {
+    "/healthz": {
+      "get": {
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/capabilities": {
+      "get": {
+        "operationId": "capabilities",
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Capabilities"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/connections/test": {
+      "post": {
+        "operationId": "testConnection",
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CatalogRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog": {
+      "post": {
+        "operationId": "catalog",
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CatalogRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/query": {
+      "post": {
+        "operationId": "query",
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryRequest"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "Connection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "driver"
+        ],
+        "properties": {
+          "driver": {
+            "type": "string",
+            "enum": [
+              "sqlite",
+              "mysql",
+              "postgres"
+            ]
+          },
+          "host": {
+            "type": "string"
+          },
+          "port": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65535
+          },
+          "database": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "writeOnly": true
+          },
+          "tls_mode": {
+            "type": "string",
+            "enum": [
+              "verify-full",
+              "disable"
+            ],
+            "default": "verify-full"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "driver": {
+                  "const": "sqlite"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "database"
+              ],
+              "properties": {
+                "database": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Cell": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "null",
+              "text",
+              "integer",
+              "decimal",
+              "float",
+              "boolean",
+              "binary",
+              "timestamp"
+            ]
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "kind": {
+                "const": "null"
+              }
+            },
+            "not": {
+              "required": [
+                "value"
+              ]
+            }
+          },
+          {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "text",
+                  "integer",
+                  "decimal",
+                  "float",
+                  "boolean",
+                  "binary",
+                  "timestamp"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ]
+          }
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "QueryRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connection",
+          "sql"
+        ],
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "sql": {
+            "type": "string",
+            "minLength": 1
+          },
+          "max_rows": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000,
+            "default": 1000
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 60000,
+            "default": 10000
+          }
+        }
+      },
+      "QueryResult": {
+        "type": "object",
+        "required": [
+          "results",
+          "duration_ms"
+        ],
+        "properties": {
+          "duration_ms": {
+            "type": "integer"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "columns",
+                "rows",
+                "truncated"
+              ],
+              "properties": {
+                "columns": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "name",
+                      "database_type"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "database_type": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "rows": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Cell"
+                    }
+                  }
+                },
+                "rows_affected": {
+                  "type": "string"
+                },
+                "truncated": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "CatalogRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connection"
+        ],
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          }
+        }
+      },
+      "CatalogResult": {
+        "type": "object",
+        "required": [
+          "tables"
+        ],
+        "properties": {
+          "tables": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "schema",
+                "name",
+                "kind"
+              ],
+              "properties": {
+                "schema": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Status": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "Capabilities": {
+        "type": "object",
+        "required": [
+          "contract_version",
+          "drivers",
+          "credential_storage",
+          "max_rows",
+          "max_timeout_ms"
+        ],
+        "properties": {
+          "contract_version": {
+            "type": "string"
+          },
+          "drivers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "credential_storage": {
+            "type": "boolean"
+          },
+          "max_rows": {
+            "type": "integer"
+          },
+          "max_timeout_ms": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+}

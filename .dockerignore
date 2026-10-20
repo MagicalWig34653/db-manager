@@ -1,0 +1,14 @@
+.git
+.worktrees
+.claude
+.codex
+.idea
+bootstrap
+spikes
+secrets
+.env*
+.DS_Store
+**/.DS_Store
+**/*.db
+**/*.key
+**/*.pem

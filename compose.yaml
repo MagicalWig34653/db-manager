@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+services:
+  app:
+    image: ${DBM_IMAGE:-db-manager:local}
+    build: .
+    ports:
+      - "127.0.0.1:${DBM_PORT:-8080}:8080"
+    secrets:
+      - api_token
+    volumes:
+      - data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    stop_grace_period: 15s
+secrets:
+  api_token:
+    file: ${DBM_TOKEN_PATH:-./secrets/api_token}
+volumes:
+  data:

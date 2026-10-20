@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+version: "3.8"
+services:
+  app:
+    image: ${DBM_IMAGE:-db-manager:local}
+    ports:
+      - target: 8080
+        published: 8080
+        protocol: tcp
+        mode: ingress
+    secrets:
+      - api_token
+    volumes:
+      - data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+    stop_grace_period: 15s
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.dbmanager.data == true
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      update_config:
+        parallelism: 1
+        order: stop-first
+        failure_action: rollback
+      rollback_config:
+        parallelism: 1
+        order: stop-first
+secrets:
+  api_token:
+    external: true
+    name: ${DBM_TOKEN_SECRET:-dbmanager_api_token_v1}
+volumes:
+  data:
