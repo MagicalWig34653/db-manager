@@ -61,7 +61,7 @@ zentraler Webstatuscommit `ec8dcea`. Reale B1-Integration über F2b abgenommen.
 
 F2b und B2a sind abgenommen und integriert; API0.2.0 ist für Clients freigegeben.
 Frontend implementiert F3, Apple-Engineer A2. B2b ist unabhängig abgenommen;
-separate Insert-Erweiterung wird als nächstes begrenztes Backendpaket vorbereitet.
+Backend implementiert B2c als separate begrenzte Insert-Erweiterung.
 Die laufende Sitzung bietet weiterhin vier Plätze einschließlich
 Lead. Nachträglich lokal konfigurierte höhere Limits sind hier nicht wirksam geworden.
 
@@ -69,6 +69,7 @@ Lead. Nachträglich lokal konfigurierte höhere Limits sind hier nicht wirksam g
 | --- | --- | --- |
 | A2 / Apple Engineer | Applerepo, `feat/apple-postgres`, `.worktrees/apple-postgres`, Basis `ce0aedb` | Direkter PostgreSQL-Pfad ohne Go, verpflichtend verifiziertes TLS, flüchtige Credentials, Katalog/einzelne SQL-Anweisung und begrenzte getaggte Ergebnisse. Besitz Apple-Produktmodule/SwiftUI, Package/Lock/Xcode, eigene Prüfungen/CI/Lizenzen/ADR/Einrichtung/Handoff; zentrale Status-/Planungsdateien ausgenommen. SQLitebetrieb erhalten; keine native MySQL-Freigabe. |
 | F3 / Frontend & UX | Webrepo, `feat/table-workbench`, `.worktrees/table-workbench`, Basis `ec8dcea` | Sichtbare Quellcode-/Lizenzverweise und strukturierte Tabellenmetadaten/-ansicht mit gepinntem API0.2-Vertrag, Sortierung, AND-Filtern und Pagination; echte SQLite-/PostgreSQL-TLS-Browserproben. Besitz Webprodukt/Build/Vertragskopien/Tests/Lizenzen/README/Einrichtung/Handoff; keine zentralen Status-/Planungsdateien. Kein Mutation-/Persistenzumfang. |
+| B2c / Backend & Platform | `feat/row-insert`, `.worktrees/row-insert`, Basis `31dd06f` | Einzelnes strukturiertes INSERT mit bestätigter Schreibabsicht, echter Transaktion und belegter Nachheridentität. Separater0.4-Kandidat; v1-v3 unverändert. Neue DB/Core/HTTP-Insertdateien, enge Helper/Routingregistrierung, Vertrag/eigene Doku/Prüfungen/CI/Handoff; keine Root-/Frontend-/Vaultänderungen. Kein Upsert/Replace/Ignore/Batch. |
 
 S1 nach unabhängiger QA ohne bestätigte Befunde als Formatgrundlage integriert:
 `7969f63`/`bc5dd4c`, Herkunft `1a4eb3c`/`03bd3f4`. Vier Go-/vier Swift-Tests,

@@ -26,6 +26,7 @@ Maximal drei aktive Worker, QA wird nach fertig gemeldeten Paketen eingeplant.
 | --- | --- | --- |
 | A2 – Apple Engineer (`p3a_security`) | Applerepo, `feat/apple-postgres`, `.worktrees/apple-postgres`, Basis `ce0aedb` | Direkte PostgreSQL-Verbindung ohne Go, TLS verpflichtend mit vollständiger Zertifikat-/Hostprüfung, flüchtige Credentials, Katalog/SQL und getaggte begrenzte Resultate. Besitz Produktmodule/SwiftUI, Package/Lock/Xcode/Entitlements, eigene Prüfungen/CI, Lizenzen/Originaltexte, README/Einrichtung/ADR/Handoff; keine zentralen Status-/Planungsdateien. SQLite erhalten. Echte TLS-Positiv-/Negativfälle, präzise Werte, tatsächlich beobachteter Abbruch und saubere Sessionwechsel; Mac-/iPad-Zielbuild, Gerätegrenzen offen. Kein MySQL/SSH/Vault/CloudKit/Teamumfang. |
 | F3 – Frontend & UX (`p1a_parity`) | Webrepo, `feat/table-workbench`, `.worktrees/table-workbench`, Basis `ec8dcea` | Quellcode-/Lizenzverweise und strukturierter Tabellenarbeitsplatz mit freigegebenem gepinntem API0.2.0-Vertrag; Webprodukt/Build/Vertragskopien/Tests/Lizenzen/README/Einrichtung/Handoff. Keine zentralen Dateien, Mutation oder Credential-/SQL-Persistenz. Echte SQLite-/PostgreSQL-TLS-Browserproben und unveränderte strikte CSP/Sessiongrenzen. Root-Webpin folgt separat nach Webabnahme. |
+| B2c – Backend & Platform (`p2a_drivers`) | Hauptrepo, `feat/row-insert`, `.worktrees/row-insert`, Basis `31dd06f` | Einzelnes INSERT mit expliziter Bestätigung, Default versus NULL, validierten Metadaten/gebundenen Werten, echter Transaktion und verlustarm belegter Identität/Nachherzeile nach Triggern. Eigene neue DB/Core/HTTP-Dateien plus enge Helper/Routingregistrierung, separater0.4-Kandidat, Doku/Prüfungen/CI/Handoff. Kein main/Docker/GoMod/Web/Vault/zentraler Vertragsindex. Kein Upsert/Replace/Ignore/Batch; v1-v3 unverändert. Echte SQLite/3TLSDB-Constraint-/Konkurrenz-/Trigger-/Timeout-/Commitfehlerproben und unabhängiger Freeze vor Clients. |
 
 Alle Tickets: technische Bezeichner/Code/Kommentare/Tests Englisch, Dokumentation/UI
 Deutsch. Keine echten Zugangsdaten, keine privaten Pfade oder produktiven SQL-Daten.
@@ -126,3 +127,10 @@ integriert; sechs Feature-CIs erfolgreich. API0.3.0 ausdrücklich freigegeben,
 Herkunft `946241d7f10f7444e9e5efebbe8b3a38a8120a9b`, Schema-SHA256
 `ec77c9739cda11df3f4cb9fe756a632e67840fdc0f6190deee1aa1d1333dc308`.
 Web-Schreiboberfläche erst als eigenes Paket nach F3 und F3b beauftragen.
+
+F3b nach angenommener F3-Webquelle: neuer reproduzierbarer öffentlicher Webpin,
+Asset-/Manifest-/Noticereproduktion und echter durchgehender Rootpfad. Zusätzlich
+Root-Testhelfer `scripts/web_test_support.py` eng auf TCP/TLS-Readiness härten:
+Unix-Socket-pg_isready kann PostgreSQL-Bootstrap zu früh akzeptieren. F3 hat dafür
+eine deterministische Initialisierungsbarriere und positive TLS-Probe vor negativem
+Hosttest eingeführt; keinen Produktfehler aus der Test-Race behaupten.
