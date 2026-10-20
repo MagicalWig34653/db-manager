@@ -12,7 +12,7 @@ Commit [6c6eb33](https://github.com/MagicalWig34653/db-manager-web/tree/6c6eb33c
 F3 einschließlich atomarer Übernahme gültiger Tabellenentwürfe wurde unabhängig
 geprüft; der Commit ist in der Web-main-Historie erreichbar. Vertrag `0.1.0`, API-SHA-256
 `4b598dc69a1904685e67a717997412654440ac10f47c17f7a025ccd114e294be`;
-Zusätzlich Tabellenvertrag `0.2.0`, SHA256
+Tabellenvertrag `0.2.0`, SHA256
 `c15a848f01bb779429fd68a2b6eb6bba1575d3e07a4c68e6796cf7840a661838`;
 zusätzlich npm-Lockfile-SHA und exakte Node-/npm-Versionen sind im Lock festgehalten.
 
