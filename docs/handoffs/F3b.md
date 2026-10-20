@@ -56,8 +56,7 @@ DinD-Swarm mit allen Originalassets/-notices, strikter CSP, v1/v2-Auth/Fähigkei
 API404 ohne HTML, Healthcheck, UID10001/Read-only-Root und echten SQLite-Abfragen.
 Daten überleben Compose-Neustart und Swarm-Taskersatz. Kein Host-Swarm verändert.
 Nur eigene Testressourcen entfernt; keine laufenden eigenen Server/DB-Container.
-Noch offen: sauberer Go-/Imagecheckout ohne Node/npm/Geschwister, öffentliche CI und
-unabhängige QA. Linux-CI reproduziert zusätzlich den öffentlichen Quellbuild und
+Noch offen: Abschluss der öffentlichen CI und unabhängige QA. Linux-CI reproduziert zusätzlich den öffentlichen Quellbuild und
 verlangt unveränderte eingecheckte Artefakte/Manifest.
 
 Keine Tabellenmutation, keine Schreibfreigabe des separat behandelten SQLite-UPDATE-
@@ -65,3 +64,39 @@ Konfliktfalls, kein HA-/Mehrinstanz-SQLite, keine vollständige Parität. Freie 
 behalten ihre vorhandenen Berechtigungen; Tabellen-Browse ist ausdrücklich read-only.
 Zentrale Status-/Planungsdateien bleiben beim Lead. F3b liefert keine öffentliche
 Deployment-/Distributionsfreigabe; AGPL-Quellangebot und Release-SBOM bleiben Betreiber-/Releasegates.
+
+
+## Sauberer Checkout, letzter Browsernachweis und Übergabe
+
+Öffentlicher Implementierungskandidat `639ba447edeeb92486013e78360de2f47f333531`,
+Branch `feat/table-web-runtime`. Bestehende öffentliche Autoridentität unverändert.
+Ein frischer öffentlicher Clone dieses Commits ohne Geschwistercheckouts baute das
+vollständige CLI und Dockerimage mit einem Werkzeug-PATH, auf dem Node/npm nachweislich
+fehlten. CLI: `CGO_ENABLED=0`, `GOPROXY=off`, `GOSUMDB=off`, `GOTOOLCHAIN=local`,
+`go build -trimpath -o <temporary-binary> ./cmd/db-manager`. Image: regulärer gepinnter
+Go-Moduldownload im Dockerfile, keine Behauptung eines vollständig netzlosen Imagebaus.
+Im fertigen Laufzeitimage fehlen Node/npm ebenfalls. Offline-Asset-/Dualvertrags- und
+Dokumentationsprüfung bestanden, Checkout blieb sauber; eigenes Image/Clone entfernt.
+
+`go test -race -count=1 ./...`, `go vet ./...`, acht Python-Buildprüfungen und Dokuprüfung
+bestanden. Nicht-Fixture-Go-Netzwerktests werden wie bisher ohne externe Fixturevariablen
+übersprungen; die genannten echten Laufzeitproben werden dadurch nicht ersetzt.
+Diffprüfung eigener Dateien bestanden. Einzige Ausnahme: Original-JS
+`internal/webui/static/assets/index-BtD3D_KM.js`, Zeile1, enthält vom freigegebenen
+Produktionsbuild stammenden End-Leerraum. Er bleibt unverändert, statt Originalartefakt/
+SHA zu manipulieren; Sourcepin und beide Neubauten belegen dieselben Bytes.
+
+Die abschließende enge Testergänzung misst CSP-Verletzungen zusätzlich ausdrücklich
+während des Quellen-/Lizenzdialogs. Erneut `python3 scripts/test-web-integration.py`:
+fünf echte Root-Embed-Fälle bestanden, 20,1 Sekunden, einschließlich dieses Dialogs
+bei null CSP-Verletzungen und Focusreturn per Escape. Keine Produkt-/Assetänderung
+gegenüber dem frisch gebauten Kandidaten. Keine eigenen Jobs/DB-Container/Netzwerke/
+Volumes/Images offen, Host-Swarm unverändert. Keine Mutation oder API0.3-Verwendung.
+
+Öffentliche CI des ersten Kandidaten ist gestartet; Dokumentation39502414538 erfolgreich,
+Web39502414582 hat zusätzlich den öffentlichen Quellbuild unter Linux mit bytegleich
+unveränderten eingecheckten Assets/Manifest erfolgreich reproduziert; sein echter
+Runtime-Schritt und die weiteren regulären Workflows waren beim Zwischenstand noch
+aktiv. Der finale Test-/Dokucommit startet erneut die regulären Branchprüfungen;
+deren IDs werden im abschließenden reinen Handoffcheckpoint ergänzt. Keine eigene
+Abnahme, unabhängige QA und Integration durch den Lead erforderlich.

@@ -104,6 +104,7 @@ for (const driver of ['sqlite', 'postgres']) {
 }
 
 test('embedded source dialog identifies the exact reviewed source and original notices', async ({page}) => {
+  await page.addInitScript(() => { window.cspViolations = []; document.addEventListener('securitypolicyviolation', (event) => window.cspViolations.push(event.violatedDirective)); });
   const {createHash}=await import('node:crypto');
   await page.goto('/');
   await page.getByRole('button',{name:'Quellcode & Lizenzen',exact:true}).click();
@@ -120,4 +121,5 @@ test('embedded source dialog identifies the exact reviewed source and original n
   await page.keyboard.press('Escape');
   await expect(dialog).not.toBeVisible();
   await expect(page.getByRole('button',{name:'Quellcode & Lizenzen',exact:true})).toBeFocused();
+  expect(await page.evaluate(() => window.cspViolations)).toEqual([]);
 });
