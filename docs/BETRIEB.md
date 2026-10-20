@@ -26,13 +26,71 @@ nicht in `.env` oder Kommandozeilenargumente. Das Volume `data` bleibt bei
 `docker compose down` erhalten; `down --volumes` löscht es ausdrücklich.
 
 `DBM_DATA_DIR` bezeichnet das ausschließlich serverseitig gewählte Datenverzeichnis,
-im Container `/data`, bei direktem Start standardmäßig `./data`. Der API-Client
-kann dieses Root nicht ändern. Die folgende Treiberintegration muss den Root bei
-Engine-Erzeugung auflösen/anlegen und alle SQLite-Dateien sowie SQL-Dateizugriffe
-darunter einsperren; die aktuelle Platzhalter-Engine öffnet noch keine Datenbank.
-Übergabepunkt für den Backend-Agent: `config.Config.DataDir` und
-`DBM_DATA_DIR`, Engine-Konstruktion in `cmd/db-manager/main.go`; nach Initialisierung
-bei Fehlern sicher abbrechen statt auf ein anderes Verzeichnis auszuweichen.
+im Container `/data`, bei direktem Start standardmäßig `./data`. Die Engine legt es bei
+Bedarf an und bricht bei Initialisierungsfehlern ab. SQLite-ID `beispiel` verwendet
+`beispiel.sqlite`, keine frei wählbaren Pfade oder DSN-URIs. Das VFS verankert Dateizugriffe
+im Root und verweigert Symlinks, Hardlinks und externe SQL-Dateioperationen.
+
+SQLite verlangt **eine Instanz mit exklusivem lokalem Volume**. Jede Anfrage öffnet eine
+kurze Verbindung; parallel geöffnete gleiche Datenbank liefert `database_busy`.
+Rollback-Journal im DELETE-Modus, kein WAL und keine anderen SQLite-Prozesse auf diesem
+Volume. Bestehende WAL-/SHM-Dateien verhindern das Öffnen, statt Änderungen zu ignorieren.
+Neue Journal-/Dateianlagen synchronisieren Datei und Verzeichnis; beim Löschen des
+Journals wird das Verzeichnis nach SQLite-Vorgabe synchronisiert. Prozessabbruch-Recovery
+ist geprüft; dies ist kein Nachweis gegen jeden Stromausfall oder Hardwarefehler.
+
+## Netzwerkziele und DB-TLS
+
+`DBM_ALLOWED_HOSTS` enthält kommagetrennte **exakte** Hostnamen/IPs, keine Wildcards,
+URLs oder Unix-Sockets. Standard: `localhost,127.0.0.1,::1`. Im Container bezeichnet
+Loopback den Container selbst. Für eine externe DB muss der Betreiber deren Zielnamen
+explizit konfigurieren, beispielsweise `db.internal.example` in der Compose-/Swarm-
+Umgebung. Der API-Aufrufer kann diese Liste nicht erweitern. Einmalige DNS-Auflösung,
+Prüfung auf verbotene Link-Local-/Metadaten-, Multicast- und unspecified-Adressen sowie
+gepinntes Dialing vermeiden eine zweite ungeprüfte Namensauflösung. Private Netzadressen
+können für ausdrücklich freigegebene DB-Ziele verwendet werden.
+
+Netzwerkverbindungen verwenden standardmäßig TLS mit vollständiger Zertifikatsketten-
+und Hostnamenprüfung, ohne Klartextfallback. `tls_mode=disable` ist eine ausdrückliche
+Entwicklungsoption; sie benötigt weiterhin ein erlaubtes Ziel und soll nicht für
+Produktivzugriffe verwendet werden. TLS am HTTP-Proxy bleibt zusätzlich erforderlich.
+
+`DBM_DB_CA_FILE` kann optional ein administrativ gewähltes PEM-Bundle zusätzlicher
+DB-Vertrauenswurzeln laden; Systemwurzeln bleiben bestehen. Diese Wurzeln gelten für
+alle erlaubten DB-Ziele, keine Zertifikat-Pinning-Zusage. Ein unlesbares/leeres oder
+ungültiges Bundle verhindert den Start. Die API akzeptiert keine CA-Dateipfade.
+Für Container muss das Bundle separat lesbar und schreibgeschützt eingebunden werden,
+zum Beispiel über einen Compose-Override als Bind-Mount oder als Docker-Swarm-Config.
+`DBM_DB_CA_FILE` bezeichnet dann den **Pfad im Container**, etwa `/run/db-ca/ca.pem`.
+Ein gesetzter Pfad allein mountet keine Hostdatei. Keine privaten Schlüssel in das
+CA-Bundle oder Image kopieren. Backend-HTTPS-Vertrauen wird dadurch nicht verändert.
+
+## SQL, Grenzen und Fehlerfolgen
+
+Pro Anfrage wird genau ein vorbereitetes Statement ausgeführt. SQL-Batches werden vor
+Ausführung abgewiesen; `BEGIN`/`COMMIT` über getrennte HTTP-Anfragen bilden keine gemeinsame
+Transaktion. Single-Statement-Routine-/Triggerkörper werden vom jeweiligen DB-Parser
+beurteilt. Mehrfachergebnisse werden höchstens bis zu 16 Resultsets verarbeitet; eine
+vollständige Stored-Procedure-/Warnungs-/`rows_affected`-Abdeckung ist nicht zugesagt.
+SQLite-ATTACH, VACUUM und externe virtuelle Tabellen sowie die meisten administrativen
+PRAGMAs sind ausdrücklich gesperrt. Es gibt keinen behaupteten SQL-Lesemodus.
+
+Höchstens vier aktive DB-Anfragen insgesamt; das Warten auf einen Platz ist über den
+Anfragekontext abbrechbar. Höchstens 1 MiB Rohdaten pro Zelle und 8 MiB tatsächliche
+JSON-Antwort einschließlich Base64/JSON-Escaping. Zu große Ergebnisse liefern
+`result_too_large` ohne scheinbar vollständige Teilergebnisse. Ein Zeilenlimit liefert
+`truncated=true` und bricht das weitere Einlesen aktiv ab; dabei kann der Treiber die
+Verbindung schließen. Bereits ausgeführte DB-Effekte können trotz Abbruch oder Fehler
+bestehen bleiben; es gibt keine Rollbackzusage. Verbindungen werden nach jeder Anfrage
+geschlossen. Große Wire-Pakete können bereits im Treiber gepuffert werden, bevor die
+Zellgrenze geprüft wird. Die Ausgabegrenzen und vier Plätze sind kein vollständiger
+DoS-/Prozessspeicher-/Festplattenschutz; Betreiber müssen Ressourcen separat begrenzen.
+
+Dezimalzahlen und große Integer bleiben Strings, NULL/Leertext/Leerbinär bleiben getrennt.
+Binärwerte sind Base64. Zeitwerte folgen der verlustarmen Treiberdarstellung; PostgreSQL-
+TIMESTAMPTZ erhält den Zeitpunkt, nicht eine ursprüngliche nicht gespeicherte Zeitzone.
+SQLite-Dynamic-Typing erzeugt keine zusätzliche exakte DECIMAL-Speichersemantik.
+Fehlertexte sind feste öffentliche Meldungen ohne rohe DSNs, SQL oder Passwörter.
 
 ## Swarm
 

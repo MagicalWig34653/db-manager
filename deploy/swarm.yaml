@@ -8,6 +8,9 @@ services:
         published: 8080
         protocol: tcp
         mode: ingress
+    environment:
+      DBM_ALLOWED_HOSTS: ${DBM_ALLOWED_HOSTS:-localhost,127.0.0.1,::1}
+      DBM_DB_CA_FILE: ${DBM_DB_CA_FILE:-}
     secrets:
       - api_token
     volumes:

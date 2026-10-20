@@ -5,6 +5,9 @@ services:
     build: .
     ports:
       - "127.0.0.1:${DBM_PORT:-8080}:8080"
+    environment:
+      DBM_ALLOWED_HOSTS: ${DBM_ALLOWED_HOSTS:-localhost,127.0.0.1,::1}
+      DBM_DB_CA_FILE: ${DBM_DB_CA_FILE:-}
     secrets:
       - api_token
     volumes:

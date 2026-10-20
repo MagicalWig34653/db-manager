@@ -12,23 +12,9 @@ import (
 	"time"
 
 	"github.com/MagicalWig34653/db-manager/internal/config"
-	"github.com/MagicalWig34653/db-manager/internal/core"
+	"github.com/MagicalWig34653/db-manager/internal/database"
 	"github.com/MagicalWig34653/db-manager/internal/httpapi"
 )
-
-// pendingEngine keeps the infrastructure buildable before driver integration.
-type pendingEngine struct{}
-
-func (pendingEngine) Test(context.Context, core.Connection) error {
-	return &core.Error{Code: "unsupported_driver", Message: "Datenbanktreiber ist noch nicht verfügbar."}
-}
-func (pendingEngine) Query(context.Context, core.QueryRequest) (core.QueryResult, error) {
-	return core.QueryResult{}, &core.Error{Code: "unsupported_driver", Message: "Datenbanktreiber ist noch nicht verfügbar."}
-}
-func (pendingEngine) Catalog(context.Context, core.Connection) ([]core.Table, error) {
-	return nil, &core.Error{Code: "unsupported_driver", Message: "Datenbanktreiber ist noch nicht verfügbar."}
-}
-func (pendingEngine) Drivers() []string { return []string{} }
 
 func main() {
 	if len(os.Args) == 2 && os.Args[1] == "healthcheck" {
@@ -55,7 +41,12 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	server := &http.Server{Addr: cfg.Address, Handler: httpapi.New(pendingEngine{}, cfg.Token), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 70 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16384}
+	engine, err := database.New(cfg.DataDir, cfg.AllowedHosts, database.WithCAFile(cfg.CAFile))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	server := &http.Server{Addr: cfg.Address, Handler: httpapi.New(engine, cfg.Token), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 70 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16384}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	done := make(chan error, 1)
