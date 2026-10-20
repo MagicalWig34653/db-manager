@@ -73,7 +73,7 @@ Am 20.10.2026 lokal macOS/arm64, Go1.27.1:
 | `go test -race ./internal/webui` | bestanden |
 | `go vet ./internal/webui` | bestanden |
 | `go test ./...` | isolierter Foundation-Gesamtstand mit neuem Paket bestanden; keine B1-Engine in diesem Worktree |
-| `gofmt` / `git diff --check` | eigene Go-Dateien formatiert, keine Whitespacefehler |
+| `gofmt` / eigener Diffcheck ohne `internal/webui/static/` | eigene Go-Dateien formatiert, eigener Code whitespace-sauber; generierte Originalassets unverändert |
 
 Frischer isolierter Go-Checkout ohne Node/npm auf PATH, ohne Nachbarrepo und ohne
 Modulnetzwerk erfolgreich geprüft; genauer Nachweis im folgenden Nachtrag.
@@ -116,3 +116,17 @@ auffindbar sind. Go lief mit `GOPROXY=off`, `GOSUMDB=off`, `GOTOOLCHAIN=local` u
 Dieser Nachtrag ändert nur den Handoff, keine Assets oder Produktfunktionen.
 Finale Übergabe bleibt unabhängig zu reviewen. Echte Go-Engine-/Main-/Docker-
 Integration folgt nach B1 als F2b; der saubere Paketbuild ersetzt diese Prüfung nicht.
+
+## Unabhängige Abnahme und Integration
+
+QA & Release hat F2a ausdrücklich als reproduzierbares Go-Webpaket freigegeben.
+Eigener frischer Clone mit echtem öffentlichen Pinfetch/npmci/Produktionsbuild
+reproduzierte alle fünf Artefakte samt Manifest bytegleich, auch bei synthetischer
+VITE-/npm-Umgebungsvergiftung. Go-Race/Vet, sechs Pythonprüfungen, Offlinecheck und
+Dokumentation bestanden; keine privaten Pfade, Secrets oder Sourcemaps gefunden.
+Ein originales generiertes JS-Template enthält nachgestellten Leerraum: nicht trimmen;
+Differenzprüfung des eigenen Codes nimmt ausschließlich `internal/webui/static/` aus.
+Paket als `15b339e`/`c9cac01` integriert; README-Konflikt bei Leadintegration nur
+dokumentarisch mit bereits abgenommenem B1-Stand und nativer A1-Lage zusammengeführt.
+Danach integrierte Go-Race/Vet-, Offline-Asset- und sechs Pythonprüfungen bestanden.
+Keine main-/Dockerverdrahtung oder tatsächlichen Web→Go→DB-Pfad aus F2a ableiten.

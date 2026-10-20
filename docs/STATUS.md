@@ -21,8 +21,8 @@ API0.1.0 nach geschlossenem QA-P4-01 ausdrücklich als Clientvertrag freigegeben
 SHA256 `4b598dc69a1904685e67a717997412654440ac10f47c17f7a025ccd114e294be`.
 B1 ist nach unabhängiger QA als reale SQLite-/MySQL-/MariaDB-/PostgreSQL-Engine
 integriert (`87caed8`/`063209e`, Handoffcheckpoint `4056c99`). Der Server meldet diese
-Treiber im dokumentierten eingeschränkten Betrieb. Webeinbettung und tatsächlicher
-Browser→Go→DB-Pfad fehlen noch. Der native SQLite-Client ist
+Treiber im dokumentierten eingeschränkten Betrieb. Das freigegebene Go-Webpaket ist als `15b339e`/`c9cac01` integriert;
+Serververdrahtung und tatsächlicher Browser→Go→DB-Pfad fehlen noch. Der native SQLite-Client ist
 inzwischen als begrenztes eigenständiges Entwicklungsinkrement integriert;
 keine vollständige Datenbankverwaltung oder Parität.
 
@@ -80,7 +80,7 @@ Alle drei Repos öffentlich unter `https://github.com/MagicalWig34653/<name>`:
 Git-/GitHub-Schreibblockaden der vorbereitenden Sitzung sind behoben.
 Go1.27.1, Node26.5.0, Swift6.4/Xcode27.1 und Docker/Colima tatsächlich verfügbar.
 
-Nächste Integration: F2a-Go-Webpaket nach eigener QA, dann F2b-Verdrahtung und echter Browserpfad. F1 und A1 getrennt
+Nächste Umsetzung: F2b-Verdrahtung und echter Browserpfad nach integriertem B1/F2a. F1 und A1 getrennt
 fertigstellen/reviewen, danach echten durchgehenden Web-/Docker-/Apple-Pfad prüfen.
 Offen bleiben insbesondere vollständige Parität, produktiver Tresor/Recovery/Sync,
 Passkey-Entsperren, Teamkonten/Rechte, native sichere Netzwerkadapter und echte Geräte.
@@ -103,3 +103,10 @@ Go-Race/Vet nach Integration bestanden. Native Linuxamd64 und Container-CIs am F
 [Dokumentation](https://github.com/MagicalWig34653/db-manager/actions/runs/39492062458),
 alle erfolgreich. Exakte JSON-Grenze berücksichtigt Escaping/Base64/HTTP-Newline.
 Keine umfassende Sandbox-/Powerloss-/HA-/Web-/Vault-/Team-/Paritätsfreigabe.
+
+F2a nach unabhängiger öffentlicher Reproduktion abgenommen und integriert:
+Assetbytes/Manifest/Notices exakt, strikte CSP, MIME/Cache/Traversal/API-Passthrough
+geprüft. Originaler generierter JS-Leerraum unverändert; eigene Quellen diff-sauber.
+Integrierte Go-Race/Vet-, Offline- und Pythonprüfungen bestanden. B2a-Backendticket
+für strukturierte Tabellenmetadaten/-ansicht im Worktree `.worktrees/table-browse`,
+Branch `feat/table-browse` beauftragt, neuer Vertrag erst nach eigener QA freigeben.

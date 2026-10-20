@@ -92,6 +92,13 @@ prüfbare Commits sichern, offene Funktionen/Tests und nächsten Schritt dokumen
 B1-Abschluss: alle vier Befunde im Fix `4ecd15f` unabhängig geschlossen; Fix-CIs
 Engine39492062555/Backend39492062646/Docs39492062458 erfolgreich. Integrierte
 Go-Race/Vet-Prüfung bestanden. Backendworker für nächstes Ticket verfügbar.
-F2a liegt als `42a0dec` plus `d236076` im QA-Review; Sourcepin `4e5abee` ist
+F2a `42a0dec` plus `d236076` nach QA als `15b339e`/`c9cac01` integriert; Sourcepin `4e5abee` ist
 inzwischen unverändert in Web-main ancestry und durch öffentliche CI bestätigt.
 A1-main `ce0aedb` hat auch nach zentralem Statuscommit Apple-/Docs-CI grün.
+
+B2a ist beauftragt: Backendworker in `.worktrees/table-browse`, Branch
+`feat/table-browse` ab `c9cac01`. Neue strukturierte Tabellenmetadaten/-ansicht und
+additiver Vertragskandidat0.2; Besitz DB-/neue Core-/HTTP-Tabledateien, enge Routing-
+registrierung, neuer Vertrag/Doku/Handoff/Engine-CI. Kein main/Docker/Compose/GoMod,
+keine UI-/F2-Dateien. F2b erhält main-/Dockerverdrahtung erst als eigenes Ticket.
+Mutation B2b folgt separat mit Konflikt-/Transaktionsabnahme.
