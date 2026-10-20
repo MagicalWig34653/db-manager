@@ -171,28 +171,7 @@ func (e *Engine) mutate(ctx context.Context, r core.MutationRequest, deleting bo
 	}
 	defer conn.Close()
 	session := &mutationSession{conn: conn, driver: r.Connection.Driver}
-	if session.driver == "sqlite" {
-		// Mutations enforce declared FK constraints on this request's connection.
-		err = conn.Raw(func(raw any) error {
-			driver, ok := raw.(sqliteDriver.Conn)
-			if !ok {
-				return public("mutation_failed", "SQLite-Verbindung ist nicht verfügbar.")
-			}
-			enabled, err := driver.Raw().Config(sqlite.DBCONFIG_ENABLE_FKEY, true)
-			if err != nil {
-				return err
-			}
-			if !enabled {
-				return public("mutation_failed", "Fremdschlüsselprüfung konnte nicht aktiviert werden.")
-			}
-			return nil
-		})
-		if err == nil {
-			_, err = conn.ExecContext(ctx, "BEGIN IMMEDIATE")
-		}
-	} else {
-		session.tx, err = conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
-	}
+	err = session.begin(ctx)
 	if err != nil {
 		return empty, safe(ctx, err)
 	}
@@ -375,4 +354,31 @@ func mutationValue(c core.Cell) (any, error) {
 		return nil, nil
 	}
 	return filterValue(c)
+}
+
+func (s *mutationSession) begin(ctx context.Context) error {
+	var err error
+	if s.driver == "sqlite" {
+		// Mutations enforce declared FK constraints on this request's connection.
+		err = s.conn.Raw(func(raw any) error {
+			driver, ok := raw.(sqliteDriver.Conn)
+			if !ok {
+				return public("mutation_failed", "SQLite-Verbindung ist nicht verfügbar.")
+			}
+			enabled, err := driver.Raw().Config(sqlite.DBCONFIG_ENABLE_FKEY, true)
+			if err != nil {
+				return err
+			}
+			if !enabled {
+				return public("mutation_failed", "Fremdschlüsselprüfung konnte nicht aktiviert werden.")
+			}
+			return nil
+		})
+		if err == nil {
+			_, err = s.conn.ExecContext(ctx, "BEGIN IMMEDIATE")
+		}
+	} else {
+		s.tx, err = s.conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
+	}
+	return err
 }

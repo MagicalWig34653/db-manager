@@ -1,0 +1,1724 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "DB Manager API",
+    "version": "0.4.0",
+    "license": {
+      "name": "AGPL-3.0-only"
+    },
+    "description": "Additiver Vertragskandidat für einzelnes strukturiertes INSERT mit bestätigter Identität und tatsächlicher Nachherzeile; API0.1–0.3 unverändert. Kein Client-Freeze vor unabhängigem Review."
+  },
+  "paths": {
+    "/healthz": {
+      "get": {
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/capabilities": {
+      "get": {
+        "operationId": "capabilities",
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Capabilities"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/connections/test": {
+      "post": {
+        "operationId": "testConnection",
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CatalogRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog": {
+      "post": {
+        "operationId": "catalog",
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CatalogRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/query": {
+      "post": {
+        "operationId": "query",
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/capabilities": {
+      "get": {
+        "operationId": "tableCapabilities",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableCapabilities"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/tables/describe": {
+      "post": {
+        "operationId": "describeTable",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableDescription"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DescribeRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/tables/browse": {
+      "post": {
+        "operationId": "browseTable",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowseResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BrowseRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/capabilities": {
+      "get": {
+        "operationId": "mutationCapabilities",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MutationCapabilities"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler; row_conflict HTTP409, outcome_unknown HTTP503, keine automatische Wiederholung",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/tables/eligibility": {
+      "post": {
+        "operationId": "mutationEligibility",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MutationEligibility"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler; row_conflict HTTP409, outcome_unknown HTTP503, keine automatische Wiederholung",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DescribeRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/rows/update": {
+      "post": {
+        "operationId": "updateRow",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MutationResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler; row_conflict HTTP409, outcome_unknown HTTP503, keine automatische Wiederholung",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/rows/delete": {
+      "post": {
+        "operationId": "deleteRow",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MutationResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler; row_conflict HTTP409, outcome_unknown HTTP503, keine automatische Wiederholung",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/capabilities": {
+      "get": {
+        "operationId": "insertCapabilities",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InsertCapabilities"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler; insert_conflict HTTP409, outcome_unknown HTTP503, keine automatische Wiederholung",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/tables/insert-eligibility": {
+      "post": {
+        "operationId": "insertEligibility",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InsertEligibility"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler; insert_conflict HTTP409, outcome_unknown HTTP503, keine automatische Wiederholung",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DescribeRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v4/rows/insert": {
+      "post": {
+        "operationId": "insertRow",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InsertResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler; insert_conflict HTTP409, outcome_unknown HTTP503, keine automatische Wiederholung",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InsertRequest"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "Connection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "driver"
+        ],
+        "properties": {
+          "driver": {
+            "type": "string",
+            "enum": [
+              "sqlite",
+              "mysql",
+              "postgres"
+            ]
+          },
+          "host": {
+            "type": "string"
+          },
+          "port": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65535
+          },
+          "database": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "writeOnly": true
+          },
+          "tls_mode": {
+            "type": "string",
+            "enum": [
+              "verify-full",
+              "disable"
+            ],
+            "default": "verify-full"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "driver": {
+                  "const": "sqlite"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "database"
+              ],
+              "properties": {
+                "database": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Cell": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "null",
+              "text",
+              "integer",
+              "decimal",
+              "float",
+              "boolean",
+              "binary",
+              "timestamp"
+            ]
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "kind": {
+                "const": "null"
+              }
+            },
+            "not": {
+              "required": [
+                "value"
+              ]
+            }
+          },
+          {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "text",
+                  "integer",
+                  "decimal",
+                  "float",
+                  "boolean",
+                  "binary",
+                  "timestamp"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ]
+          }
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "QueryRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connection",
+          "sql"
+        ],
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "sql": {
+            "type": "string",
+            "minLength": 1
+          },
+          "max_rows": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000,
+            "default": 1000
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 60000,
+            "default": 10000
+          }
+        }
+      },
+      "QueryResult": {
+        "type": "object",
+        "required": [
+          "results",
+          "duration_ms"
+        ],
+        "properties": {
+          "duration_ms": {
+            "type": "integer"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "columns",
+                "rows",
+                "truncated"
+              ],
+              "properties": {
+                "columns": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "name",
+                      "database_type"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "database_type": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "rows": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Cell"
+                    }
+                  }
+                },
+                "rows_affected": {
+                  "type": "string"
+                },
+                "truncated": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "CatalogRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connection"
+        ],
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          }
+        }
+      },
+      "CatalogResult": {
+        "type": "object",
+        "required": [
+          "tables"
+        ],
+        "properties": {
+          "tables": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "schema",
+                "name",
+                "kind"
+              ],
+              "properties": {
+                "schema": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Status": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "Capabilities": {
+        "type": "object",
+        "required": [
+          "contract_version",
+          "drivers",
+          "credential_storage",
+          "max_rows",
+          "max_timeout_ms"
+        ],
+        "properties": {
+          "contract_version": {
+            "type": "string"
+          },
+          "drivers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "credential_storage": {
+            "type": "boolean"
+          },
+          "max_rows": {
+            "type": "integer"
+          },
+          "max_timeout_ms": {
+            "type": "integer"
+          }
+        }
+      },
+      "TableRef": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "schema": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 1024,
+            "minLength": 1
+          }
+        }
+      },
+      "DescribeRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connection",
+          "table"
+        ],
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "table": {
+            "$ref": "#/components/schemas/TableRef"
+          }
+        }
+      },
+      "TableColumn": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "database_type",
+          "nullable",
+          "pk_position",
+          "generated",
+          "read_only"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "database_type": {
+            "type": "string",
+            "maxLength": 1048576
+          },
+          "nullable": {
+            "type": "boolean"
+          },
+          "default_value": {
+            "type": "string",
+            "maxLength": 1048576
+          },
+          "pk_position": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1024,
+            "default": 0
+          },
+          "generated": {
+            "type": "string",
+            "enum": [
+              "none",
+              "virtual",
+              "stored",
+              "identity",
+              "hidden"
+            ]
+          },
+          "read_only": {
+            "type": "boolean",
+            "const": true
+          }
+        }
+      },
+      "TableDescription": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "table",
+          "kind",
+          "columns",
+          "primary_key",
+          "read_only",
+          "stable_order",
+          "storage_engine",
+          "transactional"
+        ],
+        "properties": {
+          "table": {
+            "$ref": "#/components/schemas/TableRef"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "table",
+              "view",
+              "virtual",
+              "foreign"
+            ]
+          },
+          "columns": {
+            "type": "array",
+            "maxItems": 1024,
+            "items": {
+              "$ref": "#/components/schemas/TableColumn"
+            }
+          },
+          "primary_key": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 1024
+            }
+          },
+          "read_only": {
+            "type": "boolean",
+            "const": true
+          },
+          "stable_order": {
+            "type": "boolean"
+          },
+          "storage_engine": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "transactional": {
+            "type": "string",
+            "enum": [
+              "yes",
+              "no",
+              "unknown"
+            ]
+          }
+        }
+      },
+      "TableSort": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "column",
+          "direction"
+        ],
+        "properties": {
+          "column": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          }
+        }
+      },
+      "FilterValue": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "value"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "text",
+              "integer",
+              "decimal",
+              "float",
+              "boolean",
+              "binary",
+              "timestamp"
+            ]
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "kind": {
+                "const": "null"
+              }
+            },
+            "not": {
+              "required": [
+                "value"
+              ]
+            }
+          },
+          {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "text",
+                  "integer",
+                  "decimal",
+                  "float",
+                  "boolean",
+                  "binary",
+                  "timestamp"
+                ]
+              }
+            },
+            "required": [
+              "value"
+            ]
+          }
+        ]
+      },
+      "TableFilter": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "column",
+          "operator"
+        ],
+        "properties": {
+          "column": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "operator": {
+            "type": "string",
+            "enum": [
+              "eq",
+              "is_null",
+              "is_not_null"
+            ]
+          },
+          "value": {
+            "$ref": "#/components/schemas/FilterValue"
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "operator": {
+                "const": "eq"
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          {
+            "properties": {
+              "operator": {
+                "enum": [
+                  "is_null",
+                  "is_not_null"
+                ]
+              }
+            },
+            "not": {
+              "required": [
+                "value"
+              ]
+            }
+          }
+        ]
+      },
+      "BrowseRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connection",
+          "table"
+        ],
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "table": {
+            "$ref": "#/components/schemas/TableRef"
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000,
+            "default": 100
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000,
+            "default": 0
+          },
+          "sort": {
+            "type": "array",
+            "maxItems": 16,
+            "items": {
+              "$ref": "#/components/schemas/TableSort"
+            }
+          },
+          "filters": {
+            "type": "array",
+            "maxItems": 16,
+            "items": {
+              "$ref": "#/components/schemas/TableFilter"
+            }
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 60000,
+            "default": 10000
+          }
+        }
+      },
+      "TableResultSet": {
+        "type": "object",
+        "required": [
+          "columns",
+          "rows",
+          "truncated"
+        ],
+        "properties": {
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "database_type"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "database_type": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Cell"
+              }
+            }
+          },
+          "rows_affected": {
+            "type": "string"
+          },
+          "truncated": {
+            "type": "boolean"
+          }
+        }
+      },
+      "BrowseResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "description",
+          "result",
+          "offset",
+          "page_size",
+          "has_more",
+          "stable_order",
+          "duration_ms"
+        ],
+        "properties": {
+          "description": {
+            "$ref": "#/components/schemas/TableDescription"
+          },
+          "result": {
+            "$ref": "#/components/schemas/TableResultSet"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000,
+            "default": 0
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000,
+            "default": 0
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "stable_order": {
+            "type": "boolean"
+          },
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "TableCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract_version",
+          "features",
+          "mutations",
+          "max_page_size",
+          "max_offset",
+          "max_filters",
+          "max_sort"
+        ],
+        "properties": {
+          "contract_version": {
+            "type": "string",
+            "const": "0.2.0"
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "table_describe",
+                "table_browse"
+              ]
+            }
+          },
+          "mutations": {
+            "type": "boolean",
+            "const": false
+          },
+          "max_page_size": {
+            "type": "integer",
+            "const": 1000
+          },
+          "max_offset": {
+            "type": "integer",
+            "const": 1000000
+          },
+          "max_filters": {
+            "type": "integer",
+            "const": 16
+          },
+          "max_sort": {
+            "type": "integer",
+            "const": 16
+          }
+        }
+      },
+      "RowSnapshot": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "columns",
+          "values"
+        ],
+        "properties": {
+          "columns": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1024,
+            "items": {
+              "type": "string",
+              "maxLength": 1024
+            }
+          },
+          "values": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1024,
+            "items": {
+              "$ref": "#/components/schemas/Cell"
+            }
+          }
+        }
+      },
+      "RowChange": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "column",
+          "value"
+        ],
+        "properties": {
+          "column": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "value": {
+            "$ref": "#/components/schemas/Cell"
+          }
+        }
+      },
+      "DeleteRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connection",
+          "table",
+          "expected",
+          "confirm"
+        ],
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "table": {
+            "$ref": "#/components/schemas/TableRef"
+          },
+          "expected": {
+            "$ref": "#/components/schemas/RowSnapshot"
+          },
+          "confirm": {
+            "type": "boolean",
+            "const": true
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 60000,
+            "default": 10000
+          }
+        }
+      },
+      "UpdateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connection",
+          "table",
+          "expected",
+          "confirm",
+          "changes"
+        ],
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "table": {
+            "$ref": "#/components/schemas/TableRef"
+          },
+          "expected": {
+            "$ref": "#/components/schemas/RowSnapshot"
+          },
+          "confirm": {
+            "type": "boolean",
+            "const": true
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 60000,
+            "default": 10000
+          },
+          "changes": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1024,
+            "items": {
+              "$ref": "#/components/schemas/RowChange"
+            }
+          }
+        }
+      },
+      "MutationEligibility": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "description",
+          "eligible",
+          "reason",
+          "writable_columns"
+        ],
+        "properties": {
+          "description": {
+            "$ref": "#/components/schemas/TableDescription"
+          },
+          "eligible": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "eligible",
+              "unsupported_table",
+              "unsupported_inheritance"
+            ]
+          },
+          "writable_columns": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 1024,
+            "items": {
+              "type": "string",
+              "maxLength": 1024
+            }
+          }
+        }
+      },
+      "MutationResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "outcome",
+          "changed"
+        ],
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "const": "committed"
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "row": {
+            "$ref": "#/components/schemas/RowSnapshot"
+          }
+        }
+      },
+      "MutationCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract_version",
+          "features",
+          "max_rows_per_mutation",
+          "max_request_bytes",
+          "max_timeout_ms"
+        ],
+        "properties": {
+          "contract_version": {
+            "type": "string",
+            "const": "0.3.0"
+          },
+          "features": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 3,
+            "items": {
+              "type": "string",
+              "enum": [
+                "row_eligibility",
+                "row_update",
+                "row_delete"
+              ]
+            }
+          },
+          "max_rows_per_mutation": {
+            "type": "integer",
+            "const": 1
+          },
+          "max_request_bytes": {
+            "type": "integer",
+            "const": 1048576
+          },
+          "max_timeout_ms": {
+            "type": "integer",
+            "const": 60000
+          }
+        }
+      },
+      "InsertRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connection",
+          "table",
+          "values",
+          "confirm"
+        ],
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "table": {
+            "$ref": "#/components/schemas/TableRef"
+          },
+          "values": {
+            "type": "array",
+            "maxItems": 1024,
+            "items": {
+              "$ref": "#/components/schemas/RowChange"
+            }
+          },
+          "confirm": {
+            "type": "boolean",
+            "const": true
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 60000,
+            "default": 10000
+          }
+        }
+      },
+      "InsertEligibility": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "description",
+          "eligible",
+          "reason",
+          "insertable_columns",
+          "required_pk"
+        ],
+        "properties": {
+          "description": {
+            "$ref": "#/components/schemas/TableDescription"
+          },
+          "eligible": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "eligible",
+              "unsupported_table",
+              "unsupported_inheritance",
+              "unsupported_identity"
+            ]
+          },
+          "insertable_columns": {
+            "type": "array",
+            "maxItems": 1024,
+            "items": {
+              "type": "string",
+              "maxLength": 1024
+            }
+          },
+          "required_pk": {
+            "type": "array",
+            "maxItems": 1024,
+            "items": {
+              "type": "string",
+              "maxLength": 1024
+            }
+          },
+          "auto_pk": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          }
+        }
+      },
+      "InsertResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "outcome",
+          "row"
+        ],
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "const": "committed"
+          },
+          "row": {
+            "$ref": "#/components/schemas/RowSnapshot"
+          }
+        }
+      },
+      "InsertCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract_version",
+          "features",
+          "max_rows_per_insert",
+          "max_request_bytes",
+          "max_timeout_ms"
+        ],
+        "properties": {
+          "contract_version": {
+            "type": "string",
+            "const": "0.4.0"
+          },
+          "features": {
+            "type": "array",
+            "maxItems": 2,
+            "items": {
+              "type": "string",
+              "enum": [
+                "row_insert_eligibility",
+                "row_insert"
+              ]
+            }
+          },
+          "max_rows_per_insert": {
+            "type": "integer",
+            "const": 1
+          },
+          "max_request_bytes": {
+            "type": "integer",
+            "const": 1048576
+          },
+          "max_timeout_ms": {
+            "type": "integer",
+            "const": 60000
+          }
+        }
+      }
+    }
+  }
+}
