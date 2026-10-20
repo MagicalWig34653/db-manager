@@ -19,8 +19,10 @@ Alle Pakete erhielten unabhängiges Review. P4a integriert als `bb37904` und `80
 API0.1.0 nach geschlossenem QA-P4-01 ausdrücklich als Clientvertrag freigegeben:
 [OpenAPI](../contracts/api-v0.1.0.json), Herkunft `80f203b3e0c7fa3f7f4aa5ec06825cb83bc0c5d0`,
 SHA256 `4b598dc69a1904685e67a717997412654440ac10f47c17f7a025ccd114e294be`.
-Die Engine ist bewusst noch ein Platzhalter und meldet keine verfügbaren Treiber.
-Go/Web hat noch keine integrierte Produktengine. Der native SQLite-Client ist
+B1 ist nach unabhängiger QA als reale SQLite-/MySQL-/MariaDB-/PostgreSQL-Engine
+integriert (`87caed8`/`063209e`, Handoffcheckpoint `4056c99`). Der Server meldet diese
+Treiber im dokumentierten eingeschränkten Betrieb. Webeinbettung und tatsächlicher
+Browser→Go→DB-Pfad fehlen noch. Der native SQLite-Client ist
 inzwischen als begrenztes eigenständiges Entwicklungsinkrement integriert;
 keine vollständige Datenbankverwaltung oder Parität.
 
@@ -50,7 +52,8 @@ Signing/Sandboxdurchsetzung, interaktive OS-UI und echte Geräte bleiben offen.
 
 F1/F1b-Webclient nach QA inklusive Session-/Zeilenzahlfix und CSP-tauglichen
 Standalone-Validatoren freigegeben. Produktquelle `4e5abee` im Webrepo;
-öffentliche CI und Integration stehen im laufenden Queue. Reale B1-Integration fehlt.
+öffentliche Frontend-/Dokumentations-CI erfolgreich; per FastForward integriert,
+zentraler Webstatuscommit `ec8dcea`. Reale B1-Integration fehlt.
 
 ## Laufende Arbeit und Dateibesitz
 
@@ -77,7 +80,7 @@ Alle drei Repos öffentlich unter `https://github.com/MagicalWig34653/<name>`:
 Git-/GitHub-Schreibblockaden der vorbereitenden Sitzung sind behoben.
 Go1.27.1, Node26.5.0, Swift6.4/Xcode27.1 und Docker/Colima tatsächlich verfügbar.
 
-Nächste Integration: B1 reale Go-Engine nach eigener QA. F1 und A1 getrennt
+Nächste Integration: F2a-Go-Webpaket nach eigener QA, dann F2b-Verdrahtung und echter Browserpfad. F1 und A1 getrennt
 fertigstellen/reviewen, danach echten durchgehenden Web-/Docker-/Apple-Pfad prüfen.
 Offen bleiben insbesondere vollständige Parität, produktiver Tresor/Recovery/Sync,
 Passkey-Entsperren, Teamkonten/Rechte, native sichere Netzwerkadapter und echte Geräte.
@@ -88,17 +91,15 @@ Hauptstand `9f1880f`: [Backend-/Container-CI](https://github.com/MagicalWig34653
 und [Dokumentations-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39487622656)
 tatsächlich erfolgreich. Neuere reine Status-/Untersuchungscommits separat prüfen.
 
-## B1-Reviewcheckpoint
+## B1-Abnahmecheckpoint
 
-Produktcode `fc1d68f`, Handoff `0fc8c9a` in `.worktrees/backend-engine`, noch nicht
-integriert. Unabhängige funktionale und Securityreviews abgeschlossen, vier Befunde
-beim Autor: tatsächliche SQLite-Speicherklassen statt deklarierter Typen (hoch),
-bekannte nicht-linklokale Metadaten-IP-Ziele (mittel), unbereinigter MySQL-Standardlogger
-(mittel), Katalog-Prefixfilter (niedrig). Fixes und enge Nachprüfung vor Integration.
-Keine konkreten Passwortlecks oder Metadaten-HTTP-Exfiltration behauptet.
-Go-Race/Vet, echte TLS-DBs mit Negativfällen sowie Compose-SQLite-Persistenz unabhängig
-erfolgreich. Alle drei Feature-CIs einschließlich nativem Linuxamd64 erfolgreich:
-[Engine](https://github.com/MagicalWig34653/db-manager/actions/runs/39490474043),
-[Backend/Container](https://github.com/MagicalWig34653/db-manager/actions/runs/39490473972),
-[Dokumentation](https://github.com/MagicalWig34653/db-manager/actions/runs/39490473995).
-Diese grünen Tests ersetzen die noch offene Befundkorrektur nicht.
+Produktcode `fc1d68f` plus Fix `4ecd15f` und Handoffcheckpoints wurden nach
+unabhängigen funktionalen und Securityreviews integriert. Alle vier Befunde
+(SQLite-Typsemantik hoch, Metadata-IP-/Loggerpolicy mittel, Catalogfilter niedrig)
+geschlossen. Kein konkretes Passwortleck/Metadata-HTTP-Exfiltration behauptet.
+Go-Race/Vet nach Integration bestanden. Native Linuxamd64 und Container-CIs am Fix:
+[Engine](https://github.com/MagicalWig34653/db-manager/actions/runs/39492062555),
+[Backend/Container](https://github.com/MagicalWig34653/db-manager/actions/runs/39492062646),
+[Dokumentation](https://github.com/MagicalWig34653/db-manager/actions/runs/39492062458),
+alle erfolgreich. Exakte JSON-Grenze berücksichtigt Escaping/Base64/HTTP-Newline.
+Keine umfassende Sandbox-/Powerloss-/HA-/Web-/Vault-/Team-/Paritätsfreigabe.

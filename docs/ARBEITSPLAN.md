@@ -24,7 +24,7 @@ Maximal drei aktive Worker, QA wird nach fertig gemeldeten Paketen eingeplant.
 
 | Ticket / Rolle | Repo / Branch / Worktree | Ziel, Besitz und Abnahme |
 | --- | --- | --- |
-| B1 – Backend & Platform (`p2a_drivers`) | Hauptrepo, `feat/backend-engine`, `.worktrees/backend-engine` | Reale SQLite-/MySQL-/MariaDB-/PostgreSQL-Engine. Besitz `internal/database/`, `internal/sqlitesandbox/`, Modul-/Lizenzdateien, begrenzte main-/Dockerverdrahtung, eigene Engineprüfungen/CI, Betrieb und Handoff. Kein HTTP/Core/Schema/Web ohne Abstimmung. Echte DB-Tests, Cancel/Lifecycle, sichere Fehler, 1MiB Rohzelle/8MiB tatsächliches JSON, Docker-UID/Persistenz sowie nativer Linuxamd64-Lauf sind Gates. ADR0004-Grenzen verpflichtend. |
+| B1 – abgenommen (`p2a_drivers`) | Hauptrepo, `feat/backend-engine`, `.worktrees/backend-engine` | Reale SQLite-/MySQL-/MariaDB-/PostgreSQL-Engine integriert als `87caed8`/`063209e`; vier Reviewbefunde geschlossen, native CIs grün. Besitz `internal/database/`, `internal/sqlitesandbox/`, Modul-/Lizenzdateien, begrenzte main-/Dockerverdrahtung, eigene Engineprüfungen/CI, Betrieb und Handoff. Kein HTTP/Core/Schema/Web ohne Abstimmung. Echte DB-Tests, Cancel/Lifecycle, sichere Fehler, 1MiB Rohzelle/8MiB tatsächliches JSON, Docker-UID/Persistenz sowie nativer Linuxamd64-Lauf sind Gates. ADR0004-Grenzen verpflichtend. |
 | F1 – Frontend & UX (`p1a_parity`) | Webrepo, `feat/web-workbench`, `.worktrees/web-workbench` | Deutsche Svelte/shadcn-svelte-Workbench mit Connection/Catalog/SQL/Ergebnissen. Besitz Produkt-/Build-/Testdateien, eigenes Lizenzinventar, Einrichtung, Handoff. Exakte freigegebene API binden; Credentials nur im Speicher; Unit-/Komponenten-/Browserprüfungen und sauberer unabhängiger Build. Echte B1-Integration folgt separat. |
 | S1 – Architecture & Security (`p3a_security`) | Hauptrepo, `feat/vault-format`, `.worktrees/vault-format` | Interoperables Vaultformat mit KDF, Masterpasswort und Recovery auf synthetischen Go-/Swift-Proben. Besitz neue Vaultschema-/Fixturedateien, Sicherheitsdoku/ADR0005/Handoff und `spikes/vault-interop/` mit eigenen Modulen; kein rootGoMod oder Produktclient parallel. Format vor produktiver Integration separat prüfen. |
 
@@ -88,3 +88,10 @@ prüfbare Commits sichern, offene Funktionen/Tests und nächsten Schritt dokumen
   Drei öffentliche Feature-CIs grün einschließlich nativem Linuxamd64; kein Ersatz für Fixreview.
 - S1 ist Voraussetzung für spätere produktive optionale Credentialpersistenz S2;
   keine Freigabe aus den bisherigen AEAD-/PRF-Spikes ableiten.
+
+B1-Abschluss: alle vier Befunde im Fix `4ecd15f` unabhängig geschlossen; Fix-CIs
+Engine39492062555/Backend39492062646/Docs39492062458 erfolgreich. Integrierte
+Go-Race/Vet-Prüfung bestanden. Backendworker für nächstes Ticket verfügbar.
+F2a liegt als `42a0dec` plus `d236076` im QA-Review; Sourcepin `4e5abee` ist
+inzwischen unverändert in Web-main ancestry und durch öffentliche CI bestätigt.
+A1-main `ce0aedb` hat auch nach zentralem Statuscommit Apple-/Docs-CI grün.
