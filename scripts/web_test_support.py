@@ -79,7 +79,11 @@ def verify_http(base, token):
     capabilities = api(base, '/api/v1/capabilities', token)
     assert capabilities['contract_version'] == '0.1.0'
     assert set(capabilities['drivers']) == {'sqlite', 'mysql', 'postgres'}
-    unknown, _ = request(base, '/api/v1/unknown', expected=404)
+    assert api(base, '/api/v2/capabilities', expected=401)['error']['code'] == 'unauthorized'
+    table_capabilities = api(base, '/api/v2/capabilities', token)
+    assert table_capabilities['contract_version'] == '0.2.0' and table_capabilities['mutations'] is False
+    assert set(table_capabilities['features']) == {'table_describe', 'table_browse'}
+    unknown, _ = request(base, '/api/v2/unknown', expected=404)
     assert b'<html' not in unknown.lower()
     manifest = json.loads((ROOT / 'internal/webui/assets-manifest.json').read_text())
     for item in manifest['files']:
@@ -125,3 +129,19 @@ def verify_persistence(base, token, restart):
     restart()
     wait_until(lambda: api(base, '/healthz')['status'] == 'ok', 'restart health')
     assert query(base, token, connection, 'SELECT value FROM saved')['results'][0]['rows'][0][0]['value'] == 'Neustart ✓'
+
+
+def start_postgres_fixture(container, directory, database):
+    """Prove socket-only bootstrap is insufficient before waiting for final TCP."""
+    barrier = directory / 'postgres-bootstrap-barrier.sh'
+    barrier.write_text('touch /fixture/bootstrap_waiting\nwhile [ ! -e /fixture/release_bootstrap ]; do sleep 0.1; done\n')
+    run(['docker', 'cp', str(barrier), container + ':/docker-entrypoint-initdb.d/00_readiness_regression.sh'])
+    run(['docker', 'start', container])
+    wait_until(lambda: run(['docker', 'exec', container, 'test', '-e', '/fixture/bootstrap_waiting']) == '', 'PostgreSQL bootstrap barrier')
+    probe = ['docker', 'exec', container, 'pg_isready', '-U', 'postgres', '-d', database]
+    assert 'accepting connections' in run(probe)
+    tcp_probe = [*probe, '-h', '127.0.0.1']
+    assert subprocess.run(tcp_probe, capture_output=True).returncode != 0, 'Bootstrap is not final TCP readiness'
+    run(['docker', 'exec', container, 'touch', '/fixture/release_bootstrap'])
+    wait_until(lambda: 'accepting connections' in run(tcp_probe), 'final PostgreSQL TCP readiness')
+    print('PostgreSQL readiness regression: socket-only bootstrap reproduced and refused; final TCP accepted.', flush=True)

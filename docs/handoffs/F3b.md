@@ -1,0 +1,67 @@
+# F3b – geprüfter Tabellenclient im Go-/Containerprodukt
+
+Stand: 20.10.2026. Frontend & UX Engineer, Branch `feat/table-web-runtime`,
+Basis `7f3191a`. Prüfkandidat für unabhängige QA, keine eigene Release-/Integrationsfreigabe.
+
+Ausschließlicher Webquellpin `6c6eb33c93eed355a10cd114f61ce27be7f3f55e`, nach geschlossenem
+QA-F3-01 unabhängig freigegeben und öffentlich in Web-main-Ancestry erhalten.
+SQL-Vertrag0.1.0 SHA256 `4b598dc69a1904685e67a717997412654440ac10f47c17f7a025ccd114e294be`,
+zusätzlicher Tabellenvertrag0.2.0 SHA256
+`c15a848f01bb779429fd68a2b6eb6bba1575d3e07a4c68e6796cf7840a661838`.
+Keine Vertrags-/DB-/Core-/HTTP-/Go-Modul-/Webquelländerung und kein API0.3-Verbrauch.
+
+## Umsetzung und bisherige Prüfungen
+
+Lock/Buildskript prüfen beide unveränderten Vertragskopien und das unveränderte npm-Lockfile.
+Zwei frische öffentliche Quellcheckouts mit Node26.5.0/npm11.17.0 und Produktionsbuild
+lieferten identische fünf Originalartefakte und bytegleiches Manifest. HTML424 Byte,
+CSS42254 Byte, JS383087 Byte, AGPL34523 Byte, Drittanbieterhinweise92896 Byte.
+Originale Lizenztexte bleiben unverändert. Der Build prüft außerdem den tatsächlich
+enthaltenen exakten Web-Quelllink; kein Umstempeln von Artefakten.
+
+Docker-Provenienzlabel auf denselben Pin aktualisiert. Keine Wrapper-/Endpunktänderung
+nötig. Bestehende CSP, Cache-/MIME-/Traversalregeln und Originaltextauslieferung bleiben.
+Shared-Runtimehelfer prüft zusätzlich v2-Auth/Fähigkeiten und API404 ohne HTMLmaskierung.
+
+Die PG-Fixture führt jetzt eine deterministische Bootstrap-Regression aus:
+Privates Initialisierungsskript hält den socketbasierten Bootstrap an. Unix-Readiness
+muss erfolgreich, TCP-Readiness erfolglos sein; erst nach Freigabe wird auf endgültiges
+TCP gewartet. Positive verify-full-Verbindung muss vor negativer Hostnamenprobe
+funktionieren, sowohl CLI als auch Compose. Das schließt eine Teststartgrenze des
+F2b-Aufbaus, keinen nachgewiesenen Produktfehler.
+
+Neue Root-Browserfälle übernehmen die abgenommene echte Tabellenregression aus dem
+festen öffentlichen Webquellcommit, angepasst nur auf eigene Root-Fixtures/Compose-
+Konfiguration. Einschließlich ungültiges Anwenden → Entwurf zurücknehmen → Weiter/
+gezählte Refresh-Anfrage mit ausschließlich altem angewendetem Zustand, Struktur,
+Sortierung/Filter/NULL/Präzision/Binär/View/fehlende stabile Ordnung. Bestehender SQL-
+/Abbruch-/Sessionpfad bleibt, neuer Dialogfall prüft exakten Quelllink und Lizenzbytes.
+Keine API-Mocks. Ressourcenprefixe `dbmanager-f3b-web-` und `dbmanager-f3b-deploy-`;
+private kurzlebige Credentials, keine Logs/URLs/Prozessargumente mit Secrets.
+
+Bisher bestanden: beide frischen Builds/Manifestvergleich,
+`python3 scripts/build-web.py --check`, acht Python-Buildprüfungen (einschließlich fehlendem/falschem Tabellenvertrag-Pin),
+`go test -race ./internal/webui`, `go vet ./internal/webui`.
+`python3 scripts/test-web-integration.py` bestanden: fünf echte Chromiumfälle in
+7,8 Sekunden gegen das tatsächlich eingebettete Go-Produkt, ohne Vite-/Mockproxy.
+SQLite und PostgreSQL-TLS jeweils Tabellen-Paging-/Filter-/Strukturregression sowie
+SQL/Begrenzung/Abbruch/Sessionpfad; separater sichtbarer Quell-/Lizenzdialog.
+SQL-Abbruch wurde wie bisher erst bei nachgewiesener laufender DB-Arbeit ausgelöst,
+danach tatsächliche DB-Freigabe geprüft. Null CSP-Verletzungen, private Credentials
+nicht im Browserstorage. Ein erster Lauf hatte im angepassten PG-Test die falsche
+Konfigurationsposition für das Passwort gelesen; behoben, vollständiger Lauf grün.
+
+`python3 scripts/test-deployment.py` bestanden: Compose und isolierter Docker29.5.2-
+DinD-Swarm mit allen Originalassets/-notices, strikter CSP, v1/v2-Auth/Fähigkeiten,
+API404 ohne HTML, Healthcheck, UID10001/Read-only-Root und echten SQLite-Abfragen.
+Daten überleben Compose-Neustart und Swarm-Taskersatz. Kein Host-Swarm verändert.
+Nur eigene Testressourcen entfernt; keine laufenden eigenen Server/DB-Container.
+Noch offen: sauberer Go-/Imagecheckout ohne Node/npm/Geschwister, öffentliche CI und
+unabhängige QA. Linux-CI reproduziert zusätzlich den öffentlichen Quellbuild und
+verlangt unveränderte eingecheckte Artefakte/Manifest.
+
+Keine Tabellenmutation, keine Schreibfreigabe des separat behandelten SQLite-UPDATE-
+Konfliktfalls, kein HA-/Mehrinstanz-SQLite, keine vollständige Parität. Freie SQL-Anfragen
+behalten ihre vorhandenen Berechtigungen; Tabellen-Browse ist ausdrücklich read-only.
+Zentrale Status-/Planungsdateien bleiben beim Lead. F3b liefert keine öffentliche
+Deployment-/Distributionsfreigabe; AGPL-Quellangebot und Release-SBOM bleiben Betreiber-/Releasegates.

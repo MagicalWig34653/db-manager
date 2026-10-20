@@ -39,6 +39,10 @@ def load_lock() -> dict:
         raise ValueError("Unsupported API contract")
     if digest((ROOT / "contracts/api-v0.1.0.json").read_bytes()) != lock["contract_sha256"]:
         raise ValueError("The main repository contract does not match the frontend lock")
+    if lock.get("table_contract_version") != "0.2.0" or not re.fullmatch(r"[0-9a-f]{64}", lock.get("table_contract_sha256", "")):
+        raise ValueError("Missing frozen table contract")
+    if digest((ROOT / "contracts/api-v0.2.0.json").read_bytes()) != lock["table_contract_sha256"]:
+        raise ValueError("The table contract does not match the frontend lock")
     for tool in ("node", "npm"):
         if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", lock.get("toolchain", {}).get(tool, "")):
             raise ValueError("Toolchain versions must be pinned exactly")
@@ -113,12 +117,17 @@ def rebuild(lock: dict) -> None:
         contract = checkout / "src/lib/contract/api-v0.1.0.json"
         if digest(contract.read_bytes()) != lock["contract_sha256"]:
             raise ValueError("Frontend API contract differs from the lock")
+        if digest((checkout / "src/lib/contract/v2/api-v0.2.0.json").read_bytes()) != lock["table_contract_sha256"]:
+            raise ValueError("Frontend table contract differs from the lock")
         if digest((checkout / "package-lock.json").read_bytes()) != lock["npm_lock_sha256"]:
             raise ValueError("Frontend npm lockfile differs from the pinned checksum")
         run(["npm", "ci", "--no-audit", "--no-fund"], checkout, env)
         run(["npm", "run", "build"], checkout, {**env, "NODE_ENV": "production"})
         output = checkout / "dist"
         files = inventory(output)
+        source_link = f"https://github.com/MagicalWig34653/db-manager-web/tree/{lock['commit']}".encode()
+        if len(files) != 5 or not any(source_link in path.read_bytes() for path in (output / "assets").glob("*.js")):
+            raise ValueError("Expected five original artifacts and the exact built source link")
         if "GNU AFFERO GENERAL PUBLIC LICENSE" not in (output / "LICENSE.txt").read_text():
             raise ValueError("The frontend AGPL license is missing")
         if "shadcn-svelte" not in (output / "THIRD-PARTY-NOTICES.txt").read_text():

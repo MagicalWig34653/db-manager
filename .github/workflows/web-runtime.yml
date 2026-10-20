@@ -30,7 +30,13 @@ jobs:
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '26.5.0'
-      - name: Gepinnte Assets offline prüfen
-        run: python3 scripts/build-web.py --check
+      - name: Gepinnte Assets und beide Verträge offline prüfen
+        run: |
+          python3 scripts/build-web.py --check
+          python3 -B scripts/test-build-web.py
+      - name: Öffentliche freigegebene Webquelle reproduzieren
+        run: |
+          python3 scripts/build-web.py
+          git diff --exit-code -- internal/webui/static internal/webui/assets-manifest.json
       - name: CLI, Compose, Chromium, SQLite und PostgreSQL mit TLS prüfen
         run: python3 scripts/test-web-integration.py --browser-deps

@@ -58,7 +58,10 @@ for (const driver of ['sqlite', 'postgres']) {
     await page.getByRole('button', { name: 'Schließen' }).click();
     await setToken(page, settings.token); await connect(page, driver);
     await page.getByRole('button', { name: 'f2b_values' }).click();
-    await expect(page.getByRole('textbox', { name: 'SQL-Abfrage', exact: true })).toHaveValue(/SELECT \* FROM/);
+    await expect(page.getByRole('region', { name: 'Tabellenarbeitsplatz', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'integer: 9223372036854775807' })).toBeVisible();
+    await page.getByRole('button', { name: 'SQL', exact: true }).click();
+    await expect(page.getByRole('textbox', { name: 'SQL-Abfrage', exact: true })).toHaveValue('');
     expect(queryCount).toBe(0);
     await query(page, 'SELECT id, precise, optional, empty_text, payload FROM f2b_values');
     await expect(page.getByText('9223372036854775807', { exact: true })).toBeVisible();
@@ -99,3 +102,22 @@ for (const driver of ['sqlite', 'postgres']) {
     expect([...origins]).toEqual([new URL(settings.baseURL).origin]);
   });
 }
+
+test('embedded source dialog identifies the exact reviewed source and original notices', async ({page}) => {
+  const {createHash}=await import('node:crypto');
+  await page.goto('/');
+  await page.getByRole('button',{name:'Quellcode & Lizenzen',exact:true}).click();
+  const dialog=page.getByRole('dialog',{name:'Quellcode & Lizenzen'});
+  await expect(dialog.getByRole('link',{name:'Web-Quellcode dieses Builds'})).toHaveAttribute('href','https://github.com/MagicalWig34653/db-manager-web/tree/'+settings.webCommit);
+  await expect(dialog.getByRole('link',{name:'Go-Serverprojekt'})).toHaveAttribute('href','https://github.com/MagicalWig34653/db-manager');
+  await expect(dialog.getByRole('link',{name:'Herkunft des Serverbuilds'})).toHaveAttribute('href','https://github.com/MagicalWig34653/db-manager/blob/main/docs/WEBBUILD.md');
+  for (const [name,path] of [['AGPL-Lizenztext','LICENSE.txt'],['Lizenzen der verwendeten Bibliotheken','THIRD-PARTY-NOTICES.txt']]) {
+    await expect(dialog.getByRole('link',{name,exact:true})).toHaveAttribute('href','/'+path);
+    const response=await page.request.get('/'+path);
+    expect(response.status()).toBe(200);
+    expect(createHash('sha256').update(await response.body()).digest('hex')).toBe(settings.licenseHashes[path]);
+  }
+  await page.keyboard.press('Escape');
+  await expect(dialog).not.toBeVisible();
+  await expect(page.getByRole('button',{name:'Quellcode & Lizenzen',exact:true})).toBeFocused();
+});
