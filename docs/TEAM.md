@@ -13,7 +13,7 @@ Dieser Teamplan weist tatsächliche Zuständigkeiten und bewusst besetzte Doppel
 | Backend & Platform Engineer | Go, DB-Adapter, serverseitige Tests, Compose/Swarm, Betriebs-/Buildpfade | P2-Worker; feste Fachrolle, praktische Plattformbefunde bleiben Abnahmevoraussetzung |
 | Frontend & UX Engineer | Svelte/shadcn-svelte, deutsche Bedienabläufe, API-Integration, Tastatur/Touch, Frontendprüfungen | P1a-Worker (`p1a_parity`); feste Fachrolle, Webclient nach geprüftem API-Freeze und eigenem Client-Worktree |
 | Apple Engineer | Swift/SwiftUI, direkte DB-Adapter, macOS/iPadOS, iCloud, eigenständiger Betrieb ohne Go | P3-Worker (`p3a_security`) in offengelegter Doppelrolle; Apple-Implementierung nach P4a-Fertigstellung im eigenen Apple-Repo-Worktree |
-| QA & Release Engineer | Unabhängige Anforderungs-/Diffreviews, Integrations-/Regressionstests, Nachweismatrix, Releaseprüfung | `p0_publication_review`; feste unabhängige QA-/Release-Rolle, prüft aktuell P1a/P3a und zentrale Dokumentation |
+| QA & Release Engineer | Unabhängige Anforderungs-/Diffreviews, Integrations-/Regressionstests, Nachweismatrix, Releaseprüfung | `p0_publication_review`; feste unabhängige QA-/Release-Rolle, prüft fertig gemeldete Produktpakete und gezielte Fixes unabhängig |
 
 Fachrolle und aktiver Agent-Slot sind verschieden. Maximal drei Worker arbeiten gleichzeitig;
 weitere zugewiesene Agents bleiben bis zur Aktivierung ihrer Tickets idle. Der Lead koordiniert

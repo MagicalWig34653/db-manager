@@ -4,19 +4,23 @@ Moderne Datenbankverwaltung im Aufbau: Go-Backend mit Svelte/shadcn-svelte-Webob
 und eigenständiger Swift/SwiftUI-App für macOS und iPadOS. Ziel ist vollständige
 phpMyAdmin-Parität und Unterstützung mehrerer Datenbanksysteme.
 
-**Aktueller Zwischenstand:** Go-API0.1.0 mit Tokenanmeldung, echter SQL-Ausführung,
-Verbindungstest und Tabellen-/View-Katalog für SQLite, MySQL/MariaDB und PostgreSQL.
-SQLite ist auf exklusiven lokalen Einzelinstanzbetrieb begrenzt. Compose/Swarm wurden
-praktisch geprüft, einschließlich UID10001, schreibgeschütztem Root und Persistenz.
-Der unabhängig geprüfte Webclient ist mit festem Quellcommit und Lizenzhinweisen
-in denselben Go-Server eingebettet: Verbindung → Katalog → SQL → Ergebnis unter `/`.
-Der F2b-Prüfkandidat belegt den echten Browser→Go→SQLite-/PostgreSQL-Pfad; unabhängige
-Abnahme und CI-Ergebnisse stehen im [F2b-Handoff](docs/handoffs/F2b.md).
+**Aktueller Zwischenstand:** Go-API mit echter SQLite-/MySQL-/MariaDB-/PostgreSQL-
+Ausführung, Tokenanmeldung, Katalog und strukturierter Tabellenansicht. Bestätigte
+Einzelzeilen-Inserts/Updates/Deletes sind im Backend unabhängig geprüft; die passende
+Web-Schreiboberfläche wird separat umgesetzt. Der eingebettete deutsche Webclient
+bietet Verbindung, Tabellenmetadaten, Sortierung, Filter, Pagination, SQL und begrenzte
+präzise Ergebnisse sowie Quellcode-/Originallizenzhinweise.
 
-Ein eigenständiger Swift/SwiftUI-SQLite-Arbeitsplatz ohne Go ist im Apple-Repository
-integriert, für macOS und den iPad-Simulator geprüft. Echte Geräte, Distribution,
-vollständige Parität, produktiver Tresor/Sync/Teams und sichere native Netzwerkadapter
-bleiben offen. Das Go-Backend bleibt für die Apple-App optional.
+Docker Compose und Docker Swarm sind praktisch geprüft, einschließlich UID10001,
+schreibgeschütztem Root und SQLitepersistenz nach Neustart/Taskersatz. SQLite ist auf
+exklusiven lokalen Einzelinstanzbetrieb begrenzt. Reproduzierbare Webassets gehören
+zum Go-Checkout; Node/npm werden zur Laufzeit nicht benötigt.
+
+Die eigenständige Swift/SwiftUI-App unterstützt SQLite und direktes PostgreSQL ohne
+Go mit verifiziertem TLS. Mac-/iPad-Simulator-Builds und echte synthetische Datenbanken
+sind geprüft. Echte Geräte, Signing, Distribution, vollständige Parität, produktiver
+Tresor/Sync/Teams und native MySQL-/MariaDB-Adapter bleiben offen. Konkrete Commit-/
+CI-Nachweise und Grenzen stehen im [Status](docs/STATUS.md).
 
 
 - [Projektplan](docs/PROJEKTPLAN.md), [Konzept](docs/KONZEPT.md)

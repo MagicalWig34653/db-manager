@@ -11,7 +11,7 @@ Docker Compose und Docker Swarm sind verbindlich (ADR-0003).
 | --- | --- | --- |
 | P0–P4a, P2b | Öffentliche Repos, Anforderungen/Paritätsreferenz, Treiber-/Securityspikes, HTTP/Auth-/Containergrundlage, eingeschränkte SQLite-VFS-Entscheidung | [P0](handoffs/P0-review.md), [P1a](handoffs/P1a.md), [P2a](handoffs/P2a.md), [P3a](handoffs/P3a.md), [P4a](handoffs/P4a.md), [P2b](handoffs/P2b.md) |
 | B1 | Reale SQLite-/MySQL-/MariaDB-/PostgreSQL-Engine mit verifiziertem Netzwerk-TLS und begrenzten typisierten Ergebnissen; vier Reviewbefunde geschlossen | [B1](handoffs/B1.md) |
-| A1 | Eigenständiger nativer SwiftUI-/SQLite-Arbeitsplatz ohne Go; zehn Tests und Mac-/iPad-Simulator-Build, Dateiwechselfix geprüft | [Applerepo](https://github.com/MagicalWig34653/db-manager-apple), dort Handoff A1 |
+| A1/A2 | Eigenständiger nativer SwiftUI-/SQLite-/PostgreSQL-Arbeitsplatz ohne Go; verpflichtendes Netzwerk-TLS, präzise Werte und serverseitiger Abbruchpfad, Mac-/iPad-Simulator-Builds. Lifecycle-/Kalenderbefunde geschlossen | [Applerepo](https://github.com/MagicalWig34653/db-manager-apple), dort Handoff A1 |
 | F1/F1b, F2a/F2b | Deutscher Web-SQL-Arbeitsplatz, reproduzierbare Offlineassets, echtes Browser→Go→DB-Produkt; Session-/CSP-Befunde geschlossen | [F2a](handoffs/F2a.md), [F2b](handoffs/F2b.md) |
 | B2a | Strukturierte Tabellenmetadaten, Sortierung, gebundene AND-Filter und Pagination; Pflichtfeld-/Kollationsbefunde geschlossen | [B2a](handoffs/B2a.md) |
 | B2b | Bestätigtes Einzelzeilen-UPDATE/DELETE mit typisiertem Erwartungssnapshot, echten Locks/Transaktionen und ehrlichem unbekanntem Commitausgang | [B2b](handoffs/B2b.md) |
@@ -53,10 +53,10 @@ keinen gefixten Server. [Vertragsindex](../contracts/README.md).
 
 | Paket / Rolle | Repo, Branch / Worktree | Tatsächlicher Stand und Dateibesitz |
 | --- | --- | --- |
-| A2 / Apple & Security | Apple, `feat/apple-postgres`, `.worktrees/apple-postgres` | Direkter PostgreSQL-Pfad ohne Go; Code `89b2683`/`abaa3dc`, Kalenderfix `b72e62c`. Unabhängiger Review einschließlich konkretem unveröffentlichtem NIOssl-Revisionspin bestanden; QA-A2-01 geschlossen. 1.008 Datums-/4.032 Timestampvektoren und drei echte TLS-PG-Kalenderfälle unabhängig geprüft. Vor Integration fehlt exakter erfolgreicher nativer CI39503396485; Docs-CI erfolgreich. Kein offener Produktbefund. |
+| A2 / integriert | Apple-main `7e97aae`, Provenienz `feat/apple-postgres` / `.worktrees/apple-postgres` | Quellen89b2683/abaa3dc/b72e62c als fdd533e/cd5d886/031b1e8 nach unabhängiger QA und exakter grüner nativer CI39503396485 integriert. Kalenderfix mit 1.008/4.032 Vektoren und drei echten TLS-PG-Fällen unabhängig geprüft; konkreter NIOssl-Pin ausdrücklich akzeptiert. Leadintegration Swift-/Kalender-/13Pins-/Originalcheckout-/Docs74/0 bestanden, sechs Livetests im Leadlauf ausdrücklich übersprungen. Neue kombinierte Apple-Main-CI noch kontrollieren. |
 | F4 / Frontend & UX (`p1a_parity`) | Web, `feat/row-workbench`, `.worktrees/row-workbench`, Basis `ffdd2a0` | Einzelzeilen-Insert/Edit/Delete, bestätigte Aktionen, frische Eignung und vollständige Snapshots, ehrlicher Konflikt-/Unknown-Ausgang. Besitz Webprodukt/Vertragskopien/Build/Tests/Lizenzen/Einrichtung/Handoff. Keine zentralen Statusdateien. v4-Fähigkeiten und v3-Eignung verpflichtend, Referenzbackend72855cf. Unabhängige QA und separater Root-Webpin folgen. |
 | S2a / Apple & Security (`p3a_security`) | Apple, `feat/vault-core`, `.worktrees/vault-core`, Basis `7cbeb38` | Ausschließlich eigenständiges neues Paket Packages/DBManagerVault samt Prüfungen/Originaltexten, eigenen CI/Skripten, ADR-A003/Sicherheitsdokumenten/Handoff. Actor-Session, sichere lokale atomare Dateiablage, extern verankerte CAS-/Lebenszeit-AEAD-Reservierung und Recovery mit neuen Faktoren. Keine App-/Xcode-/Rootpackage-/A2-/zentralen Statusänderungen. Produktiver nicht zurückrollbarer Anchor bleibt gesondertes Gate; nur Testanker noch keine Produktfreigabe. |
-| B3a / Backend & Platform | Hauptrepo, neuer eigener Worktree/Branch wird vorgeschlagen | Begrenzte lesende Index-/Constraintmetadaten vorbereiten. Erst Scope-/Vertragsentscheidung, keine DDL; noch kein Implementierungsnachweis. |
+| B3a / Backend & Platform (`p2a_drivers`) | Hauptrepo, `feat/schema-metadata`, `.worktrees/schema-metadata`, Basis5cb604a | Lesende Index-/Constraintmetadaten, additiver API0.5-Kandidat, v1-v4 unverändert. Scope freigegeben: keine DDL/SQL-Ausdruckstexte, ehrliche Katalogabdeckung/unknown und SQLite-CHECK-Lücke; enge lesende index_xinfo-Freigabe. Besitz neue Core-/DB-/HTTPdateien und enge Route/Authorizerregression, eigener Vertrag/Tests/CI/Doku/Handoff; keine zentralen Statusdateien/Vertragsindex/GoMod/Main/Web/Docker. Implementierung und echte vier Treiberprüfungen laufen, QA folgt. |
 
 Zentrale STATUS-/ARBEITSPLAN-Dateien aller Repos gehören dem Lead. Jeder Writer hat
 eigenen Worktree/Branch; unabhängiger Review vor Integration. Laufzeit weiterhin vier
@@ -76,6 +76,6 @@ Retry; Trigger-/externe Nebenwirkungen, ABA und Exactly-once bleiben begrenzt.
 Drei öffentliche Repos `db-manager`, `db-manager-web`, `db-manager-apple` unter
 https://github.com/MagicalWig34653, main mit origin-Tracking. Git funktioniert;
 Go1.27.1, Node26.5.0/npm11.17.0, Swift6.4/Xcode27.1 und Docker/Colima verfügbar.
-Nächste konkrete Schritte: neue Haupt-CIs kontrollieren, A2 nach exakter CI integrieren,
-F4 und S2a unabhängig prüfen, B3a zuschneiden. [Arbeitsplan](ARBEITSPLAN.md),
+Nächste konkrete Schritte: neue Go-/Apple-Haupt-CIs kontrollieren,
+F4/S2a/B3a nach Autorenabschluss unabhängig prüfen, freigegebenen F4-Webpin separat einbetten. [Arbeitsplan](ARBEITSPLAN.md),
 [Team](TEAM.md), [Einrichtung](../EINRICHTUNG.md).

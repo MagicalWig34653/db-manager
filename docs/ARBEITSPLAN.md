@@ -11,10 +11,10 @@ Tatsächliche Ergebnisse und feste Vertragspins: [STATUS](STATUS.md).
 | --- | --- | --- |
 | F4 / Frontend & UX | Web / feat/row-workbench / .worktrees/row-workbench, Basis ffdd2a0 | Gepinnte API0.3/0.4, verpflichtende v4-Fähigkeiten auf Backend72855cf und v3-Eignung. Bestätigte Einzelzeilen-Inserts/Edits/Deletes mit Default/NULL/Leerwert-/Präzisionsunterscheidung, vollständigem altem typisiertem Snapshot und tatsächlicher Rücklese. Keine automatischen Retries; 409 fordert Neuladen, Unknown/Transportabbruch nach Versand als möglicher Commit. Session-/Quellenwechsel räumt Werte auf, generischer Unknown-Hinweis darf bleiben. Besitz Webprodukt/Vertragskopien/Build/Tests/Lizenzen/README/Einrichtung/Handoff, keine zentralen Statusdateien. Echte SQLite-/PG-TLS-Browserfälle einschließlich konkurrierender Änderung und verloren gegangener Antwort nach tatsächlichem Commit; CSP/Lizenz-/Sessionregressionen. Unabhängige QA vor Webintegration; Rootassetpin F4b separat. |
 | S2a / Apple & Security | Apple / feat/vault-core / .worktrees/vault-core, Basis7cbeb38 | Eigenständiger Core im neuen Packages/DBManagerVault, eigene Tests/Fixtures/Originaltexte/CI/Skripte, ADR-A003/Sicherheitsdokumente/Handoff. S1-Format exakt, Actor-Locksession, verwaltetes privates Root mit festen Zufallsnamen und sicheren Dateideskriptoren, flock/CAS/temp0600/fsync/rename/dirfsync. Unabhängiger Anchor reserviert lebenslange Root-AEAD-Nutzung dauerhaft vor Verschlüsselung, bestätigt Hash/Generation erst nach dauerhafter Datei; Pending nur bekannte alte/neue Zustände. Fehlender/zurückrollbarer importierter Anchor erlaubt keine schreibende Produktsession. Nur Testanker in Testtarget, kein stiller InMemory-Produktfallback. Recovery darf mit einem überlebenden alten Faktor in neuen Tresor mit beiden neuen rückgelesenen Faktoren migrieren; Original erhalten. Keine App-/Xcode-/Rootpackage-/A2-/zentralen Statusänderungen. Unabhängige Dateisystem-/Fehler-/Concurrency-/Bounds-/Interop-QA vor Integration. |
-| B3a / Backend & Platform | Hauptrepo / neuer eigener Worktree nach Scopevorschlag | Lesende Index-/Constraintmetadaten für Strukturansicht, additive API, v1-v4 unverändert. Keine DDL/SQL-Fragmente; konservative Aussagen statt erratener Eigenschaften. Konkreter Scope und Besitz vor Implementierung. Echte vier Treiber/TLS, Go-Race/Vet, Vertrags-/Sondernamen-/Ausdrucks-/Partial-/Include-/Kollationsfälle und unabhängiger Review. |
+| B3a / Backend & Platform | Hauptrepo / feat/schema-metadata / .worktrees/schema-metadata, Basis5cb604a | Lesende Index-/Constraintmetadaten für Strukturansicht, additive API, v1-v4 unverändert. Keine DDL/SQL-Fragmente; konservative Aussagen statt erratener Eigenschaften. Scope freigegeben: kein Ausdrucks-SQL, ehrliche CHECK-Lücke; neue Core-/DB-/HTTPdateien, enge Route/Authorizer, eigene Verträge/CI/Tests/Doku/Handoff; zentrale Statusdateien/Vertragsindex ausgenommen. Echte vier Treiber/TLS, Go-Race/Vet, Vertrags-/Sondernamen-/Ausdrucks-/Partial-/Include-/Kollationsfälle und unabhängiger Review. |
 
-A2 ist fachlich nach unabhängiger Kalenderfixprüfung freigegeben; Integration wartet
-noch exakte native CI39503396485 an b72e62c. Bestehender eigener Worktree
+A2 ist nach unabhängiger Kalenderfixprüfung und exakter grüner nativer
+CI39503396485 an b72e62c im Apple-main7e97aae integriert. Bestehender eigener Worktree
 Apple/feat/apple-postgres/.worktrees/apple-postgres bleibt Provenienz. NIOssl-Pin
 ist begründete eingeschränkte Abhängigkeitsentscheidung mit dokumentiertem Risiko.
 Signing, echte Geräte und OS-UI bleiben offen.
@@ -23,13 +23,13 @@ Signing, echte Geräte und OS-UI bleiben offen.
 
 1. F3b ist unabhängig abgenommen und im Hauptrepo integriert. Neue kombinierte
    Haupt-CIs nach Veröffentlichung kontrollieren; lokale Integrationschecks bestanden.
-2. A2 nach erfolgreicher exakter CI integrieren und Apple-Hauptprüfung durchführen;
-   ADR-A002 und zentrale Apple-Dokumente entsprechend freigeben.
+2. A2 ist integriert, ADR-A002 und zentrale Apple-Dokumente aktualisiert; lokale
+   Integrationsprüfung bestanden. Neue kombinierte Apple-Main-CI kontrollieren.
 3. F4 nach Autorenabschluss unabhängig prüfen; Konflikt-/Unknown-/Sessionfälle und
    reale DB-Semantik sind Abnahmegates. Danach separater reproduzierbarer RootpinF4b.
 4. S2a unabhängig prüfen. Reale Keychain-/signierte Anchorintegration und Appablauf
    sind ein separates S2b-Gate; weder Testspeicher noch Build ist Produktpersistenz.
-5. B3a nach Scopeentscheidung implementieren und separat prüfen. Weitere Pakete
+5. B3a im freigegebenen lesenden Scope implementieren und separat prüfen. Weitere Pakete
    aus der Paritätsmatrix anschließend zuschneiden: Schemafunktionen, Import/Export,
    Verlauf/Favoriten und sichere native Netzwerkadapter. Jede Freigabe separat.
 

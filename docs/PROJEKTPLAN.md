@@ -1,6 +1,9 @@
 # Projektplan DB Manager
 
-Stand: 20.10.2026. Plan zur Umsetzung freigegeben; P0 abgeschlossen: drei öffentliche Repos, Dokumentations-CI grün. Keine Produktimplementierung.
+Ursprünglicher Etappenplan vom 20.10.2026, zur Umsetzung freigegeben. Dieser Text
+beschreibt Ziele und damalige Vorschläge. Tatsächliche bereits integrierte Produkte,
+Prüfungen und aktuelle Aufträge stehen ausschließlich in [STATUS](STATUS.md) und
+[ARBEITSPLAN](ARBEITSPLAN.md); der ursprüngliche Bootstrap ist abgeschlossen.
 
 ## Grundlage und Verbindlichkeit
 
@@ -196,6 +199,6 @@ Vor Teams: Rollen, Freigaben, Jobberechtigungen und Schlüsselrotation.
 Vor Distribution: App-Verteilungswege, Signierung und CloudKit-Umgebungen.
 iPhone ist weiterhin eine mögliche spätere Erweiterung, kein zugesagtes Erstziel.
 
-Aktueller nächster Schritt: P1a mit Quellen und prüfbarer Paritätsmatrix gemäß ARBEITSPLAN;
-P0-Nachweise siehe STATUS und EINRICHTUNG. Technische Machbarkeit
-der Produktfunktionen wurde bisher nicht behauptet oder getestet.
+Der damalige nächste Schritt P1a und die Grundlagenpakete sind abgeschlossen.
+Aktuelle Integration und Fortsetzung stehen in STATUS/ARBEITSPLAN. Alte Vorschläge
+werden erst durch dokumentierte Entscheidung und tatsächliche Prüfung verbindlich.
