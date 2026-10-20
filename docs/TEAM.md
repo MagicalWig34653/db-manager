@@ -2,24 +2,27 @@
 
 Stand: 20.10.2026. Nutzerauftrag: professionelles Softwareentwicklungsteam mit Agents;
 Lead ausschließlich Projektleitung und Koordination, Umsetzung durch beauftragte Engineers.
-Dieser Teamplan weist reale aktuelle Zuständigkeiten getrennt von noch unbesetzten Rollen aus.
+Dieser Teamplan weist tatsächliche Zuständigkeiten und bewusst besetzte Doppelrollen aus.
 
 ## Rollen und Besetzung
 
 | Rolle | Zuständigkeit | Tatsächliche Besetzung / Aktivierung |
 | --- | --- | --- |
 | Projektleitung / Lead | Ziele, Tickets, Prioritäten, Dateibesitz, Verträge zur Abstimmung, Agent-Koordination, zentrale Status-/Planpflege, Reviewbeauftragung und Integration | Hauptagent; koordiniert, implementiert keine Produktfunktionen |
-| Architecture & Security Engineer | Architekturvorschläge/ADRs, Vertrauensgrenzen, Tresor/Recovery/Sync, API-Verträge, Sicherheitsreview | Aktueller P3-Worker; fest zugeordnete Fachrolle, konkrete Folgeaufträge durch Lead |
-| Backend & Platform Engineer | Go, DB-Adapter, serverseitige Tests, Compose/Swarm, Betriebs-/Buildpfade | Aktueller P2-Worker; fest zugeordnete Fachrolle, praktische Plattformbefunde bleiben Abnahmevoraussetzung |
-| Frontend & UX Engineer | Svelte/shadcn-svelte, deutsche Bedienabläufe, API-Integration, Tastatur/Touch, Frontendprüfungen | Aktueller P1a-Worker; zuerst Inventar abschließen und beauftragte unabhängige Reviews, anschließend Frontendtickets |
-| Apple Engineer | Swift/SwiftUI, direkte DB-Adapter, macOS/iPadOS, iCloud, eigenständiger Betrieb ohne Go | Noch nicht besetzt; eigener Agent mit eigenem Apple-Repo-Worktree bei verfügbarem Slot |
-| QA & Release Engineer | Unabhängige Anforderungs-/Diffreviews, Integrations-/Regressionstests, Nachweismatrix, Releaseprüfung | Noch nicht als eigener dauerhafter Agent besetzt; pro Ticket unabhängigen Reviewer namentlich beauftragen, später bei Bedarf eigener Agent |
+| Architecture & Security Engineer | Architekturvorschläge/ADRs, Vertrauensgrenzen, Tresor/Recovery/Sync, API-Verträge, Sicherheitsreview | P3-Worker (`p3a_security`); feste Fachrolle, zusätzlich nach P4a-Fertigstellung Apple Engineer; konkrete Folgeaufträge durch Lead |
+| Backend & Platform Engineer | Go, DB-Adapter, serverseitige Tests, Compose/Swarm, Betriebs-/Buildpfade | P2-Worker; feste Fachrolle, praktische Plattformbefunde bleiben Abnahmevoraussetzung |
+| Frontend & UX Engineer | Svelte/shadcn-svelte, deutsche Bedienabläufe, API-Integration, Tastatur/Touch, Frontendprüfungen | P1a-Worker (`p1a_parity`); feste Fachrolle, Webclient nach geprüftem API-Freeze und eigenem Client-Worktree |
+| Apple Engineer | Swift/SwiftUI, direkte DB-Adapter, macOS/iPadOS, iCloud, eigenständiger Betrieb ohne Go | P3-Worker (`p3a_security`) in offengelegter Doppelrolle; Apple-Implementierung nach P4a-Fertigstellung im eigenen Apple-Repo-Worktree |
+| QA & Release Engineer | Unabhängige Anforderungs-/Diffreviews, Integrations-/Regressionstests, Nachweismatrix, Releaseprüfung | `p0_publication_review`; feste unabhängige QA-/Release-Rolle, prüft aktuell P1a/P3a und zentrale Dokumentation |
 
 Fachrolle und aktiver Agent-Slot sind verschieden. Maximal drei Worker arbeiten gleichzeitig;
-der Lead belegt den vierten verfügbaren Slot. Apple- und QA-Arbeit werden daher bedarfsgerecht
-sequenziell aktiviert, sobald eine laufende Aufgabe übergeben ist. Ein Rollenname allein
-belegt keine Besetzung oder abgeschlossene Prüfung. Dauerhafte Namen/Modellquoten sind
-keine Voraussetzung; die Ticketübergabe muss einen Agentwechsel ermöglichen.
+weitere zugewiesene Agents bleiben bis zur Aktivierung ihrer Tickets idle. Der Lead koordiniert
+diese Aktivierung. Ein weiterer dedizierter Apple-Agent konnte wegen des Threadlimits nicht
+gestartet werden; deshalb wird die Apple-Rolle im kleinen Team durch Architecture & Security
+übernommen. Architektur-/Security- und Apple-Implementierung erfolgen in abgegrenzten Tickets
+nacheinander. Fachliche Rollenzuweisung allein belegt keine abgeschlossene Prüfung.
+Dauerhafte Namen/Modellquoten sind keine Voraussetzung; dokumentierte Zuständigkeiten
+und Übergaben müssen einen Agentwechsel ermöglichen.
 
 Unabhängige Reviews können durch einen fachlich geeigneten anderen Engineer erfolgen.
 Der Autor darf sein eigenes Paket prüfen, aber weder sein eigener unabhängiger Reviewer
@@ -100,5 +103,6 @@ Fachrollen eine prüfbare Freigabeliste vor; der Lead koordiniert deren Abschlus
   Releaseblocker verhindern die Behauptung eines vollständig freigegebenen Produkts.
 
 Ein Nutzungszwischenstand darf mit ehrlich begrenztem Funktionsumfang veröffentlicht werden;
-er ersetzt weder die Endzielabnahme noch fehlende Plattformprüfungen. Der aktuell erfasste
-Projektstand enthält noch keine Produktimplementierung und keinen Releasekandidaten.
+er ersetzt weder die Endzielabnahme noch fehlende Plattformprüfungen. Den tatsächlichen Implementierungs- und
+Freigabestand führt der Lead in [STATUS](STATUS.md); dieses Rollenmodell ist kein
+Produkt- oder Releasefreigabenachweis.

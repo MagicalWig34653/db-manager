@@ -1,6 +1,7 @@
 # Handoff P1a – phpMyAdmin-Funktionsinventar
 
-Stand: 20.10.2026. Implementierer: beauftragter P1a-Worker; unabhängiger Review ausstehend.
+Stand: 20.10.2026. Implementierer: beauftragter P1a-Worker; unabhängiger Review durch
+`p0_publication_review` läuft; nachfolgende Korrekturen sind zur Nachprüfung bereit.
 Paket im Hauptrepository, Branch `docs/p1a-paritaet`; eigener Worktree `.worktrees/p1a`.
 Ursprünglicher Dateibesitz `docs/PARITAET.md` und dieser Handoff; durch Leadauftrag
 um `docs/TEAM.md` erweitert (Nutzerpräzisierung zum professionellen Team).
@@ -55,9 +56,12 @@ keine echten Verbindungsdaten, SQL-Verläufe oder Fremdcodedateien aufgenommen.
 
 ## Teamauftrag und künftige Zuständigkeit
 
-TEAM benennt Lead, aktuelle P2-/P3-/P1a-Fachrollen und ehrlich noch unbesetzte
-Apple-/QA-Rollen. Slots werden sequenziell besetzt; Selbstprüfung ist keine unabhängige
-Abnahme. Nach P1a und beauftragtem Fremdreview übernimmt dieser Worker Frontend & UX.
+TEAM benennt Lead, P2/P3/P1a-Fachrollen und die feste QA-/Release-Rolle
+`p0_publication_review`. P3 übernimmt nach P4a-Fertigstellung zusätzlich Apple Engineering;
+die Doppelrolle ist offengelegt, weil ein weiterer dedizierter Agent wegen des Threadlimits
+nicht gestartet werden konnte. Maximal drei Worker sind gleichzeitig aktiv; weitere
+zugewiesene Agents bleiben idle. Selbstprüfung ist keine unabhängige Abnahme.
+Nach P1a und beauftragtem Fremdreview übernimmt dieser Worker Frontend & UX.
 Produktimplementation erfolgt nur in eigenem Client-Worktree auf reviewed Vertragsbasis.
 
 ## Offene Grenzen und nächste Schritte
@@ -68,9 +72,27 @@ benötigt später einen eigenen parametrisierten Fall. Native Gegenstücke zu se
 Dateiverzeichnissen, externen Programmen, Themes und Auth-Integrationen sind offen.
 Eine echte vollständige Sprach-/Options- und UI-Erhebung bleibt erforderlich.
 
-Lead beauftragt unabhängigen lesenden Review des Diffs, integriert erst nach Befundklärung
+Lead hat `p0_publication_review` mit unabhängigem lesendem Review beauftragt, integriert erst nach Befundklärung
 und aktualisiert danach STATUS/ARBEITSPLAN. Die Produktanforderung Compose/Swarm muss
 zusätzlich in den zentralen Entscheidungen/Betriebsaufträgen verankert werden.
 Anschließend Referenz/DB-Ziele entscheiden und isolierte Referenzfixtures anlegen.
 Commit dieses Pakets wird über Branch und Git-Historie identifiziert; keine Integration
 oder Veröffentlichung durch diesen Worker vorgenommen.
+
+## Reviewkorrektur vom 20.10.2026
+
+QA-/Peer-Findings im eigenen Worktree korrigiert, Dateibesitz unverändert:
+
+- `TEAM.md` und Handoff: veraltete Aussage unbesetzter QA-/Apple-Rollen entfernt.
+  Tatsächliche feste QA-Besetzung und Apple-Doppelrolle samt Threadlimit dokumentiert;
+  Lead bleibt ausschließlich Koordinator, maximal drei gleichzeitig aktive Worker.
+- `PMA-CON-003`: Pflicht-TLS schließt Klartext-Fallback aus. TLS-unfähiger Server muss
+  vor Credentials-/Authentifizierungsantwort abgewiesen werden. Als Abnahme ist ein
+  isolierter Protokollmitschnitt vorgesehen. Anlass ist der vom P2a-Worker gemeldete
+  reale MySQLNIO-Downgradebefund; hier wurde weder Treibercode geändert noch dieser
+  DB-Fall selbst ausgeführt.
+- Nachprüfung: `python3 scripts/check-docs.py` erneut 72 Dateien / 0 Fehler;
+  `git diff --check` ohne Befund; strukturell weiterhin 181 eindeutige PMA-IDs,
+  sieben Tabellenspalten, Stand `O` und vorgeschlagene Priorität in jeder PMA-Zeile.
+- Keine Produktänderungen, gestarteten Dienste, Änderungen fremder Dateien oder Jobs.
+  Folgecommit zur unabhängigen QA-Nachprüfung; Integration durch Lead bleibt ausstehend.
