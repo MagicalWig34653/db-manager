@@ -15,7 +15,7 @@ import (
 
 // sqliteQuery reads storage classes before invoking any coercing column getter.
 // Declared column types remain metadata and never determine a cell's runtime kind.
-func sqliteQuery(ctx context.Context, db *sql.DB, request core.QueryRequest, start time.Time) (core.QueryResult, error) {
+func sqliteQuery(ctx context.Context, db *sql.DB, request core.QueryRequest, start time.Time, args ...any) (core.QueryResult, error) {
 	result := core.QueryResult{Results: []core.ResultSet{}}
 	connection, err := db.Conn(ctx)
 	if err != nil {
@@ -40,6 +40,28 @@ func sqliteQuery(ctx context.Context, db *sql.DB, request core.QueryRequest, sta
 		defer statement.Close()
 		if strings.TrimSpace(tail) != "" {
 			return public("invalid_query", "Genau eine SQL-Anweisung ist erforderlich.")
+		}
+		if statement.BindCount() != len(args) {
+			return public("invalid_query", "Anzahl der Parameter ist ungültig.")
+		}
+		for index, value := range args {
+			switch typed := value.(type) {
+			case int64:
+				err = statement.BindInt64(index+1, typed)
+			case float64:
+				err = statement.BindFloat(index+1, typed)
+			case string:
+				err = statement.BindText(index+1, typed)
+			case []byte:
+				err = statement.BindBlob(index+1, typed)
+			case bool:
+				err = statement.BindBool(index+1, typed)
+			default:
+				return public("invalid_filter", "Filterwert ist nicht unterstützt.")
+			}
+			if err != nil {
+				return err
+			}
 		}
 		set := core.ResultSet{Columns: []core.Column{}, Rows: [][]core.Cell{}}
 		count := statement.ColumnCount()
