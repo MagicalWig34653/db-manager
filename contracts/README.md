@@ -1,6 +1,9 @@
 # Gemeinsame Verträge
 
-API-Kandidat `0.1.0`: [OpenAPI](api-v0.1.0.json). Vor unabhängiger Prüfung noch nicht freigegeben.
+API `0.1.0`: [OpenAPI](api-v0.1.0.json), nach unabhängigem QA-Review am 20.10.2026
+als Clientvertrag freigegeben. Herkunftscommit `80f203b3e0c7fa3f7f4aa5ec06825cb83bc0c5d0`,
+SHA-256 `4b598dc69a1904685e67a717997412654440ac10f47c17f7a025ccd114e294be`.
+Die Freigabe bestätigt den Vertrag, keine noch fehlende Produkt-Engine.
 HTTP-JSON mit Bearer-Token, kein Cookie-Login. Jede DB-Anfrage trägt die Verbindung
 inklusive flüchtigem Passwort; keine Persistenz und keine Rückgabe der Zugangsdaten.
 UI hält Token und Passwörter ausschließlich im Arbeitsspeicher. TLS für entfernte

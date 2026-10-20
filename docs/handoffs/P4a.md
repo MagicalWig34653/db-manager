@@ -126,3 +126,17 @@ P4a-Dateiänderungen parallel zum Backendworker. Bisherige manuelle P4a-Ressourc
 `dbmanager-p4a-app-1` und `dbmanager-p4a-swarm` wurden nach Namens-/Image-/Projekt-
 Labelprüfung entfernt; fremde P2a-/Timetrack-/Datenbankcontainer unangetastet.
 Lokale ignorierte Tokenwerte werden nicht ausgegeben oder eingecheckt.
+
+## Unabhängige Abnahme und Integration
+
+QA & Release hat Foundation und API0.1.0 unabhängig geprüft. Neuer Imagebuild sowie
+Compose- und isolierter Swarmtest durch QA erfolgreich (Secrets, Placement,
+Routing Mesh, Authentifizierung, Healthchecks, nonroot/read-only bei Compose).
+Fremde Container und Host-Swarm unverändert, eigene Ressourcen entfernt.
+QA-P4-01 (HTTP/OpenAPI-Abweichung bei expliziten Nullwerten/leerer TLS-Option)
+im Autorenfolgecommit `179f0bd` korrigiert und eng unabhängig nachgeprüft.
+Go-Racetests, Vet, Format-, Diff- und Dokumentationsprüfung bestanden.
+Paket inklusive API0.1.0 ausdrücklich freigegeben, integriert als `bb37904`/`80f203b`.
+Clients pinnen `80f203b3e0c7fa3f7f4aa5ec06825cb83bc0c5d0` plus Vertrags-SHA.
+Keine DB-Engine, SQLite-Sandbox, Ergebnisbytegrenzen, Tresor- oder Produktfreigabe
+aus diesem Foundationreview ableiten. Weitere Implementierung in eigenen Tickets.
