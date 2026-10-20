@@ -134,3 +134,8 @@ Root-Testhelfer `scripts/web_test_support.py` eng auf TCP/TLS-Readiness härten:
 Unix-Socket-pg_isready kann PostgreSQL-Bootstrap zu früh akzeptieren. F3 hat dafür
 eine deterministische Initialisierungsbarriere und positive TLS-Probe vor negativem
 Hosttest eingeführt; keinen Produktfehler aus der Test-Race behaupten.
+
+Reviewqueue: F3-Erstreview an `d36bb65`/`2605931` bis auf QA-F3-01 grün;
+Frontendautor korrigiert atomare Filter-/Sortzustandsübernahme. P0 prüft anschließend
+gezielt Paging-/Aktualisierungsrepro. Root-WebpinF3b weiter gesperrt. A2 wartet
+Autorenabschluss und eigenen unabhängigen Review inklusive neuem NIOssl-Revisionspin.

@@ -165,3 +165,18 @@ API0.3.0 ausdrücklich zur Clientbindung freigegeben, Herkunft
 `946241d7f10f7444e9e5efebbe8b3a38a8120a9b`, Schema-SHA256
 `ec77c9739cda11df3f4cb9fe756a632e67840fdc0f6190deee1aa1d1333dc308`.
 Keine geprüfte Web-Schreiboberfläche, kein Insert/ABA-/Exactly-once-/HA-Versprechen.
+
+## Aktuelle unintegrierte Reviewstände
+
+F3-Webquelle `d36bb65`/Handoff `2605931` beim unabhängigen Review mit einem mittleren
+Befund blockiert: angewendete Filter wurden vor vollständiger Sortierungsvalidierung
+verändert. Echte SQLite-/PostgreSQL-Browserrepros bestätigen unsichtbaren verworfenen
+Filter bei nachfolgender Seitennavigation. Autor übernimmt Zustand künftig erst
+nach vollständiger Validierung atomar. Kein F3-/F3b-Quellpin vor Fixnachprüfung.
+Alle übrigen öffentlichen Checkout-/Vertrags-/Build-/CSP-/Browserprüfungen bestanden;
+keine weiteren bestätigten Befunde. QA-Clone/Prozesse/Container entfernt.
+
+A2-Code `89b2683` im Apple-Featurebranch, letzter sauberer Archiv-/iPad-/Metadatencheck
+beim Autor. Offizieller unveränderlicher NIOssl-Revisionspin mit konkret belegten
+BoringSSL-Originaltexten ist eine ausdrückliche ADR-/QA-Entscheidung, noch nicht
+abgenommen. Keine native Netzwerk-/Lizenz-/Gerätefreigabe aus Autorenproben ableiten.
