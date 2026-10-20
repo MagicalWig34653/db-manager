@@ -14,6 +14,7 @@ import (
 	"github.com/MagicalWig34653/db-manager/internal/config"
 	"github.com/MagicalWig34653/db-manager/internal/database"
 	"github.com/MagicalWig34653/db-manager/internal/httpapi"
+	"github.com/MagicalWig34653/db-manager/internal/webui"
 )
 
 func main() {
@@ -46,7 +47,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	server := &http.Server{Addr: cfg.Address, Handler: httpapi.New(engine, cfg.Token), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 70 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16384}
+	server := &http.Server{Addr: cfg.Address, Handler: webui.Wrap(httpapi.New(engine, cfg.Token)), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 70 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16384}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	done := make(chan error, 1)
