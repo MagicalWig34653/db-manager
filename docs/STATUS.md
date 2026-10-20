@@ -108,10 +108,13 @@ Passkey-Entsperren, Teamkonten/Rechte, native sichere Netzwerkadapter und echte 
 Planung ist kein Funktionsnachweis. Konkrete Aufträge: [Arbeitsplan](ARBEITSPLAN.md),
 Team: [TEAM](TEAM.md), Einrichtung: [EINRICHTUNG](../EINRICHTUNG.md).
 
-Hauptstand `21bd46a`: [Backend-/Container-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39493600835),
-[Engine-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39493600757) und
-[Dokumentations-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39493600707)
-tatsächlich erfolgreich. Neuere Commits separat prüfen.
+Kombinierter Hauptstand `6009e1d`: [Backend-/Container-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39497034390),
+[Engine-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39497034250),
+[Webpfad-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39497034273),
+[Tabellen-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39497034292) und
+[Dokumentations-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39497034293)
+tatsächlich erfolgreich. Nachfolgende reine Planungscommits ändern keinen Produktcode;
+spätere Produktänderungen separat prüfen.
 
 ## B1-Abnahmecheckpoint
 

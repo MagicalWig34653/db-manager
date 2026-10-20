@@ -71,9 +71,10 @@ Eigentümer, eng nachprüfen, erst danach Leadintegration und Gesamtprüfung.
 
 ## Tatsächlicher Prüfstand und Übergabe
 
-[STATUS](STATUS.md) ist kanonisch für tatsächliche Ergebnisse. Am Hauptstand `21bd46a`
-sind Backend-/Container-, Engine- und Dokumentations-CI erfolgreich; Nachweise dort
-verlinkt. Neuere Commits separat verifizieren.
+[STATUS](STATUS.md) ist kanonisch für tatsächliche Ergebnisse. Am kombinierten
+Hauptstand `6009e1d` sind Backend-/Container-, Engine-, Webpfad-, Tabellen- und
+Dokumentations-CI erfolgreich; Nachweise dort verlinkt. Neuere Produktcommits separat
+verifizieren. Reine Planungsupdates lösen keine unnötige Vollwiederholung aus.
 Keine produktiven Migrationen oder Dienste gestartet. Aktive Prüfjobs sind in den
 Workerübergaben zu erfassen; Taskcontainer nach Tests entfernen, Images/Buildcaches
 nicht mit fremden Ressourcen verwechseln. Alte saubere Worktrees bleiben Provenienz.
