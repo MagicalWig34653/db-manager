@@ -6,7 +6,7 @@ Stand: 20.10.2026. Lead: aktuelle koordinierende Session; kein dauerhafter Sessi
 | --- | --- | --- | --- |
 | P0 | Drei Repo-Gerüste, Lizenz, Prozess, Prüfung und Installation | abgeschlossen: installiert, veröffentlicht, Push-CI grün | Drei öffentliche Repos auf main; unabhängiger Review bestanden; Remote-/CI-Nachweise in STATUS |
 | P1 | phpMyAdmin-Referenz und vollständige Paritätsmatrix | P1a geprüft und integriert; 181 Fälle offen in Umsetzung | P0, Recherche mit Quellen und überprüfbaren Kriterien |
-| P2 | Mac-/iPad-/Go-Treiberuntersuchung | P2a in Arbeit | erste DB-/OS-Ziele festlegen; echte Plattformbefunde |
+| P2 | Mac-/iPad-/Go-Treiberuntersuchung | P2a integriert; SQLite-Sandbox P2b in Arbeit | erste DB-/OS-Ziele festlegen; echte Plattformbefunde |
 | P3 | Tresor, Recovery und verschlüsselter Sync | P3a in Arbeit | getrennte Machbarkeitsbefunde und dokumentiertes Bedrohungsmodell |
 
 Lead pflegt zentrale Dokumente. Unabhängiger Gerüst- und Veröffentlichungsreview
@@ -60,9 +60,25 @@ nacheinander eingeplant, ohne zusätzliche parallele Kapazität zu behaupten.
 Tickets nennen Ziel/Nichtziele, Dateien, Branch/Worktree, Vertragsstand und Abnahme.
 Kein Selbstaudit als Freigabe; P1a/P2a/P3a und P4a erhalten Fremdreview vor Integration.
 P3a-Commit `d25d660` durch QA unabhängig geprüft und als `b836dbf` integriert;
-keine produktive Tresorfreigabe. P1a inklusive Folgecommit `f2721e4` durch QA freigegeben und integriert. P2a liegt als `6346da8` vor, QA-Abbruchtestbefund noch beim Autor zu lösen.
+keine produktive Tresorfreigabe. P1a inklusive Folgecommit `f2721e4` durch QA freigegeben und integriert. P2a inklusive Folgecommit `557efc9` nach geschlossenem QA-P2-01 freigegeben
+und als `0017043`/`d3da4b7` integriert.
 P4a im Worktree `.worktrees/p4a` / Branch `feat/p4a-foundation` wurde vom Lead an
 Architecture & Security übergeben. Begonnene Dateien sind noch nicht integriert.
 Letzter Lead-Test: Compose authentifizierte API/Healthcheck/nonroot/read-only bestanden;
 isolierter Swarmtest scheiterte am Node-ID-Aufruf. Worker übernimmt Korrektur und
 vollständigen Nachweis sowie Aufräumen ausschließlich taskeigener Ressourcen.
+
+## Aktuelle Umsetzungstickets
+
+- P2b: Backend & Platform, neuer eigener Worktree/Branch für
+  `spikes/sqlite-sandbox/`, `docs/handoffs/P2b.md` und ADR-0004-Vorschlag.
+  Öffentlichen Authorizer und tatsächliche Dateizugriffs-Negativtests nachweisen;
+  kein SQLite-Sandboxversprechen ohne Beleg. Danach B1-Engineimplementierung.
+- P4a: Architecture & Security, API0.1.0-Kandidat technisch eingefroren für QA,
+  noch nicht freigegeben. Compose und isolierter Swarm nach Workerbericht grün.
+- F1: Frontend & UX im Webrepo-Worktree `.worktrees/web-workbench`,
+  Branch `feat/web-workbench`. Zunächst Framework/Bedienoberfläche/Tests;
+  API-Bindung erst nach unabhängig geprüftem Vertragsfreeze. Keine Credentialpersistenz.
+- A1: anschließend Architecture-/Apple-Engineer im Apple-Worktree
+  `.worktrees/apple-workbench`, Branch `feat/apple-workbench`: eigenständiger
+  lokaler SQLite-/SwiftUI-Arbeitsplatz; Netzwerkadapter erst nach Sicherheitsnachweis.

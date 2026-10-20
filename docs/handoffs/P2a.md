@@ -145,3 +145,15 @@ Klassifikationsfälle; `go vet ./...` bestand. `python3 scripts/check-docs.py` u
 entfernt; fremde Ressourcen unverändert. Keine laufenden eigenen Jobs.
 Nur `spikes/drivers/go/main_test.go` und diese Übergabe geändert. Erneuter unabhängiger
 QA-Review des Folgecommits bleibt vor Integration erforderlich.
+
+## Unabhängige Abnahme und Integration
+
+Am 20.10.2026 durch QA & Release unabhängig nachgeprüft. Befund QA-P2-01:
+ursprünglicher Abbruchtest akzeptierte beliebige Fehler unter zwei Sekunden.
+Autorenfolgecommit `557efc9` verlangt Deadlinezustand und passende Fehlerklasse;
+sieben Regressionfälle verhindern falsche Erfolge bei Syntax-/Rechtefehlern.
+QA wiederholte SQLite-Racetest, Klassifikationsfälle, `go vet`, Diff-/Dokprüfung
+erfolgreich; Netzwerkfälle dabei ausdrücklich übersprungen. Worker dokumentierte
+separate reale Netzwerk-Wiederholung. Befund geschlossen, Untersuchungspaket
+freigegeben und als `0017043` plus `d3da4b7` integriert.
+Native MySQL-/MariaDB-Produktpfade wegen TLS-Downgrade weiterhin nicht freigegeben.
