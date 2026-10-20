@@ -97,3 +97,21 @@ Partitionparent erfolgreich. Keine eigenen B2b-Container mehr vorhanden. Produkt
 wird für native CI gepusht; genaue Commit-/Job-IDs folgen als Übergabecheckpoint.
 Danach Worker idle für unabhängige QA. Bei Finding nur begrenzte
 Nacharbeit; Lead allein integriert und entscheidet über Vertragsfreeze.
+
+## Commit- und CI-Checkpoint
+
+Produktcommit `6ad5833ff8d819d41a674bd583878868e486677b` ist auf
+`origin/feat/table-edit` gepusht. Reiner lokaler Handoffcheckpoint folgt ohne erneuten
+Push unveränderten Produktcodes. Worktree nach Checkpoint sauber; keine lokalen Jobs.
+Diese nativen Linuxamd64-/Containerjobs laufen zum Übergabezeitpunkt noch; kein
+Erfolg behauptet:
+
+- [Strukturierte Einzelzeilenänderungen](https://github.com/MagicalWig34653/db-manager/actions/runs/39499012540)
+- [Datenbankengine](https://github.com/MagicalWig34653/db-manager/actions/runs/39499012436)
+- [Tabellenmetadaten und Lesen](https://github.com/MagicalWig34653/db-manager/actions/runs/39499012496)
+- [Backend und Container](https://github.com/MagicalWig34653/db-manager/actions/runs/39499012514)
+- [Echter Web-Datenbank-Pfad](https://github.com/MagicalWig34653/db-manager/actions/runs/39499012519)
+- [Dokumentation](https://github.com/MagicalWig34653/db-manager/actions/runs/39499012400)
+
+Lead/QA prüfen Jobausgänge und Kandidat unabhängig. Worker bleibt idle, kein weiteres
+Paket vor erneuter Beauftragung; 0.3.0-Clientbindung bleibt gesperrt.
