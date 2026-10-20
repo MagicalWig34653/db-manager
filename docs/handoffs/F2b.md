@@ -113,3 +113,14 @@ Zuweisung. Dieser reine Dokucheckpoint verändert keinen getesteten Produkt-/Tes
 für den Nachtrag bestanden. Keine lokal laufenden Server oder Testjobs, keine eigenen
 Docker-Ressourcen verblieben; Host-Swarm weiterhin `inactive`. Fremde Dienste blieben
 unverändert. Worker gibt den Slot frei und wartet auf QA-Befunde.
+
+## Unabhängige Abnahme und Leadintegration
+
+QA hat `f2c92ee`/`c9ced80` ohne bestätigte Befunde freigegeben. Eigener sauberer
+Archivlauf, Go-Race/Vet/Manifest/sechs Pythonprüfungen, echter Browserpfad und
+vollständige Compose-/isolierte-Swarm-Persistenzprobe bestanden. Image-Lizenzen,
+Assetbytes/Provenienz, Auth/CSP/Session-/Abbruchfreigabe unabhängig bestätigt.
+Alle vier öffentlichen CIs erfolgreich. Keine Ressourcen oder Jobs zurückgelassen.
+Lead integrierte als `df0b291`/`c7e1a1d`; integrierte Go-Race/Vet-, Manifest-/
+Python- und Dokumentationsprüfungen ebenfalls bestanden. Begrenzter Zwischenstand,
+keine vollständige Parität, Tresor-, HA- oder Distributionsfreigabe.

@@ -24,8 +24,8 @@ Maximal drei aktive Worker, QA wird nach fertig gemeldeten Paketen eingeplant.
 
 | Ticket / Rolle | Repo / Branch / Worktree | Ziel, Besitz und Abnahme |
 | --- | --- | --- |
-| F2b – Frontend & UX (`p1a_parity`) | Hauptrepo, `feat/web-runtime`, `.worktrees/web-runtime`, Basis `21bd46a` | Reale B1-API mit freigegebenem Webwrapper verbinden. Besitz main, Docker-/Compose-/Swarmverdrahtung, eigene echte Browser-/Deployprüfungen/CI, Pythoncache-Ignore, Betrieb/Einrichtung/Webbuild/Lizenzen und Handoff. Keine DB-/Core-/API-/Moduländerungen oder Änderungen gepinnter Assets. Abnahme: Browser ohne API-Mocks gegen SQLite und PostgreSQL, Zellwerte/Auth/Session/Abbruch/Limits; Compose und isolierter DinD-Swarm mit UI/CSP/Auth/SQLite-Neustartpersistenz. |
 | B2a – Backend & Platform (`p2a_drivers`) | Hauptrepo, `feat/table-browse`, `.worktrees/table-browse`, Basis `c9cac01` | Strukturierte Tabellenmetadaten und begrenztes Browsen; keine Mutation. Besitz DB-Adapter, neue Core-/HTTP-Tabledateien, enge Routingregistrierung, separater API0.2-Kandidat, Engineprüfungen/CI und Handoff. Kein main/Docker/Compose/GoMod/UI. Abnahme: echte SQLite/MySQL/MariaDB/PostgreSQL-Fälle, zusammengesetzter/fehlender PK, generierte Spalten, Bezeichner-/Filterinjektion, Grenzen/Abbruch. v1 unverändert; unabhängige Vertragsfreigabe vor Clients. |
+| A2 – Apple Engineer (`p3a_security`) | Applerepo, `feat/apple-postgres`, `.worktrees/apple-postgres`, Basis `ce0aedb` | Direkte PostgreSQL-Verbindung ohne Go, TLS verpflichtend mit vollständiger Zertifikat-/Hostprüfung, flüchtige Credentials, Katalog/SQL und getaggte begrenzte Resultate. Besitz Produktmodule/SwiftUI, Package/Lock/Xcode/Entitlements, eigene Prüfungen/CI, Lizenzen/Originaltexte, README/Einrichtung/ADR/Handoff; keine zentralen Status-/Planungsdateien. SQLite erhalten. Echte TLS-Positiv-/Negativfälle, präzise Werte, tatsächlich beobachteter Abbruch und saubere Sessionwechsel; Mac-/iPad-Zielbuild, Gerätegrenzen offen. Kein MySQL/SSH/Vault/CloudKit/Teamumfang. |
 
 Alle Tickets: technische Bezeichner/Code/Kommentare/Tests Englisch, Dokumentation/UI
 Deutsch. Keine echten Zugangsdaten, keine privaten Pfade oder produktiven SQL-Daten.
@@ -99,18 +99,20 @@ nachträgliche Konfiguration höherer Limits wird von den verfügbaren Laufzeitw
 nicht neu geladen. Kein Neustart oder Umgehungsprozess; drei Implementierer und
 unabhängige QA wechseln sich geordnet ab.
 
-## Vorbereitete Folgepakete, noch nicht beauftragt
+## Folgepakete und Voraussetzungen
 
 | Paket | Voraussetzung | Geplanter begrenzter Umfang und Abnahme |
 | --- | --- | --- |
 | F3 – Tabellenarbeitsplatz | B2a-Vertrag unabhängig freigegeben; F2b integriert | Gepinnter v2-Client, strukturierte Metadaten/Tabellenansicht mit Seitennavigation, Sortierung und parametrisierten Filtern; eindeutige Anzeige instabiler Reihenfolge, unbekannter Eigenschaften und fehlender Schreibfunktion. Echte Browserproben gegen SQLite und PostgreSQL; keine Mutation oder heimliche SQL-Fragmentbildung. Neue Quellcode-/Lizenzverweise im Webclient und anschließend neu reproduzierter Go-Webpin. |
 | B2b – Datenbearbeitung | B2a abgenommen; eigener neuer Vertragskandidat | Zunächst klar begrenzte einzelne Zeilen mit sicherem Primärschlüssel; validierte Metadaten, parametrisierte Werte, Transaktions-/Konfliktregeln und ausdrückliche Behandlung unsicherer Tabellen. Kein Erfolg bei unbekanntem Commitausgang; konkurrierende Änderungen und Abbruch praktisch prüfen. Neuer Vertrag vor Frontendverbrauch separat abnehmen. |
-| A2 – Native Netzwerkverbindung | Freier Apple-Engineer; geprüfter P2a-Treiberpfad | Zunächst PostgreSQL direkt ohne Go, flüchtige Zugangsdaten, verpflichtend verifiziertes TLS und unverfälschte Werttypen; Verbindungswechsel/Abbruch/Fehlerfreigabe sowie lokaler SQLitebetrieb erhalten. Keine native MySQL-/MariaDB-Freigabe aus dem bestehenden Downgradebefund ableiten. Mac-/iPad-Zielbuild und echte synthetische TLS-Datenbankproben; Gerätegrenzen ausdrücklich offen. |
+| A2 – Native Netzwerkverbindung (beauftragt, siehe oben) | Geprüfter P2a-Treiberpfad | Zunächst PostgreSQL direkt ohne Go, flüchtige Zugangsdaten, verpflichtend verifiziertes TLS und unverfälschte Werttypen; Verbindungswechsel/Abbruch/Fehlerfreigabe sowie lokaler SQLitebetrieb erhalten. Keine native MySQL-/MariaDB-Freigabe aus dem bestehenden Downgradebefund ableiten. Mac-/iPad-Zielbuild und echte synthetische TLS-Datenbankproben; Gerätegrenzen ausdrücklich offen. |
 | S2 – Optionale Tresorpersistenz | S1-Format/ADR unabhängig abgenommen; getrenntes Produktdesign | Atomare Speicherung, Recovery-Rückleseablauf, gesperrte/entsperrte Zustände, Dateischutz, Aktualisierungs-/Rotationszähler und Abbruch-/Crashverhalten. Produktplattform und Dateibesitz vor Beginn festlegen; keine Speicherung echter Geheimnisse allein aufgrund erfolgreicher Interopproben. CloudKit/Passkeys/Teams bleiben eigene Pakete. |
 
-Diese Tabelle bereitet die Übergabe vor und ist keine Implementierung oder Freigabe.
+Diese Tabelle bereitet Folgearbeit vor und ist keine Implementierung oder Freigabe.
 Konkrete Branches, Dateibesitz und Reviewer werden erst bei Beauftragung zugewiesen.
 
-Aktuelle Reviewqueue: B2a `62f1297`/`573e392` beim unabhängigen Architecturepeer;
-F2b `f2c92ee` im letzten Autorencheck, anschließend unabhängiges Platformreview.
+Aktuelle Reviewqueue: B2a `62f1297`/`573e392` plus Fix `3b5a54c` unabhängig
+freigegeben, beide Befunde geschlossen; Fix-CI noch offen. Enginejob wegen
+DockerHub-HTTP502 beim Imageabruf einmal gezielt neu gestartet.
+F2b `f2c92ee`/`c9ced80` unabhängig abgenommen und als `df0b291`/`c7e1a1d` integriert.
 S1-Originalworktree bleibt sauber, keine dortigen Jobs. QA hat den Formatreview beendet.
