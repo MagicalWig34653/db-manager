@@ -307,7 +307,11 @@ func (e *Engine) mutate(ctx context.Context, r core.MutationRequest, deleting bo
 		}
 		query := "DELETE FROM " + table + " WHERE " + strings.Join(predicates, " AND ")
 		if !deleting {
-			query = "UPDATE " + table + " SET " + strings.Join(assignments, ",") + " WHERE " + strings.Join(predicates, " AND ")
+			updatePrefix := "UPDATE "
+			if session.driver == "sqlite" {
+				updatePrefix = "UPDATE OR ABORT "
+			}
+			query = updatePrefix + table + " SET " + strings.Join(assignments, ",") + " WHERE " + strings.Join(predicates, " AND ")
 		}
 		result, err := session.exec(ctx, query, args...)
 		if err != nil {
