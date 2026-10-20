@@ -98,3 +98,15 @@ Die aktive Sitzung bietet vier gleichzeitige Plätze einschließlich Lead. Die l
 nachträgliche Konfiguration höherer Limits wird von den verfügbaren Laufzeitwerkzeugen
 nicht neu geladen. Kein Neustart oder Umgehungsprozess; drei Implementierer und
 unabhängige QA wechseln sich geordnet ab.
+
+## Vorbereitete Folgepakete, noch nicht beauftragt
+
+| Paket | Voraussetzung | Geplanter begrenzter Umfang und Abnahme |
+| --- | --- | --- |
+| F3 – Tabellenarbeitsplatz | B2a-Vertrag unabhängig freigegeben; F2b integriert | Gepinnter v2-Client, strukturierte Metadaten/Tabellenansicht mit Seitennavigation, Sortierung und parametrisierten Filtern; eindeutige Anzeige instabiler Reihenfolge, unbekannter Eigenschaften und fehlender Schreibfunktion. Echte Browserproben gegen SQLite und PostgreSQL; keine Mutation oder heimliche SQL-Fragmentbildung. Neue Quellcode-/Lizenzverweise im Webclient und anschließend neu reproduzierter Go-Webpin. |
+| B2b – Datenbearbeitung | B2a abgenommen; eigener neuer Vertragskandidat | Zunächst klar begrenzte einzelne Zeilen mit sicherem Primärschlüssel; validierte Metadaten, parametrisierte Werte, Transaktions-/Konfliktregeln und ausdrückliche Behandlung unsicherer Tabellen. Kein Erfolg bei unbekanntem Commitausgang; konkurrierende Änderungen und Abbruch praktisch prüfen. Neuer Vertrag vor Frontendverbrauch separat abnehmen. |
+| A2 – Native Netzwerkverbindung | Freier Apple-Engineer; geprüfter P2a-Treiberpfad | Zunächst PostgreSQL direkt ohne Go, flüchtige Zugangsdaten, verpflichtend verifiziertes TLS und unverfälschte Werttypen; Verbindungswechsel/Abbruch/Fehlerfreigabe sowie lokaler SQLitebetrieb erhalten. Keine native MySQL-/MariaDB-Freigabe aus dem bestehenden Downgradebefund ableiten. Mac-/iPad-Zielbuild und echte synthetische TLS-Datenbankproben; Gerätegrenzen ausdrücklich offen. |
+| S2 – Optionale Tresorpersistenz | S1-Format/ADR unabhängig abgenommen; getrenntes Produktdesign | Atomare Speicherung, Recovery-Rückleseablauf, gesperrte/entsperrte Zustände, Dateischutz, Aktualisierungs-/Rotationszähler und Abbruch-/Crashverhalten. Produktplattform und Dateibesitz vor Beginn festlegen; keine Speicherung echter Geheimnisse allein aufgrund erfolgreicher Interopproben. CloudKit/Passkeys/Teams bleiben eigene Pakete. |
+
+Diese Tabelle bereitet die Übergabe vor und ist keine Implementierung oder Freigabe.
+Konkrete Branches, Dateibesitz und Reviewer werden erst bei Beauftragung zugewiesen.
