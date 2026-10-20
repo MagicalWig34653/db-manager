@@ -2,8 +2,8 @@
 
 Vorhanden ist eine Go-API mit Bearer-Token und echten SQLite-/MySQL-/MariaDB-/PostgreSQL-
 Adaptern. Der persönliche Server speichert keine DB-Zugangsdaten; jede Anfrage liefert
-sie erneut. Eine eingebettete Weboberfläche und vollständige Administrationsparität
-sind noch nicht vorhanden. Python 3, Docker/Compose und OpenSSL werden für Liveproben
+sie erneut. Die deutsche Weboberfläche ist im Go-Programm eingebettet und unter `/`
+erreichbar; vollständige Administrationsparität bleibt offen. Python 3, Docker/Compose und OpenSSL werden für Liveproben
 benötigt; Git/GitHub CLI zusätzlich für Veröffentlichung.
 
 ## Go und Container prüfen
@@ -26,6 +26,7 @@ python3 scripts/test-engine-container.py
 ```
 
 `test-deployment.py` baut das Image, prüft Compose und einen eigenen Docker-in-Docker-Swarm
+mit originalen Webassets/CSP und echten SQLite-Abfragen samt Neustartpersistenz
 und entfernt seine Ressourcen. Es verändert den Host-Swarm nicht. Für einen
 bewusst auf Compose begrenzten Lauf `--skip-swarm` verwenden; dies belegt keinen
 Swarmbetrieb. Start, Tokenanlage, Netzwerkgrenzen und Volumeverhalten beschreibt
@@ -36,6 +37,24 @@ prüft echte Netzwerkabfragen samt TLS-/Fehler-/Größenfällen und entfernt sei
 `test-engine-container.py` prüft tatsächliche SQLite-Abfragen, UID, schreibgeschütztes Root
 und Neustartpersistenz im eigenen Compose-Projekt; dessen Volume wird danach entfernt.
 Einzelne Netzwerk-Go-Tests ohne Fixture-Portvariablen werden ausdrücklich übersprungen.
+
+Echte Browserintegration mit Node26.5.0/npm, Chromium, Docker und OpenSSL:
+
+```sh
+python3 scripts/test-web-integration.py
+# Linux-CI kann erforderliche Chromium-Systempakete installieren:
+python3 scripts/test-web-integration.py --browser-deps
+```
+
+Der Test baut das CLI und Image aus diesem Checkout, installiert Browserwerkzeuge
+per eigenem Lockfile in einem temporären Verzeichnis und erzeugt SQLite/PostgreSQL-
+Fixtures, Test-CA und zufällige Zugangsdaten. PostgreSQL verwendet `verify-full`;
+falsche Zertifikatnamen werden verweigert. Der echte Browser prüft Katalog/SQL,
+getaggte Werte, Begrenzung, nachweislich laufende Abfragen vor/nach Abbruch,
+Token-Kontextwechsel und CSP. Alle eigenen Ressourcen werden danach entfernt.
+Es gibt keinen Frontend-Neubau oder Nachbarrepo-Zugriff. Node wird zum Ausführen
+dieser Browsertests benötigt, nicht zum Bauen oder Betreiben des Go-Produkts.
+Details und Grenzen: [F2b-Handoff](docs/handoffs/F2b.md).
 
 Direkter Start mit lokalem Datenverzeichnis:
 
@@ -49,6 +68,9 @@ Der Server bindet standardmäßig an Loopback; SQLite-ID `beispiel` verwendet in
 [Verträge](contracts/README.md) und [Betrieb](docs/BETRIEB.md). Externe DB-Ziele benötigen
 `DBM_ALLOWED_HOSTS`; eine private CA kann über `DBM_DB_CA_FILE` hinzugefügt werden.
 Das CA-Bundle muss im tatsächlich ausführenden Prozess/Container lesbar sein.
+Nach dem Start `http://127.0.0.1:8080/` öffnen, unter „Backend-Zugang“ das lokale Token
+einfügen und eine Verbindung anlegen. Token und DB-Zugangsdaten bleiben ausschließlich
+im Arbeitsspeicher der Seite; ein Tokenwechsel räumt den bisherigen Arbeitskontext ab.
 
 Clientvorlagen und historischer Bootstrap folgen
 unten; sie bilden keinen aktuellen App-Build ab.

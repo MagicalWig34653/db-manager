@@ -21,3 +21,6 @@ coverage/
 .worktrees/
 
 secrets/
+
+__pycache__/
+*.pyc

@@ -8,8 +8,10 @@ phpMyAdmin-Parität und Unterstützung mehrerer Datenbanksysteme.
 Verbindungstest und Tabellen-/View-Katalog für SQLite, MySQL/MariaDB und PostgreSQL.
 SQLite ist auf exklusiven lokalen Einzelinstanzbetrieb begrenzt. Compose/Swarm wurden
 praktisch geprüft, einschließlich UID10001, schreibgeschütztem Root und Persistenz.
-Der unabhängig geprüfte Webclient liegt mit festem Quellcommit und Lizenzhinweisen
-als Go-Paket vor; Serververdrahtung und echter Web→Go→DB-Pfad folgen noch separat.
+Der unabhängig geprüfte Webclient ist mit festem Quellcommit und Lizenzhinweisen
+in denselben Go-Server eingebettet: Verbindung → Katalog → SQL → Ergebnis unter `/`.
+Der F2b-Prüfkandidat belegt den echten Browser→Go→SQLite-/PostgreSQL-Pfad; unabhängige
+Abnahme und CI-Ergebnisse stehen im [F2b-Handoff](docs/handoffs/F2b.md).
 
 Ein eigenständiger Swift/SwiftUI-SQLite-Arbeitsplatz ohne Go ist im Apple-Repository
 integriert, für macOS und den iPad-Simulator geprüft. Echte Geräte, Distribution,

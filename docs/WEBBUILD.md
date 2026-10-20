@@ -1,8 +1,9 @@
 # Versionierter Webbuild und Go-Paket
 
-Stand: 20.10.2026, Paket F2a. Der geprüfte Webbuild ist im Hauptrepo enthalten und
-als Go-Paket baubar. **Der Servereinstieg ist in diesem Paket noch nicht verdrahtet.**
-Der echte Web→Go→Datenbank-Pfad und die Containerproduktprüfung folgen gesondert in F2b.
+Stand: 20.10.2026, F2a plus F2b-Prüfkandidat. Der unveränderte geprüfte Webbuild
+ist im Hauptrepo enthalten. Der Servereinstieg umschließt jetzt die reale Go-API
+mit `webui.Wrap`; CLI und Container liefern Oberfläche und API von derselben Origin.
+Prüfstand und unabhängige Abnahme: [F2b-Handoff](handoffs/F2b.md).
 
 ## Quelle, Vertrag und Reproduzierbarkeit
 
@@ -79,3 +80,23 @@ Technische Primärquellen am 20.10.2026 gelesen:
 [Go embed](https://pkg.go.dev/embed), [Go ServeContent](https://pkg.go.dev/net/http#ServeContent),
 [CSP3](https://www.w3.org/TR/CSP3/). Tatsächliche Prüfungen und noch offene Integrations-
 und Gerätefälle stehen im [F2a-Handoff](handoffs/F2a.md).
+
+
+## Laufzeitimage und Quellherkunft
+
+Das Dockerfile baut ausschließlich aus diesem Hauptcheckout. Es benötigt weder Node
+noch ein Web-Nachbarrepository. Vor dem Go-Build prüft es das eingebettete Paket samt
+Manifest. Das Laufzeitimage enthält keinen Node-/npm-Prozess. Unter
+`/usr/share/db-manager/` liegen `web-build.lock.json` und `web-assets-manifest.json`;
+unter `/usr/share/licenses/db-manager/` der originale AGPL-Text und unter `go/` die
+unveränderten vorhandenen Go-Lizenzhinweise. Die originalen Webhinweise sind weiterhin
+über `/LICENSE.txt` und `/THIRD-PARTY-NOTICES.txt` erreichbar.
+
+OCI-Labels referenzieren das öffentliche
+[Hauptrepository](https://github.com/MagicalWig34653/db-manager), dessen Betriebsdoku
+und den exakten öffentlichen Frontend-Quellcommit. Bei öffentlicher Netzbereitstellung
+muss das passende vollständige Quellangebot einschließlich Änderungen sichergestellt
+werden; dieses Entwicklungsinkrement ist keine öffentliche Deployment-/Releasefreigabe.
+Ein prominenter Quellcode-/Lizenzenlink in der Oberfläche ist für einen nachfolgenden,
+erneut geprüften Webquellpin vorgesehen. Die bestehenden Artefakte werden dafür nicht
+nachträglich verändert.

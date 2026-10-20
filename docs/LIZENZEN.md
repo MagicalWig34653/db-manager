@@ -52,3 +52,16 @@ Fixtures: MySQL 8.4, MariaDB 12.3 und PostgreSQL 18.6 werden ausschließlich als
 Testwerkzeuge ausgeführt und nicht in das Produktimage eingebunden. Ihre Images behalten
 ihre jeweiligen Originalbedingungen. Eine erfolgreiche Treiberprobe ist kein Nachweis
 für beliebige alte Datenbankversionen.
+
+
+## Eingebettete Weboberfläche F2a/F2b
+
+Der unveränderte Webbuild stammt aus dem unabhängig geprüften öffentlichen Commit
+[4e5abee](https://github.com/MagicalWig34653/db-manager-web/tree/4e5abee074d34853b266f20c344f28517d7924d1).
+Eigener Webcode ist AGPL-3.0-only; die originalen Drittanbieterhinweise bleiben unter
+[THIRD-PARTY-NOTICES.txt](../internal/webui/static/THIRD-PARTY-NOTICES.txt) vollständig
+erhalten und werden als `/THIRD-PARTY-NOTICES.txt` ausgeliefert. Der originale
+[Web-AGPL-Text](../internal/webui/static/LICENSE.txt) ist als `/LICENSE.txt` erreichbar.
+[Quellpin, Hashmanifest und Image-Hinweise](WEBBUILD.md) dokumentieren die Herkunft.
+Browserprüfwerkzeuge werden separat im [Testinventar](../tests/web-runtime/README.md)
+erfasst und gehören nicht ins Laufzeitimage.
