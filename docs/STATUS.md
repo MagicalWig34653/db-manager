@@ -20,7 +20,9 @@ API0.1.0 nach geschlossenem QA-P4-01 ausdrücklich als Clientvertrag freigegeben
 [OpenAPI](../contracts/api-v0.1.0.json), Herkunft `80f203b3e0c7fa3f7f4aa5ec06825cb83bc0c5d0`,
 SHA256 `4b598dc69a1904685e67a717997412654440ac10f47c17f7a025ccd114e294be`.
 Die Engine ist bewusst noch ein Platzhalter und meldet keine verfügbaren Treiber.
-Noch keine nutzbare Datenbank-App oder vollständige Parität.
+Go/Web hat noch keine integrierte Produktengine. Der native SQLite-Client ist
+inzwischen als begrenztes eigenständiges Entwicklungsinkrement integriert;
+keine vollständige Datenbankverwaltung oder Parität.
 
 ## Tatsächliche Prüfungen
 
@@ -38,6 +40,18 @@ Noch keine nutzbare Datenbank-App oder vollständige Parität.
 - P3a-Spikes belegen AEAD-Manipulationsschutz und SDK-PRF-Verfügbarkeit; kein
   praktischer Provider-/Geräte-/Recovery-/CloudKit-Nachweis oder produktiver Tresor.
 
+## Native App und Clientstand
+
+A1 im Applerepo nach unabhängiger QA und erfolgreicher Apple-/Dokumentations-CI
+integriert: `8ea3c7c`/`ec3bbe9`/`4404f91`, Statuscheckpoint `ce0aedb`.
+Zehn Swift-Tests sowie Mac-/iPad-Simulator-Build belegt; UI-Dateiwechselbefund geschlossen.
+[Native Quellen und Status](https://github.com/MagicalWig34653/db-manager-apple).
+Signing/Sandboxdurchsetzung, interaktive OS-UI und echte Geräte bleiben offen.
+
+F1/F1b-Webclient nach QA inklusive Session-/Zeilenzahlfix und CSP-tauglichen
+Standalone-Validatoren freigegeben. Produktquelle `4e5abee` im Webrepo;
+öffentliche CI und Integration stehen im laufenden Queue. Reale B1-Integration fehlt.
+
 ## Laufende Arbeit und Dateibesitz
 
 - Backend & Platform: P2b in `.worktrees/p2b`, Branch `spikes/p2b-sqlite-sandbox`;
@@ -46,8 +60,9 @@ Noch keine nutzbare Datenbank-App oder vollständige Parität.
   B1 jetzt in `.worktrees/backend-engine`, Branch `feat/backend-engine`: reale Go-Engine.
 - Frontend & UX: F1 im Webrepo `.worktrees/web-workbench`, Branch `feat/web-workbench`;
   Svelte/shadcn-svelte-Workbench, jetzt Bindung an freigegebenen Vertrag erlaubt.
-- Architecture/Security und Apple: A1 im Applerepo `.worktrees/apple-workbench`,
-  Branch `feat/apple-workbench`; eigenständiger Swift-/SwiftUI-SQLite-Arbeitsplatz.
+- Architecture/Security: S1 im Hauptrepo `.worktrees/vault-format`, Branch
+  `feat/vault-format`; interoperables synthetisch geprüftes Vaultformat/KDF/Recovery.
+  Noch keine produktive Credentialpersistenz. A1-Worktree bleibt saubere Provenienz.
 - QA & Release: eigene Rolle, Reviews vor Integration. Maximal drei aktive Worker.
   Alte P1a/P2a/P3a/P4a-Worktrees bleiben als saubere Provenienz erhalten.
 
@@ -72,3 +87,18 @@ Team: [TEAM](TEAM.md), Einrichtung: [EINRICHTUNG](../EINRICHTUNG.md).
 Hauptstand `9f1880f`: [Backend-/Container-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39487622613)
 und [Dokumentations-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39487622656)
 tatsächlich erfolgreich. Neuere reine Status-/Untersuchungscommits separat prüfen.
+
+## B1-Reviewcheckpoint
+
+Produktcode `fc1d68f`, Handoff `0fc8c9a` in `.worktrees/backend-engine`, noch nicht
+integriert. Unabhängige funktionale und Securityreviews abgeschlossen, vier Befunde
+beim Autor: tatsächliche SQLite-Speicherklassen statt deklarierter Typen (hoch),
+bekannte nicht-linklokale Metadaten-IP-Ziele (mittel), unbereinigter MySQL-Standardlogger
+(mittel), Katalog-Prefixfilter (niedrig). Fixes und enge Nachprüfung vor Integration.
+Keine konkreten Passwortlecks oder Metadaten-HTTP-Exfiltration behauptet.
+Go-Race/Vet, echte TLS-DBs mit Negativfällen sowie Compose-SQLite-Persistenz unabhängig
+erfolgreich. Alle drei Feature-CIs einschließlich nativem Linuxamd64 erfolgreich:
+[Engine](https://github.com/MagicalWig34653/db-manager/actions/runs/39490474043),
+[Backend/Container](https://github.com/MagicalWig34653/db-manager/actions/runs/39490473972),
+[Dokumentation](https://github.com/MagicalWig34653/db-manager/actions/runs/39490473995).
+Diese grünen Tests ersetzen die noch offene Befundkorrektur nicht.

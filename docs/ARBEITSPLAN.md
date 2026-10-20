@@ -26,7 +26,7 @@ Maximal drei aktive Worker, QA wird nach fertig gemeldeten Paketen eingeplant.
 | --- | --- | --- |
 | B1 – Backend & Platform (`p2a_drivers`) | Hauptrepo, `feat/backend-engine`, `.worktrees/backend-engine` | Reale SQLite-/MySQL-/MariaDB-/PostgreSQL-Engine. Besitz `internal/database/`, `internal/sqlitesandbox/`, Modul-/Lizenzdateien, begrenzte main-/Dockerverdrahtung, eigene Engineprüfungen/CI, Betrieb und Handoff. Kein HTTP/Core/Schema/Web ohne Abstimmung. Echte DB-Tests, Cancel/Lifecycle, sichere Fehler, 1MiB Rohzelle/8MiB tatsächliches JSON, Docker-UID/Persistenz sowie nativer Linuxamd64-Lauf sind Gates. ADR0004-Grenzen verpflichtend. |
 | F1 – Frontend & UX (`p1a_parity`) | Webrepo, `feat/web-workbench`, `.worktrees/web-workbench` | Deutsche Svelte/shadcn-svelte-Workbench mit Connection/Catalog/SQL/Ergebnissen. Besitz Produkt-/Build-/Testdateien, eigenes Lizenzinventar, Einrichtung, Handoff. Exakte freigegebene API binden; Credentials nur im Speicher; Unit-/Komponenten-/Browserprüfungen und sauberer unabhängiger Build. Echte B1-Integration folgt separat. |
-| A1 – Apple Engineer (`p3a_security`, Doppelrolle Architecture/Security) | Applerepo, `feat/apple-workbench`, `.worktrees/apple-workbench` | Eigenständiger SystemSQLite3-/SwiftUI-Arbeitsplatz auf macOS/iPadOS ohne Go. Besitz Swift-Kern, UI, Tests/Projekt/CI, Einrichtung/Lizenzen/Handoff. Mac-Tests und sauberer Mac-/iPad-Simulatorbuild, Grenzen/Cancel/Dateizugriff und tatsächlicher UI-Smoke. Kein echtes iPad oder produktiver Tresor behaupten. |
+| S1 – Architecture & Security (`p3a_security`) | Hauptrepo, `feat/vault-format`, `.worktrees/vault-format` | Interoperables Vaultformat mit KDF, Masterpasswort und Recovery auf synthetischen Go-/Swift-Proben. Besitz neue Vaultschema-/Fixturedateien, Sicherheitsdoku/ADR0005/Handoff und `spikes/vault-interop/` mit eigenen Modulen; kein rootGoMod oder Produktclient parallel. Format vor produktiver Integration separat prüfen. |
 
 Alle Tickets: technische Bezeichner/Code/Kommentare/Tests Englisch, Dokumentation/UI
 Deutsch. Keine echten Zugangsdaten, keine privaten Pfade oder produktiven SQL-Daten.
@@ -74,3 +74,17 @@ Workerübergaben zu erfassen; Taskcontainer nach Tests entfernen, Images/Buildca
 nicht mit fremden Ressourcen verwechseln. Alte saubere Worktrees bleiben Provenienz.
 Vor der Zeitgrenze alle Worker geordnet checkpointen, laufende eigene Jobs erfassen,
 prüfbare Commits sichern, offene Funktionen/Tests und nächsten Schritt dokumentieren.
+
+## Aktueller Review-/Clientcheckpoint
+
+- A1 nach QA inklusive UI-Lifecyclefix und erfolgreicher Feature-CI im Apple-main
+  integriert, Statuscommit `ce0aedb`. Echte Geräte/Signing/interaktiver OS-UI bleiben offen.
+- F1/F1b durch QA freigegeben; Quelle `4e5abee`, Webfeature-CI läuft. F2a nun im
+  Hauptrepo `.worktrees/web-integration`, Branch `feat/web-integration`: reproduzierbar
+  gepinnte Webassets/Provenienz und `internal/webui`-Wrapper, eigene Skripte/Tests/Handoff.
+  Kein main-/Docker-/Core-/API-Schreiben parallel zu B1. F2b echte Verdrahtung folgt.
+- B1 erste Reviews abgeschlossen, Autor korrigiert vier bestätigte Befunde
+  (SQLite-Speichertyp hoch, Metadata-IP-/MySQL-Loggerpolicy mittel, Catalogprefix niedrig).
+  Drei öffentliche Feature-CIs grün einschließlich nativem Linuxamd64; kein Ersatz für Fixreview.
+- S1 ist Voraussetzung für spätere produktive optionale Credentialpersistenz S2;
+  keine Freigabe aus den bisherigen AEAD-/PRF-Spikes ableiten.
