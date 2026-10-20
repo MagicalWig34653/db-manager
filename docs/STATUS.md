@@ -59,15 +59,15 @@ zentraler Webstatuscommit `ec8dcea`. Reale B1-Integration über F2b abgenommen.
 
 ## Laufende Arbeit und Dateibesitz
 
-F2b ist abgenommen und integriert. Beide B2a-Reviewbefunde sind unabhängig
-geschlossen, native Fix-CI bleibt offen. Apple-Engineer implementiert A2.
+F2b und B2a sind abgenommen und integriert; API0.2.0 ist für Clients freigegeben.
+Frontend implementiert F3, Apple-Engineer A2.
 Die laufende Sitzung bietet weiterhin vier Plätze einschließlich
 Lead. Nachträglich lokal konfigurierte höhere Limits sind hier nicht wirksam geworden.
 
 | Paket / Rolle | Branch / Worktree | Tatsächlicher Auftrag |
 | --- | --- | --- |
-| B2a / Backend & Platform, Fix-CI | `feat/table-browse`, `.worktrees/table-browse`, Basis `c9cac01` | Strukturierte Tabellenmetadaten und begrenztes Browsen mit validierten Bezeichnern und parametrisierten Filtern. Besitz Datenbankadapter, neue Core-/HTTP-Tabledateien, enge Routingregistrierung, separater API0.2-Kandidat, eigene Prüfungen/CI und Handoff. Keine Mutation; v1-Vertrag unverändert. |
 | A2 / Apple Engineer | Applerepo, `feat/apple-postgres`, `.worktrees/apple-postgres`, Basis `ce0aedb` | Direkter PostgreSQL-Pfad ohne Go, verpflichtend verifiziertes TLS, flüchtige Credentials, Katalog/einzelne SQL-Anweisung und begrenzte getaggte Ergebnisse. Besitz Apple-Produktmodule/SwiftUI, Package/Lock/Xcode, eigene Prüfungen/CI/Lizenzen/ADR/Einrichtung/Handoff; zentrale Status-/Planungsdateien ausgenommen. SQLitebetrieb erhalten; keine native MySQL-Freigabe. |
+| F3 / Frontend & UX | Webrepo, `feat/table-workbench`, `.worktrees/table-workbench`, Basis `ec8dcea` | Sichtbare Quellcode-/Lizenzverweise und strukturierte Tabellenmetadaten/-ansicht mit gepinntem API0.2-Vertrag, Sortierung, AND-Filtern und Pagination; echte SQLite-/PostgreSQL-TLS-Browserproben. Besitz Webprodukt/Build/Vertragskopien/Tests/Lizenzen/README/Einrichtung/Handoff; keine zentralen Status-/Planungsdateien. Kein Mutation-/Persistenzumfang. |
 
 S1 nach unabhängiger QA ohne bestätigte Befunde als Formatgrundlage integriert:
 `7969f63`/`bc5dd4c`, Herkunft `1a4eb3c`/`03bd3f4`. Vier Go-/vier Swift-Tests,
@@ -76,11 +76,13 @@ Lizenzprüfung unabhängig bestätigt. ADR0005 akzeptiert; Schema-SHA256
 `b688656056fe2e23848ce17149bc817609c7369f230a3f49dd91f05db4d3f4dd`.
 Keine produktive Credentialpersistenz. [Abnahme und Grenzen](handoffs/S1.md).
 
-B2a `62f1297`/`573e392` plus Fix `3b5a54c`: Pflichtfeldpräsenz und SQLite-
-PK-Kollation unabhängig nachgeprüft und geschlossen. Noch nicht integriert;
-0.2-Freeze wartet native Fix-CI. Enginejob `39496042204` scheiterte beim
-MariaDB-Imageabruf mit DockerHub-HTTP502 nach grünen Go-Tests; einmaliger gezielter
-Jobneustart durch Lead. Kein Produktfehler daraus abgeleitet.
+B2a `62f1297`/`573e392` plus Fix `3b5a54c` nach unabhängiger Fixnachprüfung und
+erfolgreicher nativer Fix-CI integriert als `cb07ebb`/`19673b3`/`427444d`.
+API0.2.0 für Clientbindung freigegeben, Herkunft
+`427444d7bcb8e30c9563ded2000ec3d5e19646c4`, Schema-SHA256
+`c15a848f01bb779429fd68a2b6eb6bba1575d3e07a4c68e6796cf7840a661838`.
+Pflichtfeld-/Kollationsbefunde geschlossen. [Abnahme/CI](handoffs/B2a.md).
+Integrierte Go-Race/Vet-, Vertrags- und Dokumentationsprüfung bestanden.
 
 Gemeinsame Verträge benötigen vor abhängiger Produktarbeit unabhängige Abnahme.
 Kein paralleles Schreiben derselben Dateien. Zentrale Status-/Planungsdateien gehören
@@ -97,8 +99,8 @@ Alle drei Repos öffentlich unter `https://github.com/MagicalWig34653/<name>`:
 Git-/GitHub-Schreibblockaden der vorbereitenden Sitzung sind behoben.
 Go1.27.1, Node26.5.0, Swift6.4/Xcode27.1 und Docker/Colima tatsächlich verfügbar.
 
-Nächste Abnahme: B2a-Vertragsfreeze nach grüner Fix-CI, danach Frontend F3 und
-separate Datenmutation B2b. S1-Format ist abgenommen; produktive Persistenz S2
+Nächste Pakete: Frontend F3 und separate Datenmutation B2b auf dem
+freigegebenen B2a-Vertrag. S1-Format ist abgenommen; produktive Persistenz S2
 bleibt separat. A2 erweitert Apple um den direkten PostgreSQL-Pfad.
 Offen bleiben insbesondere vollständige Parität, produktiver Tresor/Recovery/Sync,
 Passkey-Entsperren, Teamkonten/Rechte, native sichere Netzwerkadapter und echte Geräte.

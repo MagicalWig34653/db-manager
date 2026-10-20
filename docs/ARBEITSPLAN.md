@@ -24,8 +24,8 @@ Maximal drei aktive Worker, QA wird nach fertig gemeldeten Paketen eingeplant.
 
 | Ticket / Rolle | Repo / Branch / Worktree | Ziel, Besitz und Abnahme |
 | --- | --- | --- |
-| B2a – Backend & Platform (`p2a_drivers`) | Hauptrepo, `feat/table-browse`, `.worktrees/table-browse`, Basis `c9cac01` | Strukturierte Tabellenmetadaten und begrenztes Browsen; keine Mutation. Besitz DB-Adapter, neue Core-/HTTP-Tabledateien, enge Routingregistrierung, separater API0.2-Kandidat, Engineprüfungen/CI und Handoff. Kein main/Docker/Compose/GoMod/UI. Abnahme: echte SQLite/MySQL/MariaDB/PostgreSQL-Fälle, zusammengesetzter/fehlender PK, generierte Spalten, Bezeichner-/Filterinjektion, Grenzen/Abbruch. v1 unverändert; unabhängige Vertragsfreigabe vor Clients. |
 | A2 – Apple Engineer (`p3a_security`) | Applerepo, `feat/apple-postgres`, `.worktrees/apple-postgres`, Basis `ce0aedb` | Direkte PostgreSQL-Verbindung ohne Go, TLS verpflichtend mit vollständiger Zertifikat-/Hostprüfung, flüchtige Credentials, Katalog/SQL und getaggte begrenzte Resultate. Besitz Produktmodule/SwiftUI, Package/Lock/Xcode/Entitlements, eigene Prüfungen/CI, Lizenzen/Originaltexte, README/Einrichtung/ADR/Handoff; keine zentralen Status-/Planungsdateien. SQLite erhalten. Echte TLS-Positiv-/Negativfälle, präzise Werte, tatsächlich beobachteter Abbruch und saubere Sessionwechsel; Mac-/iPad-Zielbuild, Gerätegrenzen offen. Kein MySQL/SSH/Vault/CloudKit/Teamumfang. |
+| F3 – Frontend & UX (`p1a_parity`) | Webrepo, `feat/table-workbench`, `.worktrees/table-workbench`, Basis `ec8dcea` | Quellcode-/Lizenzverweise und strukturierter Tabellenarbeitsplatz mit freigegebenem gepinntem API0.2.0-Vertrag; Webprodukt/Build/Vertragskopien/Tests/Lizenzen/README/Einrichtung/Handoff. Keine zentralen Dateien, Mutation oder Credential-/SQL-Persistenz. Echte SQLite-/PostgreSQL-TLS-Browserproben und unveränderte strikte CSP/Sessiongrenzen. Root-Webpin folgt separat nach Webabnahme. |
 
 Alle Tickets: technische Bezeichner/Code/Kommentare/Tests Englisch, Dokumentation/UI
 Deutsch. Keine echten Zugangsdaten, keine privaten Pfade oder produktiven SQL-Daten.
@@ -40,7 +40,10 @@ Herkunft `80f203b3e0c7fa3f7f4aa5ec06825cb83bc0c5d0`, SHA256
 `4b598dc69a1904685e67a717997412654440ac10f47c17f7a025ccd114e294be`.
 Clients pinnen Kopie und Provenienz; keine zufällige Geschwisterrepo-Abhängigkeit.
 Die abgenommene B1-Engine meldet reale SQLite-/MySQL-/MariaDB-/PostgreSQL-Treiber.
-API0.2 bleibt bis B2a-Review ein separater Kandidat, kein freigegebener Clientvertrag.
+API0.2.0 nach geschlossenem B2a-Review und erfolgreicher nativer Fix-CI für Clients
+freigegeben: Herkunft `427444d7bcb8e30c9563ded2000ec3d5e19646c4`, Schema-SHA256
+`c15a848f01bb779429fd68a2b6eb6bba1575d3e07a4c68e6796cf7840a661838`.
+API0.1.0 und v1-Capabilities bleiben unverändert.
 
 ADR0003: Compose und Swarm verbindlich. ADR0004: SQLite zunächst SingleReplica,
 exklusives lokales Volume, eine aktive Verbindung jeDB, DELETE-Journal; kein WAL,
@@ -103,7 +106,7 @@ unabhängige QA wechseln sich geordnet ab.
 
 | Paket | Voraussetzung | Geplanter begrenzter Umfang und Abnahme |
 | --- | --- | --- |
-| F3 – Tabellenarbeitsplatz | B2a-Vertrag unabhängig freigegeben; F2b integriert | Gepinnter v2-Client, strukturierte Metadaten/Tabellenansicht mit Seitennavigation, Sortierung und parametrisierten Filtern; eindeutige Anzeige instabiler Reihenfolge, unbekannter Eigenschaften und fehlender Schreibfunktion. Echte Browserproben gegen SQLite und PostgreSQL; keine Mutation oder heimliche SQL-Fragmentbildung. Neue Quellcode-/Lizenzverweise im Webclient und anschließend neu reproduzierter Go-Webpin. |
+| F3 – Tabellenarbeitsplatz (beauftragt, siehe oben) | B2a-Vertrag unabhängig freigegeben; F2b integriert | Gepinnter v2-Client, strukturierte Metadaten/Tabellenansicht mit Seitennavigation, Sortierung und parametrisierten Filtern; eindeutige Anzeige instabiler Reihenfolge, unbekannter Eigenschaften und fehlender Schreibfunktion. Echte Browserproben gegen SQLite und PostgreSQL; keine Mutation oder heimliche SQL-Fragmentbildung. Neue Quellcode-/Lizenzverweise im Webclient und anschließend neu reproduzierter Go-Webpin. |
 | B2b – Datenbearbeitung | B2a abgenommen; eigener neuer Vertragskandidat | Zunächst klar begrenzte einzelne Zeilen mit sicherem Primärschlüssel; validierte Metadaten, parametrisierte Werte, Transaktions-/Konfliktregeln und ausdrückliche Behandlung unsicherer Tabellen. Kein Erfolg bei unbekanntem Commitausgang; konkurrierende Änderungen und Abbruch praktisch prüfen. Neuer Vertrag vor Frontendverbrauch separat abnehmen. |
 | A2 – Native Netzwerkverbindung (beauftragt, siehe oben) | Geprüfter P2a-Treiberpfad | Zunächst PostgreSQL direkt ohne Go, flüchtige Zugangsdaten, verpflichtend verifiziertes TLS und unverfälschte Werttypen; Verbindungswechsel/Abbruch/Fehlerfreigabe sowie lokaler SQLitebetrieb erhalten. Keine native MySQL-/MariaDB-Freigabe aus dem bestehenden Downgradebefund ableiten. Mac-/iPad-Zielbuild und echte synthetische TLS-Datenbankproben; Gerätegrenzen ausdrücklich offen. |
 | S2 – Optionale Tresorpersistenz | S1-Format/ADR unabhängig abgenommen; getrenntes Produktdesign | Atomare Speicherung, Recovery-Rückleseablauf, gesperrte/entsperrte Zustände, Dateischutz, Aktualisierungs-/Rotationszähler und Abbruch-/Crashverhalten. Produktplattform und Dateibesitz vor Beginn festlegen; keine Speicherung echter Geheimnisse allein aufgrund erfolgreicher Interopproben. CloudKit/Passkeys/Teams bleiben eigene Pakete. |
@@ -111,8 +114,8 @@ unabhängige QA wechseln sich geordnet ab.
 Diese Tabelle bereitet Folgearbeit vor und ist keine Implementierung oder Freigabe.
 Konkrete Branches, Dateibesitz und Reviewer werden erst bei Beauftragung zugewiesen.
 
-Aktuelle Reviewqueue: B2a `62f1297`/`573e392` plus Fix `3b5a54c` unabhängig
-freigegeben, beide Befunde geschlossen; Fix-CI noch offen. Enginejob wegen
-DockerHub-HTTP502 beim Imageabruf einmal gezielt neu gestartet.
+B2a `62f1297`/`573e392`/`3b5a54c` unabhängig abgenommen und als
+`cb07ebb`/`19673b3`/`427444d` integriert; beide Befunde geschlossen, vier Fix-CIs
+erfolgreich. Engine nach einmaligem DockerHub-HTTP502-Jobneustart erfolgreich.
 F2b `f2c92ee`/`c9ced80` unabhängig abgenommen und als `df0b291`/`c7e1a1d` integriert.
 S1-Originalworktree bleibt sauber, keine dortigen Jobs. QA hat den Formatreview beendet.

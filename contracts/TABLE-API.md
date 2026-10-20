@@ -1,7 +1,9 @@
-# Tabellen-API 0.2.0 – Kandidat B2a
+# Tabellen-API 0.2.0 – freigegebener B2a-Vertrag
 
-Status: Implementierungs-/Reviewkandidat, **nicht für Clientbindung freigegeben**.
-Der unabhängige Vertragsreview und ein separater Freeze erfolgen vor F3-Verwendung.
+Status: **nach unabhängigem Review, Fixnachprüfung und nativer CI für Clientbindung freigegeben**.
+Herkunft `427444d7bcb8e30c9563ded2000ec3d5e19646c4`; Schema-SHA256
+`c15a848f01bb779429fd68a2b6eb6bba1575d3e07a4c68e6796cf7840a661838`.
+Neue Verbraucher pinnen diesen Stand; spätere Änderungen benötigen neue Freigabe.
 Spezifikation: [api-v0.2.0.json](api-v0.2.0.json). Die unveränderte
 [API 0.1.0](api-v0.1.0.json) bleibt inklusive ihrer v1-Routen und Capability-Antwort gültig.
 `GET /api/v1/capabilities` meldet weiterhin `contract_version: "0.1.0"` ohne neue Felder,

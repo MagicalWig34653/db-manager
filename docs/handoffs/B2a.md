@@ -135,3 +135,25 @@ nach diesen Fixes erfolgreich. Kein neues Deployment oder lokale Netzwerkcontain
 für die eng begrenzten HTTP-/SQLite-Fixes notwendig. Schemahash bleibt unverändert.
 Fixcommit wird gepusht und benötigt eigene native CI sowie unabhängigen engen Nachreview.
 Keine lokalen Prüfjobs oder eigenen Container aktiv; anschließend Worker idle.
+
+## Unabhängige Abnahme und Vertragsfreeze
+
+Architecture-/Securitypeer prüfte ein eigenes sauberes Archiv mit Go-Race/Vet,
+Vertragsprüfung und echten TLS-Tabellenproben gegen MySQL/MariaDB/PostgreSQL.
+Zwei mittlere Befunde blockierten zunächst: fehlende Pflichtfeldpräsenz bei Werten/
+Spalten und unbelegte SQLite-Ordnungeindeutigkeit bei abweichender PK-Kollation.
+Fix `3b5a54c` schloss beide; unabhängig neu geschriebene Repros und enge
+Regressionen bestätigten fehlend/NULL gegenüber echten Leerwerten/-bezeichnern
+sowie Kollation mit expliziter DESC-Sortierung über mehrere Seiten. Keine weiteren
+bestätigten Befunde. Keine zusätzlichen vollständigen Deploymentproben erforderlich.
+
+Alle vier Fix-CIs erfolgreich: [Tabellen](https://github.com/MagicalWig34653/db-manager/actions/runs/39496042145),
+[Engine](https://github.com/MagicalWig34653/db-manager/actions/runs/39496042204),
+[Backend/Container](https://github.com/MagicalWig34653/db-manager/actions/runs/39496041978),
+[Dokumentation](https://github.com/MagicalWig34653/db-manager/actions/runs/39496042202).
+Engine zunächst beim MariaDB-Imageabruf mit DockerHub-HTTP502 gescheitert;
+einmaliger gezielter Jobneustart erfolgreich, kein Produktfehler daraus abgeleitet.
+Lead integrierte `cb07ebb`/`19673b3`/`427444d`; integrierte Go-Race/Vet-, Vertrags-
+und Dokumentationsprüfung bestanden. API0.2.0 ausdrücklich für Clientbindung
+freigegeben, Herkunft `427444d7bcb8e30c9563ded2000ec3d5e19646c4`, Schema unverändert.
+Keine Mutation, Snapshot- oder umfassende Paritätsfreigabe. Keine eigenen Jobs offen.
