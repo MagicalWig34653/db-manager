@@ -57,21 +57,23 @@ zentraler Webstatuscommit `ec8dcea`. Reale B1-Integration fehlt.
 
 ## Laufende Arbeit und Dateibesitz
 
-- Backend & Platform: P2b in `.worktrees/p2b`, Branch `spikes/p2b-sqlite-sandbox`;
-  ncruces/Authorizer/VFS nach unabhängigem QA-Review als Untersuchung integriert
-  (`7d2ed07`). ADR0004 eingeschränkt für B1 akzeptiert, keine Produktfreigabe.
-  B1 jetzt in `.worktrees/backend-engine`, Branch `feat/backend-engine`: reale Go-Engine.
-- Frontend & UX: F1 im Webrepo `.worktrees/web-workbench`, Branch `feat/web-workbench`;
-  Svelte/shadcn-svelte-Workbench, jetzt Bindung an freigegebenen Vertrag erlaubt.
-- Architecture/Security: S1 im Hauptrepo `.worktrees/vault-format`, Branch
-  `feat/vault-format`; interoperables synthetisch geprüftes Vaultformat/KDF/Recovery.
-  Noch keine produktive Credentialpersistenz. A1-Worktree bleibt saubere Provenienz.
-- QA & Release: eigene Rolle, Reviews vor Integration. Maximal drei aktive Worker.
-  Alte P1a/P2a/P3a/P4a-Worktrees bleiben als saubere Provenienz erhalten.
+Drei aktive Implementierer; unabhängige QA wird nach dem nächsten abgeschlossenen
+Paket aktiviert. Die laufende Sitzung bietet weiterhin vier Plätze einschließlich
+Lead. Nachträglich lokal konfigurierte höhere Limits sind hier nicht wirksam geworden.
 
-Aktive Produktänderungen liegen in diesen Worktrees und sind noch nicht integriert.
-Prüfjobs liegen bei den jeweiligen Workern; keine produktiven Dienste oder Migrationen.
-Keine echten Zugangsdaten speichern, keine fremden Docker-/Simulatorressourcen verändern.
+| Paket / Rolle | Branch / Worktree | Tatsächlicher Auftrag |
+| --- | --- | --- |
+| F2b / Frontend & UX | `feat/web-runtime`, `.worktrees/web-runtime`, Basis `21bd46a` | Webwrapper mit realem Server verbinden; echter Browser→Go→SQLite/PostgreSQL-Pfad; Compose/isolierter Swarm mit UI, Authentifizierung und SQLite-Neustartpersistenz. Besitz main, Container-/Deployverdrahtung, eigene Integrationsprüfungen/CI, Betriebsdokumentation und Handoff. Gepinnte Webassets unverändert. |
+| B2a / Backend & Platform | `feat/table-browse`, `.worktrees/table-browse`, Basis `c9cac01` | Strukturierte Tabellenmetadaten und begrenztes Browsen mit validierten Bezeichnern und parametrisierten Filtern. Besitz Datenbankadapter, neue Core-/HTTP-Tabledateien, enge Routingregistrierung, separater API0.2-Kandidat, eigene Prüfungen/CI und Handoff. Keine Mutation; v1-Vertrag unverändert. |
+| S1 / Architecture & Security | `feat/vault-format`, `.worktrees/vault-format`, Basis `d55e84a` | Interoperables Vaultformat mit Masterpasswort und Recovery, Go-/Swift-Kryptoproben, feste KDF-/Größengrenzen. Besitz neues Vaultschema/Fixtures, Sicherheitsdokumentation/ADR0005, separater Spike und Handoff. Keine produktive Credentialpersistenz. |
+
+Gemeinsame Verträge benötigen vor abhängiger Produktarbeit unabhängige Abnahme.
+Kein paralleles Schreiben derselben Dateien. Zentrale Status-/Planungsdateien gehören
+dem Lead. Alte saubere Worktrees bleiben als Provenienz erhalten.
+
+Aktive Produktänderungen sind noch nicht integriert. Prüfjobs liegen bei den
+jeweiligen Workern; keine produktiven Dienste oder Migrationen. Keine echten
+Zugangsdaten speichern, keine fremden Docker-/Simulatorressourcen verändern.
 
 ## Repositories und Fortsetzung
 
@@ -80,16 +82,18 @@ Alle drei Repos öffentlich unter `https://github.com/MagicalWig34653/<name>`:
 Git-/GitHub-Schreibblockaden der vorbereitenden Sitzung sind behoben.
 Go1.27.1, Node26.5.0, Swift6.4/Xcode27.1 und Docker/Colima tatsächlich verfügbar.
 
-Nächste Umsetzung: F2b-Verdrahtung und echter Browserpfad nach integriertem B1/F2a. F1 und A1 getrennt
-fertigstellen/reviewen, danach echten durchgehenden Web-/Docker-/Apple-Pfad prüfen.
+Nächste Abnahme: F2b-Verdrahtung und echter Browserpfad nach integriertem B1/F2a.
+F1/F1b und A1 sind bereits getrennt abgenommen und integriert. B2a-Vertrag und
+S1-Tresorformat werden vor weiteren Verbrauchern separat geprüft.
 Offen bleiben insbesondere vollständige Parität, produktiver Tresor/Recovery/Sync,
 Passkey-Entsperren, Teamkonten/Rechte, native sichere Netzwerkadapter und echte Geräte.
 Planung ist kein Funktionsnachweis. Konkrete Aufträge: [Arbeitsplan](ARBEITSPLAN.md),
 Team: [TEAM](TEAM.md), Einrichtung: [EINRICHTUNG](../EINRICHTUNG.md).
 
-Hauptstand `9f1880f`: [Backend-/Container-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39487622613)
-und [Dokumentations-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39487622656)
-tatsächlich erfolgreich. Neuere reine Status-/Untersuchungscommits separat prüfen.
+Hauptstand `21bd46a`: [Backend-/Container-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39493600835),
+[Engine-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39493600757) und
+[Dokumentations-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39493600707)
+tatsächlich erfolgreich. Neuere Commits separat prüfen.
 
 ## B1-Abnahmecheckpoint
 

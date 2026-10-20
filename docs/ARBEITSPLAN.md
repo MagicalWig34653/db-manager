@@ -24,9 +24,9 @@ Maximal drei aktive Worker, QA wird nach fertig gemeldeten Paketen eingeplant.
 
 | Ticket / Rolle | Repo / Branch / Worktree | Ziel, Besitz und Abnahme |
 | --- | --- | --- |
-| B1 – abgenommen (`p2a_drivers`) | Hauptrepo, `feat/backend-engine`, `.worktrees/backend-engine` | Reale SQLite-/MySQL-/MariaDB-/PostgreSQL-Engine integriert als `87caed8`/`063209e`; vier Reviewbefunde geschlossen, native CIs grün. Besitz `internal/database/`, `internal/sqlitesandbox/`, Modul-/Lizenzdateien, begrenzte main-/Dockerverdrahtung, eigene Engineprüfungen/CI, Betrieb und Handoff. Kein HTTP/Core/Schema/Web ohne Abstimmung. Echte DB-Tests, Cancel/Lifecycle, sichere Fehler, 1MiB Rohzelle/8MiB tatsächliches JSON, Docker-UID/Persistenz sowie nativer Linuxamd64-Lauf sind Gates. ADR0004-Grenzen verpflichtend. |
-| F1 – Frontend & UX (`p1a_parity`) | Webrepo, `feat/web-workbench`, `.worktrees/web-workbench` | Deutsche Svelte/shadcn-svelte-Workbench mit Connection/Catalog/SQL/Ergebnissen. Besitz Produkt-/Build-/Testdateien, eigenes Lizenzinventar, Einrichtung, Handoff. Exakte freigegebene API binden; Credentials nur im Speicher; Unit-/Komponenten-/Browserprüfungen und sauberer unabhängiger Build. Echte B1-Integration folgt separat. |
-| S1 – Architecture & Security (`p3a_security`) | Hauptrepo, `feat/vault-format`, `.worktrees/vault-format` | Interoperables Vaultformat mit KDF, Masterpasswort und Recovery auf synthetischen Go-/Swift-Proben. Besitz neue Vaultschema-/Fixturedateien, Sicherheitsdoku/ADR0005/Handoff und `spikes/vault-interop/` mit eigenen Modulen; kein rootGoMod oder Produktclient parallel. Format vor produktiver Integration separat prüfen. |
+| F2b – Frontend & UX (`p1a_parity`) | Hauptrepo, `feat/web-runtime`, `.worktrees/web-runtime`, Basis `21bd46a` | Reale B1-API mit freigegebenem Webwrapper verbinden. Besitz main, Docker-/Compose-/Swarmverdrahtung, eigene echte Browser-/Deployprüfungen/CI, Pythoncache-Ignore, Betrieb/Einrichtung/Webbuild/Lizenzen und Handoff. Keine DB-/Core-/API-/Moduländerungen oder Änderungen gepinnter Assets. Abnahme: Browser ohne API-Mocks gegen SQLite und PostgreSQL, Zellwerte/Auth/Session/Abbruch/Limits; Compose und isolierter DinD-Swarm mit UI/CSP/Auth/SQLite-Neustartpersistenz. |
+| B2a – Backend & Platform (`p2a_drivers`) | Hauptrepo, `feat/table-browse`, `.worktrees/table-browse`, Basis `c9cac01` | Strukturierte Tabellenmetadaten und begrenztes Browsen; keine Mutation. Besitz DB-Adapter, neue Core-/HTTP-Tabledateien, enge Routingregistrierung, separater API0.2-Kandidat, Engineprüfungen/CI und Handoff. Kein main/Docker/Compose/GoMod/UI. Abnahme: echte SQLite/MySQL/MariaDB/PostgreSQL-Fälle, zusammengesetzter/fehlender PK, generierte Spalten, Bezeichner-/Filterinjektion, Grenzen/Abbruch. v1 unverändert; unabhängige Vertragsfreigabe vor Clients. |
+| S1 – Architecture & Security (`p3a_security`) | Hauptrepo, `feat/vault-format`, `.worktrees/vault-format`, Basis `d55e84a` | Interoperables Vaultformat mit KDF, Masterpasswort und Recovery auf synthetischen Go-/Swift-Proben. Besitz neue Vaultschema-/Fixturedateien, Sicherheitsdoku/ADR0005/Handoff und `spikes/vault-interop/` mit eigenen Modulen; kein rootGoMod oder Produktclient parallel. Bidirektionale Positiv-/Negativprüfung, KDF-/Größengrenzen, Herkunft/Lizenzen und unabhängige Formatabnahme vor produktiver Integration. |
 
 Alle Tickets: technische Bezeichner/Code/Kommentare/Tests Englisch, Dokumentation/UI
 Deutsch. Keine echten Zugangsdaten, keine privaten Pfade oder produktiven SQL-Daten.
@@ -40,7 +40,8 @@ API0.1.0 ist nach unabhängigem QA-Review ausdrücklich als Clientvertrag freige
 Herkunft `80f203b3e0c7fa3f7f4aa5ec06825cb83bc0c5d0`, SHA256
 `4b598dc69a1904685e67a717997412654440ac10f47c17f7a025ccd114e294be`.
 Clients pinnen Kopie und Provenienz; keine zufällige Geschwisterrepo-Abhängigkeit.
-Das bestehende Foundation-Backend meldet bis B1 bewusst eine leere Treiberliste.
+Die abgenommene B1-Engine meldet reale SQLite-/MySQL-/MariaDB-/PostgreSQL-Treiber.
+API0.2 bleibt bis B2a-Review ein separater Kandidat, kein freigegebener Clientvertrag.
 
 ADR0003: Compose und Swarm verbindlich. ADR0004: SQLite zunächst SingleReplica,
 exklusives lokales Volume, eine aktive Verbindung jeDB, DELETE-Journal; kein WAL,
@@ -53,7 +54,8 @@ QA & Release (`p0_publication_review`) prüft fertig gemeldete Commits unabhäng
 Implementierer gehen bei benötigtem Slot vorübergehend idle. Findings zurück an den
 Eigentümer, eng nachprüfen, erst danach Leadintegration und Gesamtprüfung.
 
-1. B1, F1 und A1 jeweils getrennt abnehmen, nicht von den Spikefreigaben ableiten.
+1. B1, F1/F1b, A1 und F2a sind unabhängig abgenommen und integriert; jeweilige
+   Grenzen gelten weiter, insbesondere keine vollständige Parität oder Tresorfreigabe.
 2. Durchgehenden echten Web→Go→Wegwerf-DB-Pfad prüfen; Webbuild reproduzierbar und
    mit Herkunft in das Go-/Containerprodukt einbinden. Compose und Swarm erneut mit
    tatsächlicher Produktengine testen.
@@ -66,9 +68,9 @@ Eigentümer, eng nachprüfen, erst danach Leadintegration und Gesamtprüfung.
 
 ## Tatsächlicher Prüfstand und Übergabe
 
-[STATUS](STATUS.md) ist kanonisch für tatsächliche Ergebnisse. Am Hauptstand `9f1880f`
-sind [Backend-/Container-CI](https://github.com/MagicalWig34653/db-manager/actions/runs/39487622613)
-und Dokumentations-CI erfolgreich. Neuere Commits separat verifizieren.
+[STATUS](STATUS.md) ist kanonisch für tatsächliche Ergebnisse. Am Hauptstand `21bd46a`
+sind Backend-/Container-, Engine- und Dokumentations-CI erfolgreich; Nachweise dort
+verlinkt. Neuere Commits separat verifizieren.
 Keine produktiven Migrationen oder Dienste gestartet. Aktive Prüfjobs sind in den
 Workerübergaben zu erfassen; Taskcontainer nach Tests entfernen, Images/Buildcaches
 nicht mit fremden Ressourcen verwechseln. Alte saubere Worktrees bleiben Provenienz.
@@ -77,28 +79,22 @@ prüfbare Commits sichern, offene Funktionen/Tests und nächsten Schritt dokumen
 
 ## Aktueller Review-/Clientcheckpoint
 
-- A1 nach QA inklusive UI-Lifecyclefix und erfolgreicher Feature-CI im Apple-main
-  integriert, Statuscommit `ce0aedb`. Echte Geräte/Signing/interaktiver OS-UI bleiben offen.
-- F1/F1b durch QA freigegeben; Quelle `4e5abee`, Webfeature-CI läuft. F2a nun im
-  Hauptrepo `.worktrees/web-integration`, Branch `feat/web-integration`: reproduzierbar
-  gepinnte Webassets/Provenienz und `internal/webui`-Wrapper, eigene Skripte/Tests/Handoff.
-  Kein main-/Docker-/Core-/API-Schreiben parallel zu B1. F2b echte Verdrahtung folgt.
-- B1 erste Reviews abgeschlossen, Autor korrigiert vier bestätigte Befunde
-  (SQLite-Speichertyp hoch, Metadata-IP-/MySQL-Loggerpolicy mittel, Catalogprefix niedrig).
-  Drei öffentliche Feature-CIs grün einschließlich nativem Linuxamd64; kein Ersatz für Fixreview.
-- S1 ist Voraussetzung für spätere produktive optionale Credentialpersistenz S2;
-  keine Freigabe aus den bisherigen AEAD-/PRF-Spikes ableiten.
+- A1 nach QA inklusive UI-Lifecyclefix und erfolgreicher Feature-/Main-CI im Apple-main
+  integriert, Statuscommit `ce0aedb`. Echte Geräte/Signing/interaktive OS-UI bleiben offen.
+- F1/F1b nach QA inklusive Session-/Zeilenzahlfix und CSP-tauglichen Validatoren
+  freigegeben. Quelle `4e5abee` unverändert in Web-main, Statuscommit `ec8dcea`;
+  öffentliche Frontend-/Dokumentations-CI erfolgreich.
+- B1: alle vier Befunde im Fix `4ecd15f` unabhängig geschlossen; integrierte
+  Go-Race/Vet-Prüfung und native öffentliche CIs erfolgreich. Produktcode im Hauptrepo
+  `87caed8`/`063209e`, Handoff `4056c99`, zentraler Abnahmecheckpoint `520ca42`.
+- F2a `42a0dec` plus `d236076` nach unabhängiger öffentlicher Reproduktion als
+  `15b339e`/`c9cac01` integriert. Assetbytes/Manifest/Notices exakt; strikte CSP,
+  MIME/Cache/Traversal/API-Passthrough geprüft. Noch keine Serververdrahtung.
+- S1 ist Voraussetzung für spätere optionale verschlüsselte Credentialpersistenz S2;
+  keine Freigabe aus bisherigen AEAD-/PRF-Spikes ableiten. B2b-Mutation folgt separat
+  mit Konflikt-/Transaktionsabnahme; kein vorgezogener Verbraucher des B2a-Kandidaten.
 
-B1-Abschluss: alle vier Befunde im Fix `4ecd15f` unabhängig geschlossen; Fix-CIs
-Engine39492062555/Backend39492062646/Docs39492062458 erfolgreich. Integrierte
-Go-Race/Vet-Prüfung bestanden. Backendworker für nächstes Ticket verfügbar.
-F2a `42a0dec` plus `d236076` nach QA als `15b339e`/`c9cac01` integriert; Sourcepin `4e5abee` ist
-inzwischen unverändert in Web-main ancestry und durch öffentliche CI bestätigt.
-A1-main `ce0aedb` hat auch nach zentralem Statuscommit Apple-/Docs-CI grün.
-
-B2a ist beauftragt: Backendworker in `.worktrees/table-browse`, Branch
-`feat/table-browse` ab `c9cac01`. Neue strukturierte Tabellenmetadaten/-ansicht und
-additiver Vertragskandidat0.2; Besitz DB-/neue Core-/HTTP-Tabledateien, enge Routing-
-registrierung, neuer Vertrag/Doku/Handoff/Engine-CI. Kein main/Docker/Compose/GoMod,
-keine UI-/F2-Dateien. F2b erhält main-/Dockerverdrahtung erst als eigenes Ticket.
-Mutation B2b folgt separat mit Konflikt-/Transaktionsabnahme.
+Die aktive Sitzung bietet vier gleichzeitige Plätze einschließlich Lead. Die lokale
+nachträgliche Konfiguration höherer Limits wird von den verfügbaren Laufzeitwerkzeugen
+nicht neu geladen. Kein Neustart oder Umgehungsprozess; drei Implementierer und
+unabhängige QA wechseln sich geordnet ab.
