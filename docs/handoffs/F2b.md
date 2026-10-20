@@ -60,8 +60,7 @@ Zusätzlich bestanden: `go test -race -count=1 ./...`, `go vet ./...`,
 (sechs Tests), `python3 scripts/check-docs.py` (174 Dateien, null Fehler) und
 `git diff --check`. Netzwerk-Engine-Go-Tests ohne Fixturevariablen werden durch deren
 bestehende Tests übersprungen; die oben genannten echten Runtimeproben ersetzen diese
-nicht stillschweigend. Öffentliche Linux-CI und frischer Checkout werden nach Commit
-als Nachtrag dokumentiert.
+nicht stillschweigend. Der folgende Nachtrag erfasst den frischen Checkout und die öffentliche Linux-CI.
 
 Prüfskripte erzeugen ausschließlich zufällige kurzlebige Credentials unter einem
 privaten temporären Verzeichnis. Credentials gehen weder in Prozessargumente noch
@@ -88,3 +87,29 @@ gesonderte Releaseaufgaben. F2b installiert keine SDKs und erweitert den API-Ver
 
 Nächster Schritt: öffentliche Branch-CI und unabhängige QA, danach ausschließlich
 Integration durch den Lead. Keine laufenden Entwicklungsserver vorgesehen.
+
+
+## Abschlusscheckpoint und offene CI-Jobs
+
+Implementierungscommit: `f2c92eef840de1228b4464b71a8068cf86c398ec`, öffentlich auf
+`feat/web-runtime`. Bestehende öffentliche Autoridentität unverändert.
+Ein frischer Clone dieses Commits wurde ohne Geschwisterrepository gebaut:
+`CGO_ENABLED=0 GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local go build -trimpath ./cmd/db-manager`,
+wobei `PATH` ausdrücklich weder Node noch npm enthielt. Offline-Assetprüfung und
+Dokumentationsprüfung bestanden; Checkout sauber und anschließend entfernt.
+
+Öffentliche GitHub-Actions für denselben Implementierungscommit:
+
+| Workflow | Nachweis | Stand bei Übergabe |
+| --- | --- | --- |
+| Echter Web-Datenbank-Pfad | [39495523677](https://github.com/MagicalWig34653/db-manager/actions/runs/39495523677) | Erfolgreich auf Linux/amd64: reales CLI/Image/Compose, beide Chromiumtests 3,4 s, SQLite/PostgreSQL-TLS und tatsächliche DB-Abbruchfreigabe |
+| Documentation | [39495523691](https://github.com/MagicalWig34653/db-manager/actions/runs/39495523691) | Erfolgreich |
+| Backend und Container | [39495523685](https://github.com/MagicalWig34653/db-manager/actions/runs/39495523685) | Noch aktiv; Go-Race/Vet/Build und Doku bereits erfolgreich, Compose/Swarm-Job noch nicht abgeschlossen |
+| Datenbankengine | [39495523709](https://github.com/MagicalWig34653/db-manager/actions/runs/39495523709) | Noch aktiv; Ergebnis ausdrücklich offen |
+
+Lead übernimmt die Beobachtung der beiden offenen Jobs sowie die unabhängige QA-
+Zuweisung. Dieser reine Dokucheckpoint verändert keinen getesteten Produkt-/Testcode;
+`[skip ci]` vermeidet eine zweite identische volle Testserie. Doku- und Diffprüfung
+für den Nachtrag bestanden. Keine lokal laufenden Server oder Testjobs, keine eigenen
+Docker-Ressourcen verblieben; Host-Swarm weiterhin `inactive`. Fremde Dienste blieben
+unverändert. Worker gibt den Slot frei und wartet auf QA-Befunde.
