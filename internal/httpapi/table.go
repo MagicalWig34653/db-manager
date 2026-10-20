@@ -47,9 +47,52 @@ func (a *API) describeTable(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, result)
 }
 func (a *API) browseTable(w http.ResponseWriter, r *http.Request) {
-	request := core.BrowseRequest{Connection: core.Connection{TLSMode: "verify-full"}}
-	if !decode(w, r, &request) || !validConnection(w, request.Connection) {
+	// Pointer fields preserve required JSON value presence without changing Cell.
+	var payload struct {
+		Connection core.Connection `json:"connection"`
+		Table      core.TableRef   `json:"table"`
+		PageSize   int             `json:"page_size,omitempty"`
+		Offset     int             `json:"offset,omitempty"`
+		Sort       []struct {
+			Column    *string `json:"column"`
+			Direction string  `json:"direction"`
+		} `json:"sort,omitempty"`
+		Filters []struct {
+			Column   *string `json:"column"`
+			Operator string  `json:"operator"`
+			Value    *struct {
+				Kind  *string `json:"kind"`
+				Value *string `json:"value"`
+			} `json:"value,omitempty"`
+		} `json:"filters,omitempty"`
+		TimeoutMS int `json:"timeout_ms,omitempty"`
+	}
+	payload.Connection.TLSMode = "verify-full"
+	if !decode(w, r, &payload) || !validConnection(w, payload.Connection) {
 		return
+	}
+	request := core.BrowseRequest{Connection: payload.Connection, Table: payload.Table, PageSize: payload.PageSize, Offset: payload.Offset, TimeoutMS: payload.TimeoutMS}
+	for _, item := range payload.Sort {
+		if item.Column == nil {
+			fail(w, 400, "invalid_request", "Sortierung benötigt eine Spalte.")
+			return
+		}
+		request.Sort = append(request.Sort, core.TableSort{Column: *item.Column, Direction: item.Direction})
+	}
+	for _, filter := range payload.Filters {
+		if filter.Column == nil {
+			fail(w, 400, "invalid_request", "Filter benötigt eine Spalte.")
+			return
+		}
+		converted := core.TableFilter{Column: *filter.Column, Operator: filter.Operator}
+		if filter.Value != nil {
+			if filter.Value.Kind == nil || filter.Value.Value == nil {
+				fail(w, 400, "invalid_request", "Filterwert benötigt Art und Wert.")
+				return
+			}
+			converted.Value = &core.Cell{Kind: *filter.Value.Kind, Value: *filter.Value.Value}
+		}
+		request.Filters = append(request.Filters, converted)
 	}
 	engine, ok := a.tableEngine(w)
 	if !ok {
