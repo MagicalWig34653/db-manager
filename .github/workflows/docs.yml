@@ -1,0 +1,24 @@
+name: Documentation
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  documentation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch public source at event commit
+        env:
+          REPOSITORY: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          git init --initial-branch=ci .
+          git remote add origin "https://github.com/${REPOSITORY}.git"
+          if [ -n "$PR_NUMBER" ]; then
+            git fetch --depth=1 origin "refs/pull/${PR_NUMBER}/merge"
+          else
+            git fetch --depth=1 origin "$COMMIT"
+          fi
+          git checkout --detach FETCH_HEAD
+      - name: Check documentation
+        run: python3 scripts/check-docs.py
