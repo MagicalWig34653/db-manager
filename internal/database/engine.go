@@ -151,6 +151,9 @@ func (e *Engine) Query(ctx context.Context, r core.QueryRequest) (core.QueryResu
 		return empty, err
 	}
 	defer closeDB()
+	if r.Connection.Driver == "sqlite" {
+		return sqliteQuery(ctx, db, r, start)
+	}
 	// Prepare rejects batches before execution; no transaction spans requests.
 	stmt, err := db.PrepareContext(ctx, r.SQL)
 	if err != nil {
@@ -274,7 +277,7 @@ func (e *Engine) Catalog(ctx context.Context, c core.Connection) ([]core.Table, 
 	var query string
 	switch c.Driver {
 	case "sqlite":
-		query = "SELECT 'main', name, type FROM sqlite_schema WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%' ORDER BY name"
+		query = "SELECT 'main', name, type FROM sqlite_schema WHERE type IN ('table','view') AND name NOT GLOB 'sqlite_*' ORDER BY name"
 	case "mysql":
 		query = "SELECT TABLE_SCHEMA, TABLE_NAME, CASE WHEN TABLE_TYPE='VIEW' THEN 'view' ELSE 'table' END FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() ORDER BY TABLE_NAME"
 	case "postgres":
