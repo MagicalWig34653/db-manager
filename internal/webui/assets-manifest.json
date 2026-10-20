@@ -1,0 +1,43 @@
+{
+  "files": [
+    {
+      "path": "LICENSE.txt",
+      "sha256": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0",
+      "size": 34523
+    },
+    {
+      "path": "THIRD-PARTY-NOTICES.txt",
+      "sha256": "5757e0b3179e381d4393f2e51784a7109c00b3276546b8fcf551cd8f1309135e",
+      "size": 92896
+    },
+    {
+      "path": "assets/index-D-9Or8Za.css",
+      "sha256": "2ae69455cf7c0bf7f46d936c065ce6cd32c5ae8c20744d1bc7d953f62c067c3f",
+      "size": 38550
+    },
+    {
+      "path": "assets/index-GNB_HOVl.js",
+      "sha256": "fa99fb83de906e7ecc05013c782c3f33dc308575b7fc03dd3a59b6f007d62c42",
+      "size": 253502
+    },
+    {
+      "path": "index.html",
+      "sha256": "183aba203a087e05ff5896eb14a814c8ff411e61922b5d287fb7aa73c8befe10",
+      "size": 424
+    }
+  ],
+  "schema_version": 1,
+  "source": {
+    "build_mode": "production",
+    "commit": "4e5abee074d34853b266f20c344f28517d7924d1",
+    "contract_sha256": "4b598dc69a1904685e67a717997412654440ac10f47c17f7a025ccd114e294be",
+    "contract_version": "0.1.0",
+    "npm_lock_sha256": "bac4b32ba0548428186f20b1d6382f3554b1a477c0fb89957b123820495b15c6",
+    "repository": "https://github.com/MagicalWig34653/db-manager-web.git",
+    "schema_version": 1,
+    "toolchain": {
+      "node": "26.5.0",
+      "npm": "11.17.0"
+    }
+  }
+}
