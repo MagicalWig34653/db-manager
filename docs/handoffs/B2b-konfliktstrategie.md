@@ -44,3 +44,15 @@ Engine39501377584, Table39501377685, Backend39501377686, Web39501377729,
 Docs39501377673 (jeweils GitHubActions-Run-ID im Hauptrepository).
 Dieser reine lokale Handoffcheckpoint korrigiert das Datum und sichert Jobprovenienz;
 kein erneuter Push unveränderten Produktcodes. Worktree danach sauber, keine lokalen Jobs.
+
+## Unabhängige Abnahme und Backport
+
+P0 reproduzierte QA-B2b-01 unabhängig am zuvor integrierten Hauptstand: eine zweite
+Zeile verschwand trotz positivem Einzelzeilenergebnis. Enger Fixreview an `20492c2`:
+nur SQLite-UPDATE erhält OR ABORT, andere Treiber/DELETE/freies SQL unverändert.
+Eigenes sauberes Archiv bestand bestehende SQLite-Mutationsfälle und den neuen
+Konfliktregressionstest unter Race-Detector; Fehler statt Commit und beide ursprünglichen
+Zeilen bestätigt. Kein weiterer Befund. Alle sechs Feature-CIs am Fix erfolgreich.
+Lead integrierte als `ea304ef`/`8d0fe29`; integrierte Go-Race/Vet-, Vertrags- und
+Dokumentationsprüfung bestanden. Schema0.3.0 unverändert. Neue Clients pinnen einen
+Backendstand mit diesem Fix; keine Freigabe älterer SQLite-Mutationsimplementierungen.

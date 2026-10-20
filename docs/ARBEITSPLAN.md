@@ -25,7 +25,7 @@ Maximal drei aktive Worker, QA wird nach fertig gemeldeten Paketen eingeplant.
 | Ticket / Rolle | Repo / Branch / Worktree | Ziel, Besitz und Abnahme |
 | --- | --- | --- |
 | A2 – Apple Engineer (`p3a_security`) | Applerepo, `feat/apple-postgres`, `.worktrees/apple-postgres`, Basis `ce0aedb` | Direkte PostgreSQL-Verbindung ohne Go, TLS verpflichtend mit vollständiger Zertifikat-/Hostprüfung, flüchtige Credentials, Katalog/SQL und getaggte begrenzte Resultate. Besitz Produktmodule/SwiftUI, Package/Lock/Xcode/Entitlements, eigene Prüfungen/CI, Lizenzen/Originaltexte, README/Einrichtung/ADR/Handoff; keine zentralen Status-/Planungsdateien. SQLite erhalten. Echte TLS-Positiv-/Negativfälle, präzise Werte, tatsächlich beobachteter Abbruch und saubere Sessionwechsel; Mac-/iPad-Zielbuild, Gerätegrenzen offen. Kein MySQL/SSH/Vault/CloudKit/Teamumfang. |
-| F3 – Frontend & UX (`p1a_parity`) | Webrepo, `feat/table-workbench`, `.worktrees/table-workbench`, Basis `ec8dcea` | Quellcode-/Lizenzverweise und strukturierter Tabellenarbeitsplatz mit freigegebenem gepinntem API0.2.0-Vertrag; Webprodukt/Build/Vertragskopien/Tests/Lizenzen/README/Einrichtung/Handoff. Keine zentralen Dateien, Mutation oder Credential-/SQL-Persistenz. Echte SQLite-/PostgreSQL-TLS-Browserproben und unveränderte strikte CSP/Sessiongrenzen. Root-Webpin folgt separat nach Webabnahme. |
+| F3b – Frontend & UX (`p1a_parity`) | Hauptrepo, `feat/table-web-runtime`, `.worktrees/table-web-runtime`, Basis `7f3191a` | Quellcode-/Lizenzverweise und strukturierter Tabellenarbeitsplatz mit freigegebenem gepinntem API0.2.0-Vertrag; Webprodukt/Build/Vertragskopien/Tests/Lizenzen/README/Einrichtung/Handoff. Keine zentralen Dateien, Mutation oder Credential-/SQL-Persistenz. Echte SQLite-/PostgreSQL-TLS-Browserproben und unveränderte strikte CSP/Sessiongrenzen. Root-Webpin folgt separat nach Webabnahme. |
 | B2c – Backend & Platform (`p2a_drivers`) | Hauptrepo, `feat/row-insert`, `.worktrees/row-insert`, Basis `31dd06f` | Einzelnes INSERT mit expliziter Bestätigung, Default versus NULL, validierten Metadaten/gebundenen Werten, echter Transaktion und verlustarm belegter Identität/Nachherzeile nach Triggern. Eigene neue DB/Core/HTTP-Dateien plus enge Helper/Routingregistrierung, separater0.4-Kandidat, Doku/Prüfungen/CI/Handoff. Kein main/Docker/GoMod/Web/Vault/zentraler Vertragsindex. Kein Upsert/Replace/Ignore/Batch; v1-v3 unverändert. Echte SQLite/3TLSDB-Constraint-/Konkurrenz-/Trigger-/Timeout-/Commitfehlerproben und unabhängiger Freeze vor Clients. |
 
 Alle Tickets: technische Bezeichner/Code/Kommentare/Tests Englisch, Dokumentation/UI
@@ -139,3 +139,15 @@ Reviewqueue: F3-Erstreview an `d36bb65`/`2605931` bis auf QA-F3-01 grün;
 Frontendautor korrigiert atomare Filter-/Sortzustandsübernahme. P0 prüft anschließend
 gezielt Paging-/Aktualisierungsrepro. Root-WebpinF3b weiter gesperrt. A2 wartet
 Autorenabschluss und eigenen unabhängigen Review inklusive neuem NIOssl-Revisionspin.
+
+F3 ist nach P3-Nachprüfung von QA-F3-01 im Web-main integriert (`8ab07fb`/`ffdd2a0`),
+Quelle `6c6eb33c93eed355a10cd114f61ce27be7f3f55e` freigegeben. F3b ist beauftragt:
+Root-Assets/Manifest/Lock/Provenienz, nötige enge Build-/Wrapper-/Dockerlabels,
+Runtimebrowser-/Readinessprüfungen/CI, Betrieb/Einrichtung/Webbuild/Lizenzen/Handoff.
+Keine DB/Core/HTTP/GoMod-/Vertrags-/Webquelländerungen.
+
+QA-B2b-01 hoch nach Erstabnahme bestätigt und geschlossen: SQLite-UPDATE konnte
+schemaeigenes REPLACE ausführen. Fix `20492c2` unabhängig geprüft, sechs Feature-CIs
+erfolgreich; Backport `ea304ef`/`8d0fe29`. Neue Schreibclients benötigen mindestens
+diesen Backendstand, Schema0.3.0 unverändert. A2-Fix QA-A2-01 läuft beim Autor;
+übriger nativer Erstreview und konkreter NIOssl-Abhängigkeitspin unabhängig bestanden.

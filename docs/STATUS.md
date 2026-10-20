@@ -168,15 +168,29 @@ Keine geprüfte Web-Schreiboberfläche, kein Insert/ABA-/Exactly-once-/HA-Verspr
 
 ## Aktuelle unintegrierte Reviewstände
 
-F3-Webquelle `d36bb65`/Handoff `2605931` beim unabhängigen Review mit einem mittleren
-Befund blockiert: angewendete Filter wurden vor vollständiger Sortierungsvalidierung
-verändert. Echte SQLite-/PostgreSQL-Browserrepros bestätigen unsichtbaren verworfenen
-Filter bei nachfolgender Seitennavigation. Autor übernimmt Zustand künftig erst
-nach vollständiger Validierung atomar. Kein F3-/F3b-Quellpin vor Fixnachprüfung.
-Alle übrigen öffentlichen Checkout-/Vertrags-/Build-/CSP-/Browserprüfungen bestanden;
-keine weiteren bestätigten Befunde. QA-Clone/Prozesse/Container entfernt.
+F3 nach vollständigem P0-Erstreview und unabhängigem P3-Fixreview im Web-main
+integriert (Merge `8ab07fb`, Status `ffdd2a0`). QA-F3-01 geschlossen; Quelle
+`6c6eb33c93eed355a10cd114f61ce27be7f3f55e` für Rootpaket F3b freigegeben.
+Alle Fix-CIs, integrierte Typecheck-/19-Unit-/Dualvertrags-/Buildprüfungen erfolgreich.
+Frontendworker setzt F3b in `.worktrees/table-web-runtime`, Branch
+`feat/table-web-runtime` ab `7f3191a` um: neue reproduzierbare eingebettete Assets,
+Provenienz und engere TCP-/TLS-Testreadiness. Noch nicht im Go-Embed integriert.
 
-A2-Code `89b2683` im Apple-Featurebranch, letzter sauberer Archiv-/iPad-/Metadatencheck
-beim Autor. Offizieller unveränderlicher NIOssl-Revisionspin mit konkret belegten
+A2-Code `89b2683`/`abaa3dc` vollständig unabhängig geprüft; ein mittlerer Befund
+QA-A2-01 blockiert Integration: Foundationformatierung verfälscht historische
+proleptische Datums-/Timestampwerte und BC/AD. P3 korrigiert gezielt. Offizieller unveränderlicher NIOssl-Revisionspin mit konkret belegten
 BoringSSL-Originaltexten ist eine ausdrückliche ADR-/QA-Entscheidung, noch nicht
-abgenommen. Keine native Netzwerk-/Lizenz-/Gerätefreigabe aus Autorenproben ableiten.
+abgenommen als begründete Abhängigkeitsentscheidung; Produktintegration weiterhin
+wegen Datumsbefund blockiert. Keine Geräte-/Signing-/interaktive OS-Freigabe.
+
+## Geschlossener Datenintegritätsbefund QA-B2b-01
+
+Nach der ersten B2b-Abnahme zusätzlich gefunden und unabhängig bestätigt: SQLite
+UNIQUE ON CONFLICT REPLACE konnte bei einem strukturierten UPDATE eine zweite Zeile
+löschen, während RowsAffected1 Erfolg meldete. Minimaler Fix `20492c2` unabhängig
+nachgeprüft und nach sechs erfolgreichen Feature-CIs als `ea304ef`/`8d0fe29`
+integriert: SQLite-UPDATE erzwingt OR ABORT. Repro nun Fehler und beide Originalzeilen
+unverändert. Integrierte Go-Race/Vet-, Vertrags-/Dokumentationsprüfung bestanden.
+[Details](handoffs/B2b-konfliktstrategie.md). Schema0.3.0 unverändert; neue
+Schreibclients benötigen einen Backendstand mit diesem Fix. Ältere SQLite-
+Mutationsimplementierungen sind nicht freigegeben.
