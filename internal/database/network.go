@@ -28,6 +28,10 @@ func validHost(host string) bool {
 	return dnsHost.MatchString(host) && !strings.Contains(host, "..")
 }
 func permittedIP(ip netip.Addr) bool {
+	ip = ip.Unmap()
+	if ip == netip.MustParseAddr("fd00:ec2::254") || ip == netip.MustParseAddr("100.100.100.200") {
+		return false
+	}
 	return ip.IsValid() && ip.Zone() == "" && !ip.IsUnspecified() && !ip.IsMulticast() && !ip.IsLinkLocalUnicast() && !ip.IsLinkLocalMulticast()
 }
 func (e *Engine) network(ctx context.Context, c core.Connection) (*sql.DB, error) {
@@ -87,6 +91,7 @@ func (e *Engine) network(ctx context.Context, c core.Connection) (*sql.DB, error
 	}
 	if c.Driver == "mysql" {
 		cfg := mysql.NewConfig()
+		cfg.Logger = &mysql.NopLogger{}
 		cfg.Net = "tcp"
 		cfg.Addr = net.JoinHostPort(host, strconv.Itoa(port))
 		cfg.User = c.Username
