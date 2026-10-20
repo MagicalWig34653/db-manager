@@ -151,3 +151,9 @@ schemaeigenes REPLACE ausführen. Fix `20492c2` unabhängig geprüft, sechs Feat
 erfolgreich; Backport `ea304ef`/`8d0fe29`. Neue Schreibclients benötigen mindestens
 diesen Backendstand, Schema0.3.0 unverändert. A2-Fix QA-A2-01 läuft beim Autor;
 übriger nativer Erstreview und konkreter NIOssl-Abhängigkeitspin unabhängig bestanden.
+
+Nächster priorisierter Review: PostgreSQL-Rules-Backport `5ef6a5` im separaten
+Worktree `.worktrees/postgres-mutation-rules`; belegte UPDATE-/DELETE-Umleitung
+muss vor Web-Schreiboberfläche konservativ gesperrt werden. P0 prüft nach freiem
+Slot unabhängig, danach separater Backport. B2c-Autor schließt eigenes Insertpaket
+ab und gibt den Slot frei; kein neuer Randfall oder Client vor Review/Freeze.

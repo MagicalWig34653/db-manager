@@ -194,3 +194,15 @@ unverändert. Integrierte Go-Race/Vet-, Vertrags-/Dokumentationsprüfung bestand
 [Details](handoffs/B2b-konfliktstrategie.md). Schema0.3.0 unverändert; neue
 Schreibclients benötigen einen Backendstand mit diesem Fix. Ältere SQLite-
 Mutationsimplementierungen sind nicht freigegeben.
+
+## Offener begrenzter PostgreSQL-Mutationsbefund
+
+Autor hat am älteren integrierten v3-Pfad tatsächlich reproduziert: PostgreSQL-
+INSTEAD-Rewrite-Regeln können UPDATE/DELETE auf eine andere Tabelle umlenken;
+der adressierte Datensatz bleibt dabei unverändert. Separater Fixkandidat
+`5ef6a573afd82fa358ee34a292208f3fe3c80cfc` auf `fix/postgres-mutation-rules`,
+Worktree `.worktrees/postgres-mutation-rules`, sperrt solche Tabellen über
+`relhasrules` vor Mutation und nach Rowlock. Eigene Regressionen und echte
+TLS-Mutationssuite beim Autor grün; unabhängige Repro/Nachprüfung und native CI
+noch offen. Noch kein Backport, keine Web-Schreibfreigabe aus dem alten v3-Stand.
+B2c bleibt separat und darf diesen belegten Backport nicht verdecken.
