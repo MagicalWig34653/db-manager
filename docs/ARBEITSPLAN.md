@@ -26,7 +26,6 @@ Maximal drei aktive Worker, QA wird nach fertig gemeldeten Paketen eingeplant.
 | --- | --- | --- |
 | F2b – Frontend & UX (`p1a_parity`) | Hauptrepo, `feat/web-runtime`, `.worktrees/web-runtime`, Basis `21bd46a` | Reale B1-API mit freigegebenem Webwrapper verbinden. Besitz main, Docker-/Compose-/Swarmverdrahtung, eigene echte Browser-/Deployprüfungen/CI, Pythoncache-Ignore, Betrieb/Einrichtung/Webbuild/Lizenzen und Handoff. Keine DB-/Core-/API-/Moduländerungen oder Änderungen gepinnter Assets. Abnahme: Browser ohne API-Mocks gegen SQLite und PostgreSQL, Zellwerte/Auth/Session/Abbruch/Limits; Compose und isolierter DinD-Swarm mit UI/CSP/Auth/SQLite-Neustartpersistenz. |
 | B2a – Backend & Platform (`p2a_drivers`) | Hauptrepo, `feat/table-browse`, `.worktrees/table-browse`, Basis `c9cac01` | Strukturierte Tabellenmetadaten und begrenztes Browsen; keine Mutation. Besitz DB-Adapter, neue Core-/HTTP-Tabledateien, enge Routingregistrierung, separater API0.2-Kandidat, Engineprüfungen/CI und Handoff. Kein main/Docker/Compose/GoMod/UI. Abnahme: echte SQLite/MySQL/MariaDB/PostgreSQL-Fälle, zusammengesetzter/fehlender PK, generierte Spalten, Bezeichner-/Filterinjektion, Grenzen/Abbruch. v1 unverändert; unabhängige Vertragsfreigabe vor Clients. |
-| S1 – Architecture & Security (`p3a_security`) | Hauptrepo, `feat/vault-format`, `.worktrees/vault-format`, Basis `d55e84a` | Interoperables Vaultformat mit KDF, Masterpasswort und Recovery auf synthetischen Go-/Swift-Proben. Besitz neue Vaultschema-/Fixturedateien, Sicherheitsdoku/ADR0005/Handoff und `spikes/vault-interop/` mit eigenen Modulen; kein rootGoMod oder Produktclient parallel. Bidirektionale Positiv-/Negativprüfung, KDF-/Größengrenzen, Herkunft/Lizenzen und unabhängige Formatabnahme vor produktiver Integration. |
 
 Alle Tickets: technische Bezeichner/Code/Kommentare/Tests Englisch, Dokumentation/UI
 Deutsch. Keine echten Zugangsdaten, keine privaten Pfade oder produktiven SQL-Daten.
@@ -90,8 +89,9 @@ prüfbare Commits sichern, offene Funktionen/Tests und nächsten Schritt dokumen
 - F2a `42a0dec` plus `d236076` nach unabhängiger öffentlicher Reproduktion als
   `15b339e`/`c9cac01` integriert. Assetbytes/Manifest/Notices exakt; strikte CSP,
   MIME/Cache/Traversal/API-Passthrough geprüft. Noch keine Serververdrahtung.
-- S1 ist Voraussetzung für spätere optionale verschlüsselte Credentialpersistenz S2;
-  keine Freigabe aus bisherigen AEAD-/PRF-Spikes ableiten. B2b-Mutation folgt separat
+- S1 nach unabhängiger QA als Formatgrundlage integriert (`7969f63`/`bc5dd4c`),
+  ADR0005 akzeptiert; weiterhin keine produktive Credentialpersistenz.
+  B2b-Mutation folgt separat
   mit Konflikt-/Transaktionsabnahme; kein vorgezogener Verbraucher des B2a-Kandidaten.
 
 Die aktive Sitzung bietet vier gleichzeitige Plätze einschließlich Lead. Die lokale
@@ -110,3 +110,7 @@ unabhängige QA wechseln sich geordnet ab.
 
 Diese Tabelle bereitet die Übergabe vor und ist keine Implementierung oder Freigabe.
 Konkrete Branches, Dateibesitz und Reviewer werden erst bei Beauftragung zugewiesen.
+
+Aktuelle Reviewqueue: B2a `62f1297`/`573e392` beim unabhängigen Architecturepeer;
+F2b `f2c92ee` im letzten Autorencheck, anschließend unabhängiges Platformreview.
+S1-Originalworktree bleibt sauber, keine dortigen Jobs. QA hat den Formatreview beendet.

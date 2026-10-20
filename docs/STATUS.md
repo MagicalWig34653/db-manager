@@ -57,19 +57,25 @@ zentraler Webstatuscommit `ec8dcea`. Reale B1-Integration fehlt.
 
 ## Laufende Arbeit und Dateibesitz
 
-Drei aktive Worker: zwei Implementierer und unabhängige QA für den fertiggestellten
-S1-Kandidaten. Die laufende Sitzung bietet weiterhin vier Plätze einschließlich
+F2b wird vom Frontendautor abgeschlossen; B2a wird unabhängig vom Architecture-/
+Securitypeer geprüft. S1 ist abgenommen, QA ist für die nächsten Prüfungen verfügbar.
+Die laufende Sitzung bietet weiterhin vier Plätze einschließlich
 Lead. Nachträglich lokal konfigurierte höhere Limits sind hier nicht wirksam geworden.
 
 | Paket / Rolle | Branch / Worktree | Tatsächlicher Auftrag |
 | --- | --- | --- |
 | F2b / Frontend & UX | `feat/web-runtime`, `.worktrees/web-runtime`, Basis `21bd46a` | Webwrapper mit realem Server verbinden; echter Browser→Go→SQLite/PostgreSQL-Pfad; Compose/isolierter Swarm mit UI, Authentifizierung und SQLite-Neustartpersistenz. Besitz main, Container-/Deployverdrahtung, eigene Integrationsprüfungen/CI, Betriebsdokumentation und Handoff. Gepinnte Webassets unverändert. |
 | B2a / Backend & Platform | `feat/table-browse`, `.worktrees/table-browse`, Basis `c9cac01` | Strukturierte Tabellenmetadaten und begrenztes Browsen mit validierten Bezeichnern und parametrisierten Filtern. Besitz Datenbankadapter, neue Core-/HTTP-Tabledateien, enge Routingregistrierung, separater API0.2-Kandidat, eigene Prüfungen/CI und Handoff. Keine Mutation; v1-Vertrag unverändert. |
-| S1 / Architecture & Security | `feat/vault-format`, `.worktrees/vault-format`, Basis `d55e84a` | Interoperables Vaultformat mit Masterpasswort und Recovery, Go-/Swift-Kryptoproben, feste KDF-/Größengrenzen. Besitz neues Vaultschema/Fixtures, Sicherheitsdokumentation/ADR0005, separater Spike und Handoff. Keine produktive Credentialpersistenz. |
 
-S1 liegt als `1a4eb3c` plus Archivnachweis `03bd3f4` zur unabhängigen QA vor.
-Autorprüfungen: vier Go-/vier Swift-Tests, Race/Vet, 24 positive und 232 negative
-wechselseitige CLI-Fälle; iPad-Simulator-Zielcompile. Noch keine Formatfreigabe.
+S1 nach unabhängiger QA ohne bestätigte Befunde als Formatgrundlage integriert:
+`7969f63`/`bc5dd4c`, Herkunft `1a4eb3c`/`03bd3f4`. Vier Go-/vier Swift-Tests,
+Race/Vet, 24 positive und 232 negative wechselseitige CLI-Fälle sowie Originalquellen-/
+Lizenzprüfung unabhängig bestätigt. ADR0005 akzeptiert; Schema-SHA256
+`b688656056fe2e23848ce17149bc817609c7369f230a3f49dd91f05db4d3f4dd`.
+Keine produktive Credentialpersistenz. [Abnahme und Grenzen](handoffs/S1.md).
+
+B2a-Kandidat `62f1297`, Handoff `573e392`, beim unabhängigen Peerreview;
+F2b-Kandidat `f2c92ee` beim abschließenden Autorencheck. Noch nicht integriert.
 
 Gemeinsame Verträge benötigen vor abhängiger Produktarbeit unabhängige Abnahme.
 Kein paralleles Schreiben derselben Dateien. Zentrale Status-/Planungsdateien gehören

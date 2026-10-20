@@ -1,7 +1,12 @@
 # ADR-0005: Persönliches Tresorformat und Argon2id-Grundlage
 
-Status: **Vorschlag S1 zur unabhängigen Prüfung**, keine Produktfreigabe.
+Status: **akzeptiert als Formatgrundlage nach unabhängiger S1-QA**, keine produktive Speicherfreigabe.
 Datum: 20.10.2026. Auf [P3a](../handoffs/P3a.md) aufbauend.
+
+Leadentscheidung nach unabhängigem QA-Review von `1a4eb3c`/`03bd3f4`, integriert
+als `7969f63`/`bc5dd4c`. Schema-SHA256
+`b688656056fe2e23848ce17149bc817609c7369f230a3f49dd91f05db4d3f4dd`.
+Kein bestätigter Reviewbefund; die folgenden S2-Produktgates gelten weiter.
 
 ## Kontext
 
@@ -11,7 +16,7 @@ vorhandenem Recoverymaterial überbrückbar sein. Ein normaler Login ist kein
 Entsperrweg. Vor Speicherung echter Geheimnisse fehlen gemeinsame Dateibytes und
 tatsächliche Go-/Swift-Interoperabilität.
 
-## Entscheidungsvorschlag
+## Entscheidung
 
 Den [Formatvertrag v1](../security/VAULT-FORMAT-V1.md) mit festem Argon2id-1.3-
 Profil 64 MiB/t3/p4 und AES-256-GCM verwenden. Zufälliger Root verpackt zufällige

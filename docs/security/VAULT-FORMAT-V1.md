@@ -1,11 +1,15 @@
 # Persönliches Tresorformat v1
 
-Stand: 20.10.2026. **Reviewkandidat S1**, keine produktive Speicherfreigabe.
+Stand: 20.10.2026. **S1-Formatgrundlage unabhängig freigegeben**, keine produktive Speicherfreigabe.
 [Schema](../../contracts/vault-v1.schema.json),
 [synthetische Vektoren](../../contracts/fixtures/vault-v1/README.md),
 [Interoperabilitätsprobe](../../spikes/vault-interop/README.md),
-[ADR-Vorschlag](../decisions/ADR-0005-vault-format.md).
+[ADR](../decisions/ADR-0005-vault-format.md).
 Die [P3-Vertrauensgrenzen](BEDROHUNGSMODELL.md) bleiben maßgeblich.
+
+Geprüfte Herkunft `1a4eb3c`/`03bd3f4`; Schema-SHA256
+`b688656056fe2e23848ce17149bc817609c7369f230a3f49dd91f05db4d3f4dd`.
+Abhängige Implementierungen pinnen Schema und diesen Byte-/Verhaltensvertrag.
 
 ## Zweck und unveränderliche Suite
 
