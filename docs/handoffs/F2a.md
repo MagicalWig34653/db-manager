@@ -23,7 +23,9 @@ Frontendquelle: öffentliches `MagicalWig34653/db-manager-web`, voller Commit
 `4e5abee074d34853b266f20c344f28517d7924d1`. F1/F1b durch unabhängige QA
 freigegeben; der Lead hat diesen Commit als finale Assetquelle bestätigt und per
 Fast-Forward in Web-main integriert. Öffentliche Branch-/Raw-Abfrage des Pins
-selbst ausgeführt. Gemeldete erfolgreiche Frontend-/Dokumentations-CI am Pin:
+selbst ausgeführt. Beide erfolgreichen Frontend-/Dokumentations-CI-Läufe am Pin mit
+`gh run view --json conclusion,headSha,status` selbst bestätigt (success/completed,
+exakt derselbe Commit):
 [Lauf 39491706244](https://github.com/MagicalWig34653/db-manager-web/actions/runs/39491706244),
 [Lauf 39491706204](https://github.com/MagicalWig34653/db-manager-web/actions/runs/39491706204).
 
@@ -74,8 +76,8 @@ Am 20.10.2026 lokal macOS/arm64, Go1.27.1:
 | `gofmt` / `git diff --check` | eigene Go-Dateien formatiert, keine Whitespacefehler |
 
 Frischer isolierter Go-Checkout ohne Node/npm auf PATH, ohne Nachbarrepo und ohne
-Modulnetzwerk wird nach Implementierungscommit geprüft; Ergebnis folgt vor Übergabe
-in einem engen Dokumentationsnachtrag. Dokumentationsprüfung nach Handoff auszuführen.
+Modulnetzwerk erfolgreich geprüft; genauer Nachweis im folgenden Nachtrag.
+`python3 scripts/check-docs.py`: 134 Dateien / 0 Fehler.
 
 ## Grenzen und nächster Schritt
 
@@ -89,3 +91,28 @@ Temporäre Quellcheckouts werden automatisch entfernt; kein eigener Produktserve
 Container, DB-Prozess oder Browserjob aus diesem Paket gestartet. Unintegrierte Arbeit
 liegt auf diesem Workerbranch. Lead beauftragt QA, integriert nach Befundklärung;
 Mainverdrahtung und echte Integrationsprüfung erst als F2b nach B1-/Besitzübergabe.
+
+## Cleancheckout-Nachtrag
+
+Implementierungscommit `42a0dec2ed7e10db1fc3c39457791a7560453009` mit
+`git clone --quiet --no-hardlinks --single-branch --branch feat/web-integration`
+in einen frischen temporären Checkout geklont. Kein Nachbarrepository, keine
+npm-Installation, keine zuvor gebauten Assets außerhalb der eingecheckten Dateien.
+
+Der Prüfpfad enthielt nur einen temporären Go-Link und Systemprogramme. Vor dem
+Lauf wurde programmatisch bestätigt, dass weder `node` noch `npm` auf diesem PATH
+auffindbar sind. Go lief mit `GOPROXY=off`, `GOSUMDB=off`, `GOTOOLCHAIN=local` und
+`CGO_ENABLED=0`; damit kein Modulnetzwerk und keine impliziten Node-/C-Buildschritte.
+
+- `go test ./...`: gesamter isolierter Foundationstand einschließlich echten
+  eingebetteten Webdateien und Wrapperprüfungen bestanden.
+- `/usr/bin/python3 scripts/build-web.py --check`: fünf Assets und volle Provenienz
+  offline verifiziert; funktioniert auch mit dem System-Python ohne npm.
+- `/usr/bin/python3 scripts/check-docs.py`: 134 Dateien / 0 Fehler.
+- `git status --short`: leer; Tests verändern keine eingecheckten Dateien.
+- Temporären Checkout und Toollinks automatisch entfernt. Keine Server-/Browserjobs
+  gestartet oder zurückgelassen.
+
+Dieser Nachtrag ändert nur den Handoff, keine Assets oder Produktfunktionen.
+Finale Übergabe bleibt unabhängig zu reviewen. Echte Go-Engine-/Main-/Docker-
+Integration folgt nach B1 als F2b; der saubere Paketbuild ersetzt diese Prüfung nicht.
