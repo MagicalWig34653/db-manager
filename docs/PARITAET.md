@@ -1,6 +1,7 @@
 # phpMyAdmin-Paritätsmatrix
 
-Stand und Abrufdatum: 20.10.2026. Paket P1a, Rechercheergebnis zur unabhängigen Prüfung.
+Referenzrecherche: 20.10.2026, Paket P1a unabhängig geprüft und integriert.
+Implementierungscheckpoint: 21.10.2026, siehe Teilnachweise unten.
 **Keine erreichte Parität und keine freigegebene Implementierungsreihenfolge.**
 
 ## Referenz und Geltung
@@ -36,8 +37,10 @@ kein Go-Backend voraussetzen.
 - Prioritäten sind ausschließlich **Vorschläge**: `V1` durchgehender Grundpfad,
   `V2` persönlicher Client, `V3` Administration, `V4` erweiterte Parität. Alle gehören
   weiterhin zum Endziel; weder Termin noch Releaseumfang folgt daraus.
-- Stand `O` in **jeder** Zeile heißt: recherchiert und als Soll spezifiziert, Produktfunktion
-  nicht implementiert, Abnahmetest nicht ausgeführt, Parität nicht nachgewiesen.
+- Stand `O` heißt: recherchiertes Soll, vollständige gemeinsame Abnahme über alle
+  genannten Varianten und Plattformen offen. Einzelne Teilfunktionen sind inzwischen
+  implementiert und geprüft; sie stehen in den Teilnachweisen unten und STATUS.
+  Ein Go-/Web-Teilnachweis erfüllt keine native MySQL-/iPad-Abnahme derselben Zeile.
 - Die Soll- und Testtexte sind eigene Anforderungsableitungen aus den angegebenen
   Primärquellen, keine Behauptung über identisches Verhalten aller phpMyAdmin-Konfigurationen.
   Ein vorhandener Route-Name allein belegt nur den Einstieg; Details sind bei Umsetzung
@@ -365,10 +368,10 @@ Sie dürfen bei der Paritätsabnahme nicht untergehen und benötigen eigene spez
 
 | ID | Ziel | Plattform | Abnahmerichtung | Tatsächlicher Stand |
 | --- | --- | --- | --- | --- |
-| PROD-001 | Docker Compose und Swarm als Betriebsziele | Go/Web | Beide Deploymentpfade starten aus sauberem Checkout; Konfiguration, persistente Daten, Healthcheck, Update und Wiederanlauf praktisch prüfen | Anforderung am 20.10.2026 bestätigt; kein Deployment implementiert/geprüft |
-| PROD-002 | Vollständiger persönlicher Betrieb ohne Go | macOS/iPadOS | Direkte DB-Verbindung, Metadaten, SQL und weitere zugesagte lokale Matrixfunktionen bei unerreichbarem Go prüfen | Anforderung; Plattformnachweise fehlen |
-| PROD-003 | Mehrere zusätzliche DB-Systeme | Go/Apple | DB-Ziele zuerst durch ADR festlegen; native Fähigkeiten und Abweichungen pro System separat abnehmen | Ziel verbindlich; Auswahl/Versionen offen |
-| PROD-004 | Optionale verschlüsselte Zugangsdaten, Masterpasswort, Passkey-Entsperren | Alle | Bedrohungsmodell, Verlust-/Recoveryfälle und tatsächlich verfügbare Entsperrwege vor Geheimnisspeicherung prüfen | P3; PRF-/Plattformbefunde fehlen |
+| PROD-001 | Docker Compose und Swarm als Betriebsziele | Go/Web | Beide Deploymentpfade starten aus sauberem Checkout; Konfiguration, persistente Daten, Healthcheck, Update und Wiederanlauf praktisch prüfen | Teilnachweis F2b/F3b: Compose und isolierter echter DinD-Swarm mit Auth/Health/Originalassets/SQLitepersistenz nach Neustart und Taskersatz unabhängig geprüft. Kein Multinode-/HA- oder umfassender Upgrade-/Migrationsnachweis |
+| PROD-002 | Vollständiger persönlicher Betrieb ohne Go | macOS/iPadOS | Direkte DB-Verbindung, Metadaten, SQL und weitere zugesagte lokale Matrixfunktionen bei unerreichbarem Go prüfen | A1 SQLite/A2 PostgreSQL direkt ohne Go integriert, Mac-/Simulatorbuilds und synthetische DB-Fälle geprüft. Weitere lokale Matrixfunktionen, echte iPads, Signing/OS-UI offen |
+| PROD-003 | Mehrere zusätzliche DB-Systeme | Go/Apple | DB-Ziele zuerst durch ADR festlegen; native Fähigkeiten und Abweichungen pro System separat abnehmen | B1 SQLite/MySQL/MariaDB/PostgreSQL echt geprüft; Apple SQLite/PostgreSQL. Konkrete Fixtureversionen in Handoffs; umfassende unterstützte Versionsmatrix und native MySQL/MariaDB offen |
+| PROD-004 | Optionale verschlüsselte Zugangsdaten, Masterpasswort, Passkey-Entsperren | Alle | Bedrohungsmodell, Verlust-/Recoveryfälle und tatsächlich verfügbare Entsperrwege vor Geheimnisspeicherung prüfen | P3a Bedrohungsmodell/Compile-Spikes und S1-Formatinterop geprüft; S2a-Core aktiv. Kein produktiver Tresor-/Recovery-/Passkey-/Gerätenachweis |
 | PROD-005 | Persönlicher iCloud-Sync mit Offlinebetrieb | Apple | Geräteaufnahme, Offlineänderung, Konflikte und verschlüsselte Synchronisierung auf echten Geräten prüfen | Umfang teilweise Vorschlag; keine Implementierung |
 | PROD-006 | Optionale Backend-Teams und explizite Freigaben | Go/Web/Apple mit Backend | Rollen, Kontentrennung, bewusste Freigabe und Entzug/Rotation separat spezifizieren und prüfen | Teamziel verbindlich; Detailmodell offen |
 
@@ -405,8 +408,31 @@ vollständig erhoben ist. Insbesondere offen:
    SSH, Streaming) sind nicht pauschal als phpMyAdmin-Funktion behauptet. Sie bleiben
    separat nach Projektplan und Treiberbefunden zu spezifizieren.
 
-Nächstes begrenztes Paket: Referenzversion/DB-Ziele als ADR beschließen, isolierte
-Referenzumgebung und synthetisches SQL-/Dateifixturepaket erstellen, darauf die V1-/V2-Fälle
-konkretisieren. Erst nach unabhängiger Prüfung wird dieses Inventar zentral integriert.
+Inventar P1a ist nach unabhängiger Prüfung integriert. Referenzvergleich mit laufendem
+phpMyAdmin, umfassende DB-/OS-Versionsentscheidung und plattformübergreifende
+Abnahmedatensätze bleiben offen. Aktuelle begrenzte Pakete stehen in ARBEITSPLAN.
 Nach späterem Funktionszuwachs von phpMyAdmin muss der Referenzumfang bewusst neu bewertet
 werden; `latest` darf die historische Abnahmegrundlage nicht stillschweigend verändern.
+
+## Teilnachweise des implementierten Zwischenstands
+
+Diese Zuordnung ändert keine offene Gesamtzeile in bestanden. Sie verbindet konkrete
+Produktinkremente mit dem Soll und benennt wesentliche verbleibende Lücken. Details,
+exakte Fixtureversionen, Befehle/Commits/CIs: verlinkte Handoffs und [STATUS](STATUS.md).
+
+| Soll-IDs | Geprüfter Teilumfang | Weiterhin offene gemeinsame Abnahme |
+| --- | --- | --- |
+| PMA-CON-001/002/003/005/007 | B1/F2b/F3b: flüchtige Verbindung, Katalog, echter Webpfad, Sessionwechsel und verifiziertes TLS. A1/A2: SQLite/PG direkt ohne Go. | Gleichzeitige gespeicherte Profile, vollständiger Objektbaum/Clientzertifikate/Socketvarianten, alle MySQL-Apple-/Gerätefälle; kein Teamlogin/Tokenwiderruf |
+| PMA-DATA-001/002/003 | B2a/F3: Pagination mit konservativem Stabilitätsmerkmal, Mehrspaltensortierung, exakte typisierte NULL-/Leer-/Binärwerte, gebundene Filter | Sichtbare Spaltenwahl, vollständiger Plattform-/MySQLvergleich und alle nativen Tabellenabläufe; kein Snapshot über Seiten |
+| PMA-DATA-004/005/008 | B2b/B2c samt beiden Integritätsfixes: einzelne bestätigte Zeilenmutationen gegen vier Backendtreiber, Default/NULL/PK/Trigger/Conflict/Unknown geprüft | F4-Webeditor noch unintegriert; serverseitige Formularfunktionen, direkte Zelländerung, Mehrfachauswahl und native strukturierte Editoren fehlen |
+| PMA-DATA-010 | B2a/F3 gebundene Gleichheit/is-null/is-not-null-AND-Filter und Sortierung | Bereich/LIKE und vollständige native Suchabläufe fehlen |
+| PMA-SQL-001 | B1/F2b und A1/A2: einzelne SQL-Anweisung im gewählten DBkontext, begrenzte präzise Ergebnisse | Vollständiger Referenz-/Versions-/Gerätenachweis über alle zugesagten DBsysteme offen |
+| PMA-SQL-004 | Sichere verständliche Fehler, begrenzte Ergebnisse und ehrliche Abbruch-/Commitunsicherheit | Detaillierte Warnungsanzeige/Servercodes und vollständiger Referenzvergleich fehlen |
+
+Backendnachweise: [B1](handoffs/B1.md), [B2a](handoffs/B2a.md),
+[B2b](handoffs/B2b.md), [SQLitefix](handoffs/B2b-konfliktstrategie.md),
+[PGfix](handoffs/B2b-rewrite-regeln.md), [B2c](handoffs/B2c.md).
+Web-/Betriebsnachweise: [F2b](handoffs/F2b.md), [F3b](handoffs/F3b.md),
+[unabhängiger F3b-Review](handoffs/F3b-backend-review.md).
+Native Nachweise im öffentlichen Apple-Repo: docs/handoffs/A1.md und A2.md.
+Kein fertiges Paritätsprozent aus Teilnachweisen ableiten.
