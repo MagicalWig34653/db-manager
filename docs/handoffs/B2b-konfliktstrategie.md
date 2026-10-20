@@ -1,6 +1,6 @@
 # B2b-Nacharbeit – SQLite-Konfliktstrategie
 
-Stand: 21.10.2026. Eigenes begrenztes Paket, Basis `31dd06f`, Branch
+Stand: 20.10.2026. Eigenes begrenztes Paket, Basis `31dd06f`, Branch
 `fix/sqlite-update-conflict`, Worktree `.worktrees/sqlite-update-conflict`.
 Unabhängig von B2c/0.4.0 integrierbar; keine Schema-/Index-/Capabilityänderung.
 
@@ -36,3 +36,11 @@ für den rein lokalen SQLite-Fix gestartet. Kein Lizenz-/Abhängigkeitswechsel.
 Nächster Schritt: separaten Fixcommit durch P0 eng nachprüfen und vom Lead nach main
 zurückportieren, unabhängig vom noch nicht freigegebenen Insert-Paket. Native CI
 nach Push ist ein zusätzliches Gate; zum Commit keine Selbstfreigabe behauptet.
+
+
+Produktcommit `20492c20eb9a2d228072eaf521cfa502ae4a0ebd` ist gepusht.
+Zum Übergabezeitpunkt laufen native CI-Jobs noch: Mutation39501377601,
+Engine39501377584, Table39501377685, Backend39501377686, Web39501377729,
+Docs39501377673 (jeweils GitHubActions-Run-ID im Hauptrepository).
+Dieser reine lokale Handoffcheckpoint korrigiert das Datum und sichert Jobprovenienz;
+kein erneuter Push unveränderten Produktcodes. Worktree danach sauber, keine lokalen Jobs.
