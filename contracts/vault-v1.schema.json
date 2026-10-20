@@ -1,0 +1,178 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "version",
+    "vault_id",
+    "epoch",
+    "generation",
+    "password",
+    "recovery",
+    "entries",
+    "mac"
+  ],
+  "properties": {
+    "format": {
+      "const": "db-manager-vault"
+    },
+    "version": {
+      "const": 1
+    },
+    "vault_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "epoch": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4294967295
+    },
+    "generation": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4294967295
+    },
+    "password": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kdf",
+        "nonce",
+        "wrapped_root"
+      ],
+      "properties": {
+        "kdf": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "version",
+            "memory_kib",
+            "iterations",
+            "parallelism",
+            "salt"
+          ],
+          "properties": {
+            "name": {
+              "const": "argon2id"
+            },
+            "version": {
+              "const": 19
+            },
+            "memory_kib": {
+              "const": 65536
+            },
+            "iterations": {
+              "const": 3
+            },
+            "parallelism": {
+              "const": 4
+            },
+            "salt": {
+              "type": "string",
+              "minLength": 24,
+              "maxLength": 24,
+              "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+            }
+          }
+        },
+        "nonce": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 16,
+          "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+        },
+        "wrapped_root": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+        }
+      }
+    },
+    "recovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "nonce",
+        "wrapped_root"
+      ],
+      "properties": {
+        "nonce": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 16,
+          "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+        },
+        "wrapped_root": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+        }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "revision",
+          "key_nonce",
+          "wrapped_key",
+          "payload_nonce",
+          "payload"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "key_nonce": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 16,
+            "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+          },
+          "wrapped_key": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+          },
+          "payload_nonce": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 16,
+            "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+          },
+          "payload": {
+            "type": "string",
+            "minLength": 24,
+            "maxLength": 87404,
+            "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+          }
+        }
+      }
+    },
+    "mac": {
+      "type": "string",
+      "minLength": 44,
+      "maxLength": 44,
+      "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/db-manager/vault-v1.schema.json",
+  "title": "DB Manager persönliches Tresorformat v1 – Reviewkandidat",
+  "description": "Schema ist notwendig, aber nicht hinreichend: strikt kanonische ASCII-JSON-Bytes ohne Whitespace/Escapes, maximal 8 MiB, kanonisches Standard-Base64 mit exakten decodierten Längen und eindeutige Entry-IDs sind zusätzlich vor jeder KDF zu prüfen. Siehe docs/security/VAULT-FORMAT-V1.md."
+}

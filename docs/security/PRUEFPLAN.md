@@ -5,6 +5,14 @@ ausdrücklich als geprüft markiert. Referenzen: [Entwurf](TRESOR-UND-SYNC.md),
 [Bedrohungsmodell](BEDROHUNGSMODELL.md), [Spike](../../spikes/security/README.md).
 Nur synthetische Zugangsdaten und isolierte Wegwerf-Datenbanken verwenden.
 
+Fortschreibung S1: [Interop-/Formatbefunde](VAULT-FORMAT-V1.md) ergänzen SEC-005
+mit tatsächlichem gegenseitigem Go-/Swift-Rundlauf einschließlich Argon2id,
+Passwort-/Recoverywegen und Negativfällen. SEC-006 hat eine konkrete gepinnte
+Bibliotheksgrundlage und Desktopmessungen; vollständige RFC-Vektor-/Mindestgeräte-
+und Ressourcenabnahme bleibt offen. SEC-009 ist auf Codecebene in neuen Prozessen
+belegt, aber nicht als App-Erstinstallation/Keychain-/Recoveryoberfläche. Kein
+S1-Befund ersetzt Geräte-, Sync-, Persistenz- oder Teamabnahmen der Tabelle.
+
 | ID | Fall und konkrete Abnahme | Status in P3a |
 | --- | --- | --- |
 | SEC-001 | Zufälliger Root schützt zufälligen Datenschlüssel; Payload-Rundlauf erhält alle Bytes; gleiche Eingabe zweimal ergibt verschiedene Hüllen/Payloads | Go-Spike geprüft |

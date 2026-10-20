@@ -1,0 +1,74 @@
+{
+  "synthetic_only": true,
+  "counts": {
+    "positive": 24,
+    "negative": 232
+  },
+  "measurements": [
+    {
+      "writer": "go",
+      "reader": "go",
+      "mode": "password",
+      "process_wall_ms": 34.118
+    },
+    {
+      "writer": "go",
+      "reader": "go",
+      "mode": "recovery",
+      "process_wall_ms": 3.24
+    },
+    {
+      "writer": "go",
+      "reader": "swift",
+      "mode": "password",
+      "process_wall_ms": 238.162
+    },
+    {
+      "writer": "go",
+      "reader": "swift",
+      "mode": "recovery",
+      "process_wall_ms": 4.383
+    },
+    {
+      "writer": "go",
+      "operation": "emit",
+      "codec_report_ms": 39.537
+    },
+    {
+      "writer": "swift",
+      "reader": "go",
+      "mode": "password",
+      "process_wall_ms": 34.157
+    },
+    {
+      "writer": "swift",
+      "reader": "go",
+      "mode": "recovery",
+      "process_wall_ms": 3.43
+    },
+    {
+      "writer": "swift",
+      "reader": "swift",
+      "mode": "password",
+      "process_wall_ms": 105.735
+    },
+    {
+      "writer": "swift",
+      "reader": "swift",
+      "mode": "recovery",
+      "process_wall_ms": 4.969
+    },
+    {
+      "writer": "swift",
+      "operation": "emit",
+      "codec_report_ms": 97.22841667826287
+    }
+  ],
+  "checked_at_utc": "2026-10-20T20:41:48.199476+00:00",
+  "machine": "arm64",
+  "go_version": "go version go1.27.1 darwin/arm64",
+  "swift_version": "Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)\nTarget: arm64-apple-macosx27.0.0",
+  "build_mode": "Go default optimized; Swift release; process wall includes startup",
+  "argon2_reference_commit": "f57e61e19229e23c4445b85494dbf7c07de721cb",
+  "schema_sha256": "b688656056fe2e23848ce17149bc817609c7369f230a3f49dd91f05db4d3f4dd"
+}

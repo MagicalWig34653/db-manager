@@ -1,6 +1,9 @@
 # Tresor und Sync: Befunde und gestufter Entwurf
 
 Stand und Recherche: 20.10.2026. Status: Vorschlag aus P3a, kein akzeptiertes ADR.
+Fortschreibung S1: konkretes [Format v1](VAULT-FORMAT-V1.md) und tatsächliche
+Go-/Swift-Interoperabilität liegen jetzt als getrennter Reviewkandidat vor.
+Die nachfolgenden P3a-Befunde bleiben Ausgangspunkt; S1 ist keine Produktfreigabe.
 Verbindliche Ausgangsanforderungen liegen in der [Projektübergabe](../../PROJEKTUEBERGABE.md).
 Bedrohungen: [Modell](BEDROHUNGSMODELL.md); Abnahme: [Prüfplan](PRUEFPLAN.md).
 
