@@ -46,14 +46,17 @@ func (e *Engine) Eligibility(ctx context.Context, r core.DescribeRequest) (core.
 	}
 	result := eligibility(d)
 	if r.Connection.Driver == "postgres" && result.Eligible {
-		var children bool
-		err = db.QueryRowContext(ctx, `SELECT c.relkind<>'r' OR c.relispartition OR c.relhassubclass OR EXISTS(SELECT 1 FROM pg_catalog.pg_inherits i WHERE i.inhrelid=c.oid) FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname=$1 AND c.relname=$2`, d.Table.Schema, d.Table.Name).Scan(&children)
+		var children, rules bool
+		err = db.QueryRowContext(ctx, `SELECT c.relkind<>'r' OR c.relispartition OR c.relhassubclass OR EXISTS(SELECT 1 FROM pg_catalog.pg_inherits i WHERE i.inhrelid=c.oid),c.relhasrules FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname=$1 AND c.relname=$2`, d.Table.Schema, d.Table.Name).Scan(&children, &rules)
 		if err != nil {
 			return result, safe(ctx, err)
 		}
-		if children {
+		if children || rules {
 			result.Eligible = false
 			result.Reason = "unsupported_inheritance"
+			if rules {
+				result.Reason = "unsupported_table"
+			}
 			result.WritableColumns = []string{}
 		}
 	}
@@ -203,13 +206,13 @@ func (e *Engine) mutate(ctx context.Context, r core.MutationRequest, deleting bo
 		return empty, public("mutation_not_supported", "Tabelle ist für strukturierte Änderungen nicht freigegeben.")
 	}
 	if session.driver == "postgres" {
-		var inherited bool
-		err = session.QueryRowContext(ctx, `SELECT c.relkind<>'r' OR c.relispartition OR c.relhassubclass OR EXISTS(SELECT 1 FROM pg_catalog.pg_inherits i WHERE i.inhrelid=c.oid) FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname=$1 AND c.relname=$2`, d.Table.Schema, d.Table.Name).Scan(&inherited)
+		var inherited, rules bool
+		err = session.QueryRowContext(ctx, `SELECT c.relkind<>'r' OR c.relispartition OR c.relhassubclass OR EXISTS(SELECT 1 FROM pg_catalog.pg_inherits i WHERE i.inhrelid=c.oid),c.relhasrules FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname=$1 AND c.relname=$2`, d.Table.Schema, d.Table.Name).Scan(&inherited, &rules)
 		if err != nil {
 			return empty, safe(ctx, err)
 		}
-		if inherited {
-			return empty, public("mutation_not_supported", "Vererbte Tabellen sind nicht freigegeben.")
+		if inherited || rules {
+			return empty, public("mutation_not_supported", "Tabelleneigenschaften sind für Änderungen nicht freigegeben.")
 		}
 	}
 	if len(d.Columns) != len(r.Expected.Columns) {
@@ -273,6 +276,17 @@ func (e *Engine) mutate(ctx context.Context, r core.MutationRequest, deleting bo
 	}
 	if !reflect.DeepEqual(d, fresh) {
 		return empty, rowConflict()
+	}
+	// The row lock now also holds the relation lock against rule changes.
+	if session.driver == "postgres" {
+		var rules bool
+		err = session.QueryRowContext(ctx, `SELECT c.relhasrules FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname=$1 AND c.relname=$2`, d.Table.Schema, d.Table.Name).Scan(&rules)
+		if err != nil {
+			return empty, safe(ctx, err)
+		}
+		if rules {
+			return empty, public("mutation_not_supported", "Tabelleneigenschaften sind für Änderungen nicht freigegeben.")
+		}
 	}
 	assignments := []string{}
 	seen := map[string]bool{}
