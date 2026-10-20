@@ -54,7 +54,7 @@ getaggte Werte, Begrenzung, nachweislich laufende Abfragen vor/nach Abbruch,
 Token-Kontextwechsel und CSP. Alle eigenen Ressourcen werden danach entfernt.
 Es gibt keinen Frontend-Neubau oder Nachbarrepo-Zugriff. Node wird zum Ausführen
 dieser Browsertests benötigt, nicht zum Bauen oder Betreiben des Go-Produkts.
-Details und Grenzen: [F2b-Handoff](docs/handoffs/F2b.md).
+Details und Grenzen: [F3b-Handoff](docs/handoffs/F3b.md).
 
 Direkter Start mit lokalem Datenverzeichnis:
 
@@ -131,3 +131,26 @@ Aktueller Commit-, Remote- und CI-Stand: [Status](docs/STATUS.md).
 Nach separater Weiterentwicklung installierter Clients kann das Bootstrap-Skript
 abweichende Zieldateien absichtlich ablehnen. Dann Änderungen im jeweiligen Git-Repo
 prüfen und explizit committen; Vorlagen nicht über die weiterentwickelten Clients kopieren.
+
+
+## Eingebetteter Tabellenarbeitsplatz F3b
+
+Objektauswahl öffnet die read-only Tabellenansicht mit Daten und Struktur.
+Mehrspaltensortierung und getaggte UND-Filter werden über „Anwenden“ aktiviert;
+Tippen erzeugt keine Browse-Anfrage. Nach ungültigem Entwurf bleiben alte angewendete
+Filter/Sortierung/Seitengröße erhalten. Seitennavigation enthält kein COUNT-Versprechen.
+PK-/Generated-/Default-/Transaktions-/Read-only-Metadaten und fehlende stabile Ordnung
+werden angezeigt. Unter „SQL“ bleiben explizite freie Abfragen, Begrenzung und Abbruch
+verfügbar; keine Rollbackzusage und kein allgemeiner Schreibschutz der SQL-API.
+„Quellcode & Lizenzen“ führt zum exakt gebauten Webcommit und zu lokalen Originaltexten.
+
+`python3 scripts/test-web-integration.py` prüft den tatsächlich eingebetteten Build
+mit fünf Chromiumfällen gegen SQLite und PostgreSQL-TLS, einschließlich QA-F3-01-
+Pagingregression, SQL/Cancel/Sitzungswechsel und Quelllink-/Lizenzdialog. Das Skript
+hält den socketbasierten PostgreSQL-Bootstrap deterministisch an, beweist dessen
+fehlende TCP-Bereitschaft und wartet anschließend auf den endgültigen TCP-Server.
+Erst nach positivem `verify-full`-Test wird der falsche Hostname geprüft. Keine bloße
+Socket-Readiness und kein zufälliges Warten durch Builddauer als Bereitschaftsnachweis.
+Compose/isolierter Swarm werden zusätzlich mit `python3 scripts/test-deployment.py`
+geprüft. Node/npm sind lediglich für Neubau und Browsertests nötig; Go-CLI/Image und
+Betrieb benötigen sie nicht. Aktueller Nachweis: [F3b-Handoff](docs/handoffs/F3b.md).

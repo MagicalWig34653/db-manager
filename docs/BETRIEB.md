@@ -12,7 +12,11 @@ Personen. TLS am vorgeschalteten Proxy ist vor Zugriff über nicht vertrauenswü
 Nach dem Start liegt die deutsche Workbench unter `/`, die API bleibt unter `/api/v1/`
 und der Healthcheck unter `/healthz`. Im Browser „Backend-Zugang“ öffnen und das lokale
 Token eingeben; anschließend Verbindung anlegen, testen und verbinden. Katalogauswahl
-bereitet SQL vor, ausgeführt wird ausschließlich auf ausdrückliche Aktion.
+öffnet die schreibgeschützte Tabellenansicht mit Daten/Struktur, Seiten, Sortierung und
+getaggten UND-Filtern. „Anwenden“ übernimmt gültige Änderungen ausdrücklich; abgewiesene
+Entwürfe ändern die angewendete Anfrage nicht. Die Gesamtzahl wird nicht gezählt, fehlende
+stabile Reihenfolge ist gekennzeichnet. „SQL“ öffnet den freien Editor; dort wird nur
+auf ausdrückliche Aktion ausgeführt. SQL kann weiterhin Daten verändern.
 Zugangsdaten bleiben im Seitenarbeitsspeicher; Seitenneuladen verwirft sie. Ein Wechsel
 des Backendtokens beendet den alten Verbindungskontext einschließlich laufender Anfragen.
 Ein Abbruch nimmt bereits ausgeführte DB-Mutationen nicht zurück.
@@ -20,8 +24,8 @@ Ein Abbruch nimmt bereits ausgeführte DB-Mutationen nicht zurück.
 UI und API benötigen dieselbe Origin. Der Server setzt eine CSP ohne Inline-Scripts
 oder `unsafe-eval`; Layout-Stilattribute sind eng erlaubt. Externe Fonts oder Dienste
 sind nicht nötig. Ein vorgeschalteter Proxy muss UI, Assets und API gemeinsam vermitteln.
-Originale Weblizenzen: `/LICENSE.txt`, `/THIRD-PARTY-NOTICES.txt`. Image-Dateien und
-Quellherkunft: [Webbuild](WEBBUILD.md). Keine öffentliche Releasefreigabe durch dieses Paket.
+Originale Weblizenzen: `/LICENSE.txt`, `/THIRD-PARTY-NOTICES.txt`. Der Dialog „Quellcode & Lizenzen“ bietet den exakten Webquellstand und die Originaltexte.
+Image-Dateien und Quellherkunft: [Webbuild](WEBBUILD.md). Keine öffentliche Releasefreigabe durch dieses Paket.
 
 ## Compose
 

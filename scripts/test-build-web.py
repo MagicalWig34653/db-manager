@@ -81,6 +81,24 @@ class ArtifactTests(unittest.TestCase):
             with patch.object(build_web, "LOCK", lockfile), self.assertRaisesRegex(ValueError, "full Git commit"):
                 build_web.load_lock()
 
+    def test_missing_table_contract_pin_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            lockfile = Path(temporary) / "lock.json"
+            lock = json.loads(build_web.LOCK.read_text())
+            del lock["table_contract_version"]
+            lockfile.write_text(json.dumps(lock))
+            with patch.object(build_web, "LOCK", lockfile), self.assertRaisesRegex(ValueError, "table contract"):
+                build_web.load_lock()
+
+    def test_mismatched_table_contract_bytes_are_rejected(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            lockfile = Path(temporary) / "lock.json"
+            lock = json.loads(build_web.LOCK.read_text())
+            lock["table_contract_sha256"] = "0" * 64
+            lockfile.write_text(json.dumps(lock))
+            with patch.object(build_web, "LOCK", lockfile), self.assertRaisesRegex(ValueError, "table contract"):
+                build_web.load_lock()
+
 
 if __name__ == "__main__":
     unittest.main()

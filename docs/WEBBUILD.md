@@ -1,17 +1,19 @@
 # Versionierter Webbuild und Go-Paket
 
-Stand: 20.10.2026, F2a plus F2b-Prüfkandidat. Der unveränderte geprüfte Webbuild
+Stand: 20.10.2026, F2a/F2b integriert, F3b-Prüfkandidat. Der unveränderte geprüfte Webbuild
 ist im Hauptrepo enthalten. Der Servereinstieg umschließt jetzt die reale Go-API
 mit `webui.Wrap`; CLI und Container liefern Oberfläche und API von derselben Origin.
-Prüfstand und unabhängige Abnahme: [F2b-Handoff](handoffs/F2b.md).
+Prüfstand und unabhängige Abnahme: [F3b-Handoff](handoffs/F3b.md).
 
 ## Quelle, Vertrag und Reproduzierbarkeit
 
 [web-build.lock.json](../web-build.lock.json) pinnt das öffentliche Webrepository auf
-Commit [4e5abee](https://github.com/MagicalWig34653/db-manager-web/tree/4e5abee074d34853b266f20c344f28517d7924d1).
-F1 und die CSP-Korrektur F1b wurden unabhängig geprüft; der Commit ist in der Web-main-
-Historie erreichbar. Vertrag `0.1.0`, API-SHA-256
+Commit [6c6eb33](https://github.com/MagicalWig34653/db-manager-web/tree/6c6eb33c93eed355a10cd114f61ce27be7f3f55e).
+F3 einschließlich atomarer Übernahme gültiger Tabellenentwürfe wurde unabhängig
+geprüft; der Commit ist in der Web-main-Historie erreichbar. Vertrag `0.1.0`, API-SHA-256
 `4b598dc69a1904685e67a717997412654440ac10f47c17f7a025ccd114e294be`;
+Zusätzlich Tabellenvertrag `0.2.0`, SHA256
+`c15a848f01bb779429fd68a2b6eb6bba1575d3e07a4c68e6796cf7840a661838`;
 zusätzlich npm-Lockfile-SHA und exakte Node-/npm-Versionen sind im Lock festgehalten.
 
 Neubau mit Python mindestens 3.9, Git, Node26.5.0 und npm11.17.0:
@@ -97,6 +99,21 @@ OCI-Labels referenzieren das öffentliche
 und den exakten öffentlichen Frontend-Quellcommit. Bei öffentlicher Netzbereitstellung
 muss das passende vollständige Quellangebot einschließlich Änderungen sichergestellt
 werden; dieses Entwicklungsinkrement ist keine öffentliche Deployment-/Releasefreigabe.
-Ein prominenter Quellcode-/Lizenzenlink in der Oberfläche ist für einen nachfolgenden,
-erneut geprüften Webquellpin vorgesehen. Die bestehenden Artefakte werden dafür nicht
-nachträglich verändert.
+Der sichtbare Dialog „Quellcode & Lizenzen“ verweist auf exakt den gebauten Webcommit,
+das Go-Serverprojekt, dessen Buildherkunft und die lokal gelieferten Originaltexte.
+Die Artefakte werden unverändert aus dem gepinnten Quellbuild übernommen.
+
+
+## F3b-Laufzeitgrenzen
+
+Die Tabellenansicht verwendet strukturierte read-only API0.2.0-Anfragen für Daten,
+Metadaten, Sortierung und getaggte UND-Filter. API0.1.0 bleibt für freie SQL-Anfragen
+unverändert; daraus folgt kein allgemeiner SQL-Lesemodus. Die eingebettete Quelle
+enthält den unabhängig angenommenen Fix QA-F3-01: Abgewiesene Entwürfe verändern den
+angewendeten Seiten-/Filter-/Sortierzustand nicht. Keine API0.3-Bindung oder zusätzliche
+Schreibfreigabe. Endgültige Abnahme des neuen Root-Pins bleibt unabhängiger QA vorbehalten.
+
+Die PostgreSQL-Fixture demonstriert mit privater Initialisierungsbarriere, dass der
+Socket-only-Bootstrapserver noch keine TCP-Bereitschaft bedeutet. Erst nach expliziter
+TCP-Readiness und erfolgreicher `verify-full`-Verbindung folgt die negative Hostnamen-
+probe. Das härtet die Teststartgrenze von F2b; kein behaupteter Produktfehler.
