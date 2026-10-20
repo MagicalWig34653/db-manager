@@ -60,7 +60,8 @@ zentraler Webstatuscommit `ec8dcea`. Reale B1-Integration über F2b abgenommen.
 ## Laufende Arbeit und Dateibesitz
 
 F2b und B2a sind abgenommen und integriert; API0.2.0 ist für Clients freigegeben.
-Frontend implementiert F3, Backend B2b, Apple-Engineer A2.
+Frontend implementiert F3, Apple-Engineer A2. B2b ist unabhängig abgenommen;
+separate Insert-Erweiterung wird als nächstes begrenztes Backendpaket vorbereitet.
 Die laufende Sitzung bietet weiterhin vier Plätze einschließlich
 Lead. Nachträglich lokal konfigurierte höhere Limits sind hier nicht wirksam geworden.
 
@@ -68,7 +69,6 @@ Lead. Nachträglich lokal konfigurierte höhere Limits sind hier nicht wirksam g
 | --- | --- | --- |
 | A2 / Apple Engineer | Applerepo, `feat/apple-postgres`, `.worktrees/apple-postgres`, Basis `ce0aedb` | Direkter PostgreSQL-Pfad ohne Go, verpflichtend verifiziertes TLS, flüchtige Credentials, Katalog/einzelne SQL-Anweisung und begrenzte getaggte Ergebnisse. Besitz Apple-Produktmodule/SwiftUI, Package/Lock/Xcode, eigene Prüfungen/CI/Lizenzen/ADR/Einrichtung/Handoff; zentrale Status-/Planungsdateien ausgenommen. SQLitebetrieb erhalten; keine native MySQL-Freigabe. |
 | F3 / Frontend & UX | Webrepo, `feat/table-workbench`, `.worktrees/table-workbench`, Basis `ec8dcea` | Sichtbare Quellcode-/Lizenzverweise und strukturierte Tabellenmetadaten/-ansicht mit gepinntem API0.2-Vertrag, Sortierung, AND-Filtern und Pagination; echte SQLite-/PostgreSQL-TLS-Browserproben. Besitz Webprodukt/Build/Vertragskopien/Tests/Lizenzen/README/Einrichtung/Handoff; keine zentralen Status-/Planungsdateien. Kein Mutation-/Persistenzumfang. |
-| B2b / Backend & Platform | `feat/table-edit`, `.worktrees/table-edit`, Basis `6009e1d` | Einzelzeilen-UPDATE/DELETE mit DB-Transaktion, gesperrtem aktuellem Datensatz und exakt typisiertem vollständigem Erwartungssnapshot; nur belegte PK-/Transaktionseignung. Neuer separater v3-Vertragskandidat, v1/v2 unverändert; keine Inserts/Massenänderung/Schemafunktionen. Besitz neue DB-/Core-/HTTP-Mutationsdateien, enge Helper/Routingregistrierung, Vertrag/Doku, eigene Prüfungen/CI/Handoff. |
 
 S1 nach unabhängiger QA ohne bestätigte Befunde als Formatgrundlage integriert:
 `7969f63`/`bc5dd4c`, Herkunft `1a4eb3c`/`03bd3f4`. Vier Go-/vier Swift-Tests,
@@ -151,3 +151,16 @@ Feature-CIs [Webpfad](https://github.com/MagicalWig34653/db-manager/actions/runs
 [Dokumentation](https://github.com/MagicalWig34653/db-manager/actions/runs/39495523691)
 alle erfolgreich. Keine eigenen Jobs/Ressourcen verblieben, Host-Swarm unverändert.
 Keine Paritäts-/HA-/Vault-/Distributionsfreigabe. [Handoff](handoffs/F2b.md).
+
+## B2b-Abnahmecheckpoint
+
+Einzelzeilen-UPDATE/DELETE nach unabhängiger QA ohne Befunde integriert:
+`946241d`/`e4465ac`, Herkunft `6ad5833`/`a80b934`. Vollständige typisierte
+Erwartungssnapshots, echte Transaktionen/Rowlocks, konservative Eignung und
+unbekannter Commitausgang unabhängig geprüft; zusätzliche Trigger-/No-op-Proben
+bestanden. Alle sechs Feature-CIs erfolgreich, integrierte Go-Race/Vet-/Vertrags-/
+Dokumentationsprüfung ebenfalls. [Nachweise und Grenzen](handoffs/B2b.md).
+API0.3.0 ausdrücklich zur Clientbindung freigegeben, Herkunft
+`946241d7f10f7444e9e5efebbe8b3a38a8120a9b`, Schema-SHA256
+`ec77c9739cda11df3f4cb9fe756a632e67840fdc0f6190deee1aa1d1333dc308`.
+Keine geprüfte Web-Schreiboberfläche, kein Insert/ABA-/Exactly-once-/HA-Versprechen.

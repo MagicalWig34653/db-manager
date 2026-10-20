@@ -17,6 +17,14 @@ Herkunft `427444d7bcb8e30c9563ded2000ec3d5e19646c4`, SHA-256
 Eigene v2-Routen für Fähigkeiten, Metadaten und begrenztes Browsen; v1 bleibt
 unverändert. Keine Mutation oder Snapshotgarantie aus dieser Freigabe ableiten.
 
+Additive Einzelzeilenmutationen `0.3.0`: [OpenAPI](api-v0.3.0.json),
+[Verhaltensvertrag](ROW-MUTATION-API.md), unabhängig freigegeben am 20.10.2026.
+Herkunft `946241d7f10f7444e9e5efebbe8b3a38a8120a9b`, SHA-256
+`ec77c9739cda11df3f4cb9fe756a632e67840fdc0f6190deee1aa1d1333dc308`.
+Eigene v3-Fähigkeiten/Eignung und bestätigtes UPDATE/DELETE mit typisiertem
+Erwartungssnapshot. Kein Insert, Massenänderung oder Exactly-once-Versprechen;
+v1/v2 bleiben unverändert. Clientintegration benötigt ein eigenes geprüftes Paket.
+
 Persönliches Tresorformat `1`: [Schema](vault-v1.schema.json),
 [Byte-/Verhaltensvertrag](../docs/security/VAULT-FORMAT-V1.md),
 [synthetische Fixtures](fixtures/vault-v1/README.md). Herkunft `1a4eb3c`/`03bd3f4`,

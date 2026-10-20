@@ -115,3 +115,27 @@ Erfolg behauptet:
 
 Lead/QA prüfen Jobausgänge und Kandidat unabhängig. Worker bleibt idle, kein weiteres
 Paket vor erneuter Beauftragung; 0.3.0-Clientbindung bleibt gesperrt.
+
+## Unabhängige Abnahme und Vertragsfreeze
+
+P0-QA hat `6ad5833`/`a80b934` ohne bestätigte Befunde zur Produktintegration und
+API0.3.0-Clientbindung freigegeben. Eigener sauberer Archivlauf mit vollständiger
+Go-Race-Suite, Vet, beiden Vertragsprüfungen und Dokumentation238/0 sowie echter
+TLS-Mutationslauf gegen MySQL8.4/MariaDB12.3/PostgreSQL18.6 erfolgreich.
+Implementierung/Snapshotvergleich nach Rowlock, Identifier/Bindparameter,
+Tabelleneignung, SQLite-Kollation/Fremdschlüssel, Deadlines/Rollback und ehrlicher
+unbekannter Commitausgang geprüft. Zusatzangriff: AFTER-UPDATE-Trigger verschiebt
+PK und schreibt Auditnebenziel; Operation scheitert und beide Änderungen werden
+zurückgerollt. Identisches Update löst keinen UPDATE-Trigger aus.
+
+Alle sechs Feature-CIs am exakten Produktcommit erfolgreich:
+[Mutation](https://github.com/MagicalWig34653/db-manager/actions/runs/39499012540),
+[Engine](https://github.com/MagicalWig34653/db-manager/actions/runs/39499012436),
+[Tabellen](https://github.com/MagicalWig34653/db-manager/actions/runs/39499012496),
+[Backend](https://github.com/MagicalWig34653/db-manager/actions/runs/39499012514),
+[Web](https://github.com/MagicalWig34653/db-manager/actions/runs/39499012519),
+[Dokumentation](https://github.com/MagicalWig34653/db-manager/actions/runs/39499012400).
+Lead integrierte `946241d`/`e4465ac`; integrierte Go-Race/Vet-, Vertrags- und
+Dokumentationsprüfung bestanden. Schema unverändert. Keine Sourceänderungen durch
+QA, eigene Archive/Container entfernt, keine Jobs offen. Dokumentierte Grenzen
+für ABA, externen Triggerumfang, Exactly-once und HA gelten weiter.
