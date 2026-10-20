@@ -2,6 +2,7 @@
 package httpapi
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"crypto/subtle"
@@ -69,7 +70,8 @@ func decode(w http.ResponseWriter, r *http.Request, target any) bool {
 		return false
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, MaxRequestBytes)
-	decoder := json.NewDecoder(r.Body)
+	var body bytes.Buffer
+	decoder := json.NewDecoder(io.TeeReader(r.Body, &body))
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(target); err != nil {
 		var size *http.MaxBytesError
@@ -89,13 +91,26 @@ func decode(w http.ResponseWriter, r *http.Request, target any) bool {
 		}
 		return false
 	}
+	// None of the request schema fields are nullable. Scan every token so a
+	// duplicate object key cannot hide an explicit null from typed decoding.
+	tokens := json.NewDecoder(bytes.NewReader(body.Bytes()))
+	for {
+		token, err := tokens.Token()
+		if err == io.EOF {
+			break
+		}
+		if err != nil || token == nil {
+			fail(w, 400, "invalid_request", "Nullwerte sind nicht zulässig.")
+			return false
+		}
+	}
 	return true
 }
 
 func validConnection(w http.ResponseWriter, c core.Connection) bool {
 	if (c.Driver != "sqlite" && c.Driver != "mysql" && c.Driver != "postgres") ||
 		c.Port < 0 || c.Port > 65535 ||
-		(c.TLSMode != "" && c.TLSMode != "verify-full" && c.TLSMode != "disable") ||
+		(c.TLSMode != "verify-full" && c.TLSMode != "disable") ||
 		(c.Driver == "sqlite" && !databaseID.MatchString(c.Database)) {
 		fail(w, 400, "invalid_request", "Verbindungsparameter sind ungültig.")
 		return false
@@ -106,7 +121,7 @@ func (a *API) capabilities(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, map[string]any{"contract_version": core.ContractVersion, "drivers": a.engine.Drivers(), "credential_storage": false, "max_rows": 10000, "max_timeout_ms": 60000})
 }
 func (a *API) test(w http.ResponseWriter, r *http.Request) {
-	var input core.CatalogRequest
+	input := core.CatalogRequest{Connection: core.Connection{TLSMode: "verify-full"}}
 	if !decode(w, r, &input) || !validConnection(w, input.Connection) {
 		return
 	}
@@ -119,7 +134,7 @@ func (a *API) test(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, map[string]string{"status": "ok"})
 }
 func (a *API) catalog(w http.ResponseWriter, r *http.Request) {
-	var input core.CatalogRequest
+	input := core.CatalogRequest{Connection: core.Connection{TLSMode: "verify-full"}}
 	if !decode(w, r, &input) || !validConnection(w, input.Connection) {
 		return
 	}
@@ -136,7 +151,7 @@ func (a *API) catalog(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, map[string]any{"tables": tables})
 }
 func (a *API) query(w http.ResponseWriter, r *http.Request) {
-	var input core.QueryRequest
+	input := core.QueryRequest{Connection: core.Connection{TLSMode: "verify-full"}}
 	if !decode(w, r, &input) || !validConnection(w, input.Connection) {
 		return
 	}

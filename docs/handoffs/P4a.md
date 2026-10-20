@@ -5,6 +5,34 @@ Architecture & Security Engineer übernahm den uncommitteten Grundlagenentwurf
 des Leads und stellte Prüfung, Korrekturen, Vertrag und Übergabe fertig.
 Status: Kandidat zur unabhängigen QA; keine selbst erteilte Produktfreigabe.
 
+## Nachbesserung aus unabhängiger QA
+
+QA-P4-01 (mittel): `encoding/json` akzeptierte ausdrücklich angegebene Nullwerte
+als Go-Nullwert bzw. ließ vorbelegte Werte unverändert; unter anderem
+`max_rows:null` und `connection.database:null` passten dadurch nicht zum
+nicht-nullbaren Schema. Zudem akzeptierte der HTTP-Validator ein ausdrücklich
+leeres `tls_mode`, obwohl die Schema-Enum das verbietet.
+
+Korrektur: Nach begrenztem Einlesen/typisierter Dekodierung prüft ein JSON-
+Tokenscan jede explizite Null einschließlich durch doppelte Schlüssel verdeckter
+Werte und liefert 400 vor dem Engine-Aufruf. Fehlendes `tls_mode` erhält vor
+Dekodierung den Standard `verify-full`; ein ausdrücklich leerer Wert wird nun
+abgewiesen. Ausgelassene optionale Felder sowie Querygrenzen behalten ihre
+Standards. Das Schema und sein oben dokumentierter Hash bleiben unverändert.
+
+Regressionen prüfen Null in sämtlichen Connection-Skalaren über alle drei POST-
+Operationen, Null in SQL/Querygrenzen, leeres TLS, versteckte Null bei doppeltem
+Schlüssel, ausgelassene Felder, beide erlaubten TLS-Modi und den gültigen String
+`"null"`. README/Einrichtung unterscheiden nun baubare HTTP-/Containergrundlage
+und weiterhin fehlende Datenbank-Engine. Die ursprüngliche Aussage, es gebe noch
+gar keinen Produktcode/Go-Build, ist entfernt.
+
+Nachprüfung am 20.10.2026: `go test -race -count=1 ./...`, `go vet ./...`,
+`python3 scripts/check-docs.py` (89 Dateien, 0 Fehler), Format- und Diffprüfung
+erneut bestanden. Vollständigen Build/Compose/isolierten Swarm bestätigte die
+unabhängige QA separat; dieser reine Validator-/Dokfix wiederholt Deploymenttests
+gemäß QA-Abstimmung nicht. Enge unabhängige Prüfung des Folgecommits bleibt offen.
+
 ## Ergebnis
 
 - [OpenAPI 0.1.0](../../contracts/api-v0.1.0.json) und

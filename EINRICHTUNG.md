@@ -1,8 +1,35 @@
 # Einrichtung und Bootstrap
 
-Noch kein Produktcode und kein App-Build. Vorhanden sind Dokumentation, Clientvorlagen
-und Python-Skripte ohne Drittanbieterabhängigkeiten. Python 3 ist für die Prüfung erforderlich;
+Vorhanden ist eine baubare Go-HTTP-Grundlage mit Bearer-Token, API-Vertragskandidat
+und Docker Compose-/Swarm-Dateien. Die Platzhalter-Engine meldet keine Treiber;
+eine nutzbare Datenbank-App oder echte SQL-Ausführung ist damit noch nicht vorhanden.
+Python 3 ist für die Dokumentations-/Deploymentprüfung erforderlich;
 Git und GitHub CLI zusätzlich für Initialisierung und Veröffentlichung.
+
+## Go und Container prüfen
+
+Go ab 1.26 gemäß `go.mod`; lokal geprüft mit 1.27.1. Im Repository:
+
+```sh
+go test -race -count=1 ./...
+go vet ./...
+go build -o /tmp/db-manager-check ./cmd/db-manager
+```
+
+Der Build allein startet keinen Server. Für Containerprüfungen Docker Engine mit
+Compose und die Möglichkeit eines privilegierten isolierten Testcontainers bereitstellen:
+
+```sh
+python3 scripts/test-deployment.py
+```
+
+Das Skript baut das Image, prüft Compose und einen eigenen Docker-in-Docker-Swarm
+und entfernt seine Ressourcen. Es verändert den Host-Swarm nicht. Für einen
+bewusst auf Compose begrenzten Lauf `--skip-swarm` verwenden; dies belegt keinen
+Swarmbetrieb. Start, Tokenanlage, Netzwerkgrenzen und Volumeverhalten beschreibt
+[Betrieb](docs/BETRIEB.md); tatsächliche Prüfungen und Grenzen stehen im
+[P4a-Handoff](docs/handoffs/P4a.md). Clientvorlagen und historischer Bootstrap folgen
+unten; sie bilden keinen aktuellen App-Build ab.
 
 ## Dokumentation prüfen
 

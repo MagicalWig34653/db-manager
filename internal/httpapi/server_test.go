@@ -99,8 +99,56 @@ func TestQueryDefaultsAndErrorRedaction(t *testing.T) {
 	if engine.request.MaxRows != 1000 || engine.request.TimeoutMS != 10000 {
 		t.Fatal(engine.request)
 	}
+	if engine.request.Connection.TLSMode != "verify-full" {
+		t.Fatal("omitted TLS mode did not keep its secure default")
+	}
 	if response.Header().Get("Cache-Control") != "no-store" {
 		t.Fatal("credentials response must not be cached")
+	}
+}
+
+func TestExplicitNullAndEmptyTLSNeverReachEngine(t *testing.T) {
+	for _, path := range []string{"/api/v1/query", "/api/v1/catalog", "/api/v1/connections/test"} {
+		for _, connection := range []string{
+			`{"driver":null}`, `{"driver":"mysql","host":null}`,
+			`{"driver":"mysql","port":null}`, `{"driver":"mysql","database":null}`,
+			`{"driver":"mysql","username":null}`, `{"driver":"mysql","password":null}`,
+			`{"driver":"mysql","tls_mode":null}`, `{"driver":"mysql","tls_mode":""}`,
+			`{"driver":"mysql","database":null,"database":"synthetic"}`,
+		} {
+			body := `{"connection":` + connection
+			if path == "/api/v1/query" {
+				body += `,"sql":"SELECT 1"`
+			}
+			body += `}`
+			engine := &testEngine{}
+			response := perform(New(engine, testToken), "POST", path, body, testToken)
+			if response.Code != 400 || engine.called {
+				t.Fatalf("%s accepted nullable/empty TLS input %s: %d", path, connection, response.Code)
+			}
+		}
+	}
+	for _, field := range []string{"sql", "max_rows", "timeout_ms"} {
+		body := `{"connection":{"driver":"mysql"},"sql":"SELECT 1","` + field + `":null}`
+		engine := &testEngine{}
+		response := perform(New(engine, testToken), "POST", "/api/v1/query", body, testToken)
+		if response.Code != 400 || engine.called {
+			t.Fatalf("null %s reached engine: %d", field, response.Code)
+		}
+	}
+}
+
+func TestOmittedOptionalFieldsAndLiteralNullStringRemainValid(t *testing.T) {
+	for _, connection := range []string{
+		`{"driver":"mysql"}`,
+		`{"driver":"mysql","password":"null","tls_mode":"verify-full"}`,
+		`{"driver":"mysql","tls_mode":"disable"}`,
+	} {
+		engine := &testEngine{}
+		response := perform(New(engine, testToken), "POST", "/api/v1/query", `{"connection":`+connection+`,"sql":"SELECT 1"}`, testToken)
+		if response.Code != 200 || !engine.called || engine.request.MaxRows != 1000 || engine.request.TimeoutMS != 10000 {
+			t.Fatalf("valid optional-field input rejected: %d", response.Code)
+		}
 	}
 }
 func TestCancellationIsRecognizable(t *testing.T) {
