@@ -1,0 +1,224 @@
+[
+  {
+    "id": "unknown-envelope-field",
+    "base": "sql-all-tags",
+    "operation": "set",
+    "path": [
+      "token"
+    ],
+    "value": "synthetic-forbidden",
+    "expected": "schema"
+  },
+  {
+    "id": "unknown-scope-field",
+    "base": "sql-all-tags",
+    "operation": "set",
+    "path": [
+      "scope",
+      "sql"
+    ],
+    "value": "synthetic-forbidden",
+    "expected": "schema"
+  },
+  {
+    "id": "unknown-column-field",
+    "base": "sql-all-tags",
+    "operation": "set",
+    "path": [
+      "columns",
+      0,
+      "database"
+    ],
+    "value": "synthetic-forbidden",
+    "expected": "schema"
+  },
+  {
+    "id": "unknown-cell-field",
+    "base": "sql-all-tags",
+    "operation": "set",
+    "path": [
+      "rows",
+      0,
+      0,
+      "secret"
+    ],
+    "value": "synthetic-forbidden",
+    "expected": "schema"
+  },
+  {
+    "id": "wrong-schema-version",
+    "base": "sql-all-tags",
+    "operation": "set",
+    "path": [
+      "schema_version"
+    ],
+    "value": 2,
+    "expected": "schema"
+  },
+  {
+    "id": "null-with-value",
+    "base": "sql-all-tags",
+    "operation": "set",
+    "path": [
+      "rows",
+      0,
+      0,
+      "value"
+    ],
+    "value": "",
+    "expected": "schema"
+  },
+  {
+    "id": "missing-value",
+    "base": "sql-all-tags",
+    "operation": "delete",
+    "path": [
+      "rows",
+      0,
+      1,
+      "value"
+    ],
+    "expected": "schema"
+  },
+  {
+    "id": "number-not-string",
+    "base": "sql-all-tags",
+    "operation": "set",
+    "path": [
+      "rows",
+      0,
+      2,
+      "value"
+    ],
+    "value": 42,
+    "expected": "schema"
+  },
+  {
+    "id": "unsupported-tag",
+    "base": "sql-all-tags",
+    "operation": "set",
+    "path": [
+      "rows",
+      0,
+      1,
+      "kind"
+    ],
+    "value": "geography",
+    "expected": "schema"
+  },
+  {
+    "id": "missing-column-type",
+    "base": "sql-all-tags",
+    "operation": "delete",
+    "path": [
+      "columns",
+      0,
+      "type"
+    ],
+    "expected": "schema"
+  },
+  {
+    "id": "missing-truncated",
+    "base": "sql-all-tags",
+    "operation": "delete",
+    "path": [
+      "truncated"
+    ],
+    "expected": "schema"
+  },
+  {
+    "id": "bad-truncated-type",
+    "base": "sql-all-tags",
+    "operation": "set",
+    "path": [
+      "truncated"
+    ],
+    "value": "false",
+    "expected": "schema"
+  },
+  {
+    "id": "negative-offset",
+    "base": "table-page",
+    "operation": "set",
+    "path": [
+      "scope",
+      "offset"
+    ],
+    "value": -1,
+    "expected": "schema"
+  },
+  {
+    "id": "fractional-offset",
+    "base": "table-page",
+    "operation": "set",
+    "path": [
+      "scope",
+      "offset"
+    ],
+    "value": 0.5,
+    "expected": "schema"
+  },
+  {
+    "id": "unsafe-offset",
+    "base": "table-page",
+    "operation": "set",
+    "path": [
+      "scope",
+      "offset"
+    ],
+    "value": 9007199254740992,
+    "expected": "schema"
+  },
+  {
+    "id": "zero-page-size",
+    "base": "table-page",
+    "operation": "set",
+    "path": [
+      "scope",
+      "page_size"
+    ],
+    "value": 0,
+    "expected": "schema"
+  },
+  {
+    "id": "wrong-has-more",
+    "base": "table-page",
+    "operation": "set",
+    "path": [
+      "scope",
+      "has_more"
+    ],
+    "value": 1,
+    "expected": "schema"
+  },
+  {
+    "id": "short-row",
+    "base": "sql-all-tags",
+    "operation": "set",
+    "path": [
+      "rows",
+      0
+    ],
+    "value": [],
+    "expected": "row_width"
+  },
+  {
+    "id": "long-row",
+    "base": "empty-result",
+    "operation": "set",
+    "path": [
+      "rows"
+    ],
+    "value": [
+      [
+        {
+          "kind": "null"
+        },
+        {
+          "kind": "null"
+        }
+      ]
+    ],
+    "expected": "row_width"
+  }
+]

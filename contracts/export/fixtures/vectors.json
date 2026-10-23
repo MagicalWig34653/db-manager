@@ -1,0 +1,323 @@
+[
+  {
+    "id": "sql-all-tags",
+    "result": {
+      "columns": [
+        {
+          "name": "=value",
+          "type": "NULL"
+        },
+        {
+          "name": "=value",
+          "type": "TEXT"
+        },
+        {
+          "name": "",
+          "type": "BIGINT"
+        },
+        {
+          "name": "Betrag",
+          "type": "NUMERIC(40,20)"
+        },
+        {
+          "name": "Fließwert",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "Wahr",
+          "type": "BOOL"
+        },
+        {
+          "name": "Bytes",
+          "type": "BYTEA"
+        },
+        {
+          "name": "Zeit",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "Text, \"Unicode\"",
+          "type": "TEXT"
+        },
+        {
+          "name": "Marker",
+          "type": "TEXT"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "text",
+            "value": ""
+          },
+          {
+            "kind": "integer",
+            "value": "9223372036854775807"
+          },
+          {
+            "kind": "decimal",
+            "value": "12345678901234567890.12345678901234567890"
+          },
+          {
+            "kind": "float",
+            "value": "-0"
+          },
+          {
+            "kind": "boolean",
+            "value": "true"
+          },
+          {
+            "kind": "binary",
+            "value": "AP+A"
+          },
+          {
+            "kind": "timestamp",
+            "value": "0001-01-01T00:00:00.000001Z BC"
+          },
+          {
+            "kind": "text",
+            "value": "=1+2,\"\r\nGrüße 🗄️"
+          },
+          {
+            "kind": "text",
+            "value": "\\N"
+          }
+        ]
+      ],
+      "truncated": false,
+      "affectedRows": "synthetic-ignored",
+      "sql": "synthetic-sql-must-not-export",
+      "token": "synthetic-token-must-not-export",
+      "connection": {
+        "password": "synthetic-password-must-not-export"
+      }
+    },
+    "scope": {
+      "kind": "sql_result"
+    },
+    "csv": "allowed"
+  },
+  {
+    "id": "table-page",
+    "result": {
+      "columns": [
+        {
+          "name": "",
+          "type": "TEXT"
+        },
+        {
+          "name": "",
+          "type": "INTEGER"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "kind": "text",
+            "value": "Teilmenge"
+          },
+          {
+            "kind": "integer",
+            "value": "-9223372036854775808"
+          }
+        ]
+      ],
+      "truncated": false
+    },
+    "scope": {
+      "kind": "table_page",
+      "offset": 25,
+      "page_size": 25,
+      "has_more": true
+    },
+    "csv": "allowed"
+  },
+  {
+    "id": "truncated-sql",
+    "result": {
+      "columns": [
+        {
+          "name": "Auswahl",
+          "type": "TEXT"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "kind": "text",
+            "value": "Nur geladener Ausschnitt"
+          }
+        ]
+      ],
+      "truncated": true
+    },
+    "scope": {
+      "kind": "sql_result"
+    },
+    "csv": "allowed"
+  },
+  {
+    "id": "empty-result",
+    "result": {
+      "columns": [
+        {
+          "name": "keine Zeile",
+          "type": "TEXT"
+        }
+      ],
+      "rows": [],
+      "truncated": false
+    },
+    "scope": {
+      "kind": "sql_result"
+    },
+    "csv": "allowed"
+  },
+  {
+    "id": "json-controls",
+    "result": {
+      "columns": [
+        {
+          "name": "\u0000\u0001\t\r\n\"\\N",
+          "type": "TEXT"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "kind": "text",
+            "value": "\u0000\u0001\t\r\n\"\\N"
+          }
+        ]
+      ],
+      "truncated": false
+    },
+    "scope": {
+      "kind": "sql_result"
+    },
+    "csv": "rejected-controls"
+  },
+  {
+    "id": "time-values",
+    "result": {
+      "columns": [
+        {
+          "name": "Zeit",
+          "type": "TIMESTAMPTZ"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "kind": "timestamp",
+            "value": "0001-01-01T00:00:00.000001Z BC"
+          }
+        ],
+        [
+          {
+            "kind": "timestamp",
+            "value": "0001-01-01T00:00:00.000001Z"
+          }
+        ],
+        [
+          {
+            "kind": "timestamp",
+            "value": "1500-01-01T12:34:56.654321Z"
+          }
+        ],
+        [
+          {
+            "kind": "timestamp",
+            "value": "2026-10-23T05:00:00.000000Z"
+          }
+        ],
+        [
+          {
+            "kind": "timestamp",
+            "value": "infinity"
+          }
+        ],
+        [
+          {
+            "kind": "timestamp",
+            "value": "-infinity"
+          }
+        ]
+      ],
+      "truncated": false
+    },
+    "scope": {
+      "kind": "sql_result"
+    },
+    "csv": "allowed"
+  },
+  {
+    "id": "numeric-strings",
+    "result": {
+      "columns": [
+        {
+          "name": "Wert",
+          "type": "NUMERIC"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "kind": "float",
+            "value": "-0"
+          }
+        ],
+        [
+          {
+            "kind": "float",
+            "value": "NaN"
+          }
+        ],
+        [
+          {
+            "kind": "float",
+            "value": "Infinity"
+          }
+        ],
+        [
+          {
+            "kind": "float",
+            "value": "-Infinity"
+          }
+        ],
+        [
+          {
+            "kind": "decimal",
+            "value": "NaN"
+          }
+        ],
+        [
+          {
+            "kind": "decimal",
+            "value": "-Infinity"
+          }
+        ],
+        [
+          {
+            "kind": "integer",
+            "value": "-9223372036854775808"
+          }
+        ],
+        [
+          {
+            "kind": "decimal",
+            "value": "0.00000000000000000001"
+          }
+        ]
+      ],
+      "truncated": false
+    },
+    "scope": {
+      "kind": "sql_result"
+    },
+    "csv": "allowed"
+  }
+]

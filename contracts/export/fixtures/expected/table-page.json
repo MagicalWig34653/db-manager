@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "scope": {
+    "kind": "table_page",
+    "offset": 25,
+    "page_size": 25,
+    "has_more": true
+  },
+  "truncated": false,
+  "columns": [
+    {
+      "name": "",
+      "type": "TEXT"
+    },
+    {
+      "name": "",
+      "type": "INTEGER"
+    }
+  ],
+  "rows": [
+    [
+      {
+        "kind": "text",
+        "value": "Teilmenge"
+      },
+      {
+        "kind": "integer",
+        "value": "-9223372036854775808"
+      }
+    ]
+  ]
+}

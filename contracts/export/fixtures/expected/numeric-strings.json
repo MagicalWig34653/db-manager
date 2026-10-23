@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "scope": {
+    "kind": "sql_result"
+  },
+  "truncated": false,
+  "columns": [
+    {
+      "name": "Wert",
+      "type": "NUMERIC"
+    }
+  ],
+  "rows": [
+    [
+      {
+        "kind": "float",
+        "value": "-0"
+      }
+    ],
+    [
+      {
+        "kind": "float",
+        "value": "NaN"
+      }
+    ],
+    [
+      {
+        "kind": "float",
+        "value": "Infinity"
+      }
+    ],
+    [
+      {
+        "kind": "float",
+        "value": "-Infinity"
+      }
+    ],
+    [
+      {
+        "kind": "decimal",
+        "value": "NaN"
+      }
+    ],
+    [
+      {
+        "kind": "decimal",
+        "value": "-Infinity"
+      }
+    ],
+    [
+      {
+        "kind": "integer",
+        "value": "-9223372036854775808"
+      }
+    ],
+    [
+      {
+        "kind": "decimal",
+        "value": "0.00000000000000000001"
+      }
+    ]
+  ]
+}

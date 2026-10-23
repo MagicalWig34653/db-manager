@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "scope": {
+    "kind": "sql_result"
+  },
+  "truncated": true,
+  "columns": [
+    {
+      "name": "Auswahl",
+      "type": "TEXT"
+    }
+  ],
+  "rows": [
+    [
+      {
+        "kind": "text",
+        "value": "Nur geladener Ausschnitt"
+      }
+    ]
+  ]
+}

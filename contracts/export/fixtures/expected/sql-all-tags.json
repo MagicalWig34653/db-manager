@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "scope": {
+    "kind": "sql_result"
+  },
+  "truncated": false,
+  "columns": [
+    {
+      "name": "=value",
+      "type": "NULL"
+    },
+    {
+      "name": "=value",
+      "type": "TEXT"
+    },
+    {
+      "name": "",
+      "type": "BIGINT"
+    },
+    {
+      "name": "Betrag",
+      "type": "NUMERIC(40,20)"
+    },
+    {
+      "name": "Fließwert",
+      "type": "DOUBLE"
+    },
+    {
+      "name": "Wahr",
+      "type": "BOOL"
+    },
+    {
+      "name": "Bytes",
+      "type": "BYTEA"
+    },
+    {
+      "name": "Zeit",
+      "type": "TIMESTAMP"
+    },
+    {
+      "name": "Text, \"Unicode\"",
+      "type": "TEXT"
+    },
+    {
+      "name": "Marker",
+      "type": "TEXT"
+    }
+  ],
+  "rows": [
+    [
+      {
+        "kind": "null"
+      },
+      {
+        "kind": "text",
+        "value": ""
+      },
+      {
+        "kind": "integer",
+        "value": "9223372036854775807"
+      },
+      {
+        "kind": "decimal",
+        "value": "12345678901234567890.12345678901234567890"
+      },
+      {
+        "kind": "float",
+        "value": "-0"
+      },
+      {
+        "kind": "boolean",
+        "value": "true"
+      },
+      {
+        "kind": "binary",
+        "value": "AP+A"
+      },
+      {
+        "kind": "timestamp",
+        "value": "0001-01-01T00:00:00.000001Z BC"
+      },
+      {
+        "kind": "text",
+        "value": "=1+2,\"\r\nGrüße 🗄️"
+      },
+      {
+        "kind": "text",
+        "value": "\\N"
+      }
+    ]
+  ]
+}

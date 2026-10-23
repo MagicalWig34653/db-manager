@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "scope": {
+    "kind": "sql_result"
+  },
+  "truncated": false,
+  "columns": [
+    {
+      "name": "\u0000\u0001\t\r\n\"\\N",
+      "type": "TEXT"
+    }
+  ],
+  "rows": [
+    [
+      {
+        "kind": "text",
+        "value": "\u0000\u0001\t\r\n\"\\N"
+      }
+    ]
+  ]
+}

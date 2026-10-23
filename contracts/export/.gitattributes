@@ -1,0 +1,4 @@
+# Preserve normative CSV byte fixtures, including CRLF line endings.
+fixtures/expected/*.csv -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# Original upstream notices retain their exact CRLF and intentional whitespace.
+notices/* -text -whitespace
