@@ -47,6 +47,8 @@ Matrixbezug: "fehlt" = keine Matrixzeile; "teilweise" = Ergänzung zu der genann
 | PMA-NEU-DATA-004 | GIS-Visualisierung für Geodaten | teilweise: PMA-DATA-014 | V4 | Web/Go ja · Apple offen |
 | PMA-NEU-DATA-005 | GIS-Datenbearbeitungseditor | teilweise: PMA-DATA-014 | V4 | Web/Go ja · Apple offen |
 | PMA-NEU-DATA-006 | Fremdschlüssel-Auswahlfenster | teilweise: PMA-REL-003 | V2 | Web/Go ja · Apple ja |
+| PMA-NEU-DATA-007 | Inline-Tabellengitter im Browser | teilweise: PMA-DATA-002 | V2 | Web/Go ja · Apple offen |
+| PMA-NEU-DATA-008 | Mehrspaltensortierung per Klick | teilweise: PMA-DATA-002 | V2 | Web/Go ja · Apple offen |
 | PMA-NEU-DDL-001 | Prüfung reservierter Wörter | fehlt | V3 | Web/Go ja · Apple ja |
 | PMA-NEU-DDL-002 | Spaltenkommentare im Konfigurationsspeicher | fehlt | V3 | Web/Go ja · Apple offen |
 | PMA-NEU-DDL-003 | Strukturübersicht einer Tabelle | teilweise: PMA-DDL-001 | V1 | Web/Go ja · Apple ja |
@@ -54,9 +56,11 @@ Matrixbezug: "fehlt" = keine Matrixzeile; "teilweise" = Ergänzung zu der genann
 | PMA-NEU-EXP-001 | Exportprüfung auf Zeitlimit | fehlt | V3 | Web/Go ja · Apple offen |
 | PMA-NEU-EXP-002 | Exportumfang Tabelle aus Tabellenseite | teilweise: PMA-EXP-001 | V2 | Web/Go ja · Apple ja |
 | PMA-NEU-EXP-003 | Exportvorlage für Serverexport | teilweise: PMA-EXP-003 | V4 | Web/Go ja · Apple offen |
+| PMA-NEU-EXP-004 | Zeichenkodierung beim Lesen und Schreiben | teilweise: PMA-EXP-004 | V3 | Web/Go ja · Apple ja |
 | PMA-NEU-IMP-001 | Datenbankimport über die Datenbankseite | teilweise: PMA-IMP-001 | V2 | Web/Go ja · Apple ja |
 | PMA-NEU-IMP-002 | Import-Fortschritt als Statusdienst | teilweise: PMA-IMP-013 | V2 | Web/Go ja · Apple offen |
 | PMA-NEU-IMP-003 | Upload-Fortschritt und Upload-Sitzung | teilweise: PMA-IMP-013 | V2 | Web/Go ja · Apple offen |
+| PMA-NEU-IMP-004 | Datei per Ziehen-und-Ablegen hochladen | teilweise: PMA-IMP-002 | V3 | Web/Go ja · Apple offen |
 | PMA-NEU-MAINT-001 | phpinfo-Seite | fehlt (Entscheidung) | V4 | Web/Go nicht übernehmen · Apple entfällt |
 | PMA-NEU-MAINT-002 | Git-Revisionsanzeige | fehlt (Entscheidung) | V4 | Web/Go ja · Apple entfällt |
 | PMA-NEU-MAINT-003 | Versionsprüfung gegen die Projektwebsite | fehlt (Entscheidung) | V4 | Web/Go ja · Apple offen |
@@ -64,6 +68,7 @@ Matrixbezug: "fehlt" = keine Matrixzeile; "teilweise" = Ergänzung zu der genann
 | PMA-NEU-MAINT-005 | Lizenzanzeige | fehlt (Pflicht) | V1 | Web/Go ja · Apple ja |
 | PMA-NEU-MAINT-006 | Änderungsprotokoll anzeigen | fehlt | V2 | Web/Go ja · Apple ja |
 | PMA-NEU-MAINT-007 | Prüfung des Konfigurationsspeichers | teilweise: PMA-UX-011 | V3 | Web/Go ja · Apple offen |
+| PMA-NEU-MAINT-008 | Fehlerbericht-Dialog im Browser | fehlt (Entscheidung) | V4 | Web/Go nicht übernehmen · Apple entfällt |
 | PMA-NEU-META-001 | Versionsansicht einer verfolgten Tabelle | teilweise: PMA-META-002 | V4 | Web/Go ja · Apple offen |
 | PMA-NEU-META-002 | Tracking-Umfang je Objektklasse | teilweise: PMA-META-001 | V4 | Web/Go ja · Apple ja |
 | PMA-NEU-NAV-001 | Navigationselemente ausblenden | teilweise: PMA-CON-005 | V3 | Web/Go ja · Apple ja |
@@ -94,6 +99,7 @@ Matrixbezug: "fehlt" = keine Matrixzeile; "teilweise" = Ergänzung zu der genann
 | PMA-NEU-SEC-008 | Ausgabe-Sanitisierung | fehlt | V1 | Web/Go ja · Apple ja |
 | PMA-NEU-SEC-009 | FIDO U2F als Hardware-Faktor (Key) | teilweise: PMA-UX-009 | V4 | Web/Go offen · Apple offen |
 | PMA-NEU-SEC-010 | Zweiter Faktor "Simple" (nur Testzweck) | fehlt (Entscheidung) | V4 | Web/Go nein · Apple nein |
+| PMA-NEU-SEC-011 | Captcha bei Cookie-Anmeldung | fehlt (Entscheidung) | V4 | Web/Go ja · Apple entfällt |
 | PMA-NEU-SETUP-001 | Einrichtungsassistent | fehlt | V1 | Web/Go ja · Apple entfällt |
 | PMA-NEU-SETUP-002 | Konfigurationsdatei erzeugen | fehlt | V1 | Web/Go ja · Apple entfällt |
 | PMA-NEU-SETUP-003 | Serverprofile im Setup verwalten | teilweise: PMA-CON-001 | V1 | Web/Go ja · Apple ja |
@@ -141,6 +147,7 @@ Matrixbezug: "fehlt" = keine Matrixzeile; "teilweise" = Ergänzung zu der genann
 | PMA-NEU-UX-001 | Benutzerrechte-Gruppen zuweisen | teilweise: PMA-UX-012 | V3 | Web/Go ja · Apple offen |
 | PMA-NEU-UX-002 | Schaltflächen-Konfiguration und Tabellenreiter | teilweise: PMA-UX-003 | V4 | Web/Go ja · Apple ja |
 | PMA-NEU-UX-003 | Anzeige-Einstellungen für Daten | teilweise: PMA-UX-003 | V3 | Web/Go ja · Apple ja |
+| PMA-NEU-UX-004 | Tastatur-Kurzbefehle je Seite | teilweise: PMA-UX-007 | V2 | Web/Go ja · Apple offen |
 
 ## C. Nicht eigenständig geführte Dateien
 

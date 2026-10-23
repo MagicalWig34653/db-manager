@@ -58,10 +58,10 @@ Der Abgleich der Plugin-Familien ergibt (Dateien mit Namen im Inventar genannt, 
 ## Ergebnis
 
 - **Matrix:** 181 Zeilen; alle IDs sind im Inventar referenziert (Matrix-Deckung 181 von 181).
-- **Neue Funde:** 112 Zeilen `PMA-NEU-*`. Vorschlag-Priorität: V1 10, V2 16, V3 24, V4 62.
-- **Einordnung der neuen Funde:** 78 ergänzen eine bestehende Matrixzeile (Teilweise), 27 sind neue Vorschläge, 7 benötigen eine Produkt- oder Sicherheitsentscheidung, bevor sie übernommen werden.
-- **Eignung für die Apple-App:** 8 Funktionen sind an PHP-Laufzeit, Webserver oder Browser gebunden (Apple entfällt); 60 sind für Apple offen.
-- **Quellverweise:** 509 Permalinks auf den Tag-Commit (430 unterschiedliche Stellen).
+- **Neue Funde:** 119 Zeilen `PMA-NEU-*`. Vorschlag-Priorität: V1 10, V2 19, V3 26, V4 64.
+- **Einordnung der neuen Funde:** 83 ergänzen eine bestehende Matrixzeile (Teilweise), 27 sind neue Vorschläge, 9 benötigen eine Produkt- oder Sicherheitsentscheidung, bevor sie übernommen werden.
+- **Eignung für die Apple-App:** 10 Funktionen sind an PHP-Laufzeit, Webserver oder Browser gebunden (Apple entfällt); 64 sind für Apple offen.
+- **Quellverweise:** 518 Permalinks auf den Tag-Commit (439 unterschiedliche Stellen).
 - **Aufwand:** Vergeben sind S, M und L (Schätzung nach Quellumfang, nicht Projektaufwand). XL wurde nicht vergeben; große Funktionsgruppen sind über mehrere Zeilen zerlegt.
 
 ## Dateien

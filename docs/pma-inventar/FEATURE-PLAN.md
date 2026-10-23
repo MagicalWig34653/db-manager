@@ -17,9 +17,9 @@ Umsetzungsstände aus `docs/STATUS.md` und `docs/ARBEITSPLAN.md` wurden nicht ge
 | Priorität | Matrixzeilen | Neue Funde (Vorschlag) |
 | --- | --- | --- |
 | V1 | 12 | 10 |
-| V2 | 37 | 16 |
-| V3 | 64 | 24 |
-| V4 | 68 | 62 |
+| V2 | 37 | 19 |
+| V3 | 64 | 26 |
+| V4 | 68 | 64 |
 
 Die Zahlen für neue Funde beziehen sich auf die Vorschlag-Priorität im Inventar, nicht auf eine Entscheidung.
 
