@@ -124,3 +124,36 @@ migriert nie, korrekt.
 
 F1 und F2 beheben und mit Tests absichern; F3 entscheiden und Doku anpassen; F4/F5 als Folgepunkte in
 ARBEITSPLAN/Handoff führen. Danach kurzer Nachprüflauf (`go test -race`, `test-server-state.py`).
+
+## Nachreview (Commit `5aaa1df` auf `feat/sz1-server-state`)
+
+Urteil: **freigabefähig.** F1 bis F5 sind geschlossen, kein neuer Blocker. Zwei Hinweise niedriger Schwere (N1, N2).
+
+Eigene Läufe auf dem Stand `5aaa1df` (in `review/sz1` gemergt): `gofmt` leer, `go vet` ok, `go test -race -count=1 ./...`
+alle Pakete ok, `scripts/test-server-state.py` grün (26 PASS-Tests, 0 übersprungen, Containerphase inklusive Ausfall,
+Erholung, Replikat ohne DDL-Zugang, Secret-Prüfung), `check-docs.py` 388 Dateien ohne Fehler, fünf Vertragswächter ok,
+`test-deployment.py` (Compose und isolierter Swarm) grün, Wegwerfressourcen entfernt.
+
+| Befund | Status | Beleg |
+| --- | --- | --- |
+| F1 | geschlossen | `Ping` ändert `healthy` nicht, wenn der Aufrufer-Kontext beendet ist; Test `TestCanceledCallerDoesNotChangeHealth` (Abbruch und abgelaufene Frist). `/healthz` fragt die DB nicht mehr, `/readyz` liest nur den Cache. |
+| F2 | geschlossen | Migrationspool mit `LockTimeout` plus 10 min I/O-Timeout; `TestMigrationLockWaitBeyondRuntimeIOTimeout` (Wartezeit über 10 s, `ErrMigrationLocked`); `lockSeconds` rundet auf. Das Laufzeit-`ioTimeout` bleibt 10 s. |
+| F3 | geschlossen | Globales Gate entfernt; `/healthz` ohne Store und mit Store identisch `{"status":"ok"}` (Test), Bearer-API bei Ausfall 200 (Test, Containerlauf), `/readyz` 200/503 nur aus Cache, `RequireState` fail closed auch ohne Store, Erholung getestet. Der Containerlauf zeigt Docker `healthy` bei DB-Ausfall, also keine Austauschschleife durch `unhealthy`. `Wrap` leitet `/readyz` unverändert an die API. |
+| F4 | geschlossen (Doku und Beispiele) | `state-migrate` ist Standard, Start-Migration als Ausnahme gekennzeichnet; Containerlauf deckt Replikat ohne DDL-Zugang ab. Ein Swarm-Job ist ausdrücklich nicht bereitgestellt oder getestet. |
+| F5 | behoben bzw. als Grenze dokumentiert | `json:"-"` mit Test, Nullschlüssel abgelehnt mit Test; CA-Ergänzung, Dateirechte, Entropie und Hysterese stehen als bekannte Grenzen in BETRIEB. |
+
+Race-Freiheit: `Healthy()` ist ein `atomic.Bool`, `/readyz` und `RequireState` lesen nur diesen Wert; `-race` grün.
+Informationsleck: `/readyz` und `/healthz` liefern feste Texte ohne Host, Benutzer oder Treiberfehler; sie sind
+unauthentifiziert und zeigen den Speicherzustand, was BETRIEB jetzt benennt.
+
+Doku ehrlich: ADR-0006 Frage 8 bleibt ausdrücklich offen für künftige Konten-Funktionen, die Entscheidung wird als
+Koordinatorentscheidung nach dem Review ausgewiesen; Swarm bleibt "nur gerendert", kein Multinode-/HA-Anspruch.
+
+Neue Hinweise:
+
+- **N1 (niedrig):** ADR-0006 Abschnitt 5, Abnahmekriterium 3, nennt weiterhin "fail closed und `unhealthy`"
+  (Zeile 195), während Handoff und BETRIEB dies durch `/readyz` 503 ersetzen. Im ADR einen Verweis auf die geänderte
+  Umsetzung ergänzen, damit Kriterium und Nachweis nicht widersprechen.
+- **N2 (niedrig, Betrieb):** Ein Neustart des Dienstes bei laufendem DB-Ausfall scheitert weiter an `WaitReady` (30 s,
+  Exit 1) und wird von `restart_policy` wiederholt; der Bearer-Dienst ist dann bis zur Rückkehr der DB nicht verfügbar.
+  Das Handoff nennt es, im Swarm nicht geprüft. Optional später: Start ohne DB im Bearer-Modus zulassen, falls gewünscht.
