@@ -1,12 +1,13 @@
 # ADR-0006: Persistenter Serverzustand für mehrere Replikate
 
-Status: **Vorschlag**, noch nicht akzeptiert. Keine Implementierung, keine Produktfreigabe.
+Status: **Akzeptiert** (Option c) durch ausdrückliche Entscheidung des Nutzers am 23.10.2026.
+Keine Produktfreigabe; Umsetzung nur Paket SZ1, siehe Abschnitt 6.
 Datum: 23.10.2026. Betrifft PROD-004 und PROD-006 in [PARITÄT](../PARITAET.md).
 
-Dieses Dokument trennt Anforderung, Vorschlag und Entscheidung. Erst der Abschnitt
-„Entscheidung“ wird nach Review und Nutzerfreigabe verbindlich; bis dahin gilt der
-dokumentierte Ist-Zustand (persönlicher Dienst, ein gemeinsames Bearer-Token, kein
-Serverzustand, siehe [ARCHITEKTUR](../ARCHITEKTUR.md) und [BETRIEB](../BETRIEB.md)).
+Dieses Dokument trennt Anforderung, Vorschlag und Entscheidung. Verbindlich ist der
+Abschnitt „Entscheidung“ (6). Ohne Konfiguration gilt weiterhin der dokumentierte
+Ist-Zustand (persönlicher Dienst, ein gemeinsames Bearer-Token, kein Serverzustand,
+siehe [ARCHITEKTUR](../ARCHITEKTUR.md) und [BETRIEB](../BETRIEB.md)).
 
 ## 1. Anforderung
 
@@ -98,7 +99,7 @@ und wird getrennt gespeichert.
 | Ausfallverhalten | Hänger, Korruptionsrisiko | Quorumverlust | klarer Fehler, fail closed |
 | Komplexität/Prüfaufwand | gering scheinbar | sehr hoch | gering bis mittel |
 
-## 3. Vorschlag
+## 3. Vorschlag (Grundlage der Entscheidung, siehe 6)
 
 Der Vorschlag ist (c): **externe MariaDB als einziger Speicher des Serverzustands**.
 Einzelreplika-Betrieb ohne diese DB bleibt der heutige Zustand (kein Serverzustand,
@@ -167,7 +168,7 @@ Tresorklartext). Kein HA-Versprechen aus diesem Vorschlag.
 11. **Treiber/Lizenz:** Auswahl und Inventarisierung des Go-Treibers
     (LIZENZEN), Pooling und Zeitlimits.
 
-## 5. Vorgeschlagenes erstes Umsetzungspaket (SZ1, begrenzt)
+## 5. Erstes Umsetzungspaket (SZ1, begrenzt)
 
 Ziel: tragfähige, geprüfte Grundlage ohne Nutzerfunktion (keine Passkeys, keine Teams).
 Dateibesitz: neues internes Paket für Zustandsspeicher und Migrationen, Konfiguration,
@@ -203,9 +204,31 @@ Abnahmekriterien:
    nur auf isoliertem Daemon wie in BETRIEB; kein Multinode-/HA-Anspruch ohne Nachweis.
 
 Nicht in SZ1: WebAuthn, Konten-UI, Teams, Freigaben, Sessionumstellung.
-Diese folgen nach Annahme dieses ADR und Klärung der offenen Fragen 1–4 in eigenen Paketen.
+Diese folgen nach Annahme dieses ADR (erfolgt) und Klärung der offenen Fragen 1–4 in eigenen Paketen.
 
 ## 6. Entscheidung
 
-Offen. Dieser ADR wird erst mit Review und ausdrücklicher Freigabe auf
-„akzeptiert“ gesetzt; bis dahin sind PROD-004/PROD-006 unverändert offen.
+**Entschieden (Nutzer, 23.10.2026, ausdrücklich):** Option (c). Eine **externe MariaDB
+ist der einzige Speicher des Serverzustands**. Die Optionen (a) NFS/Datei und (b) eigener
+Konsens werden damit nicht weiterverfolgt.
+
+Was diese Entscheidung **nicht** festlegt:
+
+- Die Leitplanken aus Abschnitt 3 sind der vorgeschlagene Umsetzungsrahmen; SZ1 setzt
+  den dort beschriebenen Teil um und unterliegt dem unabhängigen Review. Sie sind darüber
+  hinaus nicht einzeln vom Nutzer entschieden worden.
+- Alle offenen Fragen in Abschnitt 4 (1 bis 11) bleiben **offen**. Insbesondere sind
+  Passkey-Rolle, Sessionmodell, Mandantentrennung, unterstützte MariaDB-Versionen,
+  MySQL-Kompatibilität, Audit, Backup/Restore-Verfahren und das Verhalten bei DB-Ausfall
+  für künftige Funktionen nicht entschieden. SZ1 verhält sich bei DB-Ausfall fail closed
+  (Vorschlag aus Frage 8); das ist Implementierungsstand von SZ1, keine Produktentscheidung.
+  Für Frage 11 verwendet SZ1 den bereits inventarisierten `github.com/go-sql-driver/mysql`;
+  eine weitergehende Treiberentscheidung steht aus.
+- Nicht entschieden und nicht umgesetzt: WebAuthn, Konten-UI, Teams, Freigaben,
+  Sessionumstellung. PROD-004/PROD-006 bleiben offen.
+- Kein HA-/Mehrknoten-Versprechen: Der Serverzustand erlaubt künftig mehrere Replikate;
+  SQLite-Nutzerdatenbanken bleiben nach ADR-0004 an ein Replikat gebunden.
+
+Umsetzung: Paket SZ1 (Abschnitt 5) auf Branch `feat/sz1-server-state`; Stand und
+offene Punkte in [SZ1](../handoffs/SZ1.md). SZ1 ist erst nach unabhängigem Review
+integrierbar.
