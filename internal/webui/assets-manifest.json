@@ -11,27 +11,31 @@
       "size": 92896
     },
     {
-      "path": "assets/index-B5285MVb.css",
-      "sha256": "c3991cc676dbd6838ac1e5d99059263e1866eabbb18a42e04a2373c3c0925209",
-      "size": 42254
+      "path": "assets/index-Bk7Yt41f.js",
+      "sha256": "af3c6155e539b9fabb7dbb0279685e32aef75fa38933f308e7c623a16d5fe7b3",
+      "size": 723655
     },
     {
-      "path": "assets/index-BtD3D_KM.js",
-      "sha256": "0921575dfa8f151006a061022ff5509e668e367b52ecfed98ed83c1a5e34aba7",
-      "size": 383087
+      "path": "assets/index-D8F0GQEu.css",
+      "sha256": "36aee89e9fb1889021d8a17c84f6818c53975ad0af26f009be74b63070a7799a",
+      "size": 44317
     },
     {
       "path": "index.html",
-      "sha256": "a6c41993f7c3df648e4e4dd8c7ed96b5052e9c21789d182bd32df7d6aa5eb924",
+      "sha256": "833e2d0f4d771feda58151b10cdf3a9ca10ee3bbe8c8059edba7377260264019",
       "size": 424
     }
   ],
   "schema_version": 1,
   "source": {
     "build_mode": "production",
-    "commit": "6c6eb33c93eed355a10cd114f61ce27be7f3f55e",
+    "commit": "3a4a3fd0a345f8c127758ac5eadc4e6feb8d21ec",
     "contract_sha256": "4b598dc69a1904685e67a717997412654440ac10f47c17f7a025ccd114e294be",
     "contract_version": "0.1.0",
+    "insert_contract_sha256": "4763ebf8632a9ef977cf7d3a6037299fc4dafde0a581fe10cb34d844f8356fbf",
+    "insert_contract_version": "0.4.0",
+    "mutation_contract_sha256": "ec77c9739cda11df3f4cb9fe756a632e67840fdc0f6190deee1aa1d1333dc308",
+    "mutation_contract_version": "0.3.0",
     "npm_lock_sha256": "bac4b32ba0548428186f20b1d6382f3554b1a477c0fb89957b123820495b15c6",
     "repository": "https://github.com/MagicalWig34653/db-manager-web.git",
     "schema_version": 1,

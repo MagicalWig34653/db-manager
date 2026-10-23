@@ -28,3 +28,12 @@ Die PostgreSQL-Startbarriere in `scripts/web_test_support.py` beweist explizit,
 dass erfolgreiche Unix-Socket-Readiness während des Bootstraps kein fertiger TCP-
 Server ist. Erst endgültige TCP-Bereitschaft und positive verify-full-Verbindung
 ermöglichen Setup/Browsertests; ein falscher Hostname wird erst anschließend geprüft.
+
+F4b ergänzt vier echte Editorfälle: CRUD/Defaults/typisierte Rücklese/409 und echte
+Commitantwortverluste/Sitzungswechsel jeweils SQLite/PostgreSQL-TLS. `rows.spec.ts`
+ist aus der unabhängig angenommenen öffentlichen F4-Quelle3a4a3fd übernommen und nur
+auf eigene Rootfixtures/same-origin-API/Compose-PG-Verbindungsangaben angepasst.
+Keine API-Mocks: `route.fetch()` führt echte Mutation aus; erst nach tatsächlicher
+Commitantwort verliert der Browser die Antwort. Eine separate echte Abfrage und
+Requestzählung belegen genau eine gespeicherte Zeile und keinen Retry. Insgesamt neun
+Chromiumfälle; ursprüngliche SQL-/Cancel-/F3-Paging-/Source-/CSP-Fälle bleiben erhalten.

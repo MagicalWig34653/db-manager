@@ -1,15 +1,15 @@
 # Versionierter Webbuild und Go-Paket
 
-Stand: 20.10.2026, F2a/F2b integriert, F3b-Prüfkandidat. Der unveränderte geprüfte Webbuild
+Stand: 23.10.2026, F3b integriert, F4b-Prüfkandidat. Der unveränderte geprüfte Webbuild
 ist im Hauptrepo enthalten. Der Servereinstieg umschließt jetzt die reale Go-API
 mit `webui.Wrap`; CLI und Container liefern Oberfläche und API von derselben Origin.
-Prüfstand und unabhängige Abnahme: [F3b-Handoff](handoffs/F3b.md).
+Prüfstand und unabhängige Abnahme: [F4b-Handoff](handoffs/F4b.md).
 
 ## Quelle, Vertrag und Reproduzierbarkeit
 
 [web-build.lock.json](../web-build.lock.json) pinnt das öffentliche Webrepository auf
-Commit [6c6eb33](https://github.com/MagicalWig34653/db-manager-web/tree/6c6eb33c93eed355a10cd114f61ce27be7f3f55e).
-F3 einschließlich atomarer Übernahme gültiger Tabellenentwürfe wurde unabhängig
+Commit [3a4a3fd](https://github.com/MagicalWig34653/db-manager-web/tree/3a4a3fd0a345f8c127758ac5eadc4e6feb8d21ec).
+F4 einschließlich bestätigter Einzelzeilenaktionen und atomarer Tabellenentwürfe wurde unabhängig
 geprüft; der Commit ist in der Web-main-Historie erreichbar. Vertrag `0.1.0`, API-SHA-256
 `4b598dc69a1904685e67a717997412654440ac10f47c17f7a025ccd114e294be`;
 Tabellenvertrag `0.2.0`, SHA256
@@ -104,16 +104,30 @@ das Go-Serverprojekt, dessen Buildherkunft und die lokal gelieferten Originaltex
 Die Artefakte werden unverändert aus dem gepinnten Quellbuild übernommen.
 
 
-## F3b-Laufzeitgrenzen
+## F4b-Laufzeitgrenzen
 
 Die Tabellenansicht verwendet strukturierte read-only API0.2.0-Anfragen für Daten,
 Metadaten, Sortierung und getaggte UND-Filter. API0.1.0 bleibt für freie SQL-Anfragen
 unverändert; daraus folgt kein allgemeiner SQL-Lesemodus. Die eingebettete Quelle
 enthält den unabhängig angenommenen Fix QA-F3-01: Abgewiesene Entwürfe verändern den
-angewendeten Seiten-/Filter-/Sortierzustand nicht. Keine API0.3-Bindung oder zusätzliche
-Schreibfreigabe. Endgültige Abnahme des neuen Root-Pins bleibt unabhängiger QA vorbehalten.
+angewendeten Seiten-/Filter-/Sortierzustand nicht. Neue Einzelzeilenaktionen nutzen
+API0.3/0.4 und verlangen gültige v4-Fähigkeiten sowie frische v3-Eignung. PK/generated
+bleiben gesperrt; vollständige Originalsnapshots und explizite Bestätigung schützen
+den Ablauf. Ältere Backends behalten SQL/v2 ohne neue Schreibaktionen. Endgültige Abnahme des neuen Root-Pins bleibt unabhängiger QA vorbehalten.
 
 Die PostgreSQL-Fixture demonstriert mit privater Initialisierungsbarriere, dass der
 Socket-only-Bootstrapserver noch keine TCP-Bereitschaft bedeutet. Erst nach expliziter
 TCP-Readiness und erfolgreicher `verify-full`-Verbindung folgt die negative Hostnamen-
 probe. Das härtet die Teststartgrenze von F2b; kein behaupteter Produktfehler.
+
+## Zusätzliche Schreibvertragspins
+
+`web-build.lock.json` und Manifest pinnen zusätzlich den Update-/Deletevertrag 0.3.0
+(SHA256 `ec77c9739cda11df3f4cb9fe756a632e67840fdc0f6190deee1aa1d1333dc308`)
+und Insertvertrag 0.4.0
+(`4763ebf8632a9ef977cf7d3a6037299fc4dafde0a581fe10cb34d844f8356fbf`).
+Build und Offlineprüfung vergleichen alle vier Rootverträge; Neubau vergleicht außerdem
+alle vier unveränderten Webvertragskopien. Keine Bindung an API0.5-Kandidaten.
+Die Quellen des eingefrorenen F4-Clients referenzieren Backend72855cf mit beiden
+unabhängig geschlossenen v3-Schutzfixes. Vertragsgleichheit allein belegt keinen
+gepatchten Serverstand. Keine Änderung an freigegebenen Produktbytes nach dem Pin.

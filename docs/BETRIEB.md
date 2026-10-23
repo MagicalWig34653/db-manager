@@ -146,3 +146,16 @@ Ein Compose-Test ersetzt keinen Swarm-Test. Fremde Docker-Dienste niemals für T
 - [Docker: Secrets](https://docs.docker.com/engine/swarm/secrets/)
 - [Docker: Compose Secrets](https://docs.docker.com/reference/compose-file/secrets/)
 - [Go: HTTP-Server](https://pkg.go.dev/net/http)
+
+## Bestätigte Einzelzeilenaktionen
+
+F4b-Prüfkandidat: Webclient und API1–4 aus einer Origin, keine Node-/npm-Laufzeit.
+Geeignete Tabellen bieten explizit bestätigte Einzelzeilenaktionen; keine Massen-
+änderungen oder Retrywarteschlange. Nach Konflikt Daten neu laden; nach unterbrochener
+Schreibantwort möglichen Commit zuerst prüfen. Abbruch garantiert kein Rollback.
+Tatsächliche Nachherwerte können durch DB-Konversionen von Eingaben abweichen.
+Die F4b-Deploymentprobe führt reale strukturierte INSERT-/UPDATE-/DELETE-Anfragen aus
+und prüft Default/NULL/Präzision/Binärwerte sowie stale-Snapshot-Konflikte. Eine erhaltene
+Zeile wird nach Compose-Neustart und isoliertem Swarm-Taskersatz erneut gelesen.
+Dies belegt keine HA-, Powerloss-, Exactly-once- oder öffentliche Releasegarantie.
+[Prüfstand und unabhängiges Gate](handoffs/F4b.md).
