@@ -83,6 +83,11 @@ def verify_http(base, token):
     table_capabilities = api(base, '/api/v2/capabilities', token)
     assert table_capabilities['contract_version'] == '0.2.0' and table_capabilities['mutations'] is False
     assert set(table_capabilities['features']) == {'table_describe', 'table_browse'}
+    for version in [3, 4]:
+        assert api(base, f'/api/v{version}/capabilities', expected=401)['error']['code'] == 'unauthorized'
+        assert api(base, f'/api/v{version}/capabilities', token)['contract_version'] == f'0.{version}.0'
+        missing, _ = request(base, f'/api/v{version}/unknown', expected=404)
+        assert b'<html' not in missing.lower()
     unknown, _ = request(base, '/api/v2/unknown', expected=404)
     assert b'<html' not in unknown.lower()
     manifest = json.loads((ROOT / 'internal/webui/assets-manifest.json').read_text())
@@ -122,13 +127,36 @@ def verify_image(image):
 
 
 def verify_persistence(base, token, restart):
+    """Exercise confirmed row APIs, then prove stored typed data survives replacement."""
     connection = {'driver': 'sqlite', 'database': 'deployment_fixture'}
-    query(base, token, connection, 'CREATE TABLE saved(value TEXT)')
-    query(base, token, connection, "INSERT INTO saved VALUES('Neustart ✓')")
-    assert query(base, token, connection, 'SELECT value FROM saved')['results'][0]['rows'][0][0]['value'] == 'Neustart ✓'
+    table = {'schema': 'main', 'name': 'saved'}
+    query(base, token, connection, "CREATE TABLE saved(id INTEGER PRIMARY KEY AUTOINCREMENT, value TEXT NOT NULL DEFAULT 'default', nullable TEXT, precise TEXT, payload BLOB)")
+    context = {'connection': connection, 'table': table}
+    assert api(base, '/api/v3/tables/eligibility', token, context)['eligible']
+    assert api(base, '/api/v4/tables/insert-eligibility', token, context)['eligible']
+    precise = '12345678901234567890.12345678901234567890'
+    values = [{'column': name, 'value': cell} for name, cell in [
+        ('value', {'kind': 'text', 'value': 'before-update'}),
+        ('nullable', {'kind': 'null'}),
+        ('precise', {'kind': 'text', 'value': precise}),
+        ('payload', {'kind': 'binary', 'value': 'AP8='})]]
+    created = api(base, '/api/v4/rows/insert', token, {**context, 'values': values, 'confirm': True})
+    assert created['outcome'] == 'committed'
+    original = created['row']
+    updated = api(base, '/api/v3/rows/update', token, {**context, 'expected': original, 'changes': [{'column': 'value', 'value': {'kind': 'text', 'value': 'Neustart ✓'}}], 'confirm': True})
+    assert updated['outcome'] == 'committed' and updated['changed']
+    conflict = api(base, '/api/v3/rows/update', token, {**context, 'expected': original, 'changes': [{'column': 'value', 'value': {'kind': 'text', 'value': 'must-not-overwrite'}}], 'confirm': True}, expected=409)
+    assert conflict['error']['code'] == 'row_conflict'
+    default = api(base, '/api/v4/rows/insert', token, {**context, 'values': [], 'confirm': True})
+    assert default['row']['values'][1] == {'kind': 'text', 'value': 'default'}
+    deleted = api(base, '/api/v3/rows/delete', token, {**context, 'expected': default['row'], 'confirm': True})
+    assert deleted['outcome'] == 'committed' and deleted['changed']
+    expected = [[{'kind': 'text', 'value': 'Neustart ✓'}, {'kind': 'null'}, {'kind': 'text', 'value': precise}, {'kind': 'binary', 'value': 'AP8='}]]
+    assert query(base, token, connection, 'SELECT value, nullable, precise, payload FROM saved')['results'][0]['rows'] == expected
     restart()
     wait_until(lambda: api(base, '/healthz')['status'] == 'ok', 'restart health')
-    assert query(base, token, connection, 'SELECT value FROM saved')['results'][0]['rows'][0][0]['value'] == 'Neustart ✓'
+    assert query(base, token, connection, 'SELECT value, nullable, precise, payload FROM saved')['results'][0]['rows'] == expected
+    assert api(base, '/api/v4/capabilities', token)['contract_version'] == '0.4.0'
 
 
 def start_postgres_fixture(container, directory, database):

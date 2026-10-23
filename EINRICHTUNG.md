@@ -133,7 +133,7 @@ abweichende Zieldateien absichtlich ablehnen. Dann Änderungen im jeweiligen Git
 prüfen und explizit committen; Vorlagen nicht über die weiterentwickelten Clients kopieren.
 
 
-## Eingebetteter Tabellenarbeitsplatz F3b
+## Eingebetteter Tabellen-/Zeilenarbeitsplatz F4b
 
 Objektauswahl öffnet die read-only Tabellenansicht mit Daten und Struktur.
 Mehrspaltensortierung und getaggte UND-Filter werden über „Anwenden“ aktiviert;
@@ -145,7 +145,7 @@ verfügbar; keine Rollbackzusage und kein allgemeiner Schreibschutz der SQL-API.
 „Quellcode & Lizenzen“ führt zum exakt gebauten Webcommit und zu lokalen Originaltexten.
 
 `python3 scripts/test-web-integration.py` prüft den tatsächlich eingebetteten Build
-mit fünf Chromiumfällen gegen SQLite und PostgreSQL-TLS, einschließlich QA-F3-01-
+mit neun Chromiumfällen gegen SQLite und PostgreSQL-TLS, einschließlich QA-F3-01-
 Pagingregression, SQL/Cancel/Sitzungswechsel und Quelllink-/Lizenzdialog. Das Skript
 hält den socketbasierten PostgreSQL-Bootstrap deterministisch an, beweist dessen
 fehlende TCP-Bereitschaft und wartet anschließend auf den endgültigen TCP-Server.
@@ -153,4 +153,14 @@ Erst nach positivem `verify-full`-Test wird der falsche Hostname geprüft. Keine
 Socket-Readiness und kein zufälliges Warten durch Builddauer als Bereitschaftsnachweis.
 Compose/isolierter Swarm werden zusätzlich mit `python3 scripts/test-deployment.py`
 geprüft. Node/npm sind lediglich für Neubau und Browsertests nötig; Go-CLI/Image und
-Betrieb benötigen sie nicht. Aktueller Nachweis: [F3b-Handoff](docs/handoffs/F3b.md).
+Betrieb benötigen sie nicht. Aktueller Nachweis: [F4b-Handoff](docs/handoffs/F4b.md).
+
+Für geeignete transaktionale Basistabellen mit PK erscheinen bestätigte Einzelzeilen-
+aktionen. INSERT unterscheidet ausgelassenen Default, NULL und Leerwert; UPDATE sendet
+den vollständigen Originalsnapshot. PK/generated-Zielspalten bleiben gesperrt. Nach
+409 aktuelle Daten laden und eine neue Erwartung bestätigen. Nach Antwortverlust
+kann ein Commit bereits erfolgt sein: erst den Datenstand prüfen, nicht blind erneut
+senden. Der Client wiederholt Mutationen nicht automatisch. Sitzungswechsel verwirft
+Entwürfe; ein versendeter Request kann trotzdem gespeichert sein. Compose/isolierter
+Swarm prüfen v4-INSERT und v3-UPDATE/DELETE inklusive Konflikt und typisierter
+SQLitepersistenz nach Neustart/Taskersatz. Grenzen und Rootabnahme stehen im Handoff.
