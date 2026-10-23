@@ -58,7 +58,9 @@ externe virtuelle Tabellen und viele administrative PRAGMAs sind gesperrt; das i
 keine vollständige SQLite-Administration. WAL-/Mehrprozessfreigabe verlangt eine
 neue Lock-/VFS-Untersuchung. Compose und Swarm müssen eine einzelne Instanz mit
 exklusivem beschreibbarem Datenvolume betreiben; ein repliziertes Dateiziel ist keine
-automatische SQLite-Hochverfügbarkeit.
+automatische SQLite-Hochverfügbarkeit. In Swarm genügt dafür ein node-lokales
+Volume (`driver: local`) mit Pinning auf einen Knoten; verteilter Speicher ist weder
+nötig noch vorgesehen, und es gibt keine Failover-Zusage (siehe `docs/BETRIEB.md`).
 
 Lokale Administratoren/Prozesse mit Root-Schreibrecht gelten als vertrauenswürdig.
 Kein Schutz gegen privilegierte Hostangreifer und keine Zusage zur Stromausfallsicherheit

@@ -81,7 +81,7 @@ def main():
                     if result.returncode:
                         raise RuntimeError('Isolated Docker image import failed')
                 run(['docker', 'exec', '-i', daemon, 'docker', 'secret', 'create', 'dbmanager_api_token_v1', '-'], input=token)
-                stack = (ROOT / 'deploy/swarm.yaml').read_text().replace('${DBM_IMAGE:-db-manager:local}', image).replace('${DBM_TOKEN_SECRET:-dbmanager_api_token_v1}', 'dbmanager_api_token_v1')
+                stack = (ROOT / 'deploy/swarm.yaml').read_text().replace('${DBM_IMAGE:-ghcr.io/magicalwig34653/db-manager:latest}', image).replace('${DBM_TOKEN_SECRET:-dbmanager_api_token_v1}', 'dbmanager_api_token_v1')
                 run(['docker', 'exec', '-i', daemon, 'docker', 'stack', 'deploy', '--resolve-image', 'never', '--compose-file', '-', 'dbmanager'], input=stack)
                 wait_until(lambda: run(inner + ['service', 'ls', '--format', '{{.Replicas}}']) == '1/1', 'Swarm service convergence')
                 published = json.loads(run(['docker', 'inspect', '--format', '{{json .NetworkSettings.Ports}}', daemon]))['8080/tcp'][0]['HostPort']

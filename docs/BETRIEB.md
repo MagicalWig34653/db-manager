@@ -41,7 +41,8 @@ ist für den unprivilegierten Container lesbar. Compose-Dateisecrets behalten di
 Host-Dateirechte; `uid`/`gid`/`mode` werden bei bind-gemounteten Dateien nicht umgesetzt.
 Das Token wird weder ausgegeben noch überschrieben; `secrets/` bleibt lokal ignoriert.
 Compose bindet standardmäßig ausschließlich an Loopback. `DBM_PORT` ändert den lokalen
-Port, `DBM_TOKEN_PATH` die Quelldatei, `DBM_IMAGE` den Imagenamen. Geheimnisse gehören
+Port, `DBM_TOKEN_PATH` die Quelldatei, `DBM_IMAGE` den Imagenamen
+(Standard `ghcr.io/magicalwig34653/db-manager:latest`, siehe Abschnitt Container-Image). Geheimnisse gehören
 nicht in `.env` oder Kommandozeilenargumente. Das Volume `data` bleibt bei
 `docker compose down` erhalten; `down --volumes` löscht es ausdrücklich.
 
@@ -112,6 +113,34 @@ TIMESTAMPTZ erhält den Zeitpunkt, nicht eine ursprüngliche nicht gespeicherte 
 SQLite-Dynamic-Typing erzeugt keine zusätzliche exakte DECIMAL-Speichersemantik.
 Fehlertexte sind feste öffentliche Meldungen ohne rohe DSNs, SQL oder Passwörter.
 
+## Container-Image
+
+Der Workflow `.github/workflows/image.yml` baut das `Dockerfile` für `linux/amd64` und
+veröffentlicht es als `ghcr.io/magicalwig34653/db-manager`. Gepusht wird nur bei Push auf
+`main` und bei Tags `v*`; Pull Requests bauen ohne Push. Es gibt keine Provenienz-,
+SBOM- oder Signaturaussage; `arm64` wird nicht gebaut.
+
+| Tag | Bedeutung |
+| --- | --- |
+| `sha-<kurz>` | unveränderlicher Quellstand (kurzer Commit-SHA) |
+| `latest` | aktueller Stand von `main` |
+| `1.2.3`, `1.2` | Versions-Tags bei Git-Tag `v1.2.3` |
+
+OCI-Labels: `source` (Repository) und `licenses` (`AGPL-3.0-only`). Für reproduzierbare
+Deployments einen `sha-`- oder Versions-Tag statt `latest` verwenden.
+
+```sh
+docker pull ghcr.io/magicalwig34653/db-manager:latest
+DBM_IMAGE=ghcr.io/magicalwig34653/db-manager:sha-<kurz> docker compose up -d --no-build
+```
+
+Neue ghcr-Pakete sind zunächst privat. Soll das Image ohne Anmeldung abrufbar sein, muss
+das Paket nach dem ersten Push einmalig manuell in den Paketeinstellungen auf GitHub
+(Package settings, Danger Zone, Change visibility) auf `public` gestellt werden. Bis dahin
+ist `docker login ghcr.io` mit einem Token mit `read:packages` nötig. Lokaler Build bleibt
+möglich: `docker compose build` (Compose-Datei enthält `build: .`) oder
+`docker build -t db-manager:local .` mit `DBM_IMAGE=db-manager:local`.
+
 ## Swarm
 
 Der Stack verwendet das von `docker stack deploy` unterstützte Compose-v3-Format,
@@ -121,8 +150,26 @@ Ein lokales Volume ist kein repliziertes Volume: Die aktuelle Einzelinstanz ist 
 Nodes mit Label `dbmanager.data=true` gebunden. Genau einen geeigneten Datennode labeln;
 kein Hochverfügbarkeitsversprechen oder horizontale Schreibreplikation.
 
+Speichermodell ([ADR-0004](decisions/ADR-0004-sqlite-adapter.md)): Das Volume `data` ist
+explizit ein node-lokales Volume (`driver: local`). Es ist kein verteilter Speicher
+(NFS, Gluster, Ceph, Cloud-Volume-Plugin) nötig. Der Dienst läuft mit genau einem Replikat,
+per Placement-Constraint auf den einen gelabelten Knoten festgenagelt. Fällt dieser Knoten
+aus, startet der Dienst nicht auf einem anderen Knoten mit denselben Daten: keine HA- und
+keine Failover-Zusage, keine Replikation von `/data`. Ein Datenverlust des Knotens ist
+ein Verlust der SQLite-Dateien; Sicherung liegt beim Betreiber.
+
+Volumenlose Variante (nur Remote-Datenbanken, keine SQLite-Dateien): Die Anwendung startet
+auch ohne benanntes Volume (geprüft mit einem einzelnen Container mit `read_only`, tmpfs
+`/tmp`, `cap_drop ALL`, Token-Datei: Zustand `running`, Healthcheck `healthy`). Das Image
+deklariert `VOLUME /data`, daher legt Docker ohne Eintrag ein anonymes node-lokales Volume an;
+dessen Inhalt geht beim Taskersatz verloren und darf nicht für SQLite genutzt werden. In
+einer Kopie von `deploy/swarm.yaml` dafür den Eintrag `data:/data` unter `volumes:` des Dienstes,
+den Block `volumes:` auf oberster Ebene und den Placement-Constraint entfernen; dann kann
+der Dienst auf jedem Knoten laufen. Diese Variante ist nicht als Swarm-Stack getestet und
+keine Standardkonfiguration; der Standard bleibt unverändert.
+
 ```sh
-docker build -t db-manager:local .
+docker pull ghcr.io/magicalwig34653/db-manager:latest   # oder DBM_IMAGE=<Image> setzen
 docker node update --label-add dbmanager.data=true <data-node>
 docker secret create dbmanager_api_token_v1 secrets/api_token
 docker stack deploy --compose-file deploy/swarm.yaml dbmanager
