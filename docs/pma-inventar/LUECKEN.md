@@ -7,20 +7,20 @@ Die Punkte in Abschnitt A sind Vorschläge für den Lead. Grundlage: [README](RE
 
 | Nr | Befund | Beleg | Vorschlag |
 | --- | --- | --- | --- |
-| A1 | Die Teilnachweis-Tabelle am Dateiende nutzt zusammengefasste IDs (`PMA-CON-001/002/003/005/007`, `PMA-DATA-001/002/003`, `PMA-DATA-004/005/008`) und führt `PMA-DATA-010`, `PMA-SQL-001` und `PMA-SQL-004` doppelt. In der Hauptmatrix ist jede ID einmal (181 eindeutige IDs). | PARITAET.md, Abschnitt Teilnachweise (Zeilen 425 bis 430) | Teilnachweise je ID auflösen; Sammelzeilen nicht als Nachweis einer Einzel-ID verwenden. |
+| A1 | Die Teilnachweis-Tabelle am Dateiende nutzt zusammengefasste Sammel-IDs (`PMA-CON-001/002/003/005/007`, `PMA-DATA-001/002/003`, `PMA-DATA-004/005/008`), die nicht je ID aufgelöst sind. Die Tabelle führt `PMA-DATA-010`, `PMA-SQL-001` und `PMA-SQL-004` zusätzlich zur Hauptmatrix; das ist ein Teilnachweis je Zeile und kein Doppeleintrag innerhalb einer Tabelle. Die Hauptmatrix führt jede ID genau einmal (181). | PARITAET.md, Abschnitt Teilnachweise (Zeilen 425 bis 430) | Teilnachweise je ID auflösen; Sammelzeilen nicht als Nachweis einer Einzel-ID verwenden. |
 | A2 | `PMA-SQL-013` (DML-Simulation) steht im Abschnitt SQL, die Quelle liegt im Importbereich. | Bereich 08, Quelle `Controllers/Import/SimulateDmlController.php` | Zuordnung prüfen: Import oder SQL. |
 | A3 | `PMA-UX-010` bündelt Anmeldeverfahren (HTTP, Signon, Cookie, Konfiguration). Die Konfigurations-Anmeldung (`PMA-NEU-SEC-001`) fehlt als eigene Zeile. | Bereich 02 | Eigene Zeile oder Entscheidung dokumentieren. |
 | A4 | Sicherheitsfunktionen ohne eigene Zeile: CSRF-Token-Prüfung, IP-Regeln, Anmeldeprotokoll, Referer-Schutz, Ausgabe-Sanitisierung, Sitzungsverwaltung, Geheimnis für Cookie-Verschlüsselung. | Bereich 02 (`PMA-NEU-SEC-002` bis `-008`) | Als Sicherheitsanforderungen aufnehmen (eigene Zeilen oder PROD-Ergänzung). |
 | A5 | Engine-Detailseiten und Mehrquellen-Replikation fehlen in den Zeilen `PMA-ADMIN-008` und `PMA-ADMIN-011`. | Bereich 04 (`PMA-NEU-ADMIN-001`, `-007`) | Ergänzen oder den Zeilen zuordnen. |
 | A6 | Serverstatus-Details fehlen: Abfragestatistik, Log-Ansichten, Abfrageanalyse im Monitor, Systemressourcen des PHP-Hosts, FLUSH-Aktionen. | Bereich 03 | Ergänzen; Systemressourcen als Entscheidung (Host statt Datenbankserver). |
-| A7 | Matrix-Vollständigkeitsgrenze 5 nennt phpinfo, Git-Revision, Versionsprüfung und Fehlerbericht als offen. Alle vier Funktionen existieren im Quellcode; Die Versionsprüfung ruft Daten von einem externen Dienst ab; der Fehlerbericht sendet Daten an einen externen Dienst. | Bereich 13 (`PMA-NEU-MAINT-001` bis `-004`) | Je Funktion entscheiden; externe Verbindungen nur mit Datenschutzprüfung. |
+| A7 | Matrix-Vollständigkeitsgrenze 5 nennt phpinfo, Git-Revision, Fehlerbericht und Updatefunktionen als offen (Versionsprüfung sinngemäß). Alle diese Funktionen existieren im Quellcode; die Versionsprüfung ruft Daten von einem externen Dienst ab, der Fehlerbericht sendet Daten an einen externen Dienst. | Bereich 13 (`PMA-NEU-MAINT-001` bis `-004`) | Je Funktion entscheiden; externe Verbindungen nur mit Datenschutzprüfung. |
 | A8 | Setup und Einrichtung (Assistent, Konfigurationsdatei, Serverprofile, Konfigurationsschreiben im Browser) hat keine Matrixzeile. Die Matrix nennt nur die Grenze 2. | Bereich 18 | Entscheidung: Parität, Ersatz durch Produktkonfiguration oder Ausschluss (ADR). |
 | A9 | Die Mehrtabellenabfrage (Multi-Table-Query) fehlt; die Matrix kennt nur Beispiel-Abfragen (`PMA-REL-010`). | Bereich 14 (`PMA-NEU-REL-003`) | Ergänzen. |
 | A10 | Zwei Rechteseiten (Datenbank- und Tabellenebene) sind im Dienstregister eingetragen, aber nicht geroutet. | Bereich 05 (`PMA-NEU-PRIV-001`, `-002`) | Prüfen, ob Funktion erreichbar ist; sonst nicht übernehmen. |
 | A11 | Quellbefund: Der Docblock von `Controllers/NormalizationController.php` nennt die Normalisierung "temporarily specific to 1NF". Der Code enthält 2NF- und 3NF-Schritte. Die Matrixzeilen `PMA-META-007` und `-008` stimmen. | Bereich 16 | Keine Matrixänderung; im Abnahmefall den Code, nicht den Docblock, als Referenz nehmen. |
 | A12 | Das Zwei-Faktor-Plugin "Simple" ist laut Quellbeschreibung nur für Tests gedacht ("For testing purposes only!"). | Bereich 02 (`PMA-NEU-SEC-010`) | Nicht als Produktfunktion führen. |
 | A13 | Die Serververzeichnis-Funktionen (Export `PMA-EXP-005`, Import `PMA-IMP-003`) sind im Quellcode durch die Schalter `SaveDir` und `UploadDir` belegt. | Bereiche 10 und 11, `libraries/config.default.php` | Keine Änderung; Matrixangaben sind korrekt markiert (W/A?). |
-| A14 | Versions- und Rechteangaben fehlen in der Matrix; Beispiel: `ALTER USER ... ACCOUNT LOCK` (`PMA-PRIV-009`) ist im Quellcode belegt, die Serverversion nicht. | Bereich 05 | Versionsmatrix nach Matrix-Grenze 3 ergänzen. |
+| A14 | Hinweis (kein Matrixmangel): Versions- und Rechteangaben stehen nicht in der Matrix; laut Leseschlüssel und Matrix-Grenze 3 sind sie für eine spätere Ergänzung vorgesehen. Beispiel: `ALTER USER ... ACCOUNT LOCK` (`PMA-PRIV-009`) ist im Quellcode belegt, die Serverversion nicht. | Bereich 05 | Versionsmatrix ergänzen, sobald die Zielversionen entschieden sind. |
 
 ## B. Neue Funde (fehlen in der Matrix oder sind nur teilweise abgedeckt)
 
@@ -94,7 +94,7 @@ Matrixbezug: "fehlt" = keine Matrixzeile; "teilweise" = Ergänzung zu der genann
 | PMA-NEU-SEC-003 | Anmeldeprotokoll | fehlt | V3 | Web/Go ja · Apple offen |
 | PMA-NEU-SEC-004 | Referer-Schutz über Weiterleitungsendpunkt | fehlt | V2 | Web/Go ja · Apple entfällt |
 | PMA-NEU-SEC-005 | CSRF-Tokenprüfung bei POST | fehlt | V1 | Web/Go ja · Apple entfällt |
-| PMA-NEU-SEC-006 | Geheimnis für Sitzungs- und Cookie-Verschlüsselung | fehlt | V1 | Web/Go ja · Apple offen |
+| PMA-NEU-SEC-006 | Geheimnis für Sitzungs- und Cookie-Verschlüsselung | teilweise: PROD-004 | V1 | Web/Go ja · Apple offen |
 | PMA-NEU-SEC-007 | Sitzungsverwaltung | fehlt | V1 | Web/Go ja · Apple offen |
 | PMA-NEU-SEC-008 | Ausgabe-Sanitisierung | fehlt | V1 | Web/Go ja · Apple ja |
 | PMA-NEU-SEC-009 | FIDO U2F als Hardware-Faktor (Key) | teilweise: PMA-UX-009 | V4 | Web/Go offen · Apple offen |
@@ -152,6 +152,22 @@ Matrixbezug: "fehlt" = keine Matrixzeile; "teilweise" = Ergänzung zu der genann
 ## C. Nicht eigenständig geführte Dateien
 
 Diese Dateien sind keine eigenständigen Produktfunktionen oder wurden nicht namentlich genannt.
+
+Hilfsklassen aus `libraries/classes/`, die keine eigene Produktfunktion sind (nur, soweit im Inventar nicht genannt):
+
+- `FlashMessages.php`: Meldungsanzeige; Oberflächenhilfe, keine eigene Funktion.
+- `SqlQueryForm.php`: Funktionen für das SQL-Abfrageformular; Oberflächenteil von `PMA-SQL-001`.
+- `Mime.php`: MIME-Typ-Erkennung für Downloads; Hilfsfunktion zu `PMA-DATA-009` und `PMA-TRANS-003`.
+- `Types.php`: Definition der SQL-Datentypen; Grundlage der Spaltenauswahl (`PMA-DDL-001`), keine eigene Funktion.
+- `Utils/HttpRequest.php`: HTTP-Anfragen-Hilfsklasse; keine eigene Funktion. Der Versionsabruf (`PMA-NEU-MAINT-003`) ist dort nicht im Detail geprüft.
+- `Utils/SessionCache.php`: Sitzungs-Zwischenspeicher; technisch.
+- `Image/ImageWrapper.php`: Bildhilfsklasse für die Bildausgabe; Teil von `PMA-TRANS-002` und `PMA-DATA-014`.
+- `SysInfo/*`: Systemwerte des PHP-Hosts; geführt unter `PMA-NEU-ADMIN-004`.
+
+Klassenebene ohne Einzelnennung (bewusst akzeptiert, siehe README, Abdeckung):
+
+- Navigationsbaum-Knoten (`Navigation/Nodes/*`), Engine-Klassen außer InnoDB und MyISAM, GIS-Geometrieklassen außer Punkt- und Polygon-Verarbeitung, Konfigurationsformulare (`Config/Forms/*`): nur als Gruppe erfasst.
+- Konfigurationsdirektiven (z. B. `AllowArbitraryServer`, `LoginCookieValidity`, `MaxRows`, `ThemeDefault`): nicht einzeln geführt; Teil der Matrix-Grenze 2.
 
 - **Basis- und Hilfsklassen** (`AbstractController` in den Controller-Verzeichnissen): keine eigene Funktion.
 - **Entwicklungswerkzeuge** `libraries/classes/Command/` (CacheWarmupCommand, FixPoTwigCommand, SetVersionCommand, TwigLintCommand, WriteGitRevisionCommand): keine Produktfunktion.

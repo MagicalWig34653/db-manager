@@ -17,8 +17,10 @@ Umsetzungsvorschlag: [FEATURE-PLAN.md](FEATURE-PLAN.md). Lücken der Matrix: [LU
 
 ## Methodik
 
-1. **Gliederung über Routen:** `libraries/routes.php` nennt alle HTTP-Einstiegspunkte. Jede dort
-   referenzierte Controller-Datei ist ein Prüfpunkt.
+1. **Gliederung über Routen:** `libraries/routes.php` nennt alle HTTP-Einstiegspunkte. Jeder dort
+   referenzierte Controller ist ein Prüfpunkt. Die Routen-Zählung prüft, ob der Klassenname mit Namespace-Pfad
+   als Dateipfad unter `libraries/classes/` (z. B. `Controllers/Table/ChangeController.php`) im Inventartext
+   genannt ist. Sie belegt die Nennung, nicht die beschriebene Funktion.
 2. **Controller-Digest:** Alle Dateien unter `libraries/classes/Controllers/` mit Zeilenzahl, Docblock und
    erkannten SQL-Verben (Hilfsskript, nur Lesen).
 3. **Plugin-Familien:** Export, Import, Schema, Auth, TwoFactor, Transformations, jeweils per Dateiliste.
@@ -28,8 +30,10 @@ Umsetzungsvorschlag: [FEATURE-PLAN.md](FEATURE-PLAN.md). Lücken der Matrix: [LU
 5. **Abgleich mit der Matrix:** Jede Matrixzeile erhält mindestens eine Inventarzeile. Neue Funde erhalten
    `PMA-NEU-<Bereich>-<n>`. Matrix-IDs bleiben unverändert.
 6. **Maschinelle Prüfung:** Jeder Quellverweis wurde gegen den Checkout geprüft (Datei vorhanden, Muster
-   gefunden); die Zeilennummer ist der erste Treffer des Musters. Die Routen-Abdeckung wurde per Dateipfad
-   geprüft. Die Matrixabdeckung wurde per ID geprüft.
+   gefunden); die Zeilennummer ist der erste Treffer des Musters. Ein Treffer belegt eine Deklaration oder
+   Anweisung, nicht automatisch die beschriebene Funktion; deshalb markiert `UNSICHER` alle Aussagen, die
+   darüber hinaus nicht am Quellcode belegt sind. Die Routen-Abdeckung wird über den Dateipfad (siehe 1)
+   geprüft, die Matrixabdeckung über die ID.
 
 ## Abdeckung
 
@@ -59,7 +63,7 @@ Der Abgleich der Plugin-Familien ergibt (Dateien mit Namen im Inventar genannt, 
 
 - **Matrix:** 181 Zeilen; alle IDs sind im Inventar referenziert (Matrix-Deckung 181 von 181).
 - **Neue Funde:** 119 Zeilen `PMA-NEU-*`. Vorschlag-Priorität: V1 10, V2 19, V3 26, V4 64.
-- **Einordnung der neuen Funde:** 83 ergänzen eine bestehende Matrixzeile (Teilweise), 27 sind neue Vorschläge, 9 benötigen eine Produkt- oder Sicherheitsentscheidung, bevor sie übernommen werden.
+- **Einordnung der neuen Funde:** 83 ergänzen eine bestehende Matrixzeile (Teilweise), 26 sind neue Vorschläge (Vorschlag neu), 1 ist aus den Projektregeln verpflichtend (Pflicht), 9 benötigen eine Produkt- oder Sicherheitsentscheidung, bevor sie übernommen werden.
 - **Eignung für die Apple-App:** 10 Funktionen sind an PHP-Laufzeit, Webserver oder Browser gebunden (Apple entfällt); 64 sind für Apple offen.
 - **Quellverweise:** 518 Permalinks auf den Tag-Commit (439 unterschiedliche Stellen).
 - **Aufwand:** Vergeben sind S, M und L (Schätzung nach Quellumfang, nicht Projektaufwand). XL wurde nicht vergeben; große Funktionsgruppen sind über mehrere Zeilen zerlegt.
