@@ -76,3 +76,14 @@ Die exklusiv übertragenen ROOT-STATUS-/Planänderungen zum neuen Zeitfenster wu
 separat als reine Dokumentation `4044341526e9cd1f0cc2484916b4922eb0ce4958`
 veröffentlicht. Lead koordiniert Reviews und Integration; Agents übernehmen
 Umsetzung, Dokumentation, Prüfungen und freigegebene Integrationsschritte.
+
+## Öffentlicher Kandidat und laufende CI
+
+Produktcommit `77eccb7add990ad65fc6149103c548a40e9b7f5f` ist öffentlich und für
+unabhängiges Review eingefroren. Keine weiteren Produktänderungen ohne Finding.
+Exakt daran gestartet: Struktur39901687640, Engine39901687425,
+Backend39901687412, Tabellen39901687408, Mutationen39901687543,
+Insert39901687391, Web39901687396 und Docs39901687478. Bei diesem reinen
+Nachweischeckpoint noch aktiv/queued, nicht als bestanden behauptet.
+Nächster Schritt: unabhängiger Review und CI-Ergebnisse; erst danach dürfen
+Integration und 0.5-Vertragsfreeze durch freigegebene Agents erfolgen.
