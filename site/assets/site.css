@@ -15,7 +15,7 @@ p{max-width:76ch}
 .header-inner{max-width:1440px;margin:auto;padding:20px 4%;display:flex;align-items:center;gap:36px;justify-content:space-between}
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-weight:750;font-size:21px;color:var(--ink);line-height:1.3}
 .brand-note{display:block;font-size:9px;letter-spacing:.13em;font-weight:650;color:var(--muted);margin-top:4px}
-.header nav{display:flex;gap:25px}
+.header nav{display:flex;flex-wrap:wrap;gap:25px}
 .header nav a{font-size:14px;text-decoration:none;color:var(--muted);font-weight:650}
 .header nav a[aria-current]{color:var(--green);text-decoration:underline}
 .source-top{font-size:14px;font-weight:650}

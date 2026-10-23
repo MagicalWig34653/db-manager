@@ -35,6 +35,18 @@ try {
   page.on('request', request => { if (new URL(request.url()).origin !== base) foreign.push(request.url()); });
   await mkdir('test-results', { recursive: true });
   await page.setViewportSize({ width: 320, height: 960 });
+  await page.goto(`${base}/db-manager/`);
+  const spacedNavigation = await page.evaluate(() => {
+    const sheet = [...document.styleSheets].find(sheet => sheet.href?.endsWith('site.css'));
+    const index = sheet.insertRule('.header nav { letter-spacing: 0.12em; }', sheet.cssRules.length);
+    try {
+      return { viewport: innerWidth, document: document.documentElement.scrollWidth };
+    } finally {
+      sheet.deleteRule(index);
+    }
+  });
+  console.log(`320px spaced navigation: ${JSON.stringify(spacedNavigation)}`);
+  expect(spacedNavigation.document, 'Navigation must reflow with wider text metrics').toBeLessThanOrEqual(spacedNavigation.viewport + 1);
   for (const destination of ['docs/PARITAET/', 'docs/STATUS/', 'docs/ARBEITSPLAN/', 'docs/security/VAULT-FORMAT-V1/']) {
     const response = await page.goto(`${base}/db-manager/${destination}`);
     expect(response.status()).toBe(200);
@@ -91,7 +103,7 @@ try {
   expect(violations).toEqual([]);
   expect(errors).toEqual([]);
   expect(foreign).toEqual([]);
-  console.log('18 responsive page checks and four 320px long-document regressions; WCAG A/AA, keyboard, search/XSS, CSP, storage and zero external requests passed');
+  console.log('18 responsive page checks, four 320px long-document regressions and wider navigation text; WCAG A/AA, keyboard, search/XSS, CSP, storage and zero external requests passed');
 } finally {
   await browser.close();
   await new Promise(resolve => server.close(resolve));
