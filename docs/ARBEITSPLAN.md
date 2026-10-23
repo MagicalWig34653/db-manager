@@ -1,146 +1,115 @@
 # Arbeitsplan
 
-Stand: 23.10.2026. Vom Nutzer ausdrücklich verlängert bis vollständig umgesetzt oder
-heute 23.10.2026 10:00 Europe/Berlin (=08:00 UTC). Lead koordiniert Reviews und Integration;
-Agents übernehmen Umsetzung, Dokumentation, Prüfungen und freigegebene Integrationsschritte. Die beiden zentralen Hauptrepo-
-Status-/Planungsdateien sind nach abgeschlossenem F4b-Integrationscheckpoint
-wieder exklusiv Backend & Platform übertragen.
-Tatsächliche Ergebnisse und feste Vertragspins: [STATUS](STATUS.md).
+Stand: 23.10.2026. Autonom bis vollständig umgesetzt oder heute **10:00
+Europe/Berlin (08:00 UTC)**. Root koordiniert ausschließlich. Agents übernehmen
+Umsetzung, Dokumentation, Prüfungen und konkret freigegebene Integrationsschritte.
+Tatsächliche veröffentlichte Ergebnisse, Vertragspins und CI: [STATUS](STATUS.md).
 
-## Aktive Pakete und Dateibesitz
+## Aktuelle Nutzerprioritäten
 
-| ID / Rolle | Repo / Branch / Worktree | Ziel und Abnahme |
+1. Swift-App für TestFlight vorbereiten, Bundle-ID unter `de.linolaske`, echtes
+   Icon mit Icon Composer. Bundle-ID `de.linolaske.dbmanager` ist ausdrücklich
+   registriert; Nutzer hat ASC-Eintrag „DB Manager“ erstellt und wurde benachrichtigt.
+   Signierte lokale iPad-/Mac-Exporte und unabhängiger Review59c7004 ohne Findings
+   liegen vor. Die fehlgeschlagene exakte Apple-CI39906842616 gezielt korrigieren
+   und offene Betreiber-/Distributionsangaben abschließen; kein Upload ohne eigenen Auftrag.
+2. GitHub-Pages-Site mit Landingpage, gerenderter Doku, Roadmap und echten
+   Screenshots bauen. Inhalt aus kanonischen Quellen, tatsächliche Features/Grenzen
+   zeigen. Unabhängige Abnahme vor Veröffentlichung; keine erfundenen Termine.
+3. B4a ist unabhängig ohne Findings geprüft und mit API0.6-Freeze integriert;
+   die neue kombinierte Main-CI nach Veröffentlichung kontrollieren.
+   F5-Darstellungsbefund gezielt korrigieren und unabhängig nachprüfen.
+   Anschließend den neuen akzeptierten Webstand einschließlich F6 als gesondertes
+   Root-Webpaket reproduzierbar einbetten und Compose/Swarm erneut prüfen.
+
+Die Anforderungen des vollständigen Projekts bleiben bestehen. Priorisierung ist
+keine Reduktion des Endziels oder Behauptung vollständiger Parität.
+
+## Laufende Pakete und Dateibesitz
+
+| Paket / Rolle | Repo, Branch / Worktree | Auftrag und Abnahme |
 | --- | --- | --- |
-| F4b / Frontend & UX | Hauptrepo / feat/row-web-runtime / .worktrees/row-web-runtime, Basis4044341 | F4-Quelle3a4a3fd nach unabhängigem Review01933d5 im Web-main bf75748 integriert. Jetzt separate reproduzierbare Rootasset-Einbettung; Besitz Root-Webassets/Manifest/Lock, Build-/Runtime-/Deploytests/enge CI, README/Einrichtung/Betrieb/Webbuild/Lizenzen/Handoff. Kein DB/Core/HTTP/GoMod/API/STATUS/Plan. Produkt3770c4e plus Handoff46e4bf1 und unabhängiger Review533348a ohne Findings angenommen. Zwei bytegleiche öffentliche Builds, Embeddedbrowser9/9, Compose-/isolierte-Swarm-CRUD/409/Persistenz und sauberer öffentlicher Go-/Imagecheckout ohne Node/npm/Siblings unabhängig grün; alle sieben Produkt-CIs success. Als ffcf519/2ad78b2 integriert; kombinierte Go-Race/Vet-/Manifest-/9Python-/Vertrags-/Docschecks bestanden. Neue Main-CIs jetzt kontrollieren. |
-| S2a / Apple & Security | Apple / feat/vault-core / .worktrees/vault-core, Basis7cbeb38 | Eigenständiger Core im neuen Packages/DBManagerVault, eigene Tests/Fixtures/Originaltexte/CI/Skripte, ADR-A003/Sicherheitsdokumente/Handoff. S1-Format exakt, Actor-Locksession, verwaltetes privates Root mit festen Zufallsnamen und sicheren Dateideskriptoren, flock/CAS/temp0600/fsync/rename/dirfsync. Unabhängiger Anchor reserviert lebenslange Root-AEAD-Nutzung dauerhaft vor Verschlüsselung, bestätigt Hash/Generation erst nach dauerhafter Datei; Pending nur bekannte alte/neue Zustände. Fehlender/zurückrollbarer importierter Anchor erlaubt keine schreibende Produktsession. Nur Testanker in Testtarget, kein stiller InMemory-Produktfallback. Recovery darf mit einem überlebenden alten Faktor in neuen Tresor mit beiden neuen rückgelesenen Faktoren migrieren; Original erhalten. Keine App-/Xcode-/Rootpackage-/A2-/zentralen Statusänderungen. Unabhängige Dateisystem-/Fehler-/Concurrency-/Bounds-/Interop-QA vor Integration. |
-| B3a / abgenommen | Hauptrepo / release/b3a / .worktrees/schema-release | B3a-01 unabhängig geschlossen, Fix7c66bb9 alle acht CIs success, Review570f5a. Feature-/Fix-/Review-Ancestry erhalten integriert als fddc574/ac9542d. API0.5 nach ausdrücklicher Freigabe im Vertragsindex eingefroren; nur lesende Strukturmetadaten. Releasegesamtchecks/MainCI als eigenes Gate dokumentieren. |
-| B4a / Backend & Platform | Hauptrepo / feat/table-create / .worktrees/table-create, Basis8aab52b | Prüfkandidat40defdc mit API0.6 eingefroren. Feste vier Typen, konstante Defaults, PK/Nullable; neue Tabelle ohne bestehende Änderungen. Ack/Commit und Strukturbeobachtung getrennt, unknown ohne Retry/Drop/Marker. Komplette lokale Race/Vet-/Vier-Treiber-/TLS-/Lock-/Rechte-/Commit-/HTTP-/Vertrags-/Metaschemafälle grün. Neun exakte CIs laut STATUS gestartet; unabhängiger Review und separater0.6-Freeze vor Clientbindung. Besitz neue Core/DB/HTTPdateien, enge Route, eigener Vertrag/Tests/CI/Handoff, keine Main/Web/Docker/GoMod/Vaultdateien. |
+| A-TF1 / Apple Release QA | Apple, Kandidat `b702051`, Handoff `a350f75`, vorhandener Reviewbranch `review/atf1` | Review59c7004 hat Source und tatsächliche IPA/PKG-Artefakte ohne bestätigte Findings geprüft. Exakte Apple-CI39906842616 ist inzwischen bei CompileAssetCatalogVariant/AppIcon.icon fehlgeschlagen; Ursache und enger Fix durch zuständigen Apple-Agent, danach unabhängige Nachprüfung/neue exakte CI. Keine Integration oder Uploadfreigabe aus lokalem Export ableiten. |
+| W1 / Site Engineering | Root, `feat/pages-site`, `.worktrees/pages-site`, Basis `8aab52b` | Besitz ausschließlich neues site/, neuer Pagesworkflow, eigene Build-/Browser-/Link-/A11y-/Lizenzprüfungen und Handoff W1. Landing/Doku/Roadmap aus kanonischem Markdown, echte synthetische F4b-Webscreenshots mit ehrlichen Desktop-/Tablet-Bildunterschriften. Keine Go/API/Docker/Webassets/RootSTATUS-/Plan-/Appledateien. Öffentlicher Kandidat a972fb0 liegt beim unabhängigen Sitepeer; Abnahme vor Pagesaktivierung/Mainintegration/Deployment, Pages bis dahin HTTP 404. |
+| F5 / Frontend QA | Web, `feat/schema-workbench`, `.worktrees/schema-workbench`; Kandidat `87751cc`, Handoff `6d8aa5e` | Lesende Index-/Constraintansicht auf freigegebenem API0.5 prüfen: geordnete Terme/Rollen, Partial/Expression/Include/FK/Check, Unknown/Coverage, ältere-Backend-Fallbacks, Sessiongrenzen und F6-/CRUD-/CSP-/Lizenzregressionen. Echte UI-Belege SQLite/PG; MySQL/Maria nur Unit-Testdaten. Eigener Reviewbranch/-handoff, keine Autorfixes. Alle drei bisherigen exakten CIs erfolgreich. Genau QA-F5-01 niedrig offen: Darstellung leerer Constraintnamen. Autor behebt eng, unabhängige Fixnachprüfung und passende neue CI vor Annahme. |
+| B4a / integriert | Root, `feat/table-create`, `.worktrees/table-create`; Produkt `40defdc`, Handoff `464e647` | API0.6-Kandidat für ausschließlich neue Tabellen unabhängig prüfen: feste Typen/konstante Defaults/PK/Nullable, sichere Identifier/Encoder, Auth/Bounds, vier reale Treiber, Rechte-/Name-/Lock-/Abbruch-/Commit-/Beobachtungsraces. Bestätigter Abschluss und Strukturbeobachtung getrennt; kein universelles DDL-Rollback/Retry/Drop. Reviewf36463d ohne bestätigte Findings abgeschlossen, alle neun exakten Produkt-CIs erfolgreich. Nach konkreter Leadfreigabe als77c4c41/3d21e42 integriert und API0.6 eingefroren; kombinierte lokale Checks bestanden, neue neun Main-CIs nach Veröffentlichung kontrollieren. Neue Clientfunktion benötigt eigenes geprüftes Ticket. |
+| Projektgedächtnis / Dokumentation | Root, `docs/project-status-20261023`, `.worktrees/project-status` | Exklusiv docs/STATUS.md, docs/ARBEITSPLAN.md und zusätzlich docs/TEAM.md zu aktuellem Snapshot konsolidieren; historische Evidenz über Handoffs erhalten. Keine Produktdateien. Dokumentations-/Diff-/Autorprüfung, reiner Docscommit mit `[skip ci]`, Leadreview vor Integration/Push. STATUS/Plan sind nach ausdrücklichem Transfer für den begrenzten B4a-Integrationscheckpoint exklusiv beim Releasekoordinator; Docs-Agent schreibt nicht parallel. |
 
-A2 ist nach unabhängiger Kalenderfixprüfung und exakter grüner nativer
-CI39503396485 an b72e62c im Apple-main7e97aae integriert. Bestehender eigener Worktree
-Apple/feat/apple-postgres/.worktrees/apple-postgres bleibt Provenienz. NIOssl-Pin
-ist begründete eingeschränkte Abhängigkeitsentscheidung mit dokumentiertem Risiko.
-Signing, echte Geräte und OS-UI bleiben offen.
+Jeder Writer besitzt eigenen Branch/Worktree. Root weist weitere Implementierungs-,
+Review- und Releasepakete gezielt zu. Keine parallelen Writer derselben Dateien.
+Die beiden zentralen Rootdateien liegen für den laufenden B4a-Releasecheckpoint
+exklusiv beim Releasekoordinator; erneuter Transfer nur durch Root;
+Apple-/Webstatus nur durch ausdrücklich benannten Agent pflegen. Reviewkandidaten
+bleiben eingefroren, bis ein reproduzierbarer Befund an den Autor zurückgegeben wird.
 
-## Review- und Integrationsqueue
+## Review- und Integrationsgates
 
-1. F3b ist unabhängig abgenommen und im Hauptrepo integriert. Neue kombinierte
-   Haupt-CIs nach Veröffentlichung kontrollieren; lokale Integrationschecks bestanden.
-2. A2 ist integriert, ADR-A002 und zentrale Apple-Dokumente aktualisiert; lokale
-   Integrationsprüfung bestanden. Neue kombinierte Apple-Main-CI kontrollieren.
-3. F4 ist unabhängig angenommen und im Webrepo integriert. F4b wurde separat
-   durch Backend & Platform ohne Findings angenommen, alle sieben CIs success.
-   Produkt3770c4e/Handoff46e4bf1/Review533348a durch freigegebenen Agent als
-   ffcf519/2ad78b2 integriert; lokale Gesamtchecks bestanden, neue MainCI kontrollieren.
-   Keine B3a-/S2a-Mitnahme.
-4. S2a separat fachlich angenommen; Appleintegration durch P3. Reale Keychain-/signierte Anchorintegration und Appablauf
-   sind ein separates S2b-Gate; weder Testspeicher noch Build ist Produktpersistenz.
-5. B3a-Fix7c66bb9 ist unabhängig angenommen, alle acht exakten CIs success;
-   delegierte Integration und0.5-Freeze nach Leadfreigabe abschließen. B4a danach
-   im eigenen Branch implementieren; neue0.6-Clients erst nach separater Abnahme. Weitere Pakete
-   aus der Paritätsmatrix anschließend zuschneiden: Schemafunktionen, Import/Export,
-   Verlauf/Favoriten und sichere native Netzwerkadapter. Jede Freigabe separat.
+1. **A-TF1:** Source-/Artefaktreview59c7004 ist ohne Findings abgeschlossen,
+   exakte Apple-CI39906842616 aber fehlgeschlagen. Compiler-/Iconfehler gezielt
+   diagnostizieren, korrigieren und unabhängig nachprüfen; neue exakte grüne CI
+   vor konkreter Apple-Agentintegration samt passendem Gesamtcheck; Originalarchive erhalten.
+   Exportcompliance/Privacy/TestFlightmetadaten und Uploadauftrag separat klären.
+   Keine TestFlightverarbeitung, physische Geräte oder Runtime-Sandbox allein aus
+   Signatur/Entitlements behaupten.
+2. **W1:** öffentlichen Kandidaten a972fb0 unabhängig nachbauen und in Browsern
+   prüfen. Landingclaims gegen STATUS, Doku-/Basislinks und Screenshots/Alttexte,
+   lokale Suche, Zugänglichkeit, Originalnotices und minimale Workflowrechte
+   verifizieren. Erst danach autorisierte Agentveröffentlichung und echte Live-URL/
+   Basis-/Asset-/Suchprobe. Nutzer hat die Pages-Seite beauftragt; kein neuer Rename.
+3. **F5:** QA-F5-01 durch engen Autorfix und unabhängige Nachprüfung schließen;
+   passende exakte grüne CI bestätigen, erst danach Webmerge
+   mit Reviewprovenienz. F6 ist bereits im Web-main integriert. Das separate
+   Rootpaket F5b darf nur den endgültig freigegebenen gemeinsamen Quellpin verwenden;
+   zwei bytegleiche öffentliche Builds, Originalnotices/Manifest, echter eingebetteter
+   SQL-/Tabellen-/CRUD-/Export-/Sessionpfad und Compose-/isolierte-Swarm-Persistenz.
+4. **B4a:** Reviewf36463d und alle neun exakten Produkt-CIs sind ohne Findings/grün.
+   Nach konkreter Freigabe sind Feature/Review als77c4c41/3d21e42 integriert, API0.6
+   ausdrücklich eingefroren und die lokalen kombinierten Checks bestanden. Die neue
+   neunfache Main-CI nach Veröffentlichung kontrollieren. Der Releasekoordinator
+   besitzt die zentralen Statusdateien ausschließlich für diesen Checkpoint.
+   Erst danach neue Tabellenanlage im Client als eigenes Ticket beginnen.
+5. **Checkpoint:** vor der Zeitgrenze tatsächliche Dateien/Commits, Tests/Grenzen,
+   unintegrierte Arbeit, Prozesse/Ressourcen und nächsten Schritt pro Paket sichern.
+   Fremde Änderungen und Originalartefakte erhalten; keine pauschale Bereinigung.
 
-QA & Release p0_publication_review und qualifizierte nicht beteiligte Peers übernehmen
-unabhängige Reviews. Bei vier Laufzeitplätzen einschließlich Lead wechseln Worker und
-Reviewer geordnet. Nachträglich erhöhte lokale Konfiguration wird hier nicht neu geladen;
-kein Neustart oder Umgehungsprozess. Kein paralleles Schreiben derselben Dateien.
-Hauptrepo-STATUS/ARBEITSPLAN liegen für dieses Fenster exklusiv bei Backend & Platform,
-Apple-STATUS/ARBEITSPLAN exklusiv bei Architecture & Security. Übrige zentrale Dateien
-benötigen eine gezielte Zuweisung.
+Unabhängige Reviews dürfen qualifizierte Peers übernehmen; kein Autor nimmt sein
+eigenes Paket allein ab. Bei bestätigten Findings gehen Repro/Schweregrad an den
+Eigentümer, Fix und Nachprüfung bleiben getrennt. Grüne Branch-CI ersetzt weder
+Review noch die passenden kombinierten Integrationschecks.
 
-## Verbindliche Grenzen und Übergabe
+## Zurückgestellte oder separat offene Arbeit
 
-Eigener Code AGPL-3.0-only, Originaltexte/Abhängigkeitsinventare erhalten. Deutsch für
-UI/Dokumentation, Englisch für Code/Tests/Kommentare/technische Bezeichner.
-Keine echten Secrets, privaten Pfade oder produktiven SQL-Verläufe veröffentlichen;
-vorhandene Git-Autoridentität erhalten. Gemeinsame Verträge vor Clientbindung abnehmen.
-Compose und Swarm verpflichtend; SQLite nach ADR0004 eingeschränkt. Native MySQLNIO-
-Adapter wegen realem TLS-Downgrade gesperrt. Kein HA-/Powerloss-/Exactly-onceversprechen.
+- G-S2b: damaliger DP-Keychain-Gateversuch mit ad-hoc-Host `-34018`, keine Items.
+  Atomarer CAS, Lock-/Unsicherheitsfälle und Vertrauensgrenze auf tatsächlich
+  geeignetem signierten/provisionierten Host separat belegen. Kein produktiver
+  InMemory-/Dateifallback und keine App-Geheimnisspeicherung aus den bisherigen Tests.
+- C-Export1/A3: gemeinsamen Root-/Web-/Apple-Exportvertrag mit Schema/Fixtures/
+  Provenienz unabhängig freigeben, anschließend nativen Ergebnisexport als eigenes
+  Paket. Bisher nur Vorschlag im Gatebranch, zugunsten Pages/TestFlight zurückgestellt.
+- Weitere Schemafunktionen, Import/Export, gespeicherte Abfragen, sichere native
+  Netzwerkadapter, Passkeys, CloudKit-Sync, Teams/Rechte/Jobs und übrige
+  [Paritätsmatrix](PARITAET.md) schrittweise mit eigenen Abnahmekriterien zuschneiden.
+  Vollständige Parität bleibt offen, keine pauschalen Ausnahmen durch Priorisierung.
 
-Nur eigene kurzlebige Testcontainer/-volumes/-netze/-simulatoren verwenden und bereinigen;
-keine fremden Ressourcen, Host-Swarm oder Systemrechte verändern. Keine produktiven
-Migrationen/Dienste. Laufende Jobs vor erneutem Start prüfen. Nicht ausgeführte Prüfungen
-explizit offenlassen. Vor Zeitgrenze alle Worker checkpointen: Dateien/Branch/Commits,
-Tests/Befunde, unintegrierte Arbeit, Jobs/Ressourcen und nächster konkreter Schritt im
-Handoff; zentrale Gesamtübergabe durch Lead. Alte saubere Worktrees bleiben Provenienz.
+## Verbindliche Betriebs- und Arbeitsgrenzen
 
-Abgeschlossene Pakete samt historischen Befunden stehen in STATUS und den verlinkten
-Handoffs; Planung und Produkt-/Geräte-/Cloud-/Tresorfreigaben bleiben getrennt.
+Laufzeit jetzt **31 gleichzeitige Plätze einschließlich Root**; bis zu 30 Worker
+möglich, keine festen Anbieter-/Modellquoten. Fachrollen und aktive Slots bleiben
+getrennt. Anforderungen/Entscheidungen/Pläne und tatsächliche Prüfungen klar trennen.
+AGPL-3.0-only für eigenen Code; Drittanbietertexte und Inventare erhalten. Deutsch
+für UI/Dokumentation, Englisch für Code/Tests/Kommentare/technische Bezeichner.
+Bestehende Git-Autoridentität erhalten, keine Secrets/privaten Pfade/produktiven
+SQLdaten oder vollständigen Chats veröffentlichen.
 
+Compose und Swarm verbindlich. SQLite gemäß ADR0004 nur exklusive lokale
+SingleReplica-Datei mit einer aktiven Verbindung und DELETE-Journal; kein
+WAL/NFS/fremder SQLiteprozess/HA-/Powerlossversprechen. Native MySQLNIO-Adapter
+wegen belegtem TLS-Downgrade gesperrt. Abbruch kein garantiertes Rollback,
+unbekannter Commit kein automatischer Retry, keine Exactly-once-Zusage.
 
-## Fortsetzungscheckpoint 23.10.2026
-
-B3a ist als 77eccb7 öffentlich eingefroren, Vertragshash und acht CIjobs stehen in
-STATUS. Lokale endliche Prüfungen abgeschlossen, keine eigenen Ressourcen/Jobs offen;
-acht exakte CIs erfolgreich; jetzt unabhängiger P3-Review vor Integration/0.5-Clientbindung. Gesamtzeitgrenze
-bleibt heute 23.10.2026 10:00 Europe/Berlin. F4 ist unabhängig angenommen und im Web-main
-bf75748 integriert; F4b bleibt separates Rootpaket. Apple-main3c92f97 ergänzt nur A2-Review
-und Status/Plan, Produkt7e97aae und grüne CI39505094304 unverändert. S2a separat ohne
-Produktanker-/QAfreigabe. Keine weitere Funktion nach B3a ohne begrenzten Auftrag.
-
-Für genau den freigegebenen F4b-Integrationscheckpoint übernimmt Frontend & UX
-vorübergehend exklusiv RootSTATUS/ARBEITSPLAN. Backend & Platform bleibt danach idle
-und schreibt diese Dateien bis erneuter gezielter Zuweisung nicht parallel.
-Review- und Produktprovenienz bleiben erhalten; alle übrigen Besitzgrenzen unverändert.
-
-## F4b-Integrationscheckpoint
-
-F4b ist unverändert mit erhaltener Produkt-/Handoff-/Review-Ancestry integriert;
-`release/f4b` enthält ausschließlich angenommene F4b-Arbeit und diese zugewiesene
-Statuspflege. Vollständige lokale Go-Race/Vet-, Offline-Manifest-, neun Python-,
-v2/v3/v4-Vertrags- und Docschecks bestanden. Web-mainbf75748: alle drei CIs success.
-Sieben kombinierte Root-Main-CIs starten nach Veröffentlichung und werden beobachtet.
-Keine erneute Assetgenerierung, keine0.5-Freigabe, keine produktiven Garantien.
-Nächstes mögliches F5-Paket erst nach unabhängigem B3a-Review, konkretem0.5-Freeze und
-begrenztem Auftrag. Frist heute23.10.2026 10:00Berlin, anschließend sauberer Handoff.
-
-## Übergabe nach F4b-Integration
-
-Main4de72bc veröffentlicht. Dokumentation39902300560 success; Web39902300600,
-Backend39902300593, Engine39902300588, Tabellen39902300594,
-Update/Delete39902300556 und Insert39902300614 noch aktiv. Lead beobachtet die
-unveränderten kombinierten Main-CIs weiter; keine lokalen Workerjobs offen.
-
-B3a bleibt ausdrücklich blockiert: unabhängiger P3-Befund an echtem MySQL8.4,
-gleichnamiger UNIQUE-/CHECK-Constraint wird von aktueller Gruppierung kombiniert.
-P2 erstellt engen Fix und echte rote/grüne Regression; unabhängige Nachprüfung und
-gezielte0.5-Freigabe erforderlich. Keine Integration, kein Clientverbrauch und kein
-F5 vor diesem Gate. F4b-Produktbytes bleiben unverändert. Frontend & UX gibt den
-aktiven Slot frei; RootSTATUS/Plan für diesen abgeschlossenen Checkpoint zuletzt
-exklusiv durch diesen Agent gepflegt. Neue Dateizuweisung durch Lead abwarten.
-
-## B3a-Fixcheckpoint
-
-B3a-01 am Erstkandidaten unabhängig bestätigt; eingefrorener Fix7c66bb9 trennt
-Constrainttyp/-name und die Katalogjoins. Rote und grüne echte MySQL-/MariaDB-
-Namespaceproben sowie PostgreSQL-/SQLite-/HTTP-/Sandbox-/Race-/Vet-/Vertragschecks
-belegt. Acht neue exakte Fix-CIs laut STATUS laufen; P3 prüft eng unabhängig nach.
-API0.5 bleibt bis Nachreview/Fix-CI/Freeze gesperrt. B4a-Scopevorschlag darf warten,
-keine B4a-Implementierung begonnen. RootSTATUS/Plan wieder exklusiv Backend & Platform;
-P1 besitzt nur eigene WebSTATUS/Plan und schreibt diese Rootdateien nicht parallel.
-
-## Abgeschlossener B3a-Releasecheckpoint
-
-B3a-01 ist durch Review570f5a unabhängig geschlossen und alle acht Fix-CIs an7c66bb9
-sind erfolgreich. Feature-/Fix-/Reviewprovenienz als fddc574/ac9542d integriert,
-0.5-Vertragsindex nach ausdrücklicher Freigabe eingefroren. Kombinierte Race/Vet,
-vier Vertragswächter, Webmanifest/neun Python, Docs275/0 und Diffcheck grün.
-Main publizieren und acht neue Main-CIs beobachten. Gitref-Quarantäne separat
-nachvollziehbar dokumentiert; keine gültigen Refs oder fremden Änderungen verworfen.
-B4a danach im eigenen Branch auf diesen integrierten Stand bringen und umsetzen;
-keine0.6-Clientfreigabe ohne neues unabhängiges Review und exakte CI.
-
-## Aktueller endlicher Prüf-/Nutzercheckpoint
-
-B4a40defdc ist fertig eingefroren und wartet auf unabhängigen Review sowie die neun
-exakten nativen CIs. Keine weitere Funktion ohne Auftrag. Alle acht integrierten
-B3a-Main-CIs an8aab52b success,0.5-Vertrag freigegeben; kein0.6-Verbrauch daraus.
-
-W1 neu aktiv: Hauptrepo feat/pages-site/.worktrees/pages-site ab8aab52b, nur neues
-site/ und eigener Pagesworkflow/Sitebuild/Tests/Lizenzen/Handoff. Landingpage/Doku/
-Roadmap aus kanonischen Rootdokumenten, keine erfundenen Produktclaims; unabhängige
-QA vor Veröffentlichung. Keine Go/API/Docker/Webassets/B4/RootSTATUS-/Planüberlappung.
-Neuer Nutzerauftrag TestFlight/Bundle-ID de.linolaske ist priorisiert: F5 vorübergehend
-checkpointen, anschließend Apple-Engineer im Applerepo übernehmen lassen. Backend
-schreibt keine Apple-/Signingdateien. W1 läuft getrennt weiter, Deadline unverändert.
+Nur eigene kurzlebige Fixtures/Container/Volumes/Netze/Scratchs verwenden; fremde
+Ressourcen, Host-Swarm und Systemrechte unverändert lassen. Laufende Jobs vor
+Neustarts tatsächlich prüfen, Beobachtungstimeout nicht als Prozessende behandeln.
+Nicht ausgeführte Prüfungen offenlassen. Dieser Dokumentations-Worker hat keine
+Produkt-/DB-/Browser-/Signing-/Deployjobs gestartet; nach seinem Docscommit ist der
+nächste Schritt Leadreview der beiden geänderten Dateien und konkrete Integration.

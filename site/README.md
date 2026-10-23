@@ -13,6 +13,7 @@ für Browser-/Accessibilitytests erforderlich. Kein Einfluss auf Go-Build oder R
 ```sh
 python3.13 -m venv site/.venv
 site/.venv/bin/python -m pip install --only-binary=:all: --require-hashes -r site/requirements.lock
+site/.venv/bin/python site/tests/build_sources.py
 site/.venv/bin/python site/build.py
 site/.venv/bin/python site/check.py
 npm ci --prefix site --ignore-scripts --no-audit --no-fund
@@ -44,7 +45,12 @@ angepasst; Code-/JSON-/andere Quelldateien verweisen auf den exakten Gitcommit.
 Kanonische Dokumente erhalten einen Quellenlink. Kein zweiter eingecheckter
 Dokumentationsbestand. Die Roadmap zieht ihre Ergebnistabelle aus `docs/STATUS.md`.
 Arbeitsplan und Paritätsmatrix bleiben die maßgeblichen Detailquellen; keine
-erfundenen Termine, Prozentstände oder globale Produktfreigaben.
+erfundenen Termine, Prozentstände oder globale Produktfreigaben. Die Ergebnistabelle
+wird anhand ihrer eindeutigen kanonischen Spalten Paket/Ergebnis/Nachweis gelesen,
+nicht anhand einer festen Abschnittsüberschrift. Fehlende oder mehrdeutige Tabellen
+brechen den Build verständlich ab. Regressionen prüfen die echten historischen
+Statusquellen an zwei unveränderlichen Gitcommits sowie aktuellen STATUS/Plan/TEAM.
+Dafür muss der Checkout deren öffentliche Gitgeschichte enthalten (CI: fetch-depth0).
 
 Die Suche lädt nur den eigenen statischen JSONindex und schreibt Treffer mit
 DOM-Textknoten. MkDocs-Suchruntime/Lunr/Worker werden nicht ausgeliefert.

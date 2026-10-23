@@ -20,6 +20,18 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def accepted_results(status):
+    """Read the unique canonical outcome table, independent of section wording."""
+    header = re.compile(r'^\|[ \t]*Paket[ \t]*\|[ \t]*Tatsächliches Ergebnis[ \t]*\|[ \t]*Nachweis[ \t]*\|[ \t]*$', re.M)
+    sections = re.finditer(r'^##[ \t]+[^\n]+\n(.*?)(?=^##[ \t]+|\Z)', status, re.M | re.S)
+    candidates = [section.group(1).strip() for section in sections if header.search(section.group(1))]
+    if not candidates:
+        raise ValueError('Canonical status has no accepted-results table (Paket / Tatsächliches Ergebnis / Nachweis)')
+    if len(candidates) != 1:
+        raise ValueError('Canonical status has ambiguous accepted-results tables')
+    return candidates[0]
+
+
 def main():
     commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
     shutil.rmtree(STAGE, ignore_errors=True)
@@ -67,10 +79,7 @@ def main():
     for source in (SITE / 'pages').glob('*.md.in'):
         shutil.copy2(source, STAGE / source.name.removesuffix('.in'))
     status = (ROOT / 'docs/STATUS.md').read_text()
-    accepted_match = re.search(r'^## Abgenommen und integriert\n(.*?)(?=^## |\Z)', status, re.M | re.S)
-    if accepted_match is None:
-        raise ValueError('Canonical status has no accepted-results section')
-    accepted = accepted_match.group(1).strip()
+    accepted = accepted_results(status)
     roadmap = '''# Roadmap mit belegtem Stand
 
 Diese Übersicht zeigt abgenommene Ergebnisse aus dem aktuellen kanonischen Status.
