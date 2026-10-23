@@ -127,3 +127,13 @@ PostgreSQL18.6 unter Race einschließlich aller Namespacepaare grün; SQLite-Nor
 Sonder-/Bounds-/Sandboxfälle im gezielten Racelauf grün. Keine unveränderten
 Deployment-/Webprüfungen wiederholt. Native CI und unabhängiger enger Nachreview
 werden am neuen Fixcommit gesondert nachgewiesen, keine Selbstfreigabe.
+
+Fixkandidat `7c66bb908a635e1de8e212a2003e3e0826de4210` ist öffentlich und erneut
+für engen Nachreview eingefroren. SHA256 des Vertrags weiterhin
+`b5225339511d80fe4f52f09118fdad2060d8a92f31d44b73dd89fe9f76178c95`.
+Neue exakte CIs: Struktur39902565413, Engine39902565466,
+Backend39902565392, Tabellen39902565315, Mutationen39902565373,
+Insert39902565367, Web39902565363, Docs39902565357. Beim Übergabecheckpoint
+queued/aktiv, keine bestandene Fix-CI behauptet. Keine eigenen lokalen Jobs oder
+B3a-Container/Volumes mehr. Nächster Schritt unabhängige Fixnachprüfung und CI;
+keine B4a-Implementierung/0.5-Clientbindung/Integration durch den Autor.
