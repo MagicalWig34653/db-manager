@@ -51,3 +51,44 @@ Zusicherung. SQLite weiterhin exklusives lokales SingleReplica-Volume gemäß AD
 Keine neue UI-Funktion und keine Änderung der freigegebenen Vertragsbytes.
 Alle bisher gestarteten eigenen Browser-/CLI-/Compose-/PG-/DinD-Jobs und privaten
 Wegwerfcredentials sind beendet/entfernt; keine fremden Container angefasst.
+
+## Öffentlicher Abschlusscheckpoint
+
+Produkt-/Testkandidat `3770c4e95ae4617a6b4858c87f1e69c963253416` ist auf
+`feat/row-web-runtime` öffentlich gepusht. Frischer öffentlicher Rootclone dieses
+Commits ohne Geschwister baute CLI und Dockerimage mit Werkzeug-PATH, auf dem Node/npm
+nachweislich fehlen. CLI: `CGO_ENABLED=0`, `GOPROXY=off`, `GOSUMDB=off`,
+`GOTOOLCHAIN=local`, bestehender Go-Modulcache. Containerbuild lädt normale gepinnte
+Go-Module; kein behaupteter netzwerkfreier Image-Neubau. Fertiges Runtimeimage ohne
+Node/npm; originale Root-/Go-Lizenzen und Weblock/Manifest im Image verifiziert.
+Eigenes Cleanimage und temporärer Checkout vollständig entfernt.
+
+Zusätzlich `go test -race ./...` und `go vet ./...` vollständig bestanden.
+Dokumentation259/0; Diffprüfung für eigene Quellen/Doku/Tests grün. Einzige bewusste
+Ausnahme: originale generierte Datei `index-Bk7Yt41f.js`, Zeile1 enthält bereits im
+Quellbuild trailing whitespace. Wie beim vorherigen F3b-Pin bleiben Originalbytes
+unverändert; zwei öffentliche Neubauten und Manifest beweisen dieselben Bytes.
+Keine Handänderung an Minifikat, Lizenztexten oder freigegebener Webquelle.
+
+Öffentliche CI an exakt `3770c4e` bei Übergabe:
+
+- [Dokumentation39901535040](https://github.com/MagicalWig34653/db-manager/actions/runs/39901535040): bestanden.
+- [Web39901535086](https://github.com/MagicalWig34653/db-manager/actions/runs/39901535086): aktiv; enthält Linux-Quellreproduktion und neun echte Browserfälle.
+- [Backend/Compose/Swarm39901535009](https://github.com/MagicalWig34653/db-manager/actions/runs/39901535009): aktiv.
+- [Engine39901535020](https://github.com/MagicalWig34653/db-manager/actions/runs/39901535020): aktiv.
+- [Tabellen39901535055](https://github.com/MagicalWig34653/db-manager/actions/runs/39901535055): aktiv.
+- [Update/Delete39901535031](https://github.com/MagicalWig34653/db-manager/actions/runs/39901535031): aktiv.
+- [Insert39901535030](https://github.com/MagicalWig34653/db-manager/actions/runs/39901535030): aktiv.
+
+Web-main nach delegierter Integration: `bf75748df9eb4422b084c20784d09ce931301d37`.
+[Neue echte Webintegration39901222403](https://github.com/MagicalWig34653/db-manager-web/actions/runs/39901222403)
+und [Dokumentation39901222564](https://github.com/MagicalWig34653/db-manager-web/actions/runs/39901222564)
+bestanden; [Frontend39901222539](https://github.com/MagicalWig34653/db-manager-web/actions/runs/39901222539)
+bei Abschluss noch aktiv. Produktquelle bleibt ausschließlich freigegebenes3a4a3fd.
+
+Dieser reine Handoffnachtrag verwendet `[skip ci]`, um unveränderte Produktprüfungen
+nicht nochmals zu starten. CI-Kontrolle und unabhängige Reviewzuweisung an den Lead
+übergeben. Keine eigenen laufenden Testjobs/Container/Netze/Volumes/Images oder
+Credentials verbleiben. Hostswarm weiterhin `inactive`; vier fremde Container
+unverändert. Nächster konkreter Schritt: unabhängiger Review des Produktkandidaten
+samt Handoff und verbleibende CI-Ergebnisse prüfen, danach gezielte Rootintegration.
