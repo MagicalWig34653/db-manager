@@ -38,6 +38,20 @@ Dieser Backendstand enthält beide nachträglichen v3-Schutzkorrekturen für
 SQLite-Konfliktstrategien und PostgreSQL-Rewrite-Regeln. Neue Schreibclients pinnen
 diesen geprüften gemeinsamen Implementierungsstand oder eine nachgeprüfte Nachfolge.
 
+Additive lesende Strukturmetadaten `0.5.0`: [OpenAPI](api-v0.5.0.json),
+[Verhaltensvertrag](STRUCTURE-API.md), nach unabhängigem Review und Fixnachprüfung
+am 23.10.2026 als Clientvertrag freigegeben. Geprüfter Fixstand
+`7c66bb908a635e1de8e212a2003e3e0826de4210`, Review
+`570f5a0097afd772009b4556565f645b99835290`, SHA-256
+`b5225339511d80fe4f52f09118fdad2060d8a92f31d44b73dd89fe9f76178c95`.
+Referenzbackend `ac9542d81e6f096626c24bc1e0cb9bccb3a62a7c` enthält den
+Namespacefix und die Reviewprovenienz. Neue Clients pinnen diesen Stand oder
+eine nachgeprüfte Nachfolge; die früheren identischen0.5-Schemabytes beweisen
+keinen gefixten Backendstand. Eigene v5-Fähigkeiten/Strukturroute, konservative
+Katalog-/unknown-Angaben und ausdrückliche SQLite-CHECK-Lücke. Keine DDL,
+Mutation, atomare Schemasnapshot- oder automatische DDL-Generierungszusage.
+V1–v4 bleiben unverändert; eine Produktclientbindung benötigt eigene Prüfung.
+
 Persönliches Tresorformat `1`: [Schema](vault-v1.schema.json),
 [Byte-/Verhaltensvertrag](../docs/security/VAULT-FORMAT-V1.md),
 [synthetische Fixtures](fixtures/vault-v1/README.md). Herkunft `1a4eb3c`/`03bd3f4`,

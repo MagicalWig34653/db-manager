@@ -1,9 +1,9 @@
-# Lesende Strukturmetadaten – Vertragskandidat 0.5.0
+# Lesende Strukturmetadaten – Vertrag 0.5.0
 
 B3a ergänzt ausschließlich `GET /api/v5/capabilities` und
 `POST /api/v5/tables/structure`. Die Verträge und Routen 0.1 bis 0.4 bleiben
-unverändert. Der neue Vertrag ist vor unabhängigem Review und CI noch nicht für
-Produktclients eingefroren. Die Anfrage verwendet denselben strukturierten
+unverändert. Der Vertrag ist nach unabhängiger Fixnachprüfung und exakter grüner CI
+als0.5-Clientvertrag freigegeben; Referenzbackend und Hash stehen im Versionsindex. Die Anfrage verwendet denselben strukturierten
 Verbindungs- und Tabellenbezug wie Describe; Bearer-Authentifizierung,
 TLS-Prüfung, Zielhostfreigabe und flüchtige Zugangsdaten bleiben verbindlich.
 

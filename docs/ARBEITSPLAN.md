@@ -13,7 +13,8 @@ Tatsächliche Ergebnisse und feste Vertragspins: [STATUS](STATUS.md).
 | --- | --- | --- |
 | F4b / Frontend & UX | Hauptrepo / feat/row-web-runtime / .worktrees/row-web-runtime, Basis4044341 | F4-Quelle3a4a3fd nach unabhängigem Review01933d5 im Web-main bf75748 integriert. Jetzt separate reproduzierbare Rootasset-Einbettung; Besitz Root-Webassets/Manifest/Lock, Build-/Runtime-/Deploytests/enge CI, README/Einrichtung/Betrieb/Webbuild/Lizenzen/Handoff. Kein DB/Core/HTTP/GoMod/API/STATUS/Plan. Produkt3770c4e plus Handoff46e4bf1 und unabhängiger Review533348a ohne Findings angenommen. Zwei bytegleiche öffentliche Builds, Embeddedbrowser9/9, Compose-/isolierte-Swarm-CRUD/409/Persistenz und sauberer öffentlicher Go-/Imagecheckout ohne Node/npm/Siblings unabhängig grün; alle sieben Produkt-CIs success. Als ffcf519/2ad78b2 integriert; kombinierte Go-Race/Vet-/Manifest-/9Python-/Vertrags-/Docschecks bestanden. Neue Main-CIs jetzt kontrollieren. |
 | S2a / Apple & Security | Apple / feat/vault-core / .worktrees/vault-core, Basis7cbeb38 | Eigenständiger Core im neuen Packages/DBManagerVault, eigene Tests/Fixtures/Originaltexte/CI/Skripte, ADR-A003/Sicherheitsdokumente/Handoff. S1-Format exakt, Actor-Locksession, verwaltetes privates Root mit festen Zufallsnamen und sicheren Dateideskriptoren, flock/CAS/temp0600/fsync/rename/dirfsync. Unabhängiger Anchor reserviert lebenslange Root-AEAD-Nutzung dauerhaft vor Verschlüsselung, bestätigt Hash/Generation erst nach dauerhafter Datei; Pending nur bekannte alte/neue Zustände. Fehlender/zurückrollbarer importierter Anchor erlaubt keine schreibende Produktsession. Nur Testanker in Testtarget, kein stiller InMemory-Produktfallback. Recovery darf mit einem überlebenden alten Faktor in neuen Tresor mit beiden neuen rückgelesenen Faktoren migrieren; Original erhalten. Keine App-/Xcode-/Rootpackage-/A2-/zentralen Statusänderungen. Unabhängige Dateisystem-/Fehler-/Concurrency-/Bounds-/Interop-QA vor Integration. |
-| B3a / Backend & Platform | Hauptrepo / feat/schema-metadata / .worktrees/schema-metadata, Basis5cb604a | Öffentlicher Prüfkandidat77eccb7 eingefroren: lesende additive0.5-Strukturmetadaten, keine DDL/Ausdruckstexte; unknown/CHECK-Lücke und Bounds explizit. Code/Vertrag/Tests/Handoff fertig; volle Go-Race/Vet, SQLite+echte3TLS-DBs, Auth/Negativ-/Größen-/Authorizerfälle und Docs270/0 bestanden. Alle acht exakten CIs success; unabhängiger Architecture-/Securitypeerreview und separate0.5-Freigabe folgen. Besitz DB/neueCoreHTTP/engeRouteAuthorizer/eigeneVerträgeCIHandoff, zusätzlich exklusiv RootSTATUSPlan; kein Index/GoMod/Main/Web/Docker. |
+| B3a / abgenommen | Hauptrepo / release/b3a / .worktrees/schema-release | B3a-01 unabhängig geschlossen, Fix7c66bb9 alle acht CIs success, Review570f5a. Feature-/Fix-/Review-Ancestry erhalten integriert als fddc574/ac9542d. API0.5 nach ausdrücklicher Freigabe im Vertragsindex eingefroren; nur lesende Strukturmetadaten. Releasegesamtchecks/MainCI als eigenes Gate dokumentieren. |
+| B4a / Backend & Platform | Hauptrepo / feat/table-create / .worktrees/table-create | Freigegebene strukturierte Neuanlage einer Tabelle, additive API0.6, feste Int64/Text/Binary/Decimal-Typen und konstante typisierte Defaults/PK/Nullable. Keine bestehende Tabelle ändern, keine freien SQL-Fragmente/Identity/FK/CHECK/DDL-Batches. MySQL-Ack und separate Strukturbeobachtung trennen, fehlende Antwort outcome_unknown; keine Retry-/Drop-/Markerlogik. Neue Core/DB/HTTPdateien/enge Route/eigener Vertrag/CI/Tests/Handoff, keine Web/Main/Docker/GoMod/Vaultdateien. Bis B3a-Release nur Lektüre, danach eigener Branch auf integrierten Stand. |
 
 A2 ist nach unabhängiger Kalenderfixprüfung und exakter grüner nativer
 CI39503396485 an b72e62c im Apple-main7e97aae integriert. Bestehender eigener Worktree
@@ -34,8 +35,9 @@ Signing, echte Geräte und OS-UI bleiben offen.
    Keine B3a-/S2a-Mitnahme.
 4. S2a separat fachlich angenommen; Appleintegration durch P3. Reale Keychain-/signierte Anchorintegration und Appablauf
    sind ein separates S2b-Gate; weder Testspeicher noch Build ist Produktpersistenz.
-5. B3a-Prüfkandidat77eccb7 und exakte acht CIs unabhängig prüfen; 0.5-Vertrag erst
-   danach für eine Strukturansicht freigeben. Weitere Pakete
+5. B3a-Fix7c66bb9 ist unabhängig angenommen, alle acht exakten CIs success;
+   delegierte Integration und0.5-Freeze nach Leadfreigabe abschließen. B4a danach
+   im eigenen Branch implementieren; neue0.6-Clients erst nach separater Abnahme. Weitere Pakete
    aus der Paritätsmatrix anschließend zuschneiden: Schemafunktionen, Import/Export,
    Verlauf/Favoriten und sichere native Netzwerkadapter. Jede Freigabe separat.
 
@@ -117,3 +119,14 @@ belegt. Acht neue exakte Fix-CIs laut STATUS laufen; P3 prüft eng unabhängig n
 API0.5 bleibt bis Nachreview/Fix-CI/Freeze gesperrt. B4a-Scopevorschlag darf warten,
 keine B4a-Implementierung begonnen. RootSTATUS/Plan wieder exklusiv Backend & Platform;
 P1 besitzt nur eigene WebSTATUS/Plan und schreibt diese Rootdateien nicht parallel.
+
+## Abgeschlossener B3a-Releasecheckpoint
+
+B3a-01 ist durch Review570f5a unabhängig geschlossen und alle acht Fix-CIs an7c66bb9
+sind erfolgreich. Feature-/Fix-/Reviewprovenienz als fddc574/ac9542d integriert,
+0.5-Vertragsindex nach ausdrücklicher Freigabe eingefroren. Kombinierte Race/Vet,
+vier Vertragswächter, Webmanifest/neun Python, Docs275/0 und Diffcheck grün.
+Main publizieren und acht neue Main-CIs beobachten. Gitref-Quarantäne separat
+nachvollziehbar dokumentiert; keine gültigen Refs oder fremden Änderungen verworfen.
+B4a danach im eigenen Branch auf diesen integrierten Stand bringen und umsetzen;
+keine0.6-Clientfreigabe ohne neues unabhängiges Review und exakte CI.

@@ -137,3 +137,27 @@ Insert39902565367, Web39902565363, Docs39902565357. Beim Übergabecheckpoint
 queued/aktiv, keine bestandene Fix-CI behauptet. Keine eigenen lokalen Jobs oder
 B3a-Container/Volumes mehr. Nächster Schritt unabhängige Fixnachprüfung und CI;
 keine B4a-Implementierung/0.5-Clientbindung/Integration durch den Autor.
+
+## Freigegebene Agentintegration und0.5-Freeze
+
+23.10.2026: unabhängiger Review `570f5a0097afd772009b4556565f645b99835290`
+schließt B3a-01 nach eigenen echten Namespaceproben ohne weiteren Befund. Alle
+acht exakten Fix-CIs an7c66bb9 success. Lead erteilte ausdrücklich Integration und
+engen Vertragsindexbesitz; Backend & Platform integrierte im eigenen Releaseworktree
+`release/b3a` ab veröffentlichtem Mainb167e87 die vollständige Featureprovenienz
+bis868df6f als `fddc574cdec6c39764e3e9fa68f0040d27323f49` und Review als
+`ac9542d81e6f096626c24bc1e0cb9bccb3a62a7c`. Kein Cherry-Pickverlust der WIP-/
+Produkt-/Fix-/Handoff-/Review-Ancestry. API0.5 im Index mit unverändertem Hash
+freigegeben; Referenzbackendac9542d enthält den erforderlichen Namespacefix.
+
+Kombinierte Releaseprüfung tatsächlich bestanden: `go test -race -count=1 ./...`,
+`go vet ./...`, alle vier Tabellen-/Mutations-/Insert-/Strukturvertragswächter,
+Originalwebmanifest, neun Python-Buildprüfungen, Docs275/0 und Diffcheck. Keine
+unveränderten Live-/Deployproben zusätzlich wiederholt: exakte Fix-CIs und
+unabhängiger Review decken die eigenen Fixtures ab; neuer Mainstand erhält seine
+acht kombinierten CIs nach Veröffentlichung. Keine neuen lokalen Ressourcen/Jobs.
+
+Zuvor notwendige lokale Gitreparatur ist separat in
+[Git-Refnachweis](Git-Refs-2026-10-23.md) dokumentiert; keine dangling Objekte
+bereinigt. B4a erhält danach nur den integrierten Stand, keine parallelen
+Core-/Routeänderungen während dieser Releaseprüfung. Kein0.6-Vertrag hier enthalten.

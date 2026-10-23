@@ -36,6 +36,7 @@ Die ausführlichen historischen Befunde und Prüfbefehle bleiben in den Handoffs
 | API0.2.0 | `427444d7bcb8e30c9563ded2000ec3d5e19646c4` | `c15a848f01bb779429fd68a2b6eb6bba1575d3e07a4c68e6796cf7840a661838` |
 | API0.3.0 | `946241d7f10f7444e9e5efebbe8b3a38a8120a9b` | `ec77c9739cda11df3f4cb9fe756a632e67840fdc0f6190deee1aa1d1333dc308` |
 | API0.4.0 | `72855cf57ceb6620dead42856ee6c9d52d0612bd` | `4763ebf8632a9ef977cf7d3a6037299fc4dafde0a581fe10cb34d844f8356fbf` |
+| API0.5.0 | `ac9542d81e6f096626c24bc1e0cb9bccb3a62a7c` enthält Fix7c66bb9 und Review570f5a | `b5225339511d80fe4f52f09118fdad2060d8a92f31d44b73dd89fe9f76178c95` |
 | Tresorformat1 | `1a4eb3c`/`03bd3f4`, ADR0005 | `b688656056fe2e23848ce17149bc817609c7369f230a3f49dd91f05db4d3f4dd` |
 
 Die APIversionen sind getrennt; v1-Capabilities bleiben unverändert.
@@ -61,7 +62,7 @@ keinen gefixten Server. [Vertragsindex](../contracts/README.md).
 | A2 / integriert | Apple-main `3c92f974aa6d1c3056b25e3bc9ec5b0d0cb9f161` (Produkt `7e97aae`), Provenienz `feat/apple-postgres` / `.worktrees/apple-postgres` | Quellen89b2683/abaa3dc/b72e62c als fdd533e/cd5d886/031b1e8 nach unabhängiger QA und exakter grüner nativer CI39503396485 integriert. Kalenderfix mit 1.008/4.032 Vektoren und drei echten TLS-PG-Fällen unabhängig geprüft; konkreter NIOssl-Pin ausdrücklich akzeptiert. Leadintegration Swift-/Kalender-/13Pins-/Originalcheckout-/Docs74/0 bestanden, sechs Livetests im Leadlauf ausdrücklich übersprungen. Kombinierte Apple-Main-CI39505094304 an 7e97aae erfolgreich. Unabhängiger A2-Review `0d96b86` als `4047180` aufgenommen; neuer Mainstand ändert nur Review/Status/Plan, Docs75/0 und Diffcheck bestanden. |
 | F4b / Frontend & UX (`p1a_parity`) | Hauptrepo, `feat/row-web-runtime`, `.worktrees/row-web-runtime`, Basis `4044341` | Freigegebene F4-Quelle reproduzierbar im Rootprodukt einbetten. Besitz Assets/Manifest/Lock, Build-/Browser-/Deployskripte und enge Webhelper/CI, README/Einrichtung/Betrieb/Webbuild/Lizenzen/Handoff; kein DB/Core/HTTP/GoMod/API/STATUS/Plan. Produkt `3770c4e95ae4617a6b4858c87f1e69c963253416`, Handoff `46e4bf1`, unabhängiger Review `533348a72c5432c9f46b701dd70afcc4c1bdf944` ohne bestätigte Findings. Zwei bytegleiche öffentliche Builds, Embeddedbrowser9/9, vollständige Go-Race/Vet, neun Pythonprüfungen, echte Compose-/isolierte-Swarm-CRUD/409/DefaultNULLPrecisionBinary mit Persistenz und sauberer öffentlicher Go-/Imagecheckout ohne Node/npm/Siblings unabhängig bestanden. Alle sieben exakten CIs grün; unverändert als ffcf519/2ad78b2 integriert, kombinierter Veröffentlichungsstand4de72bc. |
 | S2a / Apple & Security (`p3a_security`) | Apple, `feat/vault-core`, `.worktrees/vault-core`, Basis `7cbeb38` | Ausschließlich eigenständiges neues Paket Packages/DBManagerVault samt Prüfungen/Originaltexten, eigenen CI/Skripten, ADR-A003/Sicherheitsdokumenten/Handoff. Actor-Session, sichere lokale atomare Dateiablage, extern verankerte CAS-/Lebenszeit-AEAD-Reservierung und Recovery mit neuen Faktoren. Keine App-/Xcode-/Rootpackage-/A2-/zentralen Statusänderungen. Produktiver nicht zurückrollbarer Anchor bleibt gesondertes Gate; nur Testanker noch keine Produktfreigabe. |
-| B3a / Backend & Platform (`p2a_drivers`) | Hauptrepo, `feat/schema-metadata`, `.worktrees/schema-metadata`, Basis `5cb604a` | Unabhängiger Befund B3a-01: gleiche Constraintnamen verschiedener MySQL-/MariaDB-Typen wurden vermischt. Fixkandidat `7c66bb908a635e1de8e212a2003e3e0826de4210` trennt Typ+Name und typgebundene Joins. Eigene rote/grüne echte TLS-Regressionen für MySQL/MariaDB samt unverändertem PostgreSQL, gezielte SQLite/DB/HTTP/Sandbox-Race, Vet, Verträge und Docs270/0 bestanden. API0.5-Bytes unverändert. Acht neue exakte CIs gestartet; enger unabhängiger Nachreview/Fix-CI/0.5-Freeze vor Integration offen. Besitz unverändert plus wieder exklusiv RootSTATUS/Plan. |
+| B3a / Backend & Platform (`p2a_drivers`) | Hauptrepo, Feature `feat/schema-metadata`, Release `release/b3a` | Namespacebefund B3a-01 im Fix `7c66bb908a635e1de8e212a2003e3e0826de4210` unabhängig geschlossen, Review `570f5a0097afd772009b4556565f645b99835290`, alle acht exakten Fix-CIs success. Vollständige Feature-/Handoff-/Reviewprovenienz als `fddc574`/`ac9542d` integriert; API0.5-Clientvertrag nach Leadfreigabe eingefroren, Referenzbackend ac9542d enthält den Fix. Kombinierte Releasechecks und neue Main-CIs separat im folgenden Checkpoint. Keine Mutation/DDL aus dieser Freigabe. |
 
 Für dieses verlängerte Fenster hat der Lead ausschließlich die beiden zentralen
 STATUS-/ARBEITSPLAN-Dateien des Hauptrepos an Backend & Platform zur Pflege übertragen;
@@ -185,3 +186,20 @@ Docs39902565357. Bei Checkpoint aktiv/queued; acht grüne alte CIs ersetzen dies
 nicht. Enger unabhängiger Nachreview bleibt Gate. Keine eigenen lokalen Jobs oder
 B3a-Ressourcen offen. B4a befindet sich ausschließlich in vorbereitender Lektüre,
 kein Produktcode und kein Auftragsscope über den Namespacefix hinaus umgesetzt.
+
+## B3a-Agentintegration und0.5-Freeze – 23.10.2026
+
+B3a-01 unabhängig geschlossen durch Review570f5a; alle acht oben genannten Fixjobs
+an7c66bb9 success. Alle sieben kombinierten F4b-Mainjobs an4de72bc ebenfalls success.
+Nach ausdrücklicher Leadfreigabe vollständige Feature-/Fix-/Handoff-Ancestry als
+fddc574 integriert und unabhängiger Review als ac9542d. Vertragsindex0.5 freigegeben,
+Hash unverändert; Referenzbackendac9542d enthält den Namespacefix. Nur lesende
+Index-/Constraintmetadaten, keine DDL-/Mutation-/atomareSchemasnapshotzusage.
+[Review](handoffs/B3a-review.md), [Integration](handoffs/B3a.md).
+
+Kombinierte Go-Race/Vet, vier Vertragswächter, Originalwebmanifest, neun Python-
+Buildprüfungen, Docs275/0 und Diffcheck bestanden. Acht neue Main-CIs werden nach
+Veröffentlichung gestartet und gesondert kontrolliert; frühere grüne Jobs ersetzen
+diese nicht. Lokale Gitref-Anomalie reversibel behoben, gültige Refs unverändert,
+Fetch/show-ref/fsck erfolgreich: [Nachweis](handoffs/Git-Refs-2026-10-23.md).
+Keine eigenen lokalen Jobs/Testressourcen offen. B4a startet erst auf diesem Stand.
