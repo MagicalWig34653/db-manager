@@ -255,6 +255,9 @@ func TestLiveStructure(t *testing.T) {
 			}
 			structureCases(t, e, c)
 			liveStructureReferenceCases(t, e, c)
+			if c.Driver == "mysql" {
+				liveMySQLConstraintNamespaces(t, e, c, test.name == "maria")
+			}
 		})
 	}
 }
@@ -316,4 +319,65 @@ func TestSQLiteStructureEncodedBudget(t *testing.T) {
 	}
 	_, err := e.Structure(context.Background(), core.DescribeRequest{Connection: c, Table: core.TableRef{Name: "b3a_escaped"}})
 	requireMutationCode(t, err, "result_too_large")
+}
+
+func liveMySQLConstraintNamespaces(t *testing.T, e *Engine, c core.Connection, maria bool) {
+	t.Helper()
+	execute(t, e, c, "CREATE TABLE b3a_namespace_parent(id INTEGER PRIMARY KEY)")
+	for _, test := range []struct {
+		name, definitions string
+		kinds             []string
+	}{
+		{"unique_check", "CONSTRAINT b3a_same_uc UNIQUE(u),CONSTRAINT b3a_same_uc CHECK(v>0)", []string{"unique", "check"}},
+		{"foreign_check", "INDEX b3a_support_fc(v),CONSTRAINT b3a_same_fc FOREIGN KEY(v) REFERENCES b3a_namespace_parent(id),CONSTRAINT b3a_same_fc CHECK(u>0)", []string{"foreign_key", "check"}},
+		{"unique_foreign", "INDEX b3a_support_uf(v),CONSTRAINT b3a_same_uf UNIQUE(u),CONSTRAINT b3a_same_uf FOREIGN KEY(v) REFERENCES b3a_namespace_parent(id)", []string{"unique", "foreign_key"}},
+	} {
+		t.Run("constraint_namespaces_"+test.name, func(t *testing.T) {
+			name := "b3a_namespace_" + test.name
+			_, err := e.Query(context.Background(), core.QueryRequest{Connection: c, SQL: "CREATE TABLE " + name + "(id INTEGER PRIMARY KEY,u INTEGER,v INTEGER," + test.definitions + ")"})
+			if maria && test.name != "unique_foreign" {
+				if err == nil {
+					t.Fatal("expected MariaDB 12.3 to reject a duplicate CHECK constraint name")
+				}
+				t.Log("MariaDB 12.3 rejected this duplicate CHECK name; UNIQUE/FK is tested separately")
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			result, err := e.Structure(context.Background(), core.DescribeRequest{Connection: c, Table: core.TableRef{Name: name}})
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, kind := range test.kinds {
+				found := 0
+				for _, constraint := range result.Constraints {
+					if constraint.Kind != kind {
+						continue
+					}
+					found++
+					switch kind {
+					case "unique":
+						if len(constraint.Columns) != 1 || constraint.Columns[0] != "u" || constraint.ReferencedTable != nil {
+							t.Fatalf("unique identity contaminated: %#v", constraint)
+						}
+					case "check":
+						if constraint.ColumnsKnown || len(constraint.Columns) != 0 || constraint.ReferencedTable != nil {
+							t.Fatalf("check identity contaminated: %#v", constraint)
+						}
+					case "foreign_key":
+						if len(constraint.Columns) != 1 || constraint.Columns[0] != "v" || constraint.ReferencedTable == nil || constraint.ReferencedTable.Name != "b3a_namespace_parent" || len(constraint.ReferencedColumns) != 1 || constraint.ReferencedColumns[0] != "id" {
+							t.Fatalf("FK identity contaminated: %#v", constraint)
+						}
+					}
+				}
+				if found != 1 {
+					t.Fatalf("kind %s: got %d constraints; %#v", kind, found, result.Constraints)
+				}
+			}
+			if len(result.Constraints) != 3 {
+				t.Fatalf("expected PK and both independently named kinds, got %#v", result.Constraints)
+			}
+		})
+	}
 }

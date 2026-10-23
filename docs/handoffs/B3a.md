@@ -87,3 +87,43 @@ Insert39901687391, Web39901687396 und Docs39901687478. Bei diesem reinen
 Nachweischeckpoint noch aktiv/queued, nicht als bestanden behauptet.
 Nächster Schritt: unabhängiger Review und CI-Ergebnisse; erst danach dürfen
 Integration und 0.5-Vertragsfreeze durch freigegebene Agents erfolgen.
+
+## B3a-01 – getrennte MySQL-Constraintnamensräume
+
+Unabhängiger Architecture-/Securityreview meldete einen mittleren Metadatenbefund
+am Produkt77eccb7: MySQL 8.4 erlaubt `UNIQUE` und `CHECK` mit demselben Namen;
+der bisherige Join und die Gruppierung ausschließlich nach Name verschmolzen sie,
+duplizierten Quellspalten und verloren den CHECK-Eintrag. Keine DDL-/Schreiblücke,
+aber der0.5-Freeze bleibt bis Fixnachreview blockiert.
+
+Eigenständige rote Live-Raceregression bestätigte vor dem Fix drei Fälle unter
+MySQL8.4: UNIQUE/CHECK und FK/CHECK erzeugten doppelte Spalten; UNIQUE/FK vermischte
+Quell-/Zielspalten. MariaDB12.3 verweigert beide getesteten CHECK-Namenspaare,
+akzeptiert jedoch UNIQUE/FK mit unabhängigem FK-Stützindex und reproduzierte dort
+ebenfalls den Metadatenfehler. Der Befund wird deshalb nicht pauschal als nur
+MySQL- oder als identisches MariaDB-CHECK-Verhalten dargestellt.
+
+Enger Fix: Gruppierung und Sortierung verwenden Constrainttyp plus Namen.
+KEY_COLUMN_USAGE besitzt keine eigene Typspalte; der Join unterscheidet belegte
+PK-/Unique-Zeilen mit NULL-Referenztabelle von FK-Zeilen mit Nicht-NULL-Referenz.
+CHECK/sonstige Typen erhalten keine fremden KCU-Spalten. REFERENTIAL_CONSTRAINTS
+wird ausschließlich für FOREIGN KEY verbunden. Vertragsschema/Routen/alte APIs,
+alle übrigen Treiber und der lesende Sandboxumfang bleiben unverändert. Clients
+können mehrere Constraints gleichen Namens mit unterschiedlichem kind erhalten;
+ein Name allein ist keine portable Objektidentität.
+
+Primärbelege: [MySQL CHECK-Namensräume](https://dev.mysql.com/doc/refman/8.4/en/create-table-check-constraints.html),
+[KEY_COLUMN_USAGE](https://dev.mysql.com/doc/refman/8.4/en/information-schema-key-column-usage-table.html),
+[TABLE_CONSTRAINTS](https://dev.mysql.com/doc/refman/8.4/en/information-schema-table-constraints-table.html).
+Die neue Regression prüft beide getrennten Constrainttypen, jeweils genau eine
+richtige Quellspalte, FK-Zielidentität und keine fremden Referenzen bei UNIQUE/CHECK.
+Die MariaDB-CHECK-Ablehnung wird ausdrücklich separat erwartet, UNIQUE/FK muss dort
+hingegen erfolgreich und verlustfrei beschrieben werden.
+
+Fixprüfungen tatsächlich bestanden: gezielte Racepakete database/httpapi/sqlitesandbox,
+`go vet ./...`, Vertragswächter (v1–v4 unverändert und v5-Struktur additiv), Docs270/0
+und Diffcheck. Neuer vollständiger eigener TLS-Livelauf mit MySQL8.4/MariaDB12.3/
+PostgreSQL18.6 unter Race einschließlich aller Namespacepaare grün; SQLite-Normal-/
+Sonder-/Bounds-/Sandboxfälle im gezielten Racelauf grün. Keine unveränderten
+Deployment-/Webprüfungen wiederholt. Native CI und unabhängiger enger Nachreview
+werden am neuen Fixcommit gesondert nachgewiesen, keine Selbstfreigabe.

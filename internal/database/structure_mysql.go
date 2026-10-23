@@ -114,20 +114,23 @@ func mysqlStructure(ctx context.Context, db *sql.DB, d core.TableDescription, re
 	if enforced {
 		enforcedSQL = "t.ENFORCED"
 	}
-	rows, err = db.QueryContext(ctx, `SELECT t.CONSTRAINT_NAME,t.CONSTRAINT_TYPE,`+enforcedSQL+`,k.COLUMN_NAME,k.REFERENCED_TABLE_SCHEMA,k.REFERENCED_TABLE_NAME,k.REFERENCED_COLUMN_NAME,r.UPDATE_RULE,r.DELETE_RULE FROM information_schema.TABLE_CONSTRAINTS t LEFT JOIN information_schema.KEY_COLUMN_USAGE k ON k.CONSTRAINT_SCHEMA=t.CONSTRAINT_SCHEMA AND k.TABLE_SCHEMA=t.TABLE_SCHEMA AND k.TABLE_NAME=t.TABLE_NAME AND k.CONSTRAINT_NAME=t.CONSTRAINT_NAME LEFT JOIN information_schema.REFERENTIAL_CONSTRAINTS r ON r.CONSTRAINT_SCHEMA=t.CONSTRAINT_SCHEMA AND r.TABLE_NAME=t.TABLE_NAME AND r.CONSTRAINT_NAME=t.CONSTRAINT_NAME WHERE t.TABLE_SCHEMA=? AND t.TABLE_NAME=? ORDER BY t.CONSTRAINT_NAME,k.ORDINAL_POSITION`, d.Table.Schema, d.Table.Name)
+	// Constraint names are only unique within each type namespace. KCU has no type
+	// column, so distinguish foreign keys by their non-NULL referenced table.
+	rows, err = db.QueryContext(ctx, `SELECT t.CONSTRAINT_NAME,t.CONSTRAINT_TYPE,`+enforcedSQL+`,k.COLUMN_NAME,k.REFERENCED_TABLE_SCHEMA,k.REFERENCED_TABLE_NAME,k.REFERENCED_COLUMN_NAME,r.UPDATE_RULE,r.DELETE_RULE FROM information_schema.TABLE_CONSTRAINTS t LEFT JOIN information_schema.KEY_COLUMN_USAGE k ON k.CONSTRAINT_SCHEMA=t.CONSTRAINT_SCHEMA AND k.TABLE_SCHEMA=t.TABLE_SCHEMA AND k.TABLE_NAME=t.TABLE_NAME AND k.CONSTRAINT_NAME=t.CONSTRAINT_NAME AND ((t.CONSTRAINT_TYPE IN ('PRIMARY KEY','UNIQUE') AND k.REFERENCED_TABLE_NAME IS NULL) OR (t.CONSTRAINT_TYPE='FOREIGN KEY' AND k.REFERENCED_TABLE_NAME IS NOT NULL)) LEFT JOIN information_schema.REFERENTIAL_CONSTRAINTS r ON t.CONSTRAINT_TYPE='FOREIGN KEY' AND r.CONSTRAINT_SCHEMA=t.CONSTRAINT_SCHEMA AND r.TABLE_NAME=t.TABLE_NAME AND r.CONSTRAINT_NAME=t.CONSTRAINT_NAME WHERE t.TABLE_SCHEMA=? AND t.TABLE_NAME=? ORDER BY t.CONSTRAINT_NAME,t.CONSTRAINT_TYPE,k.ORDINAL_POSITION`, d.Table.Schema, d.Table.Name)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	first = true
 	previous = ""
+	previousType := ""
 	for rows.Next() {
 		var name, typ string
 		var enforcement, column, schema, table, target, update, delete sql.NullString
 		if err = rows.Scan(&name, &typ, &enforcement, &column, &schema, &table, &target, &update, &delete); err != nil {
 			return err
 		}
-		if first || name != previous {
+		if first || name != previous || typ != previousType {
 			kind := "other"
 			switch typ {
 			case "PRIMARY KEY":
@@ -162,6 +165,7 @@ func mysqlStructure(ctx context.Context, db *sql.DB, d core.TableDescription, re
 			result.Constraints = append(result.Constraints, constraint)
 			first = false
 			previous = name
+			previousType = typ
 		}
 		constraint := &result.Constraints[len(result.Constraints)-1]
 		if constraint.ColumnsKnown {

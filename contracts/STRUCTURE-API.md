@@ -26,6 +26,9 @@ Sichtbarkeit unter beliebigen DB-Privilegien. Mehrere Abfragen bilden keinen
 atomaren Schemasnapshot. Gleichzeitige DDL kann Fehler oder zeitlich gemischte
 Metadaten ergeben. Constraint- und Indexnamen begründen keine Eigenschaft;
 Primär-/Unique-/FK-Eigenschaften stammen aus Katalogfeldern.
+Constraintnamen sind nicht global eindeutig: insbesondere können MySQL und MariaDB
+gleiche Namen in verschiedenen Typnamensräumen zulassen. Jeder Typ-/Namenseintrag
+bleibt getrennt; ein Name allein eignet sich nicht als portable Objektidentität.
 
 | Treiber | Belegte Struktur | Ausdrückliche Grenzen |
 | --- | --- | --- |
