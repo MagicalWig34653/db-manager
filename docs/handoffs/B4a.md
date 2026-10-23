@@ -113,3 +113,21 @@ exakte Commit-/CI-IDs folgen im reinen Übergabecheckpoint.
 
 Noch offen: unabhängiger Backend-/Sicherheitsreview, exakte neun nativen CIs und
 separater0.6-Freeze vor Clientbindung. Kein Produktclient/Schema-Editor hier.
+
+## Öffentlicher Kandidat und Übergabe
+
+Produktcommit `40defdc0ac4bf31f8e1778f55c22b1431de9c827` öffentlich und eingefroren.
+API0.6-SHA256
+`b08b6aba858f72a3bad1fce2933e487eed017f5e35b4690cfd9fae3a590a6887`.
+Exakte neue native CIs: Tabellenanlage39905577680, Struktur39905577665,
+Engine39905577655, Backend39905577678, Tabellen39905577617,
+Mutationen39905577615, Insert39905577609, Web39905577711 und Docs39905577731.
+Beim Übergabecheckpoint Docs erfolgreich, übrige acht aktiv; keine erfolgreiche
+Gesamtserie behauptet. Alle acht kombinierten Baseline-CIs an8aab52b inzwischen
+success, ersetzen aber diese neue Serie nicht.
+
+Abschlussinventar: keine Container mit eigenem B4a-Label oder B4a-Volumes,
+keine eigenen lokalen Prüfprozesse mehr. Frische HTTP-/Schema-CLI samt Token/DB/
+venv entfernt; nur bestehende Go-/Pip-/Dockercaches, keine produktiven Dienste.
+Nächster Schritt unabhängiger Review und exakte CI; Autor bleibt dafür idle.
+Keine weitere Funktion oder Produktcodeänderung ohne Finding/gezielten Auftrag.
