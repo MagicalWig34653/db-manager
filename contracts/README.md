@@ -52,6 +52,21 @@ Katalog-/unknown-Angaben und ausdrückliche SQLite-CHECK-Lücke. Keine DDL,
 Mutation, atomare Schemasnapshot- oder automatische DDL-Generierungszusage.
 V1–v4 bleiben unverändert; eine Produktclientbindung benötigt eigene Prüfung.
 
+Additive strukturierte Tabellenanlage `0.6.0`: [OpenAPI](api-v0.6.0.json),
+[Verhaltensvertrag](TABLE-CREATE-API.md), nach unabhängigem Review am 23.10.2026
+als Clientvertrag freigegeben. Geprüfter Produktstand
+`40defdc0ac4bf31f8e1778f55c22b1431de9c827`, unabhängiger Review
+`f36463d7dfac633fb72f99039a8108f4aa6fea13`, SHA-256
+`b08b6aba858f72a3bad1fce2933e487eed017f5e35b4690cfd9fae3a590a6887`.
+Referenzbackend `3d21e42b0806f2a1953bcbad47f1e9fcb2acda93` enthält die geprüfte
+Implementation und Reviewprovenienz. Neue Clients pinnen diesen Stand oder eine
+nachgeprüfte Nachfolge. Eigene v6-Fähigkeiten und ausdrücklich bestätigtes CREATE
+für neue Tabellen mit festen Typen, konstanten Defaults und konservativer PK-Auswahl.
+Bestätigter Abschluss und spätere Strukturbeobachtung sind getrennt; unbekannter
+Ausgang erlaubt kein automatisches Retry oder Entfernen. Keine Veränderung bestehender
+Tabellen, keine allgemeine DDL-Rollback-, Schemaidentitäts- oder Zustandsnach-Antwort-
+Garantie. V1–v5 bleiben unverändert; eine Produktclientbindung benötigt eigene Prüfung.
+
 Persönliches Tresorformat `1`: [Schema](vault-v1.schema.json),
 [Byte-/Verhaltensvertrag](../docs/security/VAULT-FORMAT-V1.md),
 [synthetische Fixtures](fixtures/vault-v1/README.md). Herkunft `1a4eb3c`/`03bd3f4`,

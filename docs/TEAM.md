@@ -1,28 +1,44 @@
 # Entwicklungsteam und Arbeitsmodell
 
-Stand: 20.10.2026. Nutzerauftrag: professionelles Softwareentwicklungsteam mit Agents;
-Lead ausschließlich Projektleitung und Koordination, Umsetzung durch beauftragte Engineers.
-Dieser Teamplan weist tatsächliche Zuständigkeiten und bewusst besetzte Doppelrollen aus.
+Stand: 23.10.2026. Nutzerauftrag: professionelles Softwareentwicklungsteam mit
+Agents. Root übernimmt ausschließlich Projektleitung und Koordination; beauftragte
+Agents führen Implementierung, Dokumentation, Prüfungen und freigegebene Integration aus.
 
-## Rollen und Besetzung
+## Rollen und aktueller Einsatz
 
-| Rolle | Zuständigkeit | Tatsächliche Besetzung / Aktivierung |
+| Rolle | Verantwortung | Aktueller Einsatz |
 | --- | --- | --- |
-| Projektleitung / Lead | Ziele, Tickets, Prioritäten, Dateibesitz, Verträge zur Abstimmung, Agent-Koordination, zentrale Status-/Planpflege, Reviewbeauftragung und Integration | Hauptagent; koordiniert, implementiert keine Produktfunktionen |
-| Architecture & Security Engineer | Architekturvorschläge/ADRs, Vertrauensgrenzen, Tresor/Recovery/Sync, API-Verträge, Sicherheitsreview | P3-Worker (`p3a_security`); feste Fachrolle, zusätzlich nach P4a-Fertigstellung Apple Engineer; konkrete Folgeaufträge durch Lead |
-| Backend & Platform Engineer | Go, DB-Adapter, serverseitige Tests, Compose/Swarm, Betriebs-/Buildpfade | P2-Worker; feste Fachrolle, praktische Plattformbefunde bleiben Abnahmevoraussetzung |
-| Frontend & UX Engineer | Svelte/shadcn-svelte, deutsche Bedienabläufe, API-Integration, Tastatur/Touch, Frontendprüfungen | P1a-Worker (`p1a_parity`); feste Fachrolle, Webclient nach geprüftem API-Freeze und eigenem Client-Worktree |
-| Apple Engineer | Swift/SwiftUI, direkte DB-Adapter, macOS/iPadOS, iCloud, eigenständiger Betrieb ohne Go | P3-Worker (`p3a_security`) in offengelegter Doppelrolle; Apple-Implementierung nach P4a-Fertigstellung im eigenen Apple-Repo-Worktree |
-| QA & Release Engineer | Unabhängige Anforderungs-/Diffreviews, Integrations-/Regressionstests, Nachweismatrix, Releaseprüfung | `p0_publication_review`; feste unabhängige QA-/Release-Rolle, prüft fertig gemeldete Produktpakete und gezielte Fixes unabhängig |
+| Projektleitung / Lead | Ziele, Prioritäten, begrenzte Tickets, Dateibesitz, Abhängigkeiten, Reviewzuweisung und konkrete Integrationsfreigaben | Root; keine eigene Produkt-, Dokumentations- oder Releaseimplementierung |
+| Architecture & Security | ADRs, Vertrauensgrenzen, gemeinsame Verträge, Tresor/Recovery und Sicherheitsreview | S1/S2a abgenommen; produktiver OS-Anchor und weitere Plattformgates separat offen |
+| Backend & Platform | Go, DB-Adapter, Metadaten/Mutation/DDL, Compose/Swarm und reproduzierbare Builds | B4a implementiert und unabhängig geprüft; API0.6-Integration/Freeze noch eigener Schritt |
+| Frontend & UX | Deutscher Webarbeitsplatz, Vertragsclients, Tastatur/Touch und Browserprüfungen | F6 integriert; F5 mit gezieltem Darstellungsfix und unabhängiger Nachprüfung |
+| Apple Engineering | Eigenständiges Swift/SwiftUI, direkte DB-Verbindungen, Signing, Archive und Icon Composer | A-TF1-Vorbereitung mit registrierter Bundle-ID und lokalen signierten Exporten; CI-/Uploadgates getrennt |
+| Site Engineering | GitHub Pages, Landingpage, kanonische Dokumentation, Roadmap und echte Screenshots | W1-Kandidat im unabhängigen Site-/Deploymentreview |
+| QA | Unabhängige Source-/Vertrags-/Artefakt-/UI-/Integrationsprüfungen und reproduzierbare Findings | Fachlich geeignete Peers prüfen jeweils fremde Pakete; kein Autor nimmt sein eigenes Paket allein ab |
+| Release & Integration | Freigegebene Commits/Reviewprovenienz übernehmen, kombinierte Checks, CI und autorisierte Veröffentlichung | Separat zugewiesener Releasekoordinator; kein ungeprüfter Merge oder Upload |
+| Projektdokumentation | Aktuelle Hauptstände, Gates, Dateibesitz, Prüfstand und nächste Schritte konsistent halten | Exklusiver Dokumentations-Agent für Root-STATUS/ARBEITSPLAN; Clientstatus nur nach eigener Zuweisung |
 
-Fachrolle und aktiver Agent-Slot sind verschieden. Maximal drei Worker arbeiten gleichzeitig;
-weitere zugewiesene Agents bleiben bis zur Aktivierung ihrer Tickets idle. Der Lead koordiniert
-diese Aktivierung. Ein weiterer dedizierter Apple-Agent konnte wegen des Threadlimits nicht
-gestartet werden; deshalb wird die Apple-Rolle im kleinen Team durch Architecture & Security
-übernommen. Architektur-/Security- und Apple-Implementierung erfolgen in abgegrenzten Tickets
-nacheinander. Fachliche Rollenzuweisung allein belegt keine abgeschlossene Prüfung.
-Dauerhafte Namen/Modellquoten sind keine Voraussetzung; dokumentierte Zuständigkeiten
-und Übergaben müssen einen Agentwechsel ermöglichen.
+Die Laufzeit bietet aktuell **31 gleichzeitige Plätze einschließlich Root**, also
+bis zu 30 Worker. Das Team wird nach konkreten unabhängigen Paketen und benötigten
+Fachrollen besetzt; die Kapazität ist keine vorgeschriebene Teamgröße. Keine festen
+Anbieter-, Modell- oder Rollenquoten. Fachrolle und aktiver Agent-Slot bleiben
+getrennt, qualifizierte Peers können Rollen zwischen abgegrenzten Paketen wechseln.
+Zuständigkeiten und Übergaben müssen auch ohne dauerhafte Agentnamen fortsetzbar sein.
+
+## Lokale Prüfressourcen
+
+Schwere Prüfungen werden vor Start mit der Koordination abgestimmt und mit eigenem
+Präfix/Jobhandle dokumentiert. Es laufen höchstens **zwei kleine DB-Prüfsuiten**
+gleichzeitig. Ein DinD-/Swarm-Lauf erhält die Ressource exklusiv; es gibt keinen
+zweiten parallelen DinD-Lauf. Weitere schwere Container-/Buildläufe werden für
+diese Zeit zurückgestellt oder ausdrücklich anhand der verfügbaren Ressourcen
+abgestimmt. Vor einem erneuten Lauf bestehende Prozesse und Ressourcen tatsächlich
+prüfen; ein Beobachtungstimeout ist kein Prozessende.
+
+Jede Suite verwendet eigene zufällige Container, Volumes, Netze und Scratchs.
+Fremde Entwicklungscontainer und der Host-Swarm bleiben unverändert. Keine pauschalen
+Prune-/Kill-/Löschaktionen. Der Eigentümer bereinigt ausschließlich seine bestätigten
+Ressourcen und meldet Beendigung beziehungsweise verbleibende Jobs im Handoff.
 
 Unabhängige Reviews können durch einen fachlich geeigneten anderen Engineer erfolgen.
 Der Autor darf sein eigenes Paket prüfen, aber weder sein eigener unabhängiger Reviewer
@@ -47,8 +63,9 @@ Ein ausführbares Ticket enthält:
 5. Benötigte Fixtures, Testumgebung und passende Prüfungen. Fehlende Hardware oder
    Dienste sind als Begrenzung benannt und nicht als bestandener Nachweis verplant.
 
-Der Lead hält diese Angaben im Arbeitsplan, Ticket oder Handoff fest. Fachliche Detailarbeit
-und Implementierung erfolgen durch den beauftragten Engineer. Wesentliche Entscheidungen
+Der Lead weist den Auftrag zu; der beauftragte Agent hält diese Angaben im
+Arbeitsplan, Ticket oder Handoff fest. Fachliche Detailarbeit und Implementierung
+erfolgen durch den zuständigen Engineer. Wesentliche Entscheidungen
 werden als ADR vorgeschlagen und nach Review mit Status und Begründung festgehalten.
 
 ## Übergabe und Definition of Done
@@ -66,8 +83,9 @@ sein Untersuchungsziel belastbar beantwortet ist und Folgendes vorliegt:
 - Unabhängiger Review mit dokumentiertem Prüfumfang und Ergebnis; bestätigte Befunde
   behoben und nachgeprüft oder ausdrücklich als ungelöste Integrationsblocker geführt.
 
-Der Lead prüft die Vollständigkeit dieser Nachweise, integriert und pflegt zentrale
-Status-/Planungsdateien. Fertig im Workerbranch bedeutet noch nicht integriert, getestet
+Der Lead koordiniert die Vollständigkeitsprüfung und erteilt konkrete Freigaben.
+Beauftragte Release- und Dokumentations-Agents integrieren beziehungsweise pflegen
+die ihnen exklusiv zugewiesenen zentralen Dateien. Fertig im Workerbranch bedeutet noch nicht integriert, getestet
 im Gesamtstand oder veröffentlicht. Bei notwendiger Nacharbeit wird dasselbe Paket wieder
 geöffnet oder ein klar abgegrenztes Folgeticket mit Abhängigkeit angelegt.
 
@@ -104,5 +122,5 @@ Fachrollen eine prüfbare Freigabeliste vor; der Lead koordiniert deren Abschlus
 
 Ein Nutzungszwischenstand darf mit ehrlich begrenztem Funktionsumfang veröffentlicht werden;
 er ersetzt weder die Endzielabnahme noch fehlende Plattformprüfungen. Den tatsächlichen Implementierungs- und
-Freigabestand führt der Lead in [STATUS](STATUS.md); dieses Rollenmodell ist kein
+Freigabestand führt der beauftragte Dokumentations-Agent in [STATUS](STATUS.md); dieses Rollenmodell ist kein
 Produkt- oder Releasefreigabenachweis.
