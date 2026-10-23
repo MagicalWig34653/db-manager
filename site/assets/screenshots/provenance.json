@@ -1,0 +1,12 @@
+{
+  "product_repository": "https://github.com/MagicalWig34653/db-manager",
+  "product_commit": "8aab52bc9be8ccaf84dbdb0eda61ec46a60181d3",
+  "platform": "Chromium desktop/tablet web; no native Apple screenshot",
+  "data": "Synthetic disposable SQLite fixture defined in site/capture.py",
+  "files": {
+    "sql-ergebnis.png": "449637ee0255dbab5ca393b87dbca0c9b5b1f2135f1ef4019aee0b745feee2f9",
+    "tabellenansicht.png": "e2a38c5df21128a9312f8ddec92309e14dc9b28da5daa16bdf546409454eefdb",
+    "tablet-web.png": "0296a24a7eb4008398263494ff0d37d27803d9a3ed1ad94e8abe359b67540ac3",
+    "zeileneditor.png": "6c41baafdaad8b852e5f2734314d5c099618a7ee28918dffb6bbd2645e74cea1"
+  }
+}

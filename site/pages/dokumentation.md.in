@@ -1,0 +1,34 @@
+# Dokumentation
+
+Die folgenden Seiten werden bei jedem Websitebuild direkt aus den kanonischen
+Markdownquellen des Hauptrepositories gerendert. Historische Handoffs bleiben
+Nachweise ihres jeweiligen Stands; sie ersetzen den aktuellen Status nicht.
+
+## Start und Betrieb
+
+- [Einrichtung: vom Checkout zum laufenden Produkt](EINRICHTUNG.md)
+- [Betrieb mit Docker Compose und Swarm](docs/BETRIEB.md)
+- [Projektübersicht im Repository](projekt.md)
+
+## Verstehen und entwickeln
+
+- [Architektur](docs/ARCHITEKTUR.md)
+- [Versionierte API-Verträge](contracts/index.md)
+- [Sicherheits- und Bedrohungsmodell](docs/security/BEDROHUNGSMODELL.md)
+- [Entwicklungsablauf und unabhängige Reviews](docs/ENTWICKLUNGSABLAUF.md)
+- [Alle Dokumente im Überblick](docs/index.md)
+
+## Status und Ziele
+
+- [Tatsächlicher Projektstand](docs/STATUS.md)
+- [Arbeitsplan und Paketgrenzen](docs/ARBEITSPLAN.md)
+- [Paritätsziele und offene Anforderungen](docs/PARITAET.md)
+- [Roadmap mit Quellen](roadmap.md)
+
+## Eigenständige Clients
+
+- [Webclient: Quellen, Build und Clientdokumentation](https://github.com/MagicalWig34653/db-manager-web)
+- [Apple-App: Einrichtung, Entscheidungen und Plattformgrenzen](https://github.com/MagicalWig34653/db-manager-apple)
+
+Die [lokale Suche](suche.md) durchsucht die hier gerenderten Dokumente ohne
+externen Suchdienst. [Quellen und Original-Lizenzen](lizenzen.md) gehören zum Build.

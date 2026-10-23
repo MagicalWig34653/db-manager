@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{ config.site_description }}">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'">
+  <link rel="canonical" href="{{ page.canonical_url if page else config.site_url }}">
+  <title>{{ page.title if page else 'Nicht gefunden' }} · DB Manager</title>
+  <link rel="icon" href="{{ config.extra.base }}assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ config.extra.base }}assets/site.css">
+  <script src="{{ config.extra.base }}assets/site.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#inhalt">Zum Inhalt</a>
+<header class="header"><div class="header-inner">
+  <a class="brand" href="{{ config.extra.base }}"><img src="{{ config.extra.base }}assets/icon.svg" width="32" height="32" alt=""><span>DB Manager<span class="brand-note">OFFEN. DIREKT. DEINE DATEN.</span></span></a>
+  <nav aria-label="Hauptnavigation">{% for item in nav %}<a href="{{ item.url | url }}"{% if item.active %} aria-current="page"{% endif %}>{{ item.title }}</a>{% endfor %}</nav>
+  <a class="source-top" href="https://github.com/MagicalWig34653/db-manager">Quellcode ↗</a>
+</div></header>
+<div class="page-shell{% if page and page.meta.landing %} landing{% endif %}">
+{% if page and not page.meta.landing %}<aside class="sidebar" aria-label="Dokumentationsnavigation">
+  <p class="eyebrow">WISSEN &amp; PROJEKTSTAND</p>
+  <a href="{{ config.extra.base }}dokumentation/">Dokumentation im Überblick</a>
+  <a href="{{ config.extra.base }}EINRICHTUNG/">Einrichtung</a>
+  <a href="{{ config.extra.base }}docs/BETRIEB/">Compose &amp; Swarm</a>
+  <a href="{{ config.extra.base }}contracts/">API-Verträge</a>
+  <a href="{{ config.extra.base }}docs/ARCHITEKTUR/">Architektur</a>
+  <a href="{{ config.extra.base }}docs/STATUS/">Tatsächlicher Status</a>
+  <a href="{{ config.extra.base }}docs/ARBEITSPLAN/">Arbeitsplan</a>
+  <a href="{{ config.extra.base }}docs/PARITAET/">Paritätsziele</a>
+  <a href="{{ config.extra.base }}docs/security/BEDROHUNGSMODELL/">Sicherheitsmodell</a>
+  <a href="{{ config.extra.base }}lizenzen/">Lizenzen dieser Website</a>
+  {% if page.toc %}<details open><summary>Auf dieser Seite</summary>{% for item in page.toc %}<a href="{{ item.url }}">{{ item.title }}</a>{% for child in item.children %}<a class="toc-child" href="{{ child.url }}">{{ child.title }}</a>{% endfor %}{% endfor %}</details>{% endif %}
+</aside>{% endif %}
+<main id="inhalt" tabindex="-1" class="content">{% if page %}{{ page.content | replace('<pre>', '<pre tabindex="0">') | replace('<table>', '<table tabindex="0">') }}{% else %}<h1>Seite nicht gefunden</h1><p>Bitte nutze die Navigation oder Suche.</p>{% endif %}
+{% if page and page.meta.canonical_source %}<div class="provenance">Kanonische Quelle: <a href="{{ page.meta.canonical_source }}">{{ page.meta.source_path }}</a>. Beim Websitebuild gerendert; Status und historische Nachweise stehen in der Originalquelle.</div>{% endif %}
+</main></div>
+<footer><div><strong>DB Manager</strong><p>Freie Software · AGPL-3.0-only · Entwicklung mit überprüfbaren Grenzen.</p></div><nav aria-label="Projektlinks"><a href="https://github.com/MagicalWig34653/db-manager">Go &amp; Betrieb</a><a href="https://github.com/MagicalWig34653/db-manager-web">Webclient</a><a href="https://github.com/MagicalWig34653/db-manager-apple">Apple-App</a><a href="{{ config.extra.base }}lizenzen/">Lizenzen &amp; Buildherkunft</a></nav></footer>
+</body></html>

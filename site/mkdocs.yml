@@ -1,0 +1,25 @@
+site_name: DB Manager
+site_description: Ein offener Datenbank-Arbeitsplatz für Web, Mac und iPad.
+site_url: https://MagicalWig34653.github.io/db-manager/
+docs_dir: .generated
+site_dir: dist/db-manager
+use_directory_urls: true
+theme:
+  name: null
+  custom_dir: theme
+  locale: de
+plugins:
+  - search:
+      lang: de
+markdown_extensions:
+  - tables
+  - fenced_code
+  - toc:
+      permalink: false
+nav:
+  - Start: index.md
+  - Dokumentation: dokumentation.md
+  - Roadmap: roadmap.md
+  - Suche: suche.md
+extra:
+  base: /db-manager/
