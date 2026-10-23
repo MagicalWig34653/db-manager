@@ -21,7 +21,7 @@ const contentSecurityPolicy = "default-src 'none'; script-src 'self'; script-src
 
 var immutableAsset = regexp.MustCompile(`^assets/[A-Za-z0-9._-]+-[A-Za-z0-9_-]{8,}\.(js|css)$`)
 
-// Wrap serves the bundled UI and delegates API and health requests without alteration.
+// Wrap serves the bundled UI and delegates API, liveness and readiness requests without alteration.
 func Wrap(api http.Handler) http.Handler {
 	assets, err := fs.Sub(bundled, "static")
 	if err != nil {
@@ -33,7 +33,8 @@ func Wrap(api http.Handler) http.Handler {
 func wrapFS(assets fs.FS, api http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/api" || strings.HasPrefix(r.URL.Path, "/api/") ||
-			r.URL.Path == "/healthz" || strings.HasPrefix(r.URL.Path, "/healthz/") {
+			r.URL.Path == "/healthz" || strings.HasPrefix(r.URL.Path, "/healthz/") ||
+			r.URL.Path == "/readyz" || strings.HasPrefix(r.URL.Path, "/readyz/") {
 			api.ServeHTTP(w, r)
 			return
 		}

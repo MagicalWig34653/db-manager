@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Optional override: connect the server to an external MariaDB for the persistent
+# server state (ADR-0006 option c). Not used by default; without it the service
+# behaves exactly like compose.yaml alone (Bearer token, no server state).
+#
+#   docker compose -f compose.yaml -f compose.state.yaml up -d
+#
+# The database is NOT part of this stack and not a distributed store. Secrets are
+# files (never .env or arguments): DB password, 32-byte server key (base64 or hex)
+# and the CA bundle that signed the database certificate. See docs/BETRIEB.md.
+services:
+  app:
+    environment:
+      DBM_STATE_DB_HOST: ${DBM_STATE_DB_HOST:?set DBM_STATE_DB_HOST to the MariaDB host name}
+      DBM_STATE_DB_PORT: ${DBM_STATE_DB_PORT:-3306}
+      DBM_STATE_DB_NAME: ${DBM_STATE_DB_NAME:-dbmanager_state}
+      DBM_STATE_DB_USER: ${DBM_STATE_DB_USER:-dbmanager_runtime}
+      DBM_STATE_DB_PASSWORD_FILE: /run/secrets/state_db_password
+      DBM_STATE_SERVER_KEY_FILE: /run/secrets/state_server_key
+      DBM_STATE_DB_CA_FILE: /run/secrets/state_db_ca
+    secrets:
+      - state_db_password
+      - state_server_key
+      - state_db_ca
+secrets:
+  state_db_password:
+    file: ${DBM_STATE_DB_PASSWORD_PATH:-./secrets/state_db_password}
+  state_server_key:
+    file: ${DBM_STATE_SERVER_KEY_PATH:-./secrets/state_server_key}
+  state_db_ca:
+    file: ${DBM_STATE_DB_CA_PATH:-./secrets/state_db_ca.pem}

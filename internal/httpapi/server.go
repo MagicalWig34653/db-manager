@@ -26,16 +26,35 @@ type API struct {
 	engine    core.Engine
 	tokenHash [32]byte
 	handler   http.Handler
+	state     StateStore
 }
+
+// StateStore is the optional persistent server state. It is only consulted from
+// cached state: /readyz and RequireState never query the database per request.
+type StateStore interface {
+	// Healthy returns the last observed reachability without network access.
+	Healthy() bool
+}
+
+// Option configures optional API behaviour.
+type Option func(*API)
+
+// WithStateStore makes the state store visible to /readyz and RequireState.
+func WithStateStore(state StateStore) Option { return func(a *API) { a.state = state } }
+
 type errorBody struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 }
 
-func New(engine core.Engine, token string) *API {
+func New(engine core.Engine, token string, options ...Option) *API {
 	a := &API{engine: engine, tokenHash: sha256.Sum256([]byte(token))}
+	for _, option := range options {
+		option(a)
+	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) { writeJSON(w, 200, map[string]string{"status": "ok"}) })
+	mux.HandleFunc("GET /readyz", a.ready)
 	mux.Handle("GET /api/v1/capabilities", a.auth(http.HandlerFunc(a.capabilities)))
 	mux.Handle("POST /api/v1/connections/test", a.auth(http.HandlerFunc(a.test)))
 	mux.Handle("POST /api/v1/catalog", a.auth(http.HandlerFunc(a.catalog)))
@@ -54,6 +73,35 @@ func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-store")
 	w.Header().Set("Referrer-Policy", "no-referrer")
 	a.handler.ServeHTTP(w, r)
+}
+
+// ready reports whether optional dependencies are usable. /healthz stays a pure
+// liveness probe (used by the container healthchecks) and never depends on the
+// database. Without a configured store the state store is reported as disabled.
+func (a *API) ready(w http.ResponseWriter, r *http.Request) {
+	switch {
+	case a.state == nil:
+		writeJSON(w, 200, map[string]string{"status": "ok", "state_store": "disabled"})
+	case a.state.Healthy():
+		writeJSON(w, 200, map[string]string{"status": "ok", "state_store": "ok"})
+	default:
+		writeJSON(w, 503, map[string]string{"status": "unavailable", "state_store": "unreachable"})
+	}
+}
+
+// RequireState wraps a route that needs the server state. It fails closed with
+// 503 while the store is unreachable or not configured. No current route uses it
+// (the Bearer-token API does not read server state); future account, session and
+// sharing routes must be wrapped.
+func (a *API) RequireState(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if a.state == nil || !a.state.Healthy() {
+			w.Header().Set("Retry-After", "5")
+			fail(w, 503, "state_unavailable", "Serverzustand ist nicht erreichbar.")
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (a *API) auth(next http.Handler) http.Handler {
