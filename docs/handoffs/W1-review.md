@@ -7,7 +7,7 @@ keine Pagesaktivierung, Veröffentlichung oder Mainintegration durchgeführt.
 
 ## Urteil zum Erstkandidaten
 
-**Ein niedriger Darstellungsbefund QA-W1-01 bleibt offen.** Alle übrigen endlichen
+**Zum Erstkandidaten blieb QA-W1-01 offen; der Finalnachreview unten schließt ihn.** Alle übrigen endlichen
 Prüfungen ohne bestätigten Befund. Noch keine Gesamtfreigabe zur Veröffentlichung;
 der gezielte Fix benötigt unabhängige Nachprüfung. Die exakte Pages-CI
 [39907930954](https://github.com/MagicalWig34653/db-manager/actions/runs/39907930954)
@@ -103,3 +103,67 @@ Nächster Schritt: Autor liefert unveränderlichen engen Fixpin, unabhängige320
 Nachprüfung sowie aktualisierte exakte CI. Danach erst begrenzte Releasefreigabe;
 nach späterem tatsächlichen Deploy sind Live-URL, Basisverzeichnis, Assets und Suche
 separat zu prüfen.
+
+
+## Finalnachreview – 23.10.2026
+
+**QA-W1-01 einschließlich des zusätzlichen fontabhängigen Navigationsumbruchs ist
+unabhängig geschlossen. W1 ist im geprüften begrenzten Umfang zur koordinierten
+Integration und Veröffentlichung freigegeben.** Unveränderliche Produktquelle:
+`08021c184c0f515a0390a955af799624bf8f3dd6`. Der reine Handoffnachtrag
+`07b6b9c448775815e2672e564459ee155703599b` ändert danach ausschließlich W1-Dokumentation;
+keine weitere Site-, Asset- oder Workflowänderung folgt aus dieser Freigabe.
+
+Der ursprüngliche Reviewcommit `86b460b` bleibt in der Review-Ancestry erhalten.
+Die eingefrorenen Fixes und der tatsächliche Root-Dokumentations-/B4-Stand wurden
+in den eigenen Reviewbranch übernommen; Sitequellen und kanonische STATUS-/Plan-/
+TEAM-Quellen entsprechen dem freigegebenen Pin. Der Reviewbranch enthält zusätzlich
+nur diese eigene Nachweisdokumentation.
+
+Gezielte unabhängige Ergebnisse:
+
+- CSS-Diff kontrolliert: gewöhnliche Contentprosa darf umbrechen; Tabellen und
+  Codeblöcke behalten ihre lokalen Scrollbereiche. Die Headernavigation verwendet
+  flex-wrap. Keine body-/main-hidden- oder Clippinglösung. Geometrische und
+  visuelle Prüfung bei320px auf Startseite, PARITAET, STATUS, ARBEITSPLAN und
+  VAULT-FORMAT-V1: globale Breite jeweils320/320.
+- Zusätzliche eigene Schrift-/Spacingprobe: Arial mit17px in der Navigation,
+  0,12em Zeichenabstand, 0,16em Wortabstand und1,5-facher Zeilenhöhe. Auf denselben
+  fünf Seiten bleiben alle vier Hauptnavigationslinks horizontal und vertikal im
+  Header; keine verdeckte Zeile oder unzugängliche Navigation. Die320px-
+  Statusansicht wurde zusätzlich visuell angesehen.
+- `site/tests/build_sources.py` besteht mit vier Fällen einschließlich fehlender
+  und mehrdeutiger Quelltabellen. Darüber hinaus eigener direkter Aufruf des
+  tatsächlichen Builders mit den unveränderten Git-STATUS-Quellen8708c3e,
+  35c151c, e554bb0 und1b02ea3: alle vier liefern die jeweilige kanonische
+  Ergebnistabelle. Die früher festgestellte Kombination mit konsolidierten
+  Überschriften ist damit geprüft; keine Root-Dokumentänderung als Ausweichlösung.
+- Versions-/Originalnoticesprüfung unverändert grün; Build und vollständiger
+  Link-/Policycheck mit aktuellem Root-Dokumentationsbestand bestanden. Der eigene
+  Reviewbuild rendert wegen des zusätzlichen eigenen Reviewdokuments63 statt
+  62 Seiten; das ist keine Produktänderung oder neue Quellbehauptung.
+- Die vorhandene Browserprüfung wurde am integrierten Reviewstand bestanden:
+  vier320px-Langdokumentregressionen, verbreiterte Navigation und sämtliche18
+  bisherigen Desktop-/Tablet-/Mobil-, WCAG-A/AA-, Tastatur-, Such-/XSS-, CSP-,
+  Storage- und Null-Externe-Requestfälle. Originalscreenshots, Quellprovenienz,
+  Locks,38 Originalnotices, Such-JavaScript und Theme sind zum Erstpin bytegleich.
+  Keine zusätzliche breite Backend- oder Datenbanksuite durchgeführt.
+- Workflowdiff beschränkt sich auf volle Gitgeschichte für die realen
+  Quellprofiltests und deren Buildaufruf. Die Veröffentlichungsbeschränkung bleibt
+  unverändert: ausschließlich manueller main-Dispatch mit publish=true, minimale
+  Deployrechte; kein PR-/Push-Deployment.
+- Alle zehn exakten CIs am Produktpin08021c1 eigenständig als completed/success
+  bestätigt, insbesondere
+  [Pages39910428081](https://github.com/MagicalWig34653/db-manager/actions/runs/39910428081),
+  [Docs39910427901](https://github.com/MagicalWig34653/db-manager/actions/runs/39910427901),
+  [Backend39910427918](https://github.com/MagicalWig34653/db-manager/actions/runs/39910427918)
+  und [Web39910427907](https://github.com/MagicalWig34653/db-manager/actions/runs/39910427907).
+  Die frühere fehlgeschlagene Linuxserie am Zwischenfix9004 bleibt fehlgeschlagen
+  dokumentiert; sie wurde nicht in einen Erfolg umgedeutet.
+
+Keine weiteren bestätigten Findings im begrenzten Sitepaket. Keine Pages-/Repo-
+Einstellung, Domain, Mainintegration oder Veröffentlichung durch den Reviewer.
+Eigene Browser-/HTTPprozesse beendet, keine lokalen Prüfjobs offen. Releaseagent
+muss den tatsächlich integrierten Gesamtstand bauen und nach autorisiertem Deploy
+Live-URL, Assets, Basisverzeichnis und Suche separat prüfen; dies ist kein schon
+vorweggenommener Live-Nachweis.
