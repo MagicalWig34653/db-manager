@@ -61,3 +61,15 @@ Nächster konkreter Schritt: finalen Checkpoint veröffentlichen, die exakten ne
 Main-CI-IDs/Ergebnisse an Root melden und weitere Integrationen nur nach neuer
 konkreter Paketfreigabe ausführen. Root-Statusdateibesitz danach ausdrücklich neu
 zuweisen lassen. Kein Upload oder Pagesdeploy aus dieser Freigabe.
+
+## Verifizierter Abschluss der Main-CI
+
+Veröffentlichter Main `1b02ea30447f6ff100ef00a24b7e174bb8618cd0` wurde danach
+per GitHub-API am exakten SHA geprüft: **alle neun Läufe completed/success**.
+Anlage39908872220, Struktur39908872659, Engine39908872213,
+Backend39908872235, Tabellen39908872458, Mutationen39908872523,
+Insert39908873407, Web39908872429 und Docs39908872281. Keine Reruns oder
+Produktänderungen für diesen Abschluss. Root-STATUS/ARBEITSPLAN sind nach
+Rootanweisung an den Dokumentations-Agent zurückgegeben; keine weiteren Writes
+in dessen Dateien. Dieser reine Handoffabschluss bleibt zunächst im eigenen
+Releasebranch, keine weitere Main-Prüfserie wird dadurch gestartet.
