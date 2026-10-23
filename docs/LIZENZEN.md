@@ -57,7 +57,7 @@ für beliebige alte Datenbankversionen.
 ## Eingebettete Weboberfläche F2a/F2b/F3b
 
 Der unveränderte Webbuild stammt aus dem unabhängig geprüften öffentlichen Commit
-[3a4a3fd](https://github.com/MagicalWig34653/db-manager-web/tree/3a4a3fd0a345f8c127758ac5eadc4e6feb8d21ec).
+[8ef738d](https://github.com/MagicalWig34653/db-manager-web/tree/8ef738d22a1164291e2c8183d80e72d1f043c0f8).
 Eigener Webcode ist AGPL-3.0-only; die originalen Drittanbieterhinweise bleiben unter
 [THIRD-PARTY-NOTICES.txt](../internal/webui/static/THIRD-PARTY-NOTICES.txt) vollständig
 erhalten und werden als `/THIRD-PARTY-NOTICES.txt` ausgeliefert. Der originale
@@ -75,3 +75,10 @@ F4b aktualisiert den eingefrorenen Webquellpin auf die unabhängig freigegebene
 Einzelzeilenoberfläche. Keine neuen Go-/npm-Abhängigkeiten; Original-AGPL-/MIT-/
 Fremdnotices bleiben bytegleich aus dem Quellbuild. Manifest und Image enthalten
 Quellpin/Hashprovenienz, sichtbarer Lizenzdialog verlinkt exakt den gebauten Commit.
+
+
+F5b übernimmt ausschließlich den unabhängig akzeptierten F5-/F6-Quellstand mit
+fünf unveränderten Artefakten und denselben Originalnotices. API1–5 sind im Lock
+gebunden; weder Go- noch npm-Produktabhängigkeiten ändern sich. Neue Runtimeproben
+verwenden die bereits inventarisierten Playwrightwerkzeuge, keine zusätzliche
+Bibliothek im Laufzeitimage.

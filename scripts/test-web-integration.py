@@ -25,11 +25,11 @@ def unused_port():
 def create_tls(folder):
     folder.mkdir()
     for args in [
-        ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-days', '1', '-subj', '/CN=DB Manager F4b Test CA', '-keyout', str(folder/'ca.key'), '-out', str(folder/'ca.pem')],
-        ['req', '-newkey', 'rsa:2048', '-nodes', '-subj', '/CN=f4b-postgres', '-keyout', str(folder/'server.key'), '-out', str(folder/'server.csr')],
+        ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-days', '1', '-subj', '/CN=DB Manager F5b Test CA', '-keyout', str(folder/'ca.key'), '-out', str(folder/'ca.pem')],
+        ['req', '-newkey', 'rsa:2048', '-nodes', '-subj', '/CN=f5b-postgres', '-keyout', str(folder/'server.key'), '-out', str(folder/'server.csr')],
     ]:
         run(['openssl', *args])
-    (folder/'ext.cnf').write_text('subjectAltName=DNS:localhost,DNS:f4b-postgres\nextendedKeyUsage=serverAuth\n')
+    (folder/'ext.cnf').write_text('subjectAltName=DNS:localhost,DNS:f5b-postgres\nextendedKeyUsage=serverAuth\n')
     run(['openssl', 'x509', '-req', '-days', '1', '-in', str(folder/'server.csr'), '-CA', str(folder/'ca.pem'), '-CAkey', str(folder/'ca.key'), '-CAcreateserial', '-extfile', str(folder/'ext.cnf'), '-out', str(folder/'server.pem')])
     (folder/'ca.pem').chmod(0o444)
 
@@ -60,6 +60,15 @@ def seed(base, token, postgres):
         query(base, token, connection, 'CREATE VIEW f4_view AS SELECT * FROM f4_rows')
         query(base, token, connection, 'CREATE TABLE f4_no_pk(value TEXT)')
         query(base, token, connection, "INSERT INTO f4_no_pk VALUES('read-only')")
+        if driver == 'sqlite':
+            query(base, token, connection, 'CREATE TABLE f5_empty_identifier("" TEXT PRIMARY KEY NOT NULL)')
+        query(base, token, connection, 'CREATE TABLE f5_parent(id INTEGER PRIMARY KEY)')
+        query(base, token, connection, "CREATE TABLE f5_child(id INTEGER PRIMARY KEY, parent_id INTEGER, label TEXT NOT NULL, extra TEXT, CONSTRAINT child_unique UNIQUE(label), CONSTRAINT child_fk FOREIGN KEY(parent_id) REFERENCES f5_parent(id) ON UPDATE CASCADE ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED, CONSTRAINT child_check CHECK(length(label)>0))")
+        query(base, token, connection, 'CREATE INDEX f5_expression_partial ON f5_child(lower(label) DESC) WHERE parent_id IS NOT NULL')
+        query(base, token, connection, 'CREATE INDEX f5_column_desc ON f5_child(label DESC)')
+        if driver == 'postgres':
+            query(base, token, connection, 'CREATE INDEX f5_include ON f5_child(parent_id) INCLUDE(extra)')
+        query(base, token, connection, 'CREATE VIEW f5_view AS SELECT id,label FROM f5_child')
 
 
 
@@ -86,7 +95,7 @@ def main():
     parser.add_argument('--browser-deps',action='store_true',help='Install Chromium system packages on Linux')
     arguments=parser.parse_args()
     suffix=secrets.token_hex(6)
-    prefix='dbmanager-f4b-web-'+suffix
+    prefix='dbmanager-f5b-web-'+suffix
     image=prefix+':test'
     network=prefix+'-net'
     postgres_name=prefix+'-postgres'
@@ -99,17 +108,17 @@ def main():
         directory=Path(temporary)
         token_file=directory/'api_token';token_file.write_text(token+'\n');token_file.chmod(0o444)
         tls=directory/'tls';create_tls(tls)
-        pg_env=directory/'postgres.env';pg_env.write_text('POSTGRES_PASSWORD='+password+'\nPOSTGRES_DB=f4b_probe\n');pg_env.chmod(0o600)
+        pg_env=directory/'postgres.env';pg_env.write_text('POSTGRES_PASSWORD='+password+'\nPOSTGRES_DB=f5b_probe\n');pg_env.chmod(0o600)
         compose=['docker','compose','-f',str(ROOT/'compose.yaml'),'-f',str(directory/'compose-fixture.json'),'-p',prefix]
         environment=dict(os.environ,DBM_IMAGE=image,DBM_PORT=str(unused_port()),DBM_TOKEN_PATH=str(token_file))
-        override={'services':{'app':{'networks':['fixture'],'environment':{'DBM_ALLOWED_HOSTS':'f4b-postgres,f4b-postgres-wrong','DBM_DB_CA_FILE':'/run/db-ca/ca.pem'},'volumes':[{'type':'bind','source':str(tls/'ca.pem'),'target':'/run/db-ca/ca.pem','read_only':True}]}},'networks':{'fixture':{'external':True,'name':network}}}
+        override={'services':{'app':{'networks':['fixture'],'environment':{'DBM_ALLOWED_HOSTS':'f5b-postgres,f5b-postgres-wrong','DBM_DB_CA_FILE':'/run/db-ca/ca.pem'},'volumes':[{'type':'bind','source':str(tls/'ca.pem'),'target':'/run/db-ca/ca.pem','read_only':True}]}},'networks':{'fixture':{'external':True,'name':network}}}
         (directory/'compose-fixture.json').write_text(json.dumps(override))
         try:
             run(['docker','network','create',network]);network_created=True
             script='chown -R postgres /fixture && chmod 600 /fixture/server.key && exec /usr/local/bin/docker-entrypoint.sh "$@"'
-            run(['docker','create','--name',postgres_name,'--label','dbmanager.task=F4b','--network',network,'--network-alias','f4b-postgres','--network-alias','f4b-postgres-wrong','-p','127.0.0.1::5432','--env-file',str(pg_env),'--entrypoint','/bin/sh','postgres:18.6-alpine','-c',script,'fixture','postgres','-c','ssl=on','-c','ssl_cert_file=/fixture/server.pem','-c','ssl_key_file=/fixture/server.key']);owned.append(postgres_name)
+            run(['docker','create','--name',postgres_name,'--label','dbmanager.task=F5b','--network',network,'--network-alias','f5b-postgres','--network-alias','f5b-postgres-wrong','-p','127.0.0.1::5432','--env-file',str(pg_env),'--entrypoint','/bin/sh','postgres:18.6-alpine','-c',script,'fixture','postgres','-c','ssl=on','-c','ssl_cert_file=/fixture/server.pem','-c','ssl_key_file=/fixture/server.key']);owned.append(postgres_name)
             run(['docker','cp',str(tls),postgres_name+':/fixture'])
-            start_postgres_fixture(postgres_name,directory,'f4b_probe')
+            start_postgres_fixture(postgres_name,directory,'f5b_probe')
             pg_port=int(json.loads(run(['docker','inspect','--format','{{json .NetworkSettings.Ports}}',postgres_name]))['5432/tcp'][0]['HostPort'])
             cli=directory/'db-manager';run(['go','build','-trimpath','-o',str(cli),'./cmd/db-manager'],cwd=ROOT)
             cli_port=unused_port();cli_base=f'http://127.0.0.1:{cli_port}'
@@ -118,7 +127,7 @@ def main():
                 process=subprocess.Popen([str(cli)],env=cli_env,stdout=log,stderr=log)
             wait_until(lambda:api(cli_base,'/healthz')['status']=='ok','real CLI server')
             verify_http(cli_base,token)
-            native_pg={'driver':'postgres','host':'localhost','port':pg_port,'database':'f4b_probe','username':'postgres','password':password,'tls_mode':'verify-full'}
+            native_pg={'driver':'postgres','host':'localhost','port':pg_port,'database':'f5b_probe','username':'postgres','password':password,'tls_mode':'verify-full'}
             api(cli_base,'/api/v1/connections/test',token,{'connection':native_pg})
             wrong={**native_pg,'host':'127.0.0.1'}
             api(cli_base,'/api/v1/connections/test',token,{'connection':wrong},expected=422)
@@ -130,9 +139,9 @@ def main():
             base='http://127.0.0.1:'+environment['DBM_PORT']
             wait_until(lambda:api(base,'/healthz')['status']=='ok','Compose web server')
             verify_http(base,token)
-            pg={**native_pg,'host':'f4b-postgres','port':5432}
+            pg={**native_pg,'host':'f5b-postgres','port':5432}
             api(base,'/api/v1/connections/test',token,{'connection':pg})
-            api(base,'/api/v1/connections/test',token,{'connection':{**pg,'host':'f4b-postgres-wrong'}},expected=422)
+            api(base,'/api/v1/connections/test',token,{'connection':{**pg,'host':'f5b-postgres-wrong'}},expected=422)
             seed(base,token,pg)
             browser(directory,{'baseURL':base,'token':token,'invalidToken':invalid_token,'postgres':pg,'webCommit':json.loads((ROOT/'web-build.lock.json').read_text())['commit'],'licenseHashes':{item['path']:item['sha256'] for item in json.loads((ROOT/'internal/webui/assets-manifest.json').read_text())['files'] if item['path'].endswith('.txt')}},arguments.browser_deps)
             print('Compose browser: real SQLite/PostgreSQL TLS, catalog, precision/NULL/empty/binary, truncation, cancellation, auth/session reset and CSP passed.',flush=True)
@@ -145,7 +154,7 @@ def main():
                 run(['docker','rm','-fv',name])
             if network_created:run(['docker','network','rm',network])
             if image_created:run(['docker','image','rm',image])
-    print('F4b web: only task-owned processes, containers, networks, volumes, image and temporary credentials removed.',flush=True)
+    print('F5b web: only task-owned processes, containers, networks, volumes, image and temporary credentials removed.',flush=True)
 
 
 if __name__=='__main__':

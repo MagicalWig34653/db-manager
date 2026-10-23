@@ -3,7 +3,7 @@ import { defineConfig } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 const settings = JSON.parse(readFileSync(process.env.DBM_TEST_CONFIG!, 'utf8'));
 export default defineConfig({
-  testDir: '.', testMatch: ['runtime.spec.ts', 'tables.spec.ts', 'rows.spec.ts'], workers: 1,
+  testDir: '.', testMatch: ['runtime.spec.ts', 'tables.spec.ts', 'rows.spec.ts', 'export.spec.ts', 'structure.spec.ts'], workers: 1,
   timeout: 60000, expect: { timeout: 10000 },
   preserveOutput: 'never',
   outputDir: settings.outputDir,

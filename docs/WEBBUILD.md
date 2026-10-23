@@ -1,15 +1,16 @@
 # Versionierter Webbuild und Go-Paket
 
-Stand: 23.10.2026, F3b integriert, F4b-Prüfkandidat. Der unveränderte geprüfte Webbuild
+Stand: 23.10.2026, F4b integriert, F5b-Prüfkandidat. Der unveränderte geprüfte Webbuild
 ist im Hauptrepo enthalten. Der Servereinstieg umschließt jetzt die reale Go-API
 mit `webui.Wrap`; CLI und Container liefern Oberfläche und API von derselben Origin.
-Prüfstand und unabhängige Abnahme: [F4b-Handoff](handoffs/F4b.md).
+Prüfstand und unabhängige Abnahme: [F5b-Handoff](handoffs/F5b.md).
 
 ## Quelle, Vertrag und Reproduzierbarkeit
 
 [web-build.lock.json](../web-build.lock.json) pinnt das öffentliche Webrepository auf
-Commit [3a4a3fd](https://github.com/MagicalWig34653/db-manager-web/tree/3a4a3fd0a345f8c127758ac5eadc4e6feb8d21ec).
-F4 einschließlich bestätigter Einzelzeilenaktionen und atomarer Tabellenentwürfe wurde unabhängig
+Commit [8ef738d](https://github.com/MagicalWig34653/db-manager-web/tree/8ef738d22a1164291e2c8183d80e72d1f043c0f8).
+F5 einschließlich lesender Index-/Constraintmetadaten, F6-Ergebnisexport und bisheriger
+Einzelzeilenaktionen wurde unabhängig
 geprüft; der Commit ist in der Web-main-Historie erreichbar. Vertrag `0.1.0`, API-SHA-256
 `4b598dc69a1904685e67a717997412654440ac10f47c17f7a025ccd114e294be`;
 Tabellenvertrag `0.2.0`, SHA256
@@ -104,7 +105,7 @@ das Go-Serverprojekt, dessen Buildherkunft und die lokal gelieferten Originaltex
 Die Artefakte werden unverändert aus dem gepinnten Quellbuild übernommen.
 
 
-## F4b-Laufzeitgrenzen
+## F5b-Laufzeitgrenzen
 
 Die Tabellenansicht verwendet strukturierte read-only API0.2.0-Anfragen für Daten,
 Metadaten, Sortierung und getaggte UND-Filter. API0.1.0 bleibt für freie SQL-Anfragen
@@ -126,8 +127,32 @@ probe. Das härtet die Teststartgrenze von F2b; kein behaupteter Produktfehler.
 (SHA256 `ec77c9739cda11df3f4cb9fe756a632e67840fdc0f6190deee1aa1d1333dc308`)
 und Insertvertrag 0.4.0
 (`4763ebf8632a9ef977cf7d3a6037299fc4dafde0a581fe10cb34d844f8356fbf`).
-Build und Offlineprüfung vergleichen alle vier Rootverträge; Neubau vergleicht außerdem
-alle vier unveränderten Webvertragskopien. Keine Bindung an API0.5-Kandidaten.
+Build und Offlineprüfung vergleichen alle fünf Rootverträge; Neubau vergleicht außerdem
+alle fünf unveränderten Webvertragskopien. Zusätzlich wird der freigegebene lesende Strukturvertrag 0.5.0 mit SHA256
+`b5225339511d80fe4f52f09118fdad2060d8a92f31d44b73dd89fe9f76178c95` gepinnt.
+API0.6 ist im Backend separat vorhanden, wird von dieser Webquelle nicht konsumiert.
 Die Quellen des eingefrorenen F4-Clients referenzieren Backend72855cf mit beiden
 unabhängig geschlossenen v3-Schutzfixes. Vertragsgleichheit allein belegt keinen
 gepatchten Serverstand. Keine Änderung an freigegebenen Produktbytes nach dem Pin.
+
+
+## Strukturmetadaten und lokaler Ergebnisdownload
+
+Die Strukturansicht ergänzt API0.5-Index-/Constraintangaben mit katalogbelegten
+Eigenschaften, geordneten Termen und expliziter Abdeckung. Unbekannte Eigenschaften
+bleiben unbekannt; SQLite-CHECK-Angaben werden ohne Parser nicht erfunden. Bekannte
+leere Bezeichner werden eindeutig JSON-zitiert. Alte Backends behalten die v2-
+Spaltenstruktur. Die Metadaten sind keine atomare Zusage über spätere Schemaänderungen.
+
+Ergebnisdownload geschieht ausschließlich nach Benutzerklick aus dem geladenen
+Snapshot, ohne zusätzliche DB-Abfrage. JSON erhält getaggte Werte/NULL/Leer/Binärdaten,
+Präzision, Spaltenreihenfolge und doppelte Namen. SQL-Ergebnis bzw. geladene Tabellenseite,
+Offset/Seitengröße/has_more und Trunkierung bleiben ausdrücklich gekennzeichnet;
+kein vollständiger Tabellendump. Höchstens 8 MiB endgültige UTF-8-Datei.
+
+CSV bietet getrennte Rohwerte und bewusst mit Apostroph präfixierte Werte für
+Tabellenkalkulationen; weder Typ-/Quote-/NULL-Roundtrip noch universelle Excel-
+Sicherheit wird zugesagt. UTF-8 ohne BOM, Komma/CRLF, Header/Nicht-NULL gequotet,
+NULL als ungequotetes `\N`. Literaltext `\N` bleibt gequotet. C0 außer CR/LF sowie DEL/C1
+werden vor Blob/URL/Download ausdrücklich abgewiesen; JSON erhält sie unverändert.
+Quelle-/Token-/Resultwechsel räumt Downloads auf; gestartete Downloads bleiben intakt.

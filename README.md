@@ -7,7 +7,7 @@ phpMyAdmin-Parität und Unterstützung mehrerer Datenbanksysteme.
 **Aktueller Zwischenstand:** Go-API mit echter SQLite-/MySQL-/MariaDB-/PostgreSQL-
 Ausführung, Tokenanmeldung, Katalog und strukturierter Tabellenansicht. Bestätigte
 Einzelzeilen-Inserts/Updates/Deletes sind im Backend unabhängig geprüft; die passende
-Web-Schreiboberfläche ist nach unabhängiger QA als F4b-Prüfkandidat eingebettet. Der eingebettete deutsche Webclient
+Web-Schreiboberfläche ist nach unabhängiger QA als F4b integriert. Der eingebettete deutsche Webclient
 bietet bestätigtes Einzelzeilen-Insert/Edit/Delete, Verbindung, Tabellenmetadaten,
 Sortierung, Filter, Pagination, SQL und begrenzte
 präzise Ergebnisse sowie Quellcode-/Originallizenzhinweise.
@@ -15,9 +15,10 @@ präzise Ergebnisse sowie Quellcode-/Originallizenzhinweise.
 Docker Compose und Docker Swarm sind praktisch geprüft, einschließlich UID10001,
 schreibgeschütztem Root und SQLitepersistenz nach Neustart/Taskersatz. SQLite ist auf
 exklusiven lokalen Einzelinstanzbetrieb begrenzt. Reproduzierbare Webassets gehören
-zum Go-Checkout; Node/npm werden zur Laufzeit nicht benötigt. F4b prüft zusätzlich
-echte Zeilenaktionen, Konflikt und typisierte Schreibpersistenz in beiden Deployments;
-unabhängige Rootabnahme steht aus: [Handoff F4b](docs/handoffs/F4b.md).
+zum Go-Checkout; Node/npm werden zur Laufzeit nicht benötigt. F4b belegt echte
+Zeilenaktionen, Konflikt und typisierte Schreibpersistenz in beiden Deployments.
+Der neue F5b-Prüfkandidat ergänzt lesende Index-/Constraintmetadaten und den expliziten
+lokalen JSON-/CSV-Ergebnisdownload: [Handoff F5b](docs/handoffs/F5b.md).
 
 Die eigenständige Swift/SwiftUI-App unterstützt SQLite und direktes PostgreSQL ohne
 Go mit verifiziertem TLS. Mac-/iPad-Simulator-Builds und echte synthetische Datenbanken

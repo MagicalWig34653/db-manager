@@ -37,3 +37,15 @@ Keine API-Mocks: `route.fetch()` führt echte Mutation aus; erst nach tatsächli
 Commitantwort verliert der Browser die Antwort. Eine separate echte Abfrage und
 Requestzählung belegen genau eine gespeicherte Zeile und keinen Retry. Insgesamt neun
 Chromiumfälle; ursprüngliche SQL-/Cancel-/F3-Paging-/Source-/CSP-Fälle bleiben erhalten.
+
+
+F5b ergänzt vier echte Fälle aus der unabhängig akzeptierten öffentlichen Quelle
+8ef738d22a1164291e2c8183d80e72d1f043c0f8: `export.spec.ts` und `structure.spec.ts`.
+Nur private Rootfixture-/Compose-PG-Verbindungsangaben wurden angepasst. Insgesamt
+13 Chromiumfälle: zwei Exportfälle lesen tatsächliche JSON-/CSV-Dateibytes und zählen
+Requests, prüfen Präzision/NULL/Binary/Trunkierung/Page-Scope/CSV-Steuerzeichen und
+URLcleanup; zwei Strukturfälle prüfen SQLite-/PG-Indexterms/FK/Coverage, Partial/
+Expression/Include/Check, bekannte leere Bezeichner und echte verspätete Antwort
+nach Tokenwechsel. Der gezielt injizierte v5-HTTP404-Kompatibilitätsfall ist ausdrücklich
+synthetisch; alle übrigen Struktur-/Wertantworten kommen aus echten Datenbanken.
+Keine vollständige native/MySQL-/MariaDB-Browserfreigabe aus diesen zwei Engines.
