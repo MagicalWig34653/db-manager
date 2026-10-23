@@ -10,7 +10,7 @@ Docker Compose und Docker Swarm bleiben verbindliche Betriebsziele (ADR-0003).
 
 | Repository | Geprüfter Hauptstand | Tatsächlicher Umfang |
 | --- | --- | --- |
-| [db-manager](https://github.com/MagicalWig34653/db-manager) | `8708c3e`; letzter Produkt-/Vertragscheckpoint `8aab52b` | Go mit SQLite/MySQL/MariaDB/PostgreSQL, SQL, Tabellenansicht, bestätigten Einzelzeilen-Inserts/Updates/Deletes und lesender Index-/Constraint-API0.5. Eingebetteter Webstand bleibt F4b, Quelle `3a4a3fd`. |
+| [db-manager](https://github.com/MagicalWig34653/db-manager) | B4a-Release ab `8708c3e`; Produkt-/Reviewcheckpoint `3d21e42` | Go mit SQLite/MySQL/MariaDB/PostgreSQL, SQL, Tabellenansicht, bestätigten Einzelzeilen-Inserts/Updates/Deletes, lesender Index-/Constraint-API0.5 und bestätigter neuer Tabellenanlage über API0.6. Eingebetteter Webstand bleibt F4b, Quelle `3a4a3fd`. |
 | [db-manager-web](https://github.com/MagicalWig34653/db-manager-web) | `204cb07` | F6-Ergebnisexport nach unabhängiger QA integriert: typisiertes JSON sowie klar getrennte CSVvarianten, explizite Steuerzeichenablehnung vor CSV-Download. Noch nicht im Go-/Docker-Webbuild enthalten. |
 | [db-manager-apple](https://github.com/MagicalWig34653/db-manager-apple) | `e50d745`; Produktcheckpoint `d0dea67` | Eigenständige SwiftUI-App mit SQLite und direktem PostgreSQL ohne Go; isolierter geprüfter Vault-Core zusätzlich im Repository. Keine Appverdrahtung oder produktive Credentialpersistenz aus dem Core. TestFlight-/Iconänderungen liegen separat im Reviewkandidaten. |
 
@@ -29,6 +29,7 @@ CI ersetzt keine unabhängige Abnahme oder einen tatsächlichen Geräte-/Uploadn
 | B2b-Schutzfixes | SQLite OR ABORT verhindert fremde REPLACE-Löschungen; PostgreSQL-Rewrite-Tabellen werden gesperrt. Beide nachträglichen Integritätsbefunde unabhängig geschlossen | [SQLite](handoffs/B2b-konfliktstrategie.md), [PostgreSQL](handoffs/B2b-rewrite-regeln.md) |
 | F4/F4b | Web-Einzelzeileneditor und exakt reproduzierte Go-/Docker-Einbettung. Produkt `3770c4e`, Handoff `46e4bf1`, unabhängiger Review `533348a`; als `ffcf519`/`2ad78b2` integriert | [F4b](handoffs/F4b.md), [F4b-Review](handoffs/F4b-backend-review.md) |
 | B3a | Lesende Index-/Constraintmetadaten. Namespacebefund B3a-01 im Fix `7c66bb9` unabhängig geschlossen; Feature/Review als `fddc574`/`ac9542d` integriert, API0.5 freigegeben | [B3a](handoffs/B3a.md), [B3a-Review](handoffs/B3a-review.md) |
+| B4a | Strukturierte neue Tabellen mit festen Typen, konstanten Defaults und konservativem PK/Nullable-Modell. Produkt `40defdc` und unabhängiger Review `f36463d` ohne Findings, alle neun Produkt-CIs erfolgreich; Feature/Review als `77c4c41`/`3d21e42` integriert, API0.6 freigegeben | [B4a](handoffs/B4a.md), [B4a-Review](handoffs/B4a-review.md), [Releasecheckpoint](handoffs/B4a-integration.md) |
 | F6 | Lokaler Export geladener Ergebnisse ohne zusätzliche DB-Abfrage. QA-F6-01 geschlossen, Quelle `1a8adfa` mit Review `8301b0c` im Web-main integriert | [F6](https://github.com/MagicalWig34653/db-manager-web/blob/204cb07/docs/handoffs/F6.md), [F6-Review](https://github.com/MagicalWig34653/db-manager-web/blob/204cb07/docs/handoffs/F6-review.md) |
 | S1/S2a | Interoperables Tresorformat und isolierter nativer Core: Reservierung/CAS/Pending/Recovery und atomare Dateiablage geprüft. Kein produktiver Anchor oder App-Geheimnisspeicher | [S1](handoffs/S1.md), [Format](security/VAULT-FORMAT-V1.md), Apple [S2a](https://github.com/MagicalWig34653/db-manager-apple/blob/e50d745/docs/handoffs/S2a.md), [S2a-Review](https://github.com/MagicalWig34653/db-manager-apple/blob/e50d745/docs/handoffs/S2a-review.md) |
 
@@ -44,19 +45,22 @@ Die Handoffs erhalten vollständige historische Commits, Repros, Prüfungen und 
 | API0.3.0 | `946241d7f10f7444e9e5efebbe8b3a38a8120a9b` (historische Herkunft) | `ec77c9739cda11df3f4cb9fe756a632e67840fdc0f6190deee1aa1d1333dc308` |
 | API0.4.0 | `72855cf57ceb6620dead42856ee6c9d52d0612bd` enthält beide v3-Schutzfixes | `4763ebf8632a9ef977cf7d3a6037299fc4dafde0a581fe10cb34d844f8356fbf` |
 | API0.5.0 | `ac9542d81e6f096626c24bc1e0cb9bccb3a62a7c` enthält Namespacefix und Review | `b5225339511d80fe4f52f09118fdad2060d8a92f31d44b73dd89fe9f76178c95` |
+| API0.6.0 | `3d21e42b0806f2a1953bcbad47f1e9fcb2acda93` enthält geprüfte Tabellenanlage und Review | `b08b6aba858f72a3bad1fce2933e487eed017f5e35b4690cfd9fae3a590a6887` |
 | Tresorformat1 | `1a4eb3c`/`03bd3f4`, ADR0005 | `b688656056fe2e23848ce17149bc817609c7369f230a3f49dd91f05db4d3f4dd` |
 
 Neue Schreibclients benötigen den korrigierten Backendstand `72855cf` oder eine
 nachgeprüfte Nachfolge. Gleiche API0.3-Vertragsbytes beweisen keinen Serverfix; die
 frühere Implementierung war für SQLite-REPLACE-/PostgreSQL-Rewrite-Fälle unsicher.
 API0.5 ist ausschließlich lesend und verspricht keinen atomaren Schemasnapshot.
+API0.6 bestätigt ausschließlich die neue Tabellenanlage; bestätigter Abschluss und
+Strukturbeobachtung bleiben getrennt, keine bestehenden Objekte ändern und keine
+universelle DDL-Rollback-/Zustandsnach-Antwortgarantie ableiten.
 API- und Tresorversionen haben getrennte Versionsräume. [Vertragsindex](../contracts/README.md).
 
 ## Aktuelle Reviewkandidaten und Nutzeraufträge
 
 | Paket | Tatsächlicher Stand | Noch erforderliches Gate |
 | --- | --- | --- |
-| B4a – Tabellenanlage | `feat/table-create`, Produkt `40defdc0ac4bf31f8e1778f55c22b1431de9c827`, Handoff `464e647`. API0.6-Kandidat SHA256 `b08b6aba858f72a3bad1fce2933e487eed017f5e35b4690cfd9fae3a590a6887`; neue Tabellen mit festen Typen/konstanten Defaults/PK/Nullable, keine bestehenden Objekte ändern. Neun exakte CIs inzwischen erfolgreich. | Unabhängiger Review `f36463d` ohne bestätigte Findings abgeschlossen; noch keine Mainintegration oder API0.6-Clientfreigabe. [Handoff](https://github.com/MagicalWig34653/db-manager/blob/464e647/docs/handoffs/B4a.md) |
 | F5 – Web-Strukturansicht | `feat/schema-workbench`, Kandidat `87751cceed47332f2164f2c3c584ddcd0ef2edd8`, Handoff `6d8aa5e`; geordnete Index-/Constraintdetails, Coverage/Unknown und ältere-Backend-Fallbacks. Alle drei exakten CIs inzwischen erfolgreich. Frühere Linux-CDP-Testbeobachtung scheiterte; eng ohne Produktänderung korrigiert. | Unabhängiger Review mit genau QA-F5-01 (niedrig) offen: leere Constraintnamen werden unklar dargestellt. Autor korrigiert gezielt, unabhängige Nachprüfung erforderlich. Echte Browsernachweise SQLite/PG; MySQL/Maria-UI bislang nur Unit-Testdaten. Kein Rootpin vor Annahme. [Handoff](https://github.com/MagicalWig34653/db-manager-web/blob/6d8aa5e/docs/handoffs/F5.md) |
 | W1 – GitHub Pages | `feat/pages-site`, öffentlicher Kandidat `a972fb0`; Landingpage, gerenderte kanonische Doku, Roadmap und vier echte synthetische Webscreenshots. Unabhängige Site-QA läuft; keine Pages-Veröffentlichung behauptet. | Unabhängige Site-/Build-/Browser-/Link-/Lizenzprüfung vor Integration und Deployment; Pages-API am aktuellen Checkpoint HTTP 404. |
 | A-TF1 – TestFlight und Icon | `release/testflight-preparation`, Kandidat `b7020517d6431a852f61188f70c90e495534bdd2`, Handoff `a350f75`. Bundle-ID **de.linolaske.dbmanager** explizit registriert; Nutzer hat ASC-Eintrag „DB Manager“ angelegt und wurde zum Fortsetzen benachrichtigt. Signierte iPad-/Universal-Macarchive und lokale IPA-/PKG-Exporte belegt, echte editierbare Icon-Composerquelle und Rendernachweise vorhanden. | Unabhängiger Artefakt-/Sourcereview `59c7004` ohne bestätigte Findings abgeschlossen. Docs-/Vault-CI erfolgreich; exakte Apple-CI39906842616 inzwischen fehlgeschlagen (CompileAssetCatalogVariant für AppIcon.icon mit CI-Xcode26.3). Konkrete Ursache und Korrektur noch offen, Integrationsgate nicht erfüllt. Kein Upload oder Einreichen. Betreiberangaben zu Exportcompliance/Privacy und TestFlightmetadaten bleiben vor Upload offen. [Handoff](https://github.com/MagicalWig34653/db-manager-apple/blob/a350f75/docs/handoffs/A-TF1.md) |
@@ -94,8 +98,9 @@ Signierte A-TF1-Archive sind noch kein physischer Gerätelauf oder Runtime-Sandb
 Die Laufzeit bietet jetzt **31 Plätze einschließlich Root**, also bis zu 30 Worker;
 keine feste Modell-/Anbieterquote. Jeder schreibende Worker erhält eigenen Branch/
 Worktree und begrenzten Dateibesitz. Root koordiniert und erteilt konkrete
-Integrationsfreigaben. Diese beiden zentralen Rootdateien liegen exklusiv beim
-Dokumentations-Agent; andere Worker liefern paketbezogene Handoffs. Apple-/Web-
+Integrationsfreigaben. Für den begrenzten B4a-Releasecheckpoint liegen diese beiden zentralen Rootdateien
+nach ausdrücklichem Transfer exklusiv beim Releasekoordinator; der Dokumentations-Agent
+schreibt nicht parallel. Andere Worker liefern paketbezogene Handoffs. Apple-/Web-
 Statuspflege erfolgt nur nach eigener ausdrücklicher Zuweisung.
 
 Keine vollständige phpMyAdmin-Parität: [Matrix](PARITAET.md) und [Teilnachweise](PARITAET.md#teilnachweise-des-implementierten-zwischenstands)
@@ -113,7 +118,7 @@ Wegwerfressourcen verwenden; fremde Container und Host-Swarm nicht verändern.
 Git-Refanomalie wurde reversibel ohne Änderung gültiger Refs quarantänisiert;
 [Nachweis](handoffs/Git-Refs-2026-10-23.md), keine belegte Aussage zur Ursache.
 
-Nächste Schritte: B4a nach Freigabe integrieren und API0.6 separat einfrieren;
+Nächste Schritte: die neun neu gestarteten kombinierten B4a-Main-CIs kontrollieren;
 A-TF1-CIfehler gezielt klären, F5-Darstellungsfix unabhängig nachprüfen und W1-QA
 abschließen. Danach jeweils freigegebene Agentintegration/Gesamtchecks; F5/F6 erst als eigenes geprüftes
 Root-Webpaket einbetten. A-TF1 darf erst nach gesonderter Uploadfreigabe hochgeladen
@@ -129,3 +134,25 @@ Keine eigenen Produkt-, DB-, Browser-, Signing- oder Deployjobs gestartet.
 Produktprüfungen für diese reine Dokumentationsänderung nicht erneut ausgeführt.
 Dokumentationsprüfung: 275 Dateien, null Fehler; Diffprüfung bestanden, sechs
 Vertragsprüfsummen direkt bestätigt. Leadreview vor Integration bleibt offen.
+
+## B4a-Integrationscheckpoint
+
+Nach konkreter Leadfreigabe im eigenen `release/b4a-20261023`-Worktree integriert:
+Featuremerge `77c4c41`, unabhängiger Reviewmerge `3d21e42`, angenommene vollständige
+Dokumentationsprovenienz `35c151c`/`e554bb0` als `d1d4699`. Geprüfte B4a-Produkt-,
+Vertrags- und Workflowbytes unverändert. API0.6 im [Vertragsindex](../contracts/README.md)
+ausdrücklich freigegeben; Referenzbackend `3d21e42` enthält Implementation und Review.
+Keine Site-, F5- oder Appleproduktänderung in diesem Release.
+
+Kombinierte lokale Checks bestanden: `go test -race -count=1 ./...`, `go vet ./...`,
+alle fünf Vertragswächter, tatsächliches Manifest mit fünf Originalassets, neun
+Python-Buildprüfungen und Dokumentations-/Diffcheck. Keine neue lokale Docker-,
+Live-DB-, Compose- oder Swarmserie für diese unveränderten Betriebsbereiche; die
+unabhängigen vier Treiberproben und neun exakten Produkt-CIs stehen im Review.
+Die Veröffentlichung dieses Checkpoints startet eine neue kombinierte Mainserie
+mit neun CIs; deren Ergebnisse werden noch nicht als erfolgreich behauptet.
+
+STATUS/ARBEITSPLAN wurden nach ausdrücklichem Abschluss/Transfer des Docs-Agents
+für diesen begrenzten Release exklusiv durch den Releasekoordinator aktualisiert.
+Keine eigenen lokalen Prüfjobs oder Ressourcen verbleiben. Nach Push: exakte
+Main-SHA/CI-IDs melden und Dateibesitz durch Root neu zuweisen lassen.

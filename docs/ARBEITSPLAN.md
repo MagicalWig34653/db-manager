@@ -16,7 +16,8 @@ Tatsächliche veröffentlichte Ergebnisse, Vertragspins und CI: [STATUS](STATUS.
 2. GitHub-Pages-Site mit Landingpage, gerenderter Doku, Roadmap und echten
    Screenshots bauen. Inhalt aus kanonischen Quellen, tatsächliche Features/Grenzen
    zeigen. Unabhängige Abnahme vor Veröffentlichung; keine erfundenen Termine.
-3. B4a ist unabhängig ohne Findings geprüft, Integration/0.6-Freeze noch offen.
+3. B4a ist unabhängig ohne Findings geprüft und mit API0.6-Freeze integriert;
+   die neue kombinierte Main-CI nach Veröffentlichung kontrollieren.
    F5-Darstellungsbefund gezielt korrigieren und unabhängig nachprüfen.
    Anschließend den neuen akzeptierten Webstand einschließlich F6 als gesondertes
    Root-Webpaket reproduzierbar einbetten und Compose/Swarm erneut prüfen.
@@ -31,12 +32,13 @@ keine Reduktion des Endziels oder Behauptung vollständiger Parität.
 | A-TF1 / Apple Release QA | Apple, Kandidat `b702051`, Handoff `a350f75`, vorhandener Reviewbranch `review/atf1` | Review59c7004 hat Source und tatsächliche IPA/PKG-Artefakte ohne bestätigte Findings geprüft. Exakte Apple-CI39906842616 ist inzwischen bei CompileAssetCatalogVariant/AppIcon.icon fehlgeschlagen; Ursache und enger Fix durch zuständigen Apple-Agent, danach unabhängige Nachprüfung/neue exakte CI. Keine Integration oder Uploadfreigabe aus lokalem Export ableiten. |
 | W1 / Site Engineering | Root, `feat/pages-site`, `.worktrees/pages-site`, Basis `8aab52b` | Besitz ausschließlich neues site/, neuer Pagesworkflow, eigene Build-/Browser-/Link-/A11y-/Lizenzprüfungen und Handoff W1. Landing/Doku/Roadmap aus kanonischem Markdown, echte synthetische F4b-Webscreenshots mit ehrlichen Desktop-/Tablet-Bildunterschriften. Keine Go/API/Docker/Webassets/RootSTATUS-/Plan-/Appledateien. Öffentlicher Kandidat a972fb0 liegt beim unabhängigen Sitepeer; Abnahme vor Pagesaktivierung/Mainintegration/Deployment, Pages bis dahin HTTP 404. |
 | F5 / Frontend QA | Web, `feat/schema-workbench`, `.worktrees/schema-workbench`; Kandidat `87751cc`, Handoff `6d8aa5e` | Lesende Index-/Constraintansicht auf freigegebenem API0.5 prüfen: geordnete Terme/Rollen, Partial/Expression/Include/FK/Check, Unknown/Coverage, ältere-Backend-Fallbacks, Sessiongrenzen und F6-/CRUD-/CSP-/Lizenzregressionen. Echte UI-Belege SQLite/PG; MySQL/Maria nur Unit-Testdaten. Eigener Reviewbranch/-handoff, keine Autorfixes. Alle drei bisherigen exakten CIs erfolgreich. Genau QA-F5-01 niedrig offen: Darstellung leerer Constraintnamen. Autor behebt eng, unabhängige Fixnachprüfung und passende neue CI vor Annahme. |
-| B4a / Backend QA | Root, `feat/table-create`, `.worktrees/table-create`; Produkt `40defdc`, Handoff `464e647` | API0.6-Kandidat für ausschließlich neue Tabellen unabhängig prüfen: feste Typen/konstante Defaults/PK/Nullable, sichere Identifier/Encoder, Auth/Bounds, vier reale Treiber, Rechte-/Name-/Lock-/Abbruch-/Commit-/Beobachtungsraces. Bestätigter Abschluss und Strukturbeobachtung getrennt; kein universelles DDL-Rollback/Retry/Drop. Reviewf36463d ohne bestätigte Findings abgeschlossen, alle neun exakten CIs erfolgreich. Noch keine Mainintegration oder0.6-Freeze; Clientverbrauch erst nach konkreter Releasefreigabe und integriertem Vertragscheckpoint. |
-| Projektgedächtnis / Dokumentation | Root, `docs/project-status-20261023`, `.worktrees/project-status` | Exklusiv docs/STATUS.md, docs/ARBEITSPLAN.md und zusätzlich docs/TEAM.md zu aktuellem Snapshot konsolidieren; historische Evidenz über Handoffs erhalten. Keine Produktdateien. Dokumentations-/Diff-/Autorprüfung, reiner Docscommit mit `[skip ci]`, Leadreview vor Integration/Push. Releasekoordinator erhält STATUS/Plan erst nach explizitem Transfer für den kurzen B4a-Integrationscheckpoint. |
+| B4a / integriert | Root, `feat/table-create`, `.worktrees/table-create`; Produkt `40defdc`, Handoff `464e647` | API0.6-Kandidat für ausschließlich neue Tabellen unabhängig prüfen: feste Typen/konstante Defaults/PK/Nullable, sichere Identifier/Encoder, Auth/Bounds, vier reale Treiber, Rechte-/Name-/Lock-/Abbruch-/Commit-/Beobachtungsraces. Bestätigter Abschluss und Strukturbeobachtung getrennt; kein universelles DDL-Rollback/Retry/Drop. Reviewf36463d ohne bestätigte Findings abgeschlossen, alle neun exakten Produkt-CIs erfolgreich. Nach konkreter Leadfreigabe als77c4c41/3d21e42 integriert und API0.6 eingefroren; kombinierte lokale Checks bestanden, neue neun Main-CIs nach Veröffentlichung kontrollieren. Neue Clientfunktion benötigt eigenes geprüftes Ticket. |
+| Projektgedächtnis / Dokumentation | Root, `docs/project-status-20261023`, `.worktrees/project-status` | Exklusiv docs/STATUS.md, docs/ARBEITSPLAN.md und zusätzlich docs/TEAM.md zu aktuellem Snapshot konsolidieren; historische Evidenz über Handoffs erhalten. Keine Produktdateien. Dokumentations-/Diff-/Autorprüfung, reiner Docscommit mit `[skip ci]`, Leadreview vor Integration/Push. STATUS/Plan sind nach ausdrücklichem Transfer für den begrenzten B4a-Integrationscheckpoint exklusiv beim Releasekoordinator; Docs-Agent schreibt nicht parallel. |
 
 Jeder Writer besitzt eigenen Branch/Worktree. Root weist weitere Implementierungs-,
 Review- und Releasepakete gezielt zu. Keine parallelen Writer derselben Dateien.
-Die beiden zentralen Rootdateien liegen exklusiv beim Dokumentations-Agent;
+Die beiden zentralen Rootdateien liegen für den laufenden B4a-Releasecheckpoint
+exklusiv beim Releasekoordinator; erneuter Transfer nur durch Root;
 Apple-/Webstatus nur durch ausdrücklich benannten Agent pflegen. Reviewkandidaten
 bleiben eingefroren, bis ein reproduzierbarer Befund an den Autor zurückgegeben wird.
 
@@ -60,10 +62,11 @@ bleiben eingefroren, bis ein reproduzierbarer Befund an den Autor zurückgegeben
    Rootpaket F5b darf nur den endgültig freigegebenen gemeinsamen Quellpin verwenden;
    zwei bytegleiche öffentliche Builds, Originalnotices/Manifest, echter eingebetteter
    SQL-/Tabellen-/CRUD-/Export-/Sessionpfad und Compose-/isolierte-Swarm-Persistenz.
-4. **B4a:** Reviewf36463d und alle neun exakten CIs sind ohne Findings/grün.
-   Nach konkreter Freigabe Agentintegration, API0.6-Vertragsindexfreeze und
-   kombinierte Mainprüfungen. Der Releasekoordinator erhält den kurzen zentralen
-   Integrationscheckpoint erst nach explizitem Dateibesitztransfer.
+4. **B4a:** Reviewf36463d und alle neun exakten Produkt-CIs sind ohne Findings/grün.
+   Nach konkreter Freigabe sind Feature/Review als77c4c41/3d21e42 integriert, API0.6
+   ausdrücklich eingefroren und die lokalen kombinierten Checks bestanden. Die neue
+   neunfache Main-CI nach Veröffentlichung kontrollieren. Der Releasekoordinator
+   besitzt die zentralen Statusdateien ausschließlich für diesen Checkpoint.
    Erst danach neue Tabellenanlage im Client als eigenes Ticket beginnen.
 5. **Checkpoint:** vor der Zeitgrenze tatsächliche Dateien/Commits, Tests/Grenzen,
    unintegrierte Arbeit, Prozesse/Ressourcen und nächsten Schritt pro Paket sichern.
