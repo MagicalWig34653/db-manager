@@ -55,6 +55,10 @@ const createVersionTable = "CREATE TABLE IF NOT EXISTS schema_migrations (" +
 	"applied_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)" +
 	") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
 
+// migrationIOReserve is added to the lock wait to bound a single migration
+// statement; a hung server still ends the run eventually.
+const migrationIOReserve = 10 * time.Minute
+
 // MigrateOptions tunes the migration run.
 type MigrateOptions struct {
 	// LockTimeout is how long to wait for a concurrent migrator. Default 60s.
@@ -153,7 +157,8 @@ func Migrate(ctx context.Context, cfg Config, opts MigrateOptions) (Report, erro
 		opts.LockTimeout = 60 * time.Second
 	}
 	user, password := cfg.migrationAccount()
-	db, err := openPool(cfg, user, password)
+	// GET_LOCK waits and DDL may legitimately take longer than the runtime I/O limit.
+	db, err := openPoolWithIO(cfg, user, password, opts.LockTimeout+migrationIOReserve)
 	if err != nil {
 		return Report{}, err
 	}
@@ -166,7 +171,7 @@ func Migrate(ctx context.Context, cfg Config, opts MigrateOptions) (Report, erro
 
 	name := lockName(cfg.Database)
 	var got sql.NullInt64
-	if err := conn.QueryRowContext(ctx, "SELECT GET_LOCK(?, ?)", name, int(opts.LockTimeout/time.Second)).Scan(&got); err != nil {
+	if err := conn.QueryRowContext(ctx, "SELECT GET_LOCK(?, ?)", name, lockSeconds(opts.LockTimeout)).Scan(&got); err != nil {
 		return Report{}, classify(err)
 	}
 	if !got.Valid || got.Int64 != 1 {
@@ -238,3 +243,6 @@ func (s *Store) VerifySchema(ctx context.Context) error {
 	}
 	return nil
 }
+
+// lockSeconds converts to whole seconds, rounding up so a sub-second wait is not 0.
+func lockSeconds(d time.Duration) int { return int((d + time.Second - 1) / time.Second) }

@@ -61,6 +61,12 @@ func Open(cfg Config) (*Store, error) {
 // explicitly disabled for local development. With TLS configured the driver
 // never falls back to plaintext.
 func openPool(cfg Config, user, password string) (*sql.DB, error) {
+	return openPoolWithIO(cfg, user, password, ioTimeout)
+}
+
+// openPoolWithIO is openPool with an explicit read/write timeout, which the
+// migration pool needs to be much longer than the runtime pool.
+func openPoolWithIO(cfg Config, user, password string, io time.Duration) (*sql.DB, error) {
 	c := mysql.NewConfig()
 	c.Logger = &mysql.NopLogger{}
 	c.Net = "tcp"
@@ -69,8 +75,8 @@ func openPool(cfg Config, user, password string) (*sql.DB, error) {
 	c.Passwd = password
 	c.DBName = cfg.Database
 	c.Timeout = connectTimeout
-	c.ReadTimeout = ioTimeout
-	c.WriteTimeout = ioTimeout
+	c.ReadTimeout = io
+	c.WriteTimeout = io
 	c.ParseTime = true
 	c.Loc = time.UTC
 	c.MultiStatements = false
@@ -97,10 +103,16 @@ func openPool(cfg Config, user, password string) (*sql.DB, error) {
 // Ping reports whether the state store answers within a short deadline and
 // updates the cached health.
 func (s *Store) Ping(ctx context.Context) error {
-	ctx, cancel := context.WithTimeout(ctx, pingTimeout)
+	parent := ctx
+	ctx, cancel := context.WithTimeout(parent, pingTimeout)
 	defer cancel()
 	var one int
 	err := s.db.QueryRowContext(ctx, "SELECT 1").Scan(&one)
+	if err != nil && parent.Err() != nil {
+		// The caller gave up (cancellation or its own deadline). That says nothing
+		// about the database, so the cached health must not change.
+		return classify(err)
+	}
 	s.healthy.Store(err == nil)
 	return classify(err)
 }

@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-# Optional addition after swarm.state.yaml: migrate the state schema at service
-# start with a separate DDL account (database lock; replicas migrate exactly once).
-#
-#   docker stack deploy -c deploy/swarm.yaml -c deploy/swarm.state.yaml \
-#     -c deploy/swarm.state-migrate.yaml dbmanager
+# Optional addition after swarm.state.yaml carrying the separate DDL account.
+# Standard: run `db-manager state-migrate` as a one-shot job/init step and deploy the
+# long-running service WITHOUT this file. Exception: deploying the service with this
+# file makes it migrate at start and keeps the DDL password in the container.
+# See docs/BETRIEB.md; a Swarm one-shot job is not provided or tested here.
 version: "3.8"
 services:
   app:

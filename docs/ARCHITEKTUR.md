@@ -55,9 +55,9 @@ Serverzustand mehrerer Replikate: [ADR-0006](decisions/ADR-0006-serverzustand.md
 Option (c) akzeptiert (externe MariaDB als einziger Speicher). Umgesetzt ist nur das
 Fundament SZ1 in `internal/serverstate` (optional, ohne Konfiguration inaktiv): eigener
 Verbindungspool getrennt von den Engine-Pools, TLS mit Zertifikatsprüfung, Migrationen mit
-Sperre (GET_LOCK), AES-256-GCM-Feldverschlüsselung mit Schlüsselkennung, Health und fail
-closed in `internal/httpapi`. Keine Konten, Passkeys, Teams oder Sessions; Bearer-Modus
-unverändert. Siehe [BETRIEB](BETRIEB.md) und [SZ1](handoffs/SZ1.md); der Review steht aus.
+Sperre (GET_LOCK), AES-256-GCM-Feldverschlüsselung mit Schlüsselkennung, Liveness/
+Readiness und routenweises fail closed (`RequireState`) in `internal/httpapi`. Keine Konten, Passkeys, Teams oder Sessions; Bearer-Modus
+unverändert. Siehe [BETRIEB](BETRIEB.md) und [SZ1](handoffs/SZ1.md); unabhängiges Review mit Auflagen liegt vor, Nachbesserung im Handoff.
 Compose und Swarm sind verbindlich (ADR0003). SQLite bleibt gemäß ADR0004 eine
 exklusive lokale Datei bei einzelner Replica und einer aktiven Verbindung, DELETE-
 Journal, kein WAL/NFS/HA/Powerlossversprechen. Swarm wurde auf eigenem isolierten

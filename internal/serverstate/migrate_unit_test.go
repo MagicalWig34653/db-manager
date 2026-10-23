@@ -5,9 +5,12 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"testing"
+	"time"
 
 	mysql "github.com/go-sql-driver/mysql"
 )
@@ -86,4 +89,20 @@ func containsAny(text string, parts ...string) bool {
 		}
 	}
 	return false
+}
+
+func TestLockSecondsRoundsUp(t *testing.T) {
+	for in, want := range map[time.Duration]int{time.Millisecond: 1, time.Second: 1, 1500 * time.Millisecond: 2, 60 * time.Second: 60} {
+		if got := lockSeconds(in); got != want {
+			t.Fatalf("lockSeconds(%s) = %d want %d", in, got, want)
+		}
+	}
+}
+
+func TestConfigSecretsAreNotJSONSerializable(t *testing.T) {
+	cfg := Config{Host: "h", Password: "sentinel-pw", MigrationPassword: "sentinel-mpw", ServerKey: make([]byte, KeySize)}
+	data, err := json.Marshal(cfg)
+	if err != nil || strings.Contains(string(data), "sentinel") || strings.Contains(string(data), "ServerKey") {
+		t.Fatalf("secret serialized: %s %v", data, err)
+	}
 }
