@@ -51,6 +51,7 @@ und DB-Locks/Transaktionen. SQLite REPLACE und PostgreSQL Rewrite sind ausdrück
 abgesichert. Unbekannter Commitausgang bedeutet keinen automatischen Retry; Trigger-
 und externe Effekte/ABA/Exactly-once sind keine universellen Garantien.
 
+Vorschlag zum Serverzustand mehrerer Replikate (nicht akzeptiert): [ADR-0006](decisions/ADR-0006-serverzustand.md).
 Compose und Swarm sind verbindlich (ADR0003). SQLite bleibt gemäß ADR0004 eine
 exklusive lokale Datei bei einzelner Replica und einer aktiven Verbindung, DELETE-
 Journal, kein WAL/NFS/HA/Powerlossversprechen. Swarm wurde auf eigenem isolierten
