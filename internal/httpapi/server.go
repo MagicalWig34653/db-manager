@@ -26,16 +26,36 @@ type API struct {
 	engine    core.Engine
 	tokenHash [32]byte
 	handler   http.Handler
+	state     StateStore
 }
+
+// StateStore is the optional persistent server state. When configured, the API
+// fails closed (503) while it is unreachable and /healthz reports it.
+type StateStore interface {
+	// Healthy returns the cached reachability without network access.
+	Healthy() bool
+	// Check performs a live reachability check.
+	Check(ctx context.Context) error
+}
+
+// Option configures optional API behaviour.
+type Option func(*API)
+
+// WithStateStore enables the fail-closed state gate and the extended health check.
+func WithStateStore(state StateStore) Option { return func(a *API) { a.state = state } }
+
 type errorBody struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 }
 
-func New(engine core.Engine, token string) *API {
+func New(engine core.Engine, token string, options ...Option) *API {
 	a := &API{engine: engine, tokenHash: sha256.Sum256([]byte(token))}
+	for _, option := range options {
+		option(a)
+	}
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) { writeJSON(w, 200, map[string]string{"status": "ok"}) })
+	mux.HandleFunc("GET /healthz", a.health)
 	mux.Handle("GET /api/v1/capabilities", a.auth(http.HandlerFunc(a.capabilities)))
 	mux.Handle("POST /api/v1/connections/test", a.auth(http.HandlerFunc(a.test)))
 	mux.Handle("POST /api/v1/catalog", a.auth(http.HandlerFunc(a.catalog)))
@@ -53,7 +73,28 @@ func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.Header().Set("Cache-Control", "no-store")
 	w.Header().Set("Referrer-Policy", "no-referrer")
+	if a.state != nil && (r.URL.Path == "/api" || strings.HasPrefix(r.URL.Path, "/api/")) && !a.state.Healthy() {
+		w.Header().Set("Retry-After", "5")
+		fail(w, 503, "state_unavailable", "Serverzustand ist nicht erreichbar.")
+		return
+	}
 	a.handler.ServeHTTP(w, r)
+}
+
+// health reports process liveness. Without a configured state store the body is
+// the historical {"status":"ok"}; with one, an unreachable store is unhealthy.
+func (a *API) health(w http.ResponseWriter, r *http.Request) {
+	if a.state == nil {
+		writeJSON(w, 200, map[string]string{"status": "ok"})
+		return
+	}
+	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
+	defer cancel()
+	if err := a.state.Check(ctx); err != nil {
+		writeJSON(w, 503, map[string]string{"status": "unavailable", "state_store": "unreachable"})
+		return
+	}
+	writeJSON(w, 200, map[string]string{"status": "ok", "state_store": "ok"})
 }
 
 func (a *API) auth(next http.Handler) http.Handler {
