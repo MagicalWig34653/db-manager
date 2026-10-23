@@ -2,8 +2,9 @@
 package httpapi
 
 import (
-	"github.com/MagicalWig34653/db-manager/internal/core"
 	"net/http"
+
+	"github.com/MagicalWig34653/db-manager/internal/core"
 )
 
 func (a *API) registerStructure(mux *http.ServeMux) {

@@ -23,7 +23,7 @@ func emptyConstraint(kind string) core.StructureConstraint {
 	return core.StructureConstraint{Kind: kind, Columns: []string{}, ReferencedColumns: []string{}, OnUpdate: "not_applicable", OnDelete: "not_applicable", Deferrable: "unknown", InitiallyDeferred: "unknown", Enforced: "unknown", Validated: "unknown"}
 }
 func emptyTerm(position int) core.IndexTerm {
-	return core.IndexTerm{Position: position, Kind: "unknown", Role: "unknown", Direction: "unknown", CollationState: "unknown", PrefixState: "unknown"}
+	return core.IndexTerm{Position: position, Kind: "unknown", Role: "unknown", Direction: "unknown", CollationState: "unknown", PrefixState: "unknown", PrefixUnit: "unknown"}
 }
 func (e *Engine) Structure(ctx context.Context, r core.DescribeRequest) (core.TableStructure, error) {
 	empty := core.TableStructure{}
@@ -57,8 +57,14 @@ func (e *Engine) Structure(ctx context.Context, r core.DescribeRequest) (core.Ta
 		return empty, safe(ctx, err)
 	}
 	sort.SliceStable(result.Indexes, func(i, j int) bool { return result.Indexes[i].Name < result.Indexes[j].Name })
+	if ctx.Err() != nil {
+		return empty, ctx.Err()
+	}
 	if err = structureBudget(result); err != nil {
 		return empty, err
+	}
+	if ctx.Err() != nil {
+		return empty, ctx.Err()
 	}
 	return result, nil
 }

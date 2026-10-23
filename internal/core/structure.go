@@ -14,6 +14,7 @@ type IndexTerm struct {
 	CollationState string    `json:"collation_state"`
 	Collation      *TableRef `json:"collation,omitempty"`
 	PrefixState    string    `json:"prefix_state"`
+	PrefixUnit     string    `json:"prefix_unit"`
 	PrefixLength   *int      `json:"prefix_length,omitempty"`
 }
 type StructureIndex struct {
@@ -21,6 +22,7 @@ type StructureIndex struct {
 	Unique        string      `json:"unique"`
 	Primary       string      `json:"primary"`
 	Method        string      `json:"method"`
+	MethodKnown   bool        `json:"method_known"`
 	Partial       string      `json:"partial"`
 	Valid         string      `json:"valid"`
 	NullsDistinct string      `json:"nulls_distinct"`

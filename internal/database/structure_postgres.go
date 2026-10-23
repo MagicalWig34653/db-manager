@@ -48,12 +48,13 @@ func postgresStructure(ctx context.Context, db *sql.DB, d core.TableDescription,
 					nullsDistinct = yesNo(!nulls.Bool)
 				}
 			}
-			result.Indexes = append(result.Indexes, core.StructureIndex{Name: name, Unique: yesNo(unique), Primary: yesNo(primary), Method: method, Partial: yesNo(partial), Valid: yesNo(valid), NullsDistinct: nullsDistinct, Terms: []core.IndexTerm{}})
+			result.Indexes = append(result.Indexes, core.StructureIndex{Name: name, Unique: yesNo(unique), Primary: yesNo(primary), Method: method, MethodKnown: true, Partial: yesNo(partial), Valid: yesNo(valid), NullsDistinct: nullsDistinct, Terms: []core.IndexTerm{}})
 			previous = name
 			first = false
 		}
 		term := emptyTerm(position)
 		term.PrefixState = "none"
+		term.PrefixUnit = "not_applicable"
 		term.Role = "include"
 		if key {
 			term.Role = "key"

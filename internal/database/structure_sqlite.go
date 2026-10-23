@@ -44,7 +44,7 @@ func sqliteStructure(ctx context.Context, db *sql.DB, d core.TableDescription, r
 		result.Constraints = append(result.Constraints, constraint)
 	}
 	for _, listed := range listed {
-		index := core.StructureIndex{Name: listed.name, Unique: yesNo(listed.unique), Primary: yesNo(listed.origin == "pk"), Method: "unknown", Partial: yesNo(listed.partial), Valid: "unknown", NullsDistinct: "unknown", Terms: []core.IndexTerm{}}
+		index := core.StructureIndex{Name: listed.name, Unique: yesNo(listed.unique), Primary: yesNo(listed.origin == "pk"), Method: "", MethodKnown: false, Partial: yesNo(listed.partial), Valid: "unknown", NullsDistinct: "unknown", Terms: []core.IndexTerm{}}
 		rows, err = db.QueryContext(ctx, `SELECT seqno,cid,name,"desc",coll,"key" FROM pragma_index_xinfo(?) ORDER BY seqno`, listed.name)
 		if err != nil {
 			return err
@@ -67,6 +67,7 @@ func sqliteStructure(ctx context.Context, db *sql.DB, d core.TableDescription, r
 				term.Direction = "desc"
 			}
 			term.PrefixState = "none"
+			term.PrefixUnit = "not_applicable"
 			if cid == -1 {
 				term.Kind = "rowid"
 			} else if cid == -2 {

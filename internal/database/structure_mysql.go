@@ -51,13 +51,14 @@ func mysqlStructure(ctx context.Context, db *sql.DB, d core.TableDescription, re
 			if unique == "no" {
 				distinct = "not_applicable"
 			}
-			result.Indexes = append(result.Indexes, core.StructureIndex{Name: name, Unique: unique, Primary: yesNo(primary), Method: method, Partial: "unknown", Valid: "unknown", NullsDistinct: distinct, Terms: []core.IndexTerm{}})
+			result.Indexes = append(result.Indexes, core.StructureIndex{Name: name, Unique: unique, Primary: yesNo(primary), Method: method, MethodKnown: true, Partial: "unknown", Valid: "unknown", NullsDistinct: distinct, Terms: []core.IndexTerm{}})
 			first = false
 			previous = name
 		}
 		term := emptyTerm(position)
 		term.Role = "key"
 		term.PrefixState = "none"
+		term.PrefixUnit = "not_applicable"
 		if column.Valid {
 			term.Kind = "column"
 			value := column.String
@@ -86,6 +87,7 @@ func mysqlStructure(ctx context.Context, db *sql.DB, d core.TableDescription, re
 			}
 			value := int(prefix.Int64)
 			term.PrefixState = "present"
+			term.PrefixUnit = "unknown"
 			term.PrefixLength = &value
 		}
 		index := &result.Indexes[len(result.Indexes)-1]
