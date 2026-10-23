@@ -48,6 +48,12 @@ Eine vollständige Release-SBOM einschließlich Laufzeitimage, Drittanteilen und
 Quellbereitstellungs-/Lizenzpflichten bleibt vor Distribution zu prüfen. Dieses Inventar
 ist keine juristische Distributionsfreigabe.
 
+SZ1 (Serverzustand) fügt **keine** Abhängigkeit hinzu: `github.com/go-sql-driver/mysql`
+(MPL-2.0, oben inventarisiert, unverändert, `go.mod`/`go.sum` unverändert) dient auch dem
+Zugriff auf die Serverzustands-MariaDB; die Feldverschlüsselung nutzt nur die Go-Standardbibliothek
+(`crypto/aes`, `crypto/cipher`). Der MariaDB-Fixture-Container `mariadb:12.3` ist reines
+Testwerkzeug und nicht Teil des Produktimages.
+
 Fixtures: MySQL 8.4, MariaDB 12.3 und PostgreSQL 18.6 werden ausschließlich als isolierte
 Testwerkzeuge ausgeführt und nicht in das Produktimage eingebunden. Ihre Images behalten
 ihre jeweiligen Originalbedingungen. Eine erfolgreiche Treiberprobe ist kein Nachweis

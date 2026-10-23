@@ -180,8 +180,97 @@ Swarm veröffentlicht Port 8080 über das Routing Mesh und damit potenziell auf 
 Nodes. Netzwerkzugang begrenzen und TLS-Proxy konfigurieren. Keine Secrets in Logs
 oder den Stack einbetten. Rotation über neues versioniertes Secret und
 `DBM_TOKEN_SECRET` mit Stack-Update. Healthcheck und geordneter SIGTERM-Shutdown
-sind im Image enthalten. Mehrere Replikate erfordern erst gemeinsame Persistenz,
-Session-/Jobkoordination und getestete Konsistenzregeln.
+sind im Image enthalten. Mehrere Replikate erfordern gemeinsame Persistenz,
+Session-/Jobkoordination und getestete Konsistenzregeln; der optionale Serverzustand (Abschnitt
+unten) ist dafür erst das Fundament, kein Mehrreplikat-Nachweis.
+
+## Optionaler Serverzustand in externer MariaDB (SZ1)
+
+Grundlage: [ADR-0006](decisions/ADR-0006-serverzustand.md) (Option c akzeptiert). SZ1 liefert
+nur das Fundament (Verbindung, Migration, Feldverschlüsselung, Health, fail closed), **keine**
+Nutzerfunktion: keine Passkeys, Konten, Teams oder Sessions. Der Standardbetrieb ohne diese
+Variablen ist unverändert (Bearer-Token, kein Serverzustand, `/healthz` liefert `{"status":"ok"}`).
+Die MariaDB ist extern und wird vom Betreiber betrieben; sie ist kein Bestandteil von
+`compose.yaml`/`deploy/swarm.yaml` und kein verteilter Speicher der Anwendung. Sicherung,
+Hochverfügbarkeit und Updates der DB liegen beim Betreiber; es gibt kein HA-Versprechen.
+Der Pool ist vollständig getrennt von den Verbindungen zu verwalteten Zieldatenbanken
+(`DBM_ALLOWED_HOSTS`/`DBM_DB_CA_FILE` gelten dafür nicht und umgekehrt).
+
+| Variable | Bedeutung |
+| --- | --- |
+| `DBM_STATE_DB_HOST` | Hostname oder IP der MariaDB. Schaltet den Serverzustand ein. Fehlt er, aber andere `DBM_STATE_*` sind gesetzt, bricht der Start ab. |
+| `DBM_STATE_DB_PORT` | Standard `3306` |
+| `DBM_STATE_DB_NAME` | eigene Datenbank für den Serverzustand (`[A-Za-z0-9_]`) |
+| `DBM_STATE_DB_USER` | Laufzeitbenutzer |
+| `DBM_STATE_DB_PASSWORD_FILE` | Pfad der Passwortdatei (Docker-Secret) |
+| `DBM_STATE_SERVER_KEY_FILE` | Pfad der Serverschlüssel-Datei: 32 Byte als Base64 oder Hex (Docker-Secret) |
+| `DBM_STATE_DB_CA_FILE` | optional: zusätzliches PEM-CA-Bundle nur für diese DB (Systemwurzeln bleiben) |
+| `DBM_STATE_DB_TLS` | leer/`verify` (Standard: TLS mit Zertifikatskette und Hostnamenprüfung, kein Klartextfallback) oder `disable` (nur lokale Entwicklung) |
+| `DBM_STATE_DB_MIGRATE_USER`, `DBM_STATE_DB_MIGRATE_PASSWORD_FILE` | optional, nur gemeinsam: separater Benutzer mit DDL-Rechten; nur dann migriert der Server beim Start |
+
+Passwörter und Serverschlüssel gibt es nur als Datei, nie als Variable, Argument oder Log.
+Fehlermeldungen sind feste Texte ohne Host, Benutzer, Passwort oder Treibertext.
+Den Serverschlüssel mit `openssl rand -base64 32` erzeugen und sichern: Ohne ihn sind
+verschlüsselte Felder unbrauchbar (Backup/Restore-Verfahren ist eine offene Frage von ADR-0006).
+
+Einrichtung der Datenbank (Beispiel, Namen anpassen, Passwörter nicht in die Shell-Historie):
+
+```sql
+CREATE DATABASE dbmanager_state CHARACTER SET utf8mb4;
+CREATE USER 'dbmanager_runtime'@'%' IDENTIFIED BY '...' REQUIRE SSL;
+GRANT SELECT, INSERT, UPDATE, DELETE ON dbmanager_state.* TO 'dbmanager_runtime'@'%';
+CREATE USER 'dbmanager_migrate'@'%' IDENTIFIED BY '...' REQUIRE SSL;
+GRANT ALL PRIVILEGES ON dbmanager_state.* TO 'dbmanager_migrate'@'%';
+```
+
+Der Laufzeitbenutzer führt nie DDL aus. Migration entweder beim Start mit dem
+Migrationsbenutzer (Variablen oben; GET_LOCK sorgt dafür, dass mehrere Replikate genau
+einmal migrieren, die anderen warten und erkennen den Stand) oder getrennt als Einmalbefehl:
+
+```sh
+db-manager state-migrate --plan   # zeigt ausstehende Migrationen, ändert nichts
+db-manager state-migrate          # wendet sie an (Migrationsbenutzer erforderlich)
+```
+
+Ohne Migrationsbenutzer migriert der Server nicht; ist das Schema veraltet oder passt es
+nicht zur Programmversion, startet er nicht (Meldung ohne Details). Migrationen sind
+vorwärts gerichtet, mit Prüfsumme je Version; nachträglich geänderte Migrationen werden erkannt.
+
+Compose (externe DB, Dateien wie oben unter `secrets/`, die Dateien sind per Modus 0444 lesbar):
+
+```sh
+DBM_STATE_DB_HOST=db.internal.example \
+  docker compose -f compose.yaml -f compose.state.yaml up -d
+# mit Migration beim Start zusätzlich: -f compose.state-migrate.yaml
+```
+
+Pfade und Namen lassen sich über `DBM_STATE_DB_PASSWORD_PATH`, `DBM_STATE_SERVER_KEY_PATH`,
+`DBM_STATE_DB_CA_PATH`, `DBM_STATE_DB_NAME`, `DBM_STATE_DB_USER` (und `..._MIGRATE_...`)
+ändern. Das Compose-Netz muss die DB erreichen (gleiches Netz oder erreichbarer Hostname).
+Swarm: `deploy/swarm.state.yaml` (und `swarm.state-migrate.yaml`) nach `swarm.yaml` mergen;
+Secrets vorher als externe Swarm-Secrets `dbmanager_state_db_password_v1`,
+`dbmanager_state_server_key_v1`, `dbmanager_state_db_ca_v1` (Migration:
+`dbmanager_state_db_migrate_password_v1`) anlegen und die DB im Overlay erreichbar machen.
+`swarm.yaml` bleibt auf ein Replikat mit lokalem Volume festgelegt (ADR-0004); das
+Beispiel ändert das nicht und ist nur als gerendertes Stack-Dokument geprüft
+(`docker stack config`), nicht als Swarm-Deployment.
+
+Verhalten bei Betrieb und Ausfall:
+
+- Start: DB, TLS und Schema müssen innerhalb von 30 Sekunden stimmen, sonst Abbruch
+  (Zertifikats- und Anmeldefehler sofort). Der Server loggt nur feste Statuszeilen.
+- `/healthz` unterscheidet Prozess und Speicher: mit Serverzustand `{"status":"ok","state_store":"ok"}`,
+  bei Ausfall HTTP 503. Der Docker-Healthcheck wird dadurch `unhealthy`.
+- Fail closed: Ist die DB nicht erreichbar, beantwortet der Server **alle** `/api/`-Anfragen
+  mit 503 `state_unavailable`, auch mit gültigem Bearer-Token; die Oberfläche selbst
+  (statische Dateien) bleibt erreichbar. Kehrt die DB zurück, erholt sich der Dienst ohne
+  Neustart (Zustand wird alle 3 Sekunden geprüft). Das ist Implementierungsstand von SZ1,
+  keine endgültige Produktentscheidung (offene Frage 8 in ADR-0006).
+- Der Bearer-Token-Modus ändert sich nicht; der Token bleibt zusätzlich Pflicht.
+
+Prüfung: `python3 scripts/test-server-state.py` (nur eigene Wegwerf-MariaDB-Container mit
+TLS, ein eigenes Docker-Netz und ein Testimage; räumt alles ab). Ergebnisse und Grenzen:
+[SZ1](handoffs/SZ1.md).
 
 ## Verifikation und Quellen
 

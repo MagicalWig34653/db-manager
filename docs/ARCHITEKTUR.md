@@ -1,6 +1,6 @@
 # Architektur
 
-Stand: 20.10.2026. Implementierte Wege und geplante Erweiterungen bleiben getrennt.
+Stand: 23.10.2026. Implementierte Wege und geplante Erweiterungen bleiben getrennt.
 Freigegebene Commits/Prüfungen: [STATUS](STATUS.md), Verträge: [Index](../contracts/README.md).
 
 ## Implementierte Ausführungswege
@@ -51,7 +51,13 @@ und DB-Locks/Transaktionen. SQLite REPLACE und PostgreSQL Rewrite sind ausdrück
 abgesichert. Unbekannter Commitausgang bedeutet keinen automatischen Retry; Trigger-
 und externe Effekte/ABA/Exactly-once sind keine universellen Garantien.
 
-Vorschlag zum Serverzustand mehrerer Replikate (nicht akzeptiert): [ADR-0006](decisions/ADR-0006-serverzustand.md).
+Serverzustand mehrerer Replikate: [ADR-0006](decisions/ADR-0006-serverzustand.md) ist mit
+Option (c) akzeptiert (externe MariaDB als einziger Speicher). Umgesetzt ist nur das
+Fundament SZ1 in `internal/serverstate` (optional, ohne Konfiguration inaktiv): eigener
+Verbindungspool getrennt von den Engine-Pools, TLS mit Zertifikatsprüfung, Migrationen mit
+Sperre (GET_LOCK), AES-256-GCM-Feldverschlüsselung mit Schlüsselkennung, Health und fail
+closed in `internal/httpapi`. Keine Konten, Passkeys, Teams oder Sessions; Bearer-Modus
+unverändert. Siehe [BETRIEB](BETRIEB.md) und [SZ1](handoffs/SZ1.md); der Review steht aus.
 Compose und Swarm sind verbindlich (ADR0003). SQLite bleibt gemäß ADR0004 eine
 exklusive lokale Datei bei einzelner Replica und einer aktiven Verbindung, DELETE-
 Journal, kein WAL/NFS/HA/Powerlossversprechen. Swarm wurde auf eigenem isolierten
