@@ -192,8 +192,10 @@ Abnahmekriterien:
    zweiter Start wartet oder erkennt Stand (praktischer Nachweis mit Protokoll).
 2. Verbindung ohne gültiges TLS-Zertifikat wird abgelehnt; Laufzeituser kann kein
    DDL und nichts außerhalb seines Schemas (Negativtests).
-3. Neustart und Löschen eines Replikats verlieren keinen Zustand; DB-Ausfall führt
-   zu fail closed und `unhealthy`, Wiederkehr führt zu Erholung ohne Neustart.
+3. Neustart und Löschen eines Replikats verlieren keinen Zustand; DB-Ausfall wird
+   über `/readyz` (503) gemeldet, Wiederkehr führt zu Erholung ohne Neustart. Umsetzung
+   nach SZ1-Review geändert: kein globales Gate, `/healthz` bleibt Liveness; routenweises
+   fail closed über `API.RequireState` (Frage 8 bleibt offen).
 4. Verschlüsselte Felder sind im DB-Dump nicht im Klartext; falscher oder fehlender
    Schlüssel führt zu sauberem Fehler, kein Panic, kein Klartext im Log.
 5. Secrets erscheinen nicht in Logs, Fehlermeldungen, Imageebenen oder
