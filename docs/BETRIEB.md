@@ -149,7 +149,7 @@ Ein Compose-Test ersetzt keinen Swarm-Test. Fremde Docker-Dienste niemals für T
 
 ## Bestätigte Einzelzeilenaktionen
 
-F4b-Prüfkandidat: Webclient und API1–4 aus einer Origin, keine Node-/npm-Laufzeit.
+F5b-Prüfkandidat: Webclient und API1–5 aus einer Origin, keine Node-/npm-Laufzeit.
 Geeignete Tabellen bieten explizit bestätigte Einzelzeilenaktionen; keine Massen-
 änderungen oder Retrywarteschlange. Nach Konflikt Daten neu laden; nach unterbrochener
 Schreibantwort möglichen Commit zuerst prüfen. Abbruch garantiert kein Rollback.
@@ -158,4 +158,10 @@ Die F4b-Deploymentprobe führt reale strukturierte INSERT-/UPDATE-/DELETE-Anfrag
 und prüft Default/NULL/Präzision/Binärwerte sowie stale-Snapshot-Konflikte. Eine erhaltene
 Zeile wird nach Compose-Neustart und isoliertem Swarm-Taskersatz erneut gelesen.
 Dies belegt keine HA-, Powerloss-, Exactly-once- oder öffentliche Releasegarantie.
-[Prüfstand und unabhängiges Gate](handoffs/F4b.md).
+[Prüfstand und unabhängiges Gate](handoffs/F5b.md).
+
+
+Die F5b-Deploymentprobe prüft zusätzlich die authentifizierte v5-Fähigkeit und echte
+SQLite-Index-/PK-/Abdeckungsmetadaten nach Neustart bzw. Taskersatz. JSON-/CSV-Download
+bleibt eine lokale explizite Browserfunktion ohne Serverdatei/zusätzliche DB-Abfrage;
+ein Download wird dadurch nicht automatisch zu einem Backup oder vollständigen Dump.

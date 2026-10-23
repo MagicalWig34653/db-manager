@@ -99,8 +99,8 @@ class ArtifactTests(unittest.TestCase):
             with patch.object(build_web, "LOCK", lockfile), self.assertRaisesRegex(ValueError, "table contract"):
                 build_web.load_lock()
 
-    def test_all_mutation_contract_pins_are_required_and_match(self):
-        for family in ["mutation", "insert"]:
+    def test_all_additive_contract_pins_are_required_and_match(self):
+        for family in ["mutation", "insert", "structure"]:
             for field, value in [("_contract_version", None), ("_contract_sha256", "0" * 64)]:
                 with self.subTest(family=family, field=field), tempfile.TemporaryDirectory() as temporary:
                     lockfile = Path(temporary) / "lock.json"

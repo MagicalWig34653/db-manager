@@ -83,7 +83,7 @@ def verify_http(base, token):
     table_capabilities = api(base, '/api/v2/capabilities', token)
     assert table_capabilities['contract_version'] == '0.2.0' and table_capabilities['mutations'] is False
     assert set(table_capabilities['features']) == {'table_describe', 'table_browse'}
-    for version in [3, 4]:
+    for version in [3, 4, 5]:
         assert api(base, f'/api/v{version}/capabilities', expected=401)['error']['code'] == 'unauthorized'
         assert api(base, f'/api/v{version}/capabilities', token)['contract_version'] == f'0.{version}.0'
         missing, _ = request(base, f'/api/v{version}/unknown', expected=404)
@@ -131,6 +131,7 @@ def verify_persistence(base, token, restart):
     connection = {'driver': 'sqlite', 'database': 'deployment_fixture'}
     table = {'schema': 'main', 'name': 'saved'}
     query(base, token, connection, "CREATE TABLE saved(id INTEGER PRIMARY KEY AUTOINCREMENT, value TEXT NOT NULL DEFAULT 'default', nullable TEXT, precise TEXT, payload BLOB)")
+    query(base, token, connection, "CREATE INDEX saved_value_partial ON saved(value DESC) WHERE nullable IS NULL")
     context = {'connection': connection, 'table': table}
     assert api(base, '/api/v3/tables/eligibility', token, context)['eligible']
     assert api(base, '/api/v4/tables/insert-eligibility', token, context)['eligible']
@@ -153,10 +154,19 @@ def verify_persistence(base, token, restart):
     assert deleted['outcome'] == 'committed' and deleted['changed']
     expected = [[{'kind': 'text', 'value': 'Neustart ✓'}, {'kind': 'null'}, {'kind': 'text', 'value': precise}, {'kind': 'binary', 'value': 'AP8='}]]
     assert query(base, token, connection, 'SELECT value, nullable, precise, payload FROM saved')['results'][0]['rows'] == expected
+    before_structure = api(base, '/api/v5/tables/structure', token, context)
+    index = next(item for item in before_structure['indexes'] if item['name'] == 'saved_value_partial')
+    assert index['partial'] == 'yes'
+    assert any(term['column'] == 'value' and term['direction'] == 'desc' for term in index['terms'] if term['kind'] == 'column')
     restart()
     wait_until(lambda: api(base, '/healthz')['status'] == 'ok', 'restart health')
     assert query(base, token, connection, 'SELECT value, nullable, precise, payload FROM saved')['results'][0]['rows'] == expected
     assert api(base, '/api/v4/capabilities', token)['contract_version'] == '0.4.0'
+    structure = api(base, '/api/v5/tables/structure', token, context)
+    assert structure == before_structure
+    assert structure['coverage']['indexes'] == 'catalog'
+    assert structure['coverage']['checks'] == 'unavailable'
+    assert any(constraint['kind'] == 'primary_key' for constraint in structure['constraints'])
 
 
 def start_postgres_fixture(container, directory, database):

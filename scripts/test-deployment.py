@@ -26,7 +26,7 @@ def main():
     parser.add_argument('--skip-build', action='store_true')
     parser.add_argument('--skip-swarm', action='store_true')
     args = parser.parse_args()
-    project = 'dbmanager-f4b-deploy-' + secrets.token_hex(6)
+    project = 'dbmanager-f5b-deploy-' + secrets.token_hex(6)
     daemon = project + '-swarm'
     image = args.image or project + ':test'
     if args.skip_build and not args.image:
@@ -111,7 +111,7 @@ def main():
         # An explicitly named caller image remains owned by its caller.
         if image_created and args.image is None:
             run(['docker', 'image', 'rm', image])
-    print('F4b deployment: task-owned containers, nested daemon, volumes, image and temporary credentials removed.', flush=True)
+    print('F5b deployment: task-owned containers, nested daemon, volumes, image and temporary credentials removed.', flush=True)
 
 
 if __name__ == '__main__':

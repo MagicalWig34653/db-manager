@@ -43,7 +43,7 @@ def load_lock() -> dict:
         raise ValueError("Missing frozen table contract")
     if digest((ROOT / "contracts/api-v0.2.0.json").read_bytes()) != lock["table_contract_sha256"]:
         raise ValueError("The table contract does not match the frontend lock")
-    for family, version in [("mutation", "0.3.0"), ("insert", "0.4.0")]:
+    for family, version in [("mutation", "0.3.0"), ("insert", "0.4.0"), ("structure", "0.5.0")]:
         if lock.get(family + "_contract_version") != version or not re.fullmatch(r"[0-9a-f]{64}", lock.get(family + "_contract_sha256", "")):
             raise ValueError("Missing frozen " + family + " contract")
         if digest((ROOT / ("contracts/api-v" + version + ".json")).read_bytes()) != lock[family + "_contract_sha256"]:
@@ -124,7 +124,7 @@ def rebuild(lock: dict) -> None:
             raise ValueError("Frontend API contract differs from the lock")
         if digest((checkout / "src/lib/contract/v2/api-v0.2.0.json").read_bytes()) != lock["table_contract_sha256"]:
             raise ValueError("Frontend table contract differs from the lock")
-        for family, major in [("mutation", 3), ("insert", 4)]:
+        for family, major in [("mutation", 3), ("insert", 4), ("structure", 5)]:
             path = checkout / f"src/lib/contract/v{major}/api-v0.{major}.0.json"
             if digest(path.read_bytes()) != lock[family + "_contract_sha256"]:
                 raise ValueError("Frontend " + family + " contract differs from the lock")
