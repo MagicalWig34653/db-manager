@@ -59,15 +59,14 @@ keinen gefixten Server. [Vertragsindex](../contracts/README.md).
 | Paket / Rolle | Repo, Branch / Worktree | Tatsächlicher Stand und Dateibesitz |
 | --- | --- | --- |
 | A2 / integriert | Apple-main `3c92f974aa6d1c3056b25e3bc9ec5b0d0cb9f161` (Produkt `7e97aae`), Provenienz `feat/apple-postgres` / `.worktrees/apple-postgres` | Quellen89b2683/abaa3dc/b72e62c als fdd533e/cd5d886/031b1e8 nach unabhängiger QA und exakter grüner nativer CI39503396485 integriert. Kalenderfix mit 1.008/4.032 Vektoren und drei echten TLS-PG-Fällen unabhängig geprüft; konkreter NIOssl-Pin ausdrücklich akzeptiert. Leadintegration Swift-/Kalender-/13Pins-/Originalcheckout-/Docs74/0 bestanden, sechs Livetests im Leadlauf ausdrücklich übersprungen. Kombinierte Apple-Main-CI39505094304 an 7e97aae erfolgreich. Unabhängiger A2-Review `0d96b86` als `4047180` aufgenommen; neuer Mainstand ändert nur Review/Status/Plan, Docs75/0 und Diffcheck bestanden. |
-| F4b / Frontend & UX (`p1a_parity`) | Hauptrepo, `feat/row-web-runtime`, `.worktrees/row-web-runtime`, Basis `4044341` | Freigegebene F4-Quelle reproduzierbar im Rootprodukt einbetten. Besitz Assets/Manifest/Lock, Build-/Browser-/Deployskripte und enge Webhelper/CI, README/Einrichtung/Betrieb/Webbuild/Lizenzen/Handoff; kein DB/Core/HTTP/GoMod/API/STATUS/Plan. Produkt `3770c4e95ae4617a6b4858c87f1e69c963253416`, Handoff `46e4bf1`, unabhängiger Review `533348a72c5432c9f46b701dd70afcc4c1bdf944` ohne bestätigte Findings. Zwei bytegleiche öffentliche Builds, Embeddedbrowser9/9, vollständige Go-Race/Vet, neun Pythonprüfungen, echte Compose-/isolierte-Swarm-CRUD/409/DefaultNULLPrecisionBinary mit Persistenz und sauberer öffentlicher Go-/Imagecheckout ohne Node/npm/Siblings unabhängig bestanden. Alle sieben exakten CIs grün; Lead hat Agentintegration freigegeben, noch nicht integriert. |
+| F4b / Frontend & UX (`p1a_parity`) | Hauptrepo, `feat/row-web-runtime`, `.worktrees/row-web-runtime`, Basis `4044341` | Freigegebene F4-Quelle reproduzierbar im Rootprodukt einbetten. Besitz Assets/Manifest/Lock, Build-/Browser-/Deployskripte und enge Webhelper/CI, README/Einrichtung/Betrieb/Webbuild/Lizenzen/Handoff; kein DB/Core/HTTP/GoMod/API/STATUS/Plan. Produkt `3770c4e95ae4617a6b4858c87f1e69c963253416`, Handoff `46e4bf1`, unabhängiger Review `533348a72c5432c9f46b701dd70afcc4c1bdf944` ohne bestätigte Findings. Zwei bytegleiche öffentliche Builds, Embeddedbrowser9/9, vollständige Go-Race/Vet, neun Pythonprüfungen, echte Compose-/isolierte-Swarm-CRUD/409/DefaultNULLPrecisionBinary mit Persistenz und sauberer öffentlicher Go-/Imagecheckout ohne Node/npm/Siblings unabhängig bestanden. Alle sieben exakten CIs grün; unverändert als ffcf519/2ad78b2 integriert, kombinierter Veröffentlichungsstand4de72bc. |
 | S2a / Apple & Security (`p3a_security`) | Apple, `feat/vault-core`, `.worktrees/vault-core`, Basis `7cbeb38` | Ausschließlich eigenständiges neues Paket Packages/DBManagerVault samt Prüfungen/Originaltexten, eigenen CI/Skripten, ADR-A003/Sicherheitsdokumenten/Handoff. Actor-Session, sichere lokale atomare Dateiablage, extern verankerte CAS-/Lebenszeit-AEAD-Reservierung und Recovery mit neuen Faktoren. Keine App-/Xcode-/Rootpackage-/A2-/zentralen Statusänderungen. Produktiver nicht zurückrollbarer Anchor bleibt gesondertes Gate; nur Testanker noch keine Produktfreigabe. |
-| B3a / Backend & Platform (`p2a_drivers`) | Hauptrepo, `feat/schema-metadata`, `.worktrees/schema-metadata`, Basis `5cb604a` | Eingefrorener öffentlicher Prüfkandidat `77eccb7add990ad65fc6149103c548a40e9b7f5f`: lesende additive API0.5 für Index-/Constraintmetadaten; v1–v4 unverändert, keine DDL/SQL-Ausdruckstexte, explizite unknown-/CHECK-Lücken. Neue Core-/DB-/HTTPdateien, enge Route/Authorizer, eigene Tests/CI/Vertrag/Doku; zusätzlich exklusiv Root-STATUS/Plan. Vollständiges Go-Race/Vet, echte MySQL/MariaDB/PG-TLS-Proben, SQLite/HTTP/Auth/Limit-/Authorizerregressionen und Docs270/0 grün. Alle acht exakten nativen CIs grün; unabhängiger Peerreview durch Architecture & Security und 0.5-Freeze offen. |
+| B3a / Backend & Platform (`p2a_drivers`) | Hauptrepo, `feat/schema-metadata`, `.worktrees/schema-metadata`, Basis `5cb604a` | Unabhängiger Befund B3a-01: gleiche Constraintnamen verschiedener MySQL-/MariaDB-Typen wurden vermischt. Fixkandidat `7c66bb908a635e1de8e212a2003e3e0826de4210` trennt Typ+Name und typgebundene Joins. Eigene rote/grüne echte TLS-Regressionen für MySQL/MariaDB samt unverändertem PostgreSQL, gezielte SQLite/DB/HTTP/Sandbox-Race, Vet, Verträge und Docs270/0 bestanden. API0.5-Bytes unverändert. Acht neue exakte CIs gestartet; enger unabhängiger Nachreview/Fix-CI/0.5-Freeze vor Integration offen. Besitz unverändert plus wieder exklusiv RootSTATUS/Plan. |
 
 Für dieses verlängerte Fenster hat der Lead ausschließlich die beiden zentralen
 STATUS-/ARBEITSPLAN-Dateien des Hauptrepos an Backend & Platform zur Pflege übertragen;
-keine parallelen Writer. Nach dem F4b-Reviewcheckpoint wird dieser Besitz für genau
-den freigegebenen F4b-Integrationscheckpoint vorübergehend an Frontend & UX
-übertragen; Backend & Platform schreibt bis erneuter Zuweisung nicht parallel.
+keine parallelen Writer. Der F4b-Integrationscheckpoint durch Frontend & UX ist
+abgeschlossen; der Besitz liegt wieder exklusiv bei Backend & Platform.
 Apple-STATUS/ARBEITSPLAN liegen exklusiv bei Architecture & Security.
 Übrige zentrale Dateien benötigen eine gezielte Zuweisung. Jeder Writer hat
 eigenen Worktree/Branch; unabhängiger Review vor Integration. Laufzeit weiterhin vier
@@ -170,3 +169,19 @@ Freeze und keine Clientbindung vor unabhängigem Fixabschluss und gezielter Frei
 F5 wird erst danach konkret beauftragt. Frist bleibt heute23.10.2026 10:00Berlin.
 Frontend & UX geht nach diesem exklusiven STATUS-/Plancheckpoint idle;
 Dateibesitz erst nach ausdrücklicher Neuzuweisung wechseln, keine parallelen Writer.
+
+## B3a-01 – gezielter Fixcheckpoint
+
+Fix `7c66bb908a635e1de8e212a2003e3e0826de4210` ist öffentlich eingefroren.
+Die rote Regression bestätigt MySQL8.4 mit UNIQUE/CHECK, FK/CHECK und UNIQUE/FK;
+MariaDB12.3 lehnt die CHECK-Paare ab, erlaubt aber UNIQUE/FK mit demselben
+Metadatenfehler. Typ+Name-Gruppierung und typgebundene KCU-/Referential-Joins
+beseitigen die Vermischung. Neuer realer TLS-Lauf und gezielte Race-/Vet-/Vertrags-
+prüfungen grün; keine Schema- oder Vertragsbyteänderung.
+
+Neue exakte Fixjobs: Struktur39902565413, Engine39902565466, Backend39902565392,
+Tabellen39902565315, Mutationen39902565373, Insert39902565367, Web39902565363,
+Docs39902565357. Bei Checkpoint aktiv/queued; acht grüne alte CIs ersetzen diese
+nicht. Enger unabhängiger Nachreview bleibt Gate. Keine eigenen lokalen Jobs oder
+B3a-Ressourcen offen. B4a befindet sich ausschließlich in vorbereitender Lektüre,
+kein Produktcode und kein Auftragsscope über den Namespacefix hinaus umgesetzt.

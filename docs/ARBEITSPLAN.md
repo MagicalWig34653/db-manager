@@ -3,7 +3,8 @@
 Stand: 23.10.2026. Vom Nutzer ausdrücklich verlängert bis vollständig umgesetzt oder
 heute 23.10.2026 10:00 Europe/Berlin (=08:00 UTC). Lead koordiniert Reviews und Integration;
 Agents übernehmen Umsetzung, Dokumentation, Prüfungen und freigegebene Integrationsschritte. Die beiden zentralen Hauptrepo-
-Status-/Planungsdateien sind für den aktuellen F4b-Integrationscheckpoint exklusiv Frontend & UX übertragen.
+Status-/Planungsdateien sind nach abgeschlossenem F4b-Integrationscheckpoint
+wieder exklusiv Backend & Platform übertragen.
 Tatsächliche Ergebnisse und feste Vertragspins: [STATUS](STATUS.md).
 
 ## Aktive Pakete und Dateibesitz
@@ -106,3 +107,13 @@ gezielte0.5-Freigabe erforderlich. Keine Integration, kein Clientverbrauch und k
 F5 vor diesem Gate. F4b-Produktbytes bleiben unverändert. Frontend & UX gibt den
 aktiven Slot frei; RootSTATUS/Plan für diesen abgeschlossenen Checkpoint zuletzt
 exklusiv durch diesen Agent gepflegt. Neue Dateizuweisung durch Lead abwarten.
+
+## B3a-Fixcheckpoint
+
+B3a-01 am Erstkandidaten unabhängig bestätigt; eingefrorener Fix7c66bb9 trennt
+Constrainttyp/-name und die Katalogjoins. Rote und grüne echte MySQL-/MariaDB-
+Namespaceproben sowie PostgreSQL-/SQLite-/HTTP-/Sandbox-/Race-/Vet-/Vertragschecks
+belegt. Acht neue exakte Fix-CIs laut STATUS laufen; P3 prüft eng unabhängig nach.
+API0.5 bleibt bis Nachreview/Fix-CI/Freeze gesperrt. B4a-Scopevorschlag darf warten,
+keine B4a-Implementierung begonnen. RootSTATUS/Plan wieder exklusiv Backend & Platform;
+P1 besitzt nur eigene WebSTATUS/Plan und schreibt diese Rootdateien nicht parallel.
