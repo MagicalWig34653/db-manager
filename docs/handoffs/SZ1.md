@@ -2,9 +2,9 @@
 
 Branch `feat/sz1-server-state` (Worktree `.worktrees/sz1`), Basis `main` `dd7b1d8`.
 Grundlage: [ADR-0006](../decisions/ADR-0006-serverzustand.md), Option (c) vom Nutzer am
-23.10.2026 ausdrücklich akzeptiert. **Nicht nach `main` integriert.** Der Nutzer hat Merge/Push
-erlaubt; Projektregel bleibt ein unabhängiges Review vor Integration, das noch aussteht.
-STATUS und ARBEITSPLAN wurden bewusst nicht geändert (Lead).
+23.10.2026 ausdrücklich akzeptiert. **Nach unabhängigem Review und Nachreview ([SZ1-review](SZ1-review.md)) am 23.10.2026 als
+`90044dc`/`4853761` nach `main` integriert.** Der Branchstand davor ist unten historisch
+beschrieben. STATUS/ARBEITSPLAN führen SZ1 separat.
 
 ## Ergebnis (Umfang exakt SZ1, kein Passkey-/Team-Feature)
 
