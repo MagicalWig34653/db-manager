@@ -1,6 +1,6 @@
 # Tatsächlicher Projektstand
 
-Stand: 23.10.2026, 05:45 UTC (07:45 Europe/Berlin). Die autonome Arbeitsphase ist
+Stand: 23.10.2026; letzter CI-Prüfcheckpoint 05:52 UTC (07:52 Europe/Berlin). Die autonome Arbeitsphase ist
 vom Nutzer bis zum vollständigen Abschluss oder heute **10:00 Europe/Berlin
 (08:00 UTC)** autorisiert. Root koordiniert ausschließlich; Agents übernehmen
 Implementierung, Dokumentation, Prüfungen und freigegebene Integrationsschritte.
@@ -56,10 +56,10 @@ API- und Tresorversionen haben getrennte Versionsräume. [Vertragsindex](../cont
 
 | Paket | Tatsächlicher Stand | Noch erforderliches Gate |
 | --- | --- | --- |
-| B4a – Tabellenanlage | `feat/table-create`, Produkt `40defdc0ac4bf31f8e1778f55c22b1431de9c827`, Handoff `464e647`. API0.6-Kandidat SHA256 `b08b6aba858f72a3bad1fce2933e487eed017f5e35b4690cfd9fae3a590a6887`; neue Tabellen mit festen Typen/konstanten Defaults/PK/Nullable, keine bestehenden Objekte ändern. Neun exakte CIs inzwischen erfolgreich. | Unabhängiger Review läuft; noch keine Integration oder API0.6-Clientfreigabe. [Handoff](https://github.com/MagicalWig34653/db-manager/blob/464e647/docs/handoffs/B4a.md) |
-| F5 – Web-Strukturansicht | `feat/schema-workbench`, Kandidat `87751cceed47332f2164f2c3c584ddcd0ef2edd8`, Handoff `6d8aa5e`; geordnete Index-/Constraintdetails, Coverage/Unknown und ältere-Backend-Fallbacks. Alle drei exakten CIs inzwischen erfolgreich. Frühere Linux-CDP-Testbeobachtung scheiterte; eng ohne Produktänderung korrigiert. | Unabhängiger Review läuft. Echte Browsernachweise SQLite/PG; MySQL/Maria-UI bislang nur Unit-Testdaten. Kein Rootpin vor Annahme. [Handoff](https://github.com/MagicalWig34653/db-manager-web/blob/6d8aa5e/docs/handoffs/F5.md) |
-| W1 – GitHub Pages | `feat/pages-site`, eigener Rootworktree `.worktrees/pages-site`; Landingpage, gerenderte kanonische Doku, Roadmap und echte synthetische Webscreenshots. Autorenabschluss/frischer Checkout wird gesichert; keine Pages-Veröffentlichung behauptet. | Unabhängige Site-/Build-/Browser-/Link-/Lizenzprüfung vor Integration und Deployment; Pages-API am aktuellen Checkpoint HTTP 404. |
-| A-TF1 – TestFlight und Icon | `release/testflight-preparation`, Kandidat `b7020517d6431a852f61188f70c90e495534bdd2`, Handoff `a350f75`. Bundle-ID **de.linolaske.dbmanager** explizit registriert; Nutzer hat ASC-Eintrag „DB Manager“ angelegt und wurde zum Fortsetzen benachrichtigt. Signierte iPad-/Universal-Macarchive und lokale IPA-/PKG-Exporte belegt, echte editierbare Icon-Composerquelle und Rendernachweise vorhanden. | Unabhängiger Review läuft. Docs-/Vault-CI erfolgreich, Apple-CI noch aktiv. Kein Upload oder Einreichen. Betreiberangaben zu Exportcompliance/Privacy und TestFlightmetadaten bleiben vor Upload offen. [Handoff](https://github.com/MagicalWig34653/db-manager-apple/blob/a350f75/docs/handoffs/A-TF1.md) |
+| B4a – Tabellenanlage | `feat/table-create`, Produkt `40defdc0ac4bf31f8e1778f55c22b1431de9c827`, Handoff `464e647`. API0.6-Kandidat SHA256 `b08b6aba858f72a3bad1fce2933e487eed017f5e35b4690cfd9fae3a590a6887`; neue Tabellen mit festen Typen/konstanten Defaults/PK/Nullable, keine bestehenden Objekte ändern. Neun exakte CIs inzwischen erfolgreich. | Unabhängiger Review `f36463d` ohne bestätigte Findings abgeschlossen; noch keine Mainintegration oder API0.6-Clientfreigabe. [Handoff](https://github.com/MagicalWig34653/db-manager/blob/464e647/docs/handoffs/B4a.md) |
+| F5 – Web-Strukturansicht | `feat/schema-workbench`, Kandidat `87751cceed47332f2164f2c3c584ddcd0ef2edd8`, Handoff `6d8aa5e`; geordnete Index-/Constraintdetails, Coverage/Unknown und ältere-Backend-Fallbacks. Alle drei exakten CIs inzwischen erfolgreich. Frühere Linux-CDP-Testbeobachtung scheiterte; eng ohne Produktänderung korrigiert. | Unabhängiger Review mit genau QA-F5-01 (niedrig) offen: leere Constraintnamen werden unklar dargestellt. Autor korrigiert gezielt, unabhängige Nachprüfung erforderlich. Echte Browsernachweise SQLite/PG; MySQL/Maria-UI bislang nur Unit-Testdaten. Kein Rootpin vor Annahme. [Handoff](https://github.com/MagicalWig34653/db-manager-web/blob/6d8aa5e/docs/handoffs/F5.md) |
+| W1 – GitHub Pages | `feat/pages-site`, öffentlicher Kandidat `a972fb0`; Landingpage, gerenderte kanonische Doku, Roadmap und vier echte synthetische Webscreenshots. Unabhängige Site-QA läuft; keine Pages-Veröffentlichung behauptet. | Unabhängige Site-/Build-/Browser-/Link-/Lizenzprüfung vor Integration und Deployment; Pages-API am aktuellen Checkpoint HTTP 404. |
+| A-TF1 – TestFlight und Icon | `release/testflight-preparation`, Kandidat `b7020517d6431a852f61188f70c90e495534bdd2`, Handoff `a350f75`. Bundle-ID **de.linolaske.dbmanager** explizit registriert; Nutzer hat ASC-Eintrag „DB Manager“ angelegt und wurde zum Fortsetzen benachrichtigt. Signierte iPad-/Universal-Macarchive und lokale IPA-/PKG-Exporte belegt, echte editierbare Icon-Composerquelle und Rendernachweise vorhanden. | Unabhängiger Artefakt-/Sourcereview `59c7004` ohne bestätigte Findings abgeschlossen. Docs-/Vault-CI erfolgreich; exakte Apple-CI39906842616 inzwischen fehlgeschlagen (CompileAssetCatalogVariant für AppIcon.icon mit CI-Xcode26.3). Konkrete Ursache und Korrektur noch offen, Integrationsgate nicht erfüllt. Kein Upload oder Einreichen. Betreiberangaben zu Exportcompliance/Privacy und TestFlightmetadaten bleiben vor Upload offen. [Handoff](https://github.com/MagicalWig34653/db-manager-apple/blob/a350f75/docs/handoffs/A-TF1.md) |
 | G-S2b – OS-Anchor | Separater Spike `4953399`/`07c284a`, Vorschlagscheckpoint `a6df2dc`: damaliger eigener ad-hoc-Host ohne Team-ID erhielt bei DP-Keychain-SecItemAdd `-34018`; kein Item angelegt, keine Dialoge oder Fallbacks. | Atomarer CAS, OS-Lock und Unsicherheitsfälle auf geeignetem signierten/provisionierten Host nicht belegt. Die inzwischen vorbereitete Appsignierung schließt dieses unabhängige Plattformgate nicht automatisch. Kein produktiver Anchor/App-Geheimnisspeicher. |
 | C-Export1/A3 | Gemeinsamer Root-/Web-/Apple-Exportvertrag und nativer Ergebnisexport als Vorschlag gesichert; zugunsten Pages/TestFlight noch nicht implementiert. | Gemeinsamer Vertrag unabhängig freigeben, erst danach native Implementierung. |
 
@@ -80,7 +80,7 @@ Produkt-Rename; der vom Nutzer angelegte App-Store-Connect-Eintrag heißt „DB 
   Struktur39905577665, Engine39905577655, Backend39905577678, Tabellen39905577617,
   Mutationen39905577615, Insert39905577609, Web39905577711, Docs39905577731.
 - F5 `87751cc`: [Frontend39906977846](https://github.com/MagicalWig34653/db-manager-web/actions/runs/39906977846), [echte Integration39906977849](https://github.com/MagicalWig34653/db-manager-web/actions/runs/39906977849) und [Docs39906977828](https://github.com/MagicalWig34653/db-manager-web/actions/runs/39906977828) erfolgreich.
-- A-TF1 `b702051`: [Docs39906842633](https://github.com/MagicalWig34653/db-manager-apple/actions/runs/39906842633) und [Vault39906842798](https://github.com/MagicalWig34653/db-manager-apple/actions/runs/39906842798) erfolgreich; [Apple39906842616](https://github.com/MagicalWig34653/db-manager-apple/actions/runs/39906842616) beim aktuellen Abruf noch aktiv.
+- A-TF1 `b702051`: [Docs39906842633](https://github.com/MagicalWig34653/db-manager-apple/actions/runs/39906842633) und [Vault39906842798](https://github.com/MagicalWig34653/db-manager-apple/actions/runs/39906842798) erfolgreich; [Apple39906842616](https://github.com/MagicalWig34653/db-manager-apple/actions/runs/39906842616) beim aktuellen Abruf `completed/failure`. Fehlgeschlagener Befehl: CompileAssetCatalogVariant für Assets/AppIcon.icon im macOS-Build mit Xcode26.3; kein unbelegter Schluss auf die konkrete Ursache.
 
 F4b ist unabhängig mit zwei bytegleichen öffentlichen Builds, neun echten
 Browserfällen, Go-Race/Vet, neun Pythonprüfungen, Compose und isoliertem DinD-Swarm
@@ -113,15 +113,18 @@ Wegwerfressourcen verwenden; fremde Container und Host-Swarm nicht verändern.
 Git-Refanomalie wurde reversibel ohne Änderung gültiger Refs quarantänisiert;
 [Nachweis](handoffs/Git-Refs-2026-10-23.md), keine belegte Aussage zur Ursache.
 
-Nächste Schritte: die drei unabhängigen Produktreviews und W1 abschließen, danach
-jeweils freigegebene Agentintegration/Gesamtchecks; F5/F6 erst als eigenes geprüftes
+Nächste Schritte: B4a nach Freigabe integrieren und API0.6 separat einfrieren;
+A-TF1-CIfehler gezielt klären, F5-Darstellungsfix unabhängig nachprüfen und W1-QA
+abschließen. Danach jeweils freigegebene Agentintegration/Gesamtchecks; F5/F6 erst als eigenes geprüftes
 Root-Webpaket einbetten. A-TF1 darf erst nach gesonderter Uploadfreigabe hochgeladen
 werden. Vor 10:00 Berlin alle eigenen Jobs, Branches, Tests, offenen Gates und
 konkreten nächsten Schritte checkpointen. [Arbeitsplan](ARBEITSPLAN.md),
 [Teammodell](TEAM.md), [Einrichtung](../EINRICHTUNG.md).
 
 Dokumentationscheckpoint: eigener Branch `docs/project-status-20261023`,
-Worktree `.worktrees/project-status`; ausschließlich STATUS/ARBEITSPLAN verändert.
+Worktree `.worktrees/project-status`; ausschließlich STATUS/ARBEITSPLAN und das
+zusätzlich zugewiesene TEAM-Dokument verändert. Dateibesitz endet erst nach
+explizitem Transfer an den Releasekoordinator für dessen Integrationscheckpoint.
 Keine eigenen Produkt-, DB-, Browser-, Signing- oder Deployjobs gestartet.
 Produktprüfungen für diese reine Dokumentationsänderung nicht erneut ausgeführt.
 Dokumentationsprüfung: 275 Dateien, null Fehler; Diffprüfung bestanden, sechs
