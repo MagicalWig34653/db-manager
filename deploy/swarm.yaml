@@ -2,7 +2,7 @@
 version: "3.8"
 services:
   app:
-    image: ${DBM_IMAGE:-db-manager:local}
+    image: ${DBM_IMAGE:-ghcr.io/magicalwig34653/db-manager:latest}
     ports:
       - target: 8080
         published: 8080
@@ -39,4 +39,8 @@ secrets:
     external: true
     name: ${DBM_TOKEN_SECRET:-dbmanager_api_token_v1}
 volumes:
+  # Node-local volume (driver local): no NFS/Gluster/Ceph/cloud volume plugin is needed.
+  # The service is pinned by the placement constraint above to the single node labelled
+  # dbmanager.data=true; there is no failover or replication of /data between nodes.
   data:
+    driver: local

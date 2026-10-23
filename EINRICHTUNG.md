@@ -25,7 +25,7 @@ python3 scripts/test-engine.py
 python3 scripts/test-engine-container.py
 ```
 
-`test-deployment.py` baut das Image, prüft Compose und einen eigenen Docker-in-Docker-Swarm
+`test-deployment.py` baut das Image lokal (unabhängig vom veröffentlichten ghcr-Image, siehe `docs/BETRIEB.md`), prüft Compose und einen eigenen Docker-in-Docker-Swarm
 mit originalen Webassets/CSP und echten SQLite-Abfragen samt Neustartpersistenz
 und entfernt seine Ressourcen. Es verändert den Host-Swarm nicht. Für einen
 bewusst auf Compose begrenzten Lauf `--skip-swarm` verwenden; dies belegt keinen

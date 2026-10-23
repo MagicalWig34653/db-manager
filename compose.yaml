@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 services:
   app:
-    image: ${DBM_IMAGE:-db-manager:local}
+    image: ${DBM_IMAGE:-ghcr.io/magicalwig34653/db-manager:latest}
     build: .
     ports:
       - "127.0.0.1:${DBM_PORT:-8080}:8080"
