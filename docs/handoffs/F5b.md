@@ -97,7 +97,7 @@ Frischer öffentlicher Rootclone exakt dieses SHA ohne Geschwisterrepository:
   ursprünglichen TestFlightarchive berührt. Autoritative Ressourcenabfrage zeigt
   ausschließlich vier fremde Container, keine eigenen F5b-Container/Images und
   Host-Swarm `inactive`.
-- Originale generierte neue JSdatei `index-Ay2aZLYy.js` enthält auf Zeile1 bereits
+- Originale generierte neue JS-Datei `index-Ay2aZLYy.js` enthält auf Zeile 1 bereits
   trailing whitespace. Zwei öffentliche Builds/Manifest bestätigen Originalbytes;
   kein Handbereinigen dieses Fremd-/Buildartefakts. Eigene Quellen/Doku/Tests sind
   diff-sauber; keine neue Lizenzdateiveränderung.
@@ -112,13 +112,14 @@ Exakte öffentliche CIs am Produktcheckpoint:
 | Update/Delete | [39910176612](https://github.com/MagicalWig34653/db-manager/actions/runs/39910176612) | success |
 | Tabellenansicht | [39910176571](https://github.com/MagicalWig34653/db-manager/actions/runs/39910176571) | success |
 | Strukturmetadaten | [39910176656](https://github.com/MagicalWig34653/db-manager/actions/runs/39910176656) | success |
-| Engine | [39910176605](https://github.com/MagicalWig34653/db-manager/actions/runs/39910176605) | in_progress |
-| Backend/Compose/Swarm | [39910176639](https://github.com/MagicalWig34653/db-manager/actions/runs/39910176639) | in_progress |
-| Web/Reproduktion/Browser | [39910176583](https://github.com/MagicalWig34653/db-manager/actions/runs/39910176583) | in_progress |
+| Engine | [39910176605](https://github.com/MagicalWig34653/db-manager/actions/runs/39910176605) | success |
+| Backend/Compose/Swarm | [39910176639](https://github.com/MagicalWig34653/db-manager/actions/runs/39910176639) | success |
+| Web/Reproduktion/Browser | [39910176583](https://github.com/MagicalWig34653/db-manager/actions/runs/39910176583) | success |
 
 Der unabhängige F5b-Reviewer hat den eingefrorenen Code übernommen und den freien
 Dockerheavytestslot nach tatsächlicher Autorenbereinigung bestätigt bekommen.
 Keine eigenen lokalen Prüfjobs/Server/DBfixtures/Images oder privaten Credentialdateien
-mehr aktiv. Weitere Quelländerungen nur nach konkretem Reviewbefund; Lead prüft die
-verbleibenden exakten CIs und entscheidet erst danach über Integration.
+mehr aktiv. Weitere Quelländerungen nur nach konkretem Reviewbefund. Der abschließende
+autoritative CI-Check bestätigt alle neun exakten Produkt-CIs erfolgreich; Lead
+entscheidet nach dem unabhängigen Review über Integration.
 Dieser reine Handoffnachtrag startet mit `[skip ci]` keine unveränderte neue Prüfserie.
