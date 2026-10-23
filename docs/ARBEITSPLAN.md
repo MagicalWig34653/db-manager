@@ -1,8 +1,9 @@
 # Arbeitsplan
 
-Stand: 20.10.2026, 22:00 UTC. Autonom bis vollständig umgesetzt oder
-21.10.2026 04:00 Europe/Berlin (=02:00 UTC). Lead koordiniert, organisiert Reviews,
-integriert und pflegt zentrale Dokumente. Agents implementieren Produktcode.
+Stand: 23.10.2026. Vom Nutzer ausdrücklich verlängert bis vollständig umgesetzt oder
+heute23.10.2026 10:00 Europe/Berlin (=08:00 UTC). Lead koordiniert, organisiert Reviews
+und integriert; Agents implementieren Produktcode. Die beiden zentralen Hauptrepo-
+Status-/Planungsdateien sind für dieses Fenster exklusiv Backend & Platform übertragen.
 Tatsächliche Ergebnisse und feste Vertragspins: [STATUS](STATUS.md).
 
 ## Aktive Pakete und Dateibesitz
@@ -11,7 +12,7 @@ Tatsächliche Ergebnisse und feste Vertragspins: [STATUS](STATUS.md).
 | --- | --- | --- |
 | F4 / Frontend & UX | Web / feat/row-workbench / .worktrees/row-workbench, Basis ffdd2a0 | Gepinnte API0.3/0.4, verpflichtende v4-Fähigkeiten auf Backend72855cf und v3-Eignung. Bestätigte Einzelzeilen-Inserts/Edits/Deletes mit Default/NULL/Leerwert-/Präzisionsunterscheidung, vollständigem altem typisiertem Snapshot und tatsächlicher Rücklese. Keine automatischen Retries; 409 fordert Neuladen, Unknown/Transportabbruch nach Versand als möglicher Commit. Session-/Quellenwechsel räumt Werte auf, generischer Unknown-Hinweis darf bleiben. Besitz Webprodukt/Vertragskopien/Build/Tests/Lizenzen/README/Einrichtung/Handoff, keine zentralen Statusdateien. Echte SQLite-/PG-TLS-Browserfälle einschließlich konkurrierender Änderung und verloren gegangener Antwort nach tatsächlichem Commit; CSP/Lizenz-/Sessionregressionen. Unabhängige QA vor Webintegration; Rootassetpin F4b separat. |
 | S2a / Apple & Security | Apple / feat/vault-core / .worktrees/vault-core, Basis7cbeb38 | Eigenständiger Core im neuen Packages/DBManagerVault, eigene Tests/Fixtures/Originaltexte/CI/Skripte, ADR-A003/Sicherheitsdokumente/Handoff. S1-Format exakt, Actor-Locksession, verwaltetes privates Root mit festen Zufallsnamen und sicheren Dateideskriptoren, flock/CAS/temp0600/fsync/rename/dirfsync. Unabhängiger Anchor reserviert lebenslange Root-AEAD-Nutzung dauerhaft vor Verschlüsselung, bestätigt Hash/Generation erst nach dauerhafter Datei; Pending nur bekannte alte/neue Zustände. Fehlender/zurückrollbarer importierter Anchor erlaubt keine schreibende Produktsession. Nur Testanker in Testtarget, kein stiller InMemory-Produktfallback. Recovery darf mit einem überlebenden alten Faktor in neuen Tresor mit beiden neuen rückgelesenen Faktoren migrieren; Original erhalten. Keine App-/Xcode-/Rootpackage-/A2-/zentralen Statusänderungen. Unabhängige Dateisystem-/Fehler-/Concurrency-/Bounds-/Interop-QA vor Integration. |
-| B3a / Backend & Platform | Hauptrepo / feat/schema-metadata / .worktrees/schema-metadata, Basis5cb604a | Lesende Index-/Constraintmetadaten für Strukturansicht, additive API, v1-v4 unverändert. Keine DDL/SQL-Fragmente; konservative Aussagen statt erratener Eigenschaften. Scope freigegeben: kein Ausdrucks-SQL, ehrliche CHECK-Lücke; neue Core-/DB-/HTTPdateien, enge Route/Authorizer, eigene Verträge/CI/Tests/Doku/Handoff; zentrale Statusdateien/Vertragsindex ausgenommen. Echte vier Treiber/TLS, Go-Race/Vet, Vertrags-/Sondernamen-/Ausdrucks-/Partial-/Include-/Kollationsfälle und unabhängiger Review. |
+| B3a / Backend & Platform | Hauptrepo / feat/schema-metadata / .worktrees/schema-metadata, Basis5cb604a | Lesende Index-/Constraintmetadaten für Strukturansicht, additive API, v1-v4 unverändert. Keine DDL/SQL-Fragmente; konservative Aussagen statt erratener Eigenschaften. Scope freigegeben: kein Ausdrucks-SQL, ehrliche CHECK-Lücke; neue Core-/DB-/HTTPdateien, enge Route/Authorizer, eigene Verträge/CI/Tests/Doku/Handoff; Vertragsindex ausgenommen; die zwei zentralen Hauptrepo-Statusdateien sind zusätzlich exklusiv übertragen. Lokaler unfertiger WIPa582c45 nach Nutzungslimit, am23.10. fortgesetzt; keine Tests/Freigabe aus WIP abgeleitet. Echte vier Treiber/TLS, Go-Race/Vet, Vertrags-/Sondernamen-/Ausdrucks-/Partial-/Include-/Kollationsfälle und unabhängiger Review. |
 
 A2 ist nach unabhängiger Kalenderfixprüfung und exakter grüner nativer
 CI39503396485 an b72e62c im Apple-main7e97aae integriert. Bestehender eigener Worktree
@@ -37,7 +38,8 @@ QA & Release p0_publication_review und qualifizierte nicht beteiligte Peers übe
 unabhängige Reviews. Bei vier Laufzeitplätzen einschließlich Lead wechseln Worker und
 Reviewer geordnet. Nachträglich erhöhte lokale Konfiguration wird hier nicht neu geladen;
 kein Neustart oder Umgehungsprozess. Kein paralleles Schreiben derselben Dateien.
-Lead besitzt zentrale STATUS-/ARBEITSPLAN-Dateien aller Repos.
+Lead besitzt die übrigen zentralen Dateien; Hauptrepo-STATUS/ARBEITSPLAN liegen
+für dieses Fenster exklusiv bei Backend & Platform.
 
 ## Verbindliche Grenzen und Übergabe
 
@@ -57,3 +59,12 @@ Handoff; zentrale Gesamtübergabe durch Lead. Alte saubere Worktrees bleiben Pro
 
 Abgeschlossene Pakete samt historischen Befunden stehen in STATUS und den verlinkten
 Handoffs; Planung und Produkt-/Geräte-/Cloud-/Tresorfreigaben bleiben getrennt.
+
+
+## Fortsetzungscheckpoint23.10.2026
+
+B3a bleibt begrenzter lesender0.5-Kandidat ab5cb604a, lokaler WIPa582c45.
+Neue Gesamtzeitgrenze10:00 Berlin; Nutzung/Tools beim Worker wieder verfügbar.
+F4-Prüfkandidat3a4a3fd (drei grüne CIs) bei P0-QA, S2a-WIPe576c05 beim
+Architectureworker in Fortsetzung. Haupt-CIs an f46cafe alle sieben erfolgreich,
+Apple7e97aae-CI39505094304 erfolgreich. Keine WIP-Integration oder neue Clientbindung.
