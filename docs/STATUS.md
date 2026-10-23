@@ -2,7 +2,8 @@
 
 Stand: 23.10.2026. Der Nutzer hat die autonome Umsetzung ausdrücklich verlängert:
 bis zum vollständigen Abschluss oder heute 23.10.2026 10:00 Europe/Berlin (=08:00 UTC).
-Lead koordiniert, organisiert unabhängige Reviews und integriert; Agents implementieren.
+Lead koordiniert Reviews und Integration; Agents übernehmen Umsetzung, Dokumentation,
+Prüfungen und freigegebene Integrationsschritte.
 Docker Compose und Docker Swarm sind verbindlich (ADR-0003).
 
 ## Abgenommen und integriert
@@ -55,14 +56,15 @@ keinen gefixten Server. [Vertragsindex](../contracts/README.md).
 
 | Paket / Rolle | Repo, Branch / Worktree | Tatsächlicher Stand und Dateibesitz |
 | --- | --- | --- |
-| A2 / integriert | Apple-main `7e97aae`, Provenienz `feat/apple-postgres` / `.worktrees/apple-postgres` | Quellen89b2683/abaa3dc/b72e62c als fdd533e/cd5d886/031b1e8 nach unabhängiger QA und exakter grüner nativer CI39503396485 integriert. Kalenderfix mit 1.008/4.032 Vektoren und drei echten TLS-PG-Fällen unabhängig geprüft; konkreter NIOssl-Pin ausdrücklich akzeptiert. Leadintegration Swift-/Kalender-/13Pins-/Originalcheckout-/Docs74/0 bestanden, sechs Livetests im Leadlauf ausdrücklich übersprungen. Kombinierte Apple-Main-CI39505094304 an7e97aae erfolgreich. |
-| F4 / Frontend & UX (`p1a_parity`) | Web, `feat/row-workbench`, `.worktrees/row-workbench`, Basis `ffdd2a0` | Einzelzeilen-Insert/Edit/Delete, bestätigte Aktionen, frische Eignung und vollständige Snapshots, ehrlicher Konflikt-/Unknown-Ausgang. Besitz Webprodukt/Vertragskopien/Build/Tests/Lizenzen/Einrichtung/Handoff. Keine zentralen Statusdateien. Öffentlicher Prüfkandidat3a4a3fd mit drei erfolgreichen CIs liegt bei P0-QA. v4-Fähigkeiten und v3-Eignung verpflichtend, Referenzbackend72855cf. Unabhängige QA und separater Root-Webpin folgen. |
+| A2 / integriert | Apple-main `7e97aae`, Provenienz `feat/apple-postgres` / `.worktrees/apple-postgres` | Quellen89b2683/abaa3dc/b72e62c als fdd533e/cd5d886/031b1e8 nach unabhängiger QA und exakter grüner nativer CI39503396485 integriert. Kalenderfix mit 1.008/4.032 Vektoren und drei echten TLS-PG-Fällen unabhängig geprüft; konkreter NIOssl-Pin ausdrücklich akzeptiert. Leadintegration Swift-/Kalender-/13Pins-/Originalcheckout-/Docs74/0 bestanden, sechs Livetests im Leadlauf ausdrücklich übersprungen. Kombinierte Apple-Main-CI39505094304 an 7e97aae erfolgreich. |
+| F4 / Frontend & UX (`p1a_parity`) | Web, `feat/row-workbench`, `.worktrees/row-workbench`, Basis `ffdd2a0` | Einzelzeilen-Insert/Edit/Delete, bestätigte Aktionen, frische Eignung und vollständige Snapshots, ehrlicher Konflikt-/Unknown-Ausgang. Besitz Webprodukt/Vertragskopien/Build/Tests/Lizenzen/Einrichtung/Handoff. Keine zentralen Statusdateien. Öffentlicher Prüfkandidat 3a4a3fd mit drei erfolgreichen CIs liegt bei P0-QA. v4-Fähigkeiten und v3-Eignung verpflichtend, Referenzbackend72855cf. Unabhängige QA und separater Root-Webpin folgen. |
 | S2a / Apple & Security (`p3a_security`) | Apple, `feat/vault-core`, `.worktrees/vault-core`, Basis `7cbeb38` | Ausschließlich eigenständiges neues Paket Packages/DBManagerVault samt Prüfungen/Originaltexten, eigenen CI/Skripten, ADR-A003/Sicherheitsdokumenten/Handoff. Actor-Session, sichere lokale atomare Dateiablage, extern verankerte CAS-/Lebenszeit-AEAD-Reservierung und Recovery mit neuen Faktoren. Keine App-/Xcode-/Rootpackage-/A2-/zentralen Statusänderungen. Produktiver nicht zurückrollbarer Anchor bleibt gesondertes Gate; nur Testanker noch keine Produktfreigabe. |
-| B3a / Backend & Platform (`p2a_drivers`) | Hauptrepo, `feat/schema-metadata`, `.worktrees/schema-metadata`, Basis5cb604a | Lesende Index-/Constraintmetadaten, additiver API0.5-Kandidat, v1-v4 unverändert. Scope freigegeben: keine DDL/SQL-Ausdruckstexte, ehrliche Katalogabdeckung/unknown und SQLite-CHECK-Lücke; enge lesende index_xinfo-Freigabe. Besitz neue Core-/DB-/HTTPdateien und enge Route/Authorizerregression, eigener Vertrag/Tests/CI/Doku/Handoff; keine zentralen Statusdateien/Vertragsindex/GoMod/Main/Web/Docker. Nach Nutzungslimit lokal als WIPa582c45 gesichert, unfertig und nicht freigegeben; am23.10. fortgesetzt. Spezifikation/HTTP-/Negativtests/nativeCI/echte vier Treiber werden jetzt tatsächlich geprüft; unabhängige QA folgt. |
+| B3a / Backend & Platform (`p2a_drivers`) | Hauptrepo, `feat/schema-metadata`, `.worktrees/schema-metadata`, Basis5cb604a | Lesende Index-/Constraintmetadaten, additiver API0.5-Kandidat, v1-v4 unverändert. Scope freigegeben: keine DDL/SQL-Ausdruckstexte, ehrliche Katalogabdeckung/unknown und SQLite-CHECK-Lücke; enge lesende index_xinfo-Freigabe. Besitz neue Core-/DB-/HTTPdateien und enge Route/Authorizerregression, eigener Vertrag/Tests/CI/Doku/Handoff; zusätzlich exklusiv Root-STATUS/ARBEITSPLAN, kein Vertragsindex/GoMod/Main/Web/Docker. Nach Nutzungslimit lokal als WIP a582c45 gesichert, unfertig und nicht freigegeben; am 23.10. fortgesetzt. Spezifikation/HTTP-/Negativtests/nativeCI/echte vier Treiber werden jetzt tatsächlich geprüft; unabhängige QA folgt. |
 
 Für dieses verlängerte Fenster hat der Lead ausschließlich die beiden zentralen
 STATUS-/ARBEITSPLAN-Dateien des Hauptrepos an Backend & Platform zur Pflege übertragen;
-keine parallelen Writer. Die übrigen zentralen Dateien bleiben beim Lead. Jeder Writer hat
+keine parallelen Writer. Apple-STATUS/ARBEITSPLAN liegen exklusiv bei Architecture & Security.
+Übrige zentrale Dateien benötigen eine gezielte Zuweisung. Jeder Writer hat
 eigenen Worktree/Branch; unabhängiger Review vor Integration. Laufzeit weiterhin vier
 Plätze einschließlich Lead, nachträglich konfigurierte höhere Limits hier nicht wirksam.
 
