@@ -91,3 +91,18 @@ Sieben kombinierte Root-Main-CIs starten nach Veröffentlichung und werden beoba
 Keine erneute Assetgenerierung, keine0.5-Freigabe, keine produktiven Garantien.
 Nächstes mögliches F5-Paket erst nach unabhängigem B3a-Review, konkretem0.5-Freeze und
 begrenztem Auftrag. Frist heute23.10.2026 10:00Berlin, anschließend sauberer Handoff.
+
+## Übergabe nach F4b-Integration
+
+Main4de72bc veröffentlicht. Dokumentation39902300560 success; Web39902300600,
+Backend39902300593, Engine39902300588, Tabellen39902300594,
+Update/Delete39902300556 und Insert39902300614 noch aktiv. Lead beobachtet die
+unveränderten kombinierten Main-CIs weiter; keine lokalen Workerjobs offen.
+
+B3a bleibt ausdrücklich blockiert: unabhängiger P3-Befund an echtem MySQL8.4,
+gleichnamiger UNIQUE-/CHECK-Constraint wird von aktueller Gruppierung kombiniert.
+P2 erstellt engen Fix und echte rote/grüne Regression; unabhängige Nachprüfung und
+gezielte0.5-Freigabe erforderlich. Keine Integration, kein Clientverbrauch und kein
+F5 vor diesem Gate. F4b-Produktbytes bleiben unverändert. Frontend & UX gibt den
+aktiven Slot frei; RootSTATUS/Plan für diesen abgeschlossenen Checkpoint zuletzt
+exklusiv durch diesen Agent gepflegt. Neue Dateizuweisung durch Lead abwarten.

@@ -146,3 +146,27 @@ Appleintegration übernimmt P3, daraus folgt keine produktive Tresor-/Anchorfrei
 Keine eigenen laufenden Integrations-Testjobs, keine Containeränderung in diesem
 Mergecheck. Nächster konkreter Schritt: kombinierte Main-CIs beobachten und Lead
 melden; danach nur gezielt beauftragtes Folgepaket.
+
+## Letzter exklusiver Releasecheckpoint
+
+Root-main `4de72bccf9bd05155d3ff3dffb46b5dabdaf8619` ist veröffentlicht; Git sauber.
+Die exakt daran gestarteten kombinierten CIs stehen bei Übergabe so:
+
+- Dokumentation39902300560: success.
+- Web39902300600, Backend/Container39902300593, Engine39902300588,
+  Tabellen39902300594, Update/Delete39902300556 und Insert39902300614: in_progress.
+
+Die Projektleitung übernimmt die weitere Remote-CI-Kontrolle. Dieser reine
+Statusnachtrag startet mit `[skip ci]` keine unveränderte achte Prüfserie.
+Keine eigenen lokalen Jobs oder Ressourcen verbleiben; geprüfte F4b-Produktbytes
+bleiben unverändert. Die lokale Integrationsprüfung ist bestanden, die neue
+kombinierte Remote-Serie wird ausdrücklich noch nicht als bestanden dargestellt.
+
+**B3a blockiert:** P3 hat unabhängig einen echten MySQL8.4-Fall mit gleichnamigem
+UNIQUE- und CHECK-Constraint gefunden. Die aktuelle Gruppierung kombiniert beide
+fälschlich. P2 korrigiert ausschließlich diesen Befund mit echter zunächst roter
+Regression. Trotz acht vorher grüner Kandidaten-CIs keine B3a-Integration, kein0.5-
+Freeze und keine Clientbindung vor unabhängigem Fixabschluss und gezielter Freigabe.
+F5 wird erst danach konkret beauftragt. Frist bleibt heute23.10.2026 10:00Berlin.
+Frontend & UX geht nach diesem exklusiven STATUS-/Plancheckpoint idle;
+Dateibesitz erst nach ausdrücklicher Neuzuweisung wechseln, keine parallelen Writer.
