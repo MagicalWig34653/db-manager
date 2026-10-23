@@ -20,9 +20,10 @@ Docker Compose und Docker Swarm sind verbindlich (ADR-0003).
 | B2c | Bestätigtes einzelnes INSERT mit getrennten Default-/NULL-Werten, konservativer PK-Ermittlung und tatsächlicher Rücklese nach Triggern | [B2c](handoffs/B2c.md) |
 | F3/F3b | Strukturierte Web-Tabellenoberfläche und Quellen-/Originallizenzdialog, exakt reproduziert im Go-/Dockerprodukt eingebettet. Filterzustandsbefund QA-F3-01 geschlossen | [F3b](handoffs/F3b.md), [unabhängiger Review](handoffs/F3b-backend-review.md) |
 | F4 / Webquelle | Einzelzeilen-Insert/Edit/Delete nach unabhängigem P0-Review im Webrepo integriert: Quelle `3a4a3fd`, Review `01933d5`, Merge `f28de33`, öffentliches Web-main `bf75748df9eb4422b084c20784d09ce931301d37`. Root-Einbettung F4b separat. | [Webquellen](https://github.com/MagicalWig34653/db-manager-web) |
+| F4b | Unabhängig angenommene F4-Quelle exakt reproduziert im Go-/Dockerprodukt; neun echte Browserfälle, strukturierte CRUD-/409-/typisierte Persistenz in Compose und isoliertem Swarm. Produkt3770c4e/Handoff46e4bf1/Review533348a integriert als ffcf519/2ad78b2. | [F4b](handoffs/F4b.md), [unabhängiger Review](handoffs/F4b-backend-review.md) |
 | S1 | Interoperables versioniertes Tresorformat mit Argon2id/AES-GCM/Recovery; ausschließlich Formatgrundlage, keine produktive Credentialpersistenz | [S1](handoffs/S1.md), [Format](security/VAULT-FORMAT-V1.md) |
 
-F3-Webquelle `6c6eb33c93eed355a10cd114f61ce27be7f3f55e`, Web-main `ffdd2a0`.
+Historische F3-Webquelle `6c6eb33c93eed355a10cd114f61ce27be7f3f55e`, Web-main `ffdd2a0`.
 F3b-Produktquelle `639ba44`, Teststand `7500ed2`, Handoff `3f7a863`, unabhängiger
 Review `e274068`; integriert als `0767969`/`22fdf78`/`cc175a5`/`5cb604a`.
 Die ausführlichen historischen Befunde und Prüfbefehle bleiben in den Handoffs.
@@ -87,7 +88,7 @@ Drei öffentliche Repos `db-manager`, `db-manager-web`, `db-manager-apple` unter
 https://github.com/MagicalWig34653, main mit origin-Tracking. Git funktioniert;
 Go1.27.1, Node26.5.0/npm11.17.0, Swift6.4/Xcode27.1 und Docker/Colima verfügbar.
 Nächste konkrete Schritte: neue Go-/Apple-Haupt-CIs kontrollieren,
-F4/S2a/B3a nach Autorenabschluss unabhängig prüfen, freigegebenen F4-Webpin separat einbetten. [Arbeitsplan](ARBEITSPLAN.md),
+kombinierte F4b-Main-CIs kontrollieren; B3a bleibt bis unabhängigem P3-Review und separatem0.5-Freeze unintegriert. [Arbeitsplan](ARBEITSPLAN.md),
 [Team](TEAM.md), [Einrichtung](../EINRICHTUNG.md).
 
 ## Paketcheckpoint 23.10.2026 – B3a eingefroren
@@ -102,7 +103,7 @@ Docs39901687478. Lokale eigene B3a-Container/Volumes/Prüfjobs sind entfernt/bee
 
 Web-main `bf75748df9eb4422b084c20784d09ce931301d37`: integrierte 26 Units,
 Typecheck, vier Verträge/Standalone, Build und Docs112/0 bestanden. Die neuen
-Mainjobs39901222539/39901222403 und Docs39901222564 sind inzwischen erfolgreich. S2a bleibt separater Kandidat ohne Produktanker/QA;
+Mainjobs39901222539/39901222403 und Docs39901222564 sind inzwischen erfolgreich. S2a ist inzwischen separat fachlich angenommen, Appleintegration und realer Produktanker bleiben eigene Gates;
 aus dem dokumentarischen Apple-Mainupdate folgt keine Tresor-Coreintegration.
 
 ## Unabhängiger F4b-Abschlusscheckpoint
@@ -118,3 +119,30 @@ Auch alle acht oben genannten B3a-CIs an77eccb7 sind inzwischen success;
 B3a bleibt vor unabhängigem Review und separatem0.5-Freeze unintegriert.
 Kein S2a-/Produktanker-/Tresorfreigabeschluss. Nächster Schritt ist ausschließlich
 die durch Lead freigegebene F4b-Agentintegration samt Gesamtcheck und MainCI.
+
+## F4b-Agentintegration – 23.10.2026
+
+Die konkrete Leadfreigabe wurde in eigenem `release/f4b`-Worktree ausgeführt:
+Produktmerge `ffcf5195c79973a3b90a76fc79b5d82183a13453`, unabhängiger Reviewmerge
+`2ad78b2fe604d40d69b54fdfa552d693644c1a5d`. Quelle3770c4e, Handoff46e4bf1 und
+Review533348a bleiben in main-Ancestry. Webpin unverändert
+`3a4a3fd0a345f8c127758ac5eadc4e6feb8d21ec`; Manifest, fünf Assets, Dockerprovenienz
+und Lock bytegleich zum unabhängig geprüften Produkt. Kein Neubau/Produktbytefix.
+
+Kombinierte lokale Integration: `go test -race ./...`, `go vet ./...`, Offline-
+Manifestprüfung, neun Python-Buildtests, v2-/v3-/v4-Vertragsprüfungen und Dokumentation
+259/0 bestanden. Kein API0.5-Vertrag im integrierten Baum; B3a wird nicht mitgenommen.
+Web-mainbf75748 hat inzwischen alle drei neuen Main-CIs erfolgreich abgeschlossen:
+Frontend39901222539, echteIntegration39901222403, Dokumentation39901222564.
+Die sieben neuen kombinierten Root-Main-CIs werden mit diesem Checkpoint gestartet;
+Ergebnis/IDs folgen als reiner Dokumentationsnachtrag. Noch keine Behauptung, diese
+neue Mainserie sei bereits abgeschlossen.
+
+Für diesen Checkpoint besitzt Frontend & UX exklusiv RootSTATUS/ARBEITSPLAN; P2
+schreibt nicht parallel. Frist weiterhin heute23.10.2026 10:00Europe/Berlin=08:00UTC.
+B3a bleibt trotz acht grüner Kandidaten-CIs vor unabhängigem P3-Review und gesonderter
+Freigabe unintegriert; kein0.5-Verbrauch. S2a ist separat fachlich angenommen;
+Appleintegration übernimmt P3, daraus folgt keine produktive Tresor-/Anchorfreigabe.
+Keine eigenen laufenden Integrations-Testjobs, keine Containeränderung in diesem
+Mergecheck. Nächster konkreter Schritt: kombinierte Main-CIs beobachten und Lead
+melden; danach nur gezielt beauftragtes Folgepaket.
