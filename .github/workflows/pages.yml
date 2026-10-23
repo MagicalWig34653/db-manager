@@ -28,6 +28,7 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.13.14'
@@ -42,6 +43,7 @@ jobs:
       - name: Build canonical documentation and check every local link
         run: |
           site/.venv/bin/python site/check-dependencies.py
+          site/.venv/bin/python site/tests/build_sources.py
           site/.venv/bin/python site/build.py
           site/.venv/bin/python site/check.py
       - name: Browser, responsive layout and accessibility
