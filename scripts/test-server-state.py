@@ -138,17 +138,20 @@ def containers(args, certs, root_password, suffix):
         base = f'http://127.0.0.1:{port}'
         second = project + '-replica2'
 
-        def replica_args(name, ca='state_db_ca.pem'):
+        def replica_args(name, ca='state_db_ca.pem', migrate=True):
             args = ['docker', 'run', '-d', '--name', name, '--label', 'dbmanager.task=SZ1', '--network', network, '--read-only',
                     '--tmpfs', '/tmp:rw,noexec,nosuid,size=16m', '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges:true',
                     '--health-interval', '3s', '--health-retries', '3']
-            for variable, value in {'DBM_STATE_DB_HOST': 'state-db', 'DBM_STATE_DB_NAME': 'sz1_state', 'DBM_STATE_DB_USER': 'sz1_runtime',
-                                    'DBM_STATE_DB_PASSWORD_FILE': '/run/secrets/state_db_password', 'DBM_STATE_SERVER_KEY_FILE': '/run/secrets/state_server_key',
-                                    'DBM_STATE_DB_CA_FILE': '/run/secrets/state_db_ca', 'DBM_STATE_DB_MIGRATE_USER': 'sz1_migrate',
-                                    'DBM_STATE_DB_MIGRATE_PASSWORD_FILE': '/run/secrets/state_db_migrate_password'}.items():
+            variables = {'DBM_STATE_DB_HOST': 'state-db', 'DBM_STATE_DB_NAME': 'sz1_state', 'DBM_STATE_DB_USER': 'sz1_runtime',
+                         'DBM_STATE_DB_PASSWORD_FILE': '/run/secrets/state_db_password', 'DBM_STATE_SERVER_KEY_FILE': '/run/secrets/state_server_key',
+                         'DBM_STATE_DB_CA_FILE': '/run/secrets/state_db_ca'}
+            mounts = {'api_token': 'api_token', 'state_db_password': 'state_db_password', 'state_server_key': 'state_server_key', 'state_db_ca': ca}
+            if migrate:
+                variables |= {'DBM_STATE_DB_MIGRATE_USER': 'sz1_migrate', 'DBM_STATE_DB_MIGRATE_PASSWORD_FILE': '/run/secrets/state_db_migrate_password'}
+                mounts['state_db_migrate_password'] = 'state_db_migrate_password'
+            for variable, value in variables.items():
                 args += ['-e', f'{variable}={value}']
-            for secret, source in {'api_token': 'api_token', 'state_db_password': 'state_db_password', 'state_server_key': 'state_server_key',
-                                   'state_db_ca': ca, 'state_db_migrate_password': 'state_db_migrate_password'}.items():
+            for secret, source in mounts.items():
                 args += ['-v', f'{d / source}:/run/secrets/{secret}:ro']
             return args + [image]
 
@@ -181,7 +184,12 @@ def containers(args, certs, root_password, suffix):
             assert any('TLS-Zertifikatsprüfung' in line for line in subprocess.run(['docker', 'logs', bad], capture_output=True, text=True).stderr.splitlines())
             print('Container: unrelated CA prevents start (exit 1, TLS message).', flush=True)
 
-            # Two replicas start concurrently against the same empty database.
+            # Standard path: one-shot migration job (plan first, then apply, then idempotent re-run).
+            job = compose + ['run', '--rm', '--no-deps', '-T', 'app', 'state-migrate']
+            assert 'ausstehende Migrationen: [1]' in run(job + ['--plan'], env=env)
+            print('Container: one-shot `state-migrate --plan` lists the pending migration and changes nothing.', flush=True)
+
+            # Exception path: two replicas migrate at start, concurrently against the same empty database.
             created.append(('container', second))
             with concurrent.futures.ThreadPoolExecutor(2) as pool:
                 first_job = pool.submit(lambda: run(compose + ['up', '-d', '--no-build'], env=env))
@@ -197,7 +205,10 @@ def containers(args, certs, root_password, suffix):
                 for line in lines:
                     print(f'  {replica}: {line}')
             assert len(applied) == 1 and len(current) == 1, protocol
-            assert api(base, '/healthz')['state_store'] == 'ok'
+            assert api(base, '/healthz') == {'status': 'ok'}
+            assert api(base, '/readyz')['state_store'] == 'ok'
+            assert 'ausstehende Migrationen: []' in run(job + ['--plan'], env=env)
+            run(job, env=env)
             assert api(base, '/api/v1/capabilities', token)['credential_storage'] is False
             request(base, '/api/v1/capabilities', 'wrong-token', expected=401)
             print('Container: migration applied exactly once, both replicas healthy, Bearer mode intact.', flush=True)
@@ -211,22 +222,33 @@ def containers(args, certs, root_password, suffix):
             assert row_count == '1', row_count
             print('Container: replica removal and restart keep schema state, no repeated migration.', flush=True)
 
-            # Outage: fail closed + unhealthy; recovery without restarting the replica.
+            # Outage: readiness 503, Bearer API and liveness unaffected, recovery without restart.
             restarts_before = run(['docker', 'inspect', '--format', '{{.RestartCount}} {{.State.StartedAt}}', first])
             run(['docker', 'stop', db])
-            wait_until(lambda: request(base, '/healthz', expected=503)[1] is not None, 'healthz 503 during outage', attempts=60)
-            request(base, '/api/v1/capabilities', token, expected=503)
-            wait_until(lambda: run(['docker', 'inspect', '--format', '{{.State.Health.Status}}', first]) == 'unhealthy', 'Docker health unhealthy', attempts=240)
-            run(['docker', 'start', db])
-            wait_until(lambda: api(base, '/healthz')['status'] == 'ok', 'recovery after database return', attempts=240)
-            wait_until(lambda: healthy(first), 'Docker health recovered', attempts=240)
+            wait_until(lambda: request(base, '/readyz', expected=503)[1] is not None, '/readyz 503 during outage', attempts=60)
+            assert api(base, '/healthz') == {'status': 'ok'}
             assert api(base, '/api/v1/capabilities', token)['credential_storage'] is False
+            request(base, '/api/v1/capabilities', 'wrong-token', expected=401)
+            time.sleep(12)  # several Docker healthcheck intervals (3 s in this test): liveness must stay healthy
+            assert healthy(first)
+            run(['docker', 'start', db])
+            wait_until(lambda: api(base, '/readyz')['state_store'] == 'ok', 'readiness recovery after database return', attempts=240)
+            assert healthy(first)
             assert run(['docker', 'inspect', '--format', '{{.RestartCount}} {{.State.StartedAt}}', first]) == restarts_before
-            print('Container: outage -> /healthz 503, API 503, Docker unhealthy; return -> recovered without restarting the replica.', flush=True)
+            print('Container: outage -> /readyz 503, /healthz and Bearer API unaffected, Docker stays healthy; return -> ready again without restart.', flush=True)
+
+            # Standard runtime replica without any DDL credentials starts against the migrated schema.
+            runtime_only = project + '-runtime-only'
+            created.append(('container', runtime_only))
+            run(replica_args(runtime_only, migrate=False))
+            wait_until(lambda: healthy(runtime_only), 'runtime-only replica healthy', attempts=240)
+            assert any('Schema passt' in line for line in migration_lines(runtime_only))
+            assert not any('DBM_STATE_DB_MIGRATE' in e for e in json.loads(run(['docker', 'inspect', '--format', '{{json .Config.Env}}', runtime_only])))
+            print('Container: replica without migration credentials starts against the migrated schema.', flush=True)
 
             # No secret in logs, container config, image metadata or rendered compose output.
             haystack = []
-            for name in (first, bad):
+            for name in (first, bad, runtime_only):
                 logs = subprocess.run(['docker', 'logs', name], capture_output=True, text=True)
                 haystack += [logs.stdout, logs.stderr, run(['docker', 'inspect', name])]
             haystack += [run(['docker', 'history', '--no-trunc', image]), run(['docker', 'inspect', image]), run(compose + ['config'], env=env)]

@@ -1,11 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-# Optional addition to compose.state.yaml: let the server migrate the state schema
-# at start with a separate DDL account (under a database lock, so several replicas
-# migrate exactly once). The runtime account itself never gets DDL rights.
-# Alternative without DDL credentials in the server: run the one-shot command
-# `db-manager state-migrate` yourself (see docs/BETRIEB.md).
+# Optional addition to compose.state.yaml carrying the separate DDL account.
+# Standard use: run the one-shot job, then start the service WITHOUT this file:
 #
-#   docker compose -f compose.yaml -f compose.state.yaml -f compose.state-migrate.yaml up -d
+#   docker compose -f compose.yaml -f compose.state.yaml -f compose.state-migrate.yaml \
+#     run --rm --no-deps app state-migrate
+#
+# Exception: adding this file to `up -d` makes the running service migrate at start
+# (under a database lock, so replicas migrate exactly once), which keeps the DDL
+# password inside the long-running container. See docs/BETRIEB.md.
 services:
   app:
     environment:

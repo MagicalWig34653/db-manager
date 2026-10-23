@@ -113,6 +113,10 @@ func TestKeyEncodings(t *testing.T) {
 			t.Fatalf("%s: %v", name, err)
 		}
 	}
+	zero := hex.EncodeToString(make([]byte, KeySize))
+	if _, err := decodeKey(zero); err == nil {
+		t.Fatal("all-zero key accepted")
+	}
 	for _, bad := range []string{"", "short", base64.StdEncoding.EncodeToString(raw[:16]), hex.EncodeToString(raw[:31])} {
 		if _, err := decodeKey(bad); err == nil {
 			t.Fatalf("accepted %q", bad)

@@ -47,16 +47,16 @@ type Config struct {
 	Port     int
 	Database string
 	User     string
-	Password string
+	Password string `json:"-"`
 	// CAFile adds trust roots for the state database only (separate from DBM_DB_CA_FILE).
 	CAFile string
 	// TLSDisabled is an explicit development-only opt-out.
 	TLSDisabled bool
 	// MigrationUser is optional; when set, only the migration step uses it for DDL.
 	MigrationUser     string
-	MigrationPassword string
+	MigrationPassword string `json:"-"`
 	// ServerKey is the 32-byte root key for application-level field encryption.
-	ServerKey []byte
+	ServerKey []byte `json:"-"`
 
 	roots *x509.CertPool
 }
@@ -185,6 +185,14 @@ func readSecret(path, name string) (string, error) {
 
 // decodeKey accepts a base64 (standard or URL, padded or not) or 64-digit hex encoding of 32 bytes.
 func decodeKey(raw string) ([]byte, error) {
+	key, err := decodeKeyBytes(raw)
+	if err == nil && bytes.Equal(key, make([]byte, KeySize)) {
+		return nil, configError(EnvServerKeyFile + " darf nicht nur aus Nullbytes bestehen.")
+	}
+	return key, err
+}
+
+func decodeKeyBytes(raw string) ([]byte, error) {
 	raw = strings.TrimSpace(raw)
 	if key, err := hex.DecodeString(raw); err == nil && len(key) == KeySize {
 		return key, nil

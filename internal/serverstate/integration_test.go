@@ -539,3 +539,48 @@ func TestStoreCloseStopsMonitorAndIsRaceFree(t *testing.T) {
 		t.Fatal("healthy after close")
 	}
 }
+
+func TestCanceledCallerDoesNotChangeHealth(t *testing.T) {
+	f := newFixture(t)
+	f.migrated(t)
+	store := openStore(t, f.cfg)
+	if err := store.Ping(context.Background()); err != nil || !store.Healthy() {
+		t.Fatalf("initial ping: %v", err)
+	}
+	canceled, cancel := context.WithCancel(context.Background())
+	cancel()
+	if err := store.Ping(canceled); err == nil {
+		t.Fatal("canceled ping succeeded")
+	}
+	expired, stop := context.WithTimeout(context.Background(), time.Nanosecond)
+	defer stop()
+	time.Sleep(time.Millisecond)
+	_ = store.Ping(expired)
+	if !store.Healthy() {
+		t.Fatal("caller cancellation or deadline flipped health to unhealthy")
+	}
+}
+
+func TestMigrationLockWaitBeyondRuntimeIOTimeout(t *testing.T) {
+	if testing.Short() {
+		t.Skip("waits longer than the 10 s runtime I/O timeout")
+	}
+	f := newFixture(t)
+	holder, err := f.root.Conn(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer holder.Close()
+	var got int
+	if err := holder.QueryRowContext(context.Background(), "SELECT GET_LOCK(?, 5)", lockName(f.cfg.Database)).Scan(&got); err != nil || got != 1 {
+		t.Fatalf("hold lock: %v %d", err, got)
+	}
+	start := time.Now()
+	_, err = Migrate(context.Background(), f.cfg, MigrateOptions{LockTimeout: ioTimeout + 3*time.Second})
+	if !errors.Is(err, ErrMigrationLocked) {
+		t.Fatalf("expected ErrMigrationLocked after the full wait, got %v after %s", err, time.Since(start))
+	}
+	if time.Since(start) < ioTimeout {
+		t.Fatalf("returned after %s, before the runtime I/O timeout", time.Since(start))
+	}
+}

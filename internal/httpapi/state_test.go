@@ -2,8 +2,7 @@
 package httpapi
 
 import (
-	"context"
-	"errors"
+	"net/http"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -12,53 +11,72 @@ import (
 type fakeState struct{ up atomic.Bool }
 
 func (f *fakeState) Healthy() bool { return f.up.Load() }
-func (f *fakeState) Check(context.Context) error {
-	if f.up.Load() {
-		return nil
-	}
-	return errors.New("sentinel-driver-detail host=secret.internal")
-}
+
+const queryBody = `{"connection":{"driver":"sqlite","database":"probe","tls_mode":"verify-full"},"sql":"SELECT 1"}`
 
 func TestWithoutStateStoreBehaviorIsUnchanged(t *testing.T) {
-	response := perform(New(&testEngine{}, testToken), "GET", "/healthz", "", "")
+	handler := New(&testEngine{}, testToken)
+	response := perform(handler, "GET", "/healthz", "", "")
 	if response.Code != 200 || strings.TrimSpace(response.Body.String()) != `{"status":"ok"}` {
 		t.Fatalf("health changed: %d %s", response.Code, response.Body.String())
 	}
 	engine := &testEngine{}
-	if response := perform(New(engine, testToken), "POST", "/api/v1/query", `{"connection":{"driver":"sqlite","database":"probe","tls_mode":"verify-full"},"sql":"SELECT 1"}`, testToken); response.Code != 200 || !engine.called {
+	if response := perform(New(engine, testToken), "POST", "/api/v1/query", queryBody, testToken); response.Code != 200 || !engine.called {
 		t.Fatalf("bearer mode changed: %d", response.Code)
+	}
+	ready := perform(handler, "GET", "/readyz", "", "")
+	if ready.Code != 200 || !strings.Contains(ready.Body.String(), `"state_store":"disabled"`) {
+		t.Fatalf("readyz without store: %d %s", ready.Code, ready.Body.String())
 	}
 }
 
-func TestStateStoreFailsClosedAndRecovers(t *testing.T) {
+// The Bearer API does not read server state, so an outage must not take it down,
+// and liveness must not depend on the database (orchestrators replace unhealthy tasks).
+func TestStateOutageDoesNotAffectBearerModeOrLiveness(t *testing.T) {
 	state := &fakeState{}
 	engine := &testEngine{}
 	handler := New(engine, testToken, WithStateStore(state))
-	query := `{"connection":{"driver":"sqlite","database":"probe","tls_mode":"verify-full"},"sql":"SELECT 1"}`
+	if response := perform(handler, "POST", "/api/v1/query", queryBody, testToken); response.Code != 200 || !engine.called {
+		t.Fatalf("bearer API affected by outage: %d", response.Code)
+	}
+	if response := perform(handler, "POST", "/api/v1/query", queryBody, "wrong"); response.Code != 401 {
+		t.Fatalf("auth changed: %d", response.Code)
+	}
+	live := perform(handler, "GET", "/healthz", "", "")
+	if live.Code != 200 || strings.TrimSpace(live.Body.String()) != `{"status":"ok"}` {
+		t.Fatalf("liveness depends on state: %d %s", live.Code, live.Body.String())
+	}
+}
 
-	// Down: even a valid bearer token gets 503, the engine is never called, health is unhealthy.
-	response := perform(handler, "POST", "/api/v1/query", query, testToken)
-	if response.Code != 503 || engine.called || response.Header().Get("Retry-After") == "" || !strings.Contains(response.Body.String(), "state_unavailable") {
-		t.Fatalf("not failing closed: %d %s called=%v", response.Code, response.Body.String(), engine.called)
+func TestReadinessReportsStateStoreFromCache(t *testing.T) {
+	state := &fakeState{}
+	handler := New(&testEngine{}, testToken, WithStateStore(state))
+	down := perform(handler, "GET", "/readyz", "", "")
+	if down.Code != 503 || !strings.Contains(down.Body.String(), `"state_store":"unreachable"`) {
+		t.Fatalf("readyz down: %d %s", down.Code, down.Body.String())
 	}
-	if response := perform(handler, "GET", "/api/v1/capabilities", "", ""); response.Code != 503 {
-		t.Fatalf("unauthenticated request not gated: %d", response.Code)
-	}
-	health := perform(handler, "GET", "/healthz", "", "")
-	if health.Code != 503 || strings.Contains(health.Body.String(), "sentinel") || strings.Contains(health.Body.String(), "secret.internal") {
-		t.Fatalf("health down: %d %s", health.Code, health.Body.String())
-	}
-
-	// Up again: the same handler recovers without restart and authentication still applies.
 	state.up.Store(true)
-	if response := perform(handler, "POST", "/api/v1/query", query, testToken); response.Code != 200 || !engine.called {
+	up := perform(handler, "GET", "/readyz", "", "")
+	if up.Code != 200 || !strings.Contains(up.Body.String(), `"state_store":"ok"`) {
+		t.Fatalf("readyz up: %d %s", up.Code, up.Body.String())
+	}
+}
+
+func TestRequireStateFailsClosedAndRecovers(t *testing.T) {
+	state := &fakeState{}
+	api := New(&testEngine{}, testToken, WithStateStore(state))
+	var served atomic.Int32
+	guarded := api.RequireState(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { served.Add(1); w.WriteHeader(204) }))
+	response := perform(guarded, "GET", "/x", "", testToken)
+	if response.Code != 503 || served.Load() != 0 || response.Header().Get("Retry-After") == "" || !strings.Contains(response.Body.String(), "state_unavailable") {
+		t.Fatalf("not failing closed: %d %s", response.Code, response.Body.String())
+	}
+	state.up.Store(true)
+	if response := perform(guarded, "GET", "/x", "", testToken); response.Code != 204 || served.Load() != 1 {
 		t.Fatalf("no recovery: %d", response.Code)
 	}
-	if response := perform(handler, "POST", "/api/v1/query", query, "wrong"); response.Code != 401 {
-		t.Fatalf("auth bypass while up: %d", response.Code)
-	}
-	health = perform(handler, "GET", "/healthz", "", "")
-	if health.Code != 200 || !strings.Contains(health.Body.String(), `"state_store":"ok"`) {
-		t.Fatalf("health up: %d %s", health.Code, health.Body.String())
+	unconfigured := New(&testEngine{}, testToken).RequireState(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { served.Add(1) }))
+	if response := perform(unconfigured, "GET", "/x", "", testToken); response.Code != 503 || served.Load() != 1 {
+		t.Fatalf("route needing state served without a store: %d", response.Code)
 	}
 }

@@ -220,8 +220,11 @@ Was diese Entscheidung **nicht** festlegt:
 - Alle offenen Fragen in Abschnitt 4 (1 bis 11) bleiben **offen**. Insbesondere sind
   Passkey-Rolle, Sessionmodell, Mandantentrennung, unterstützte MariaDB-Versionen,
   MySQL-Kompatibilität, Audit, Backup/Restore-Verfahren und das Verhalten bei DB-Ausfall
-  für künftige Funktionen nicht entschieden. SZ1 verhält sich bei DB-Ausfall fail closed
-  (Vorschlag aus Frage 8); das ist Implementierungsstand von SZ1, keine Produktentscheidung.
+  für künftige Funktionen nicht entschieden. SZ1 stellt einen routenweisen
+  fail-closed-Mechanismus bereit (`RequireState`, derzeit von keiner Route benutzt), lässt den
+  Bearer-Modus bei DB-Ausfall unverändert weiterlaufen und trennt Liveness (`/healthz`) von Readiness
+  (`/readyz`); das ist eine Koordinatorentscheidung nach dem SZ1-Review. Ob und wie Sessions bei
+  DB-Ausfall kurz weiterlaufen dürfen (Frage 8), bleibt für künftige Konten-Funktionen offen.
   Für Frage 11 verwendet SZ1 den bereits inventarisierten `github.com/go-sql-driver/mysql`;
   eine weitergehende Treiberentscheidung steht aus.
 - Nicht entschieden und nicht umgesetzt: WebAuthn, Konten-UI, Teams, Freigaben,

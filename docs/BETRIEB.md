@@ -206,7 +206,7 @@ Der Pool ist vollständig getrennt von den Verbindungen zu verwalteten Zieldaten
 | `DBM_STATE_SERVER_KEY_FILE` | Pfad der Serverschlüssel-Datei: 32 Byte als Base64 oder Hex (Docker-Secret) |
 | `DBM_STATE_DB_CA_FILE` | optional: zusätzliches PEM-CA-Bundle nur für diese DB (Systemwurzeln bleiben) |
 | `DBM_STATE_DB_TLS` | leer/`verify` (Standard: TLS mit Zertifikatskette und Hostnamenprüfung, kein Klartextfallback) oder `disable` (nur lokale Entwicklung) |
-| `DBM_STATE_DB_MIGRATE_USER`, `DBM_STATE_DB_MIGRATE_PASSWORD_FILE` | optional, nur gemeinsam: separater Benutzer mit DDL-Rechten; nur dann migriert der Server beim Start |
+| `DBM_STATE_DB_MIGRATE_USER`, `DBM_STATE_DB_MIGRATE_PASSWORD_FILE` | optional, nur gemeinsam: separater Benutzer mit DDL-Rechten. Standard: nur für den Einmalbefehl `state-migrate` setzen, nicht im dauerhaft laufenden Dienst. Nur Ausnahme: Migration beim Serverstart |
 
 Passwörter und Serverschlüssel gibt es nur als Datei, nie als Variable, Argument oder Log.
 Fehlermeldungen sind feste Texte ohne Host, Benutzer, Passwort oder Treibertext.
@@ -223,16 +223,22 @@ CREATE USER 'dbmanager_migrate'@'%' IDENTIFIED BY '...' REQUIRE SSL;
 GRANT ALL PRIVILEGES ON dbmanager_state.* TO 'dbmanager_migrate'@'%';
 ```
 
-Der Laufzeitbenutzer führt nie DDL aus. Migration entweder beim Start mit dem
-Migrationsbenutzer (Variablen oben; GET_LOCK sorgt dafür, dass mehrere Replikate genau
-einmal migrieren, die anderen warten und erkennen den Stand) oder getrennt als Einmalbefehl:
+Der Laufzeitbenutzer führt nie DDL aus. **Standard:** Migration als Einmalschritt (Init-Container
+oder Job) vor dem Rollout, mit Migrationsbenutzer; der dauerhaft laufende Dienst bekommt dann
+keine DDL-Zugangsdaten:
 
 ```sh
 db-manager state-migrate --plan   # zeigt ausstehende Migrationen, ändert nichts
 db-manager state-migrate          # wendet sie an (Migrationsbenutzer erforderlich)
 ```
 
-Ohne Migrationsbenutzer migriert der Server nicht; ist das Schema veraltet oder passt es
+Beispiel Compose: `docker compose -f compose.yaml -f compose.state.yaml -f compose.state-migrate.yaml run --rm --no-deps app state-migrate`
+(danach den Dienst ohne `compose.state-migrate.yaml` starten). Der Sperrmechanismus (GET_LOCK)
+macht auch parallele Läufe sicher: einer migriert, die anderen warten und erkennen den Stand.
+**Ausnahme:** Mit gesetzten `DBM_STATE_DB_MIGRATE_*` im Dienst migriert dieser beim Start; dann liegt
+das DDL-Passwort während der gesamten Laufzeit im Containerprozess. Nur für einfache Einzelumgebungen.
+
+Ohne Migrationsbenutzer im Dienst migriert der Server nicht; ist das Schema veraltet oder passt es
 nicht zur Programmversion, startet er nicht (Meldung ohne Details). Migrationen sind
 vorwärts gerichtet, mit Prüfsumme je Version; nachträglich geänderte Migrationen werden erkannt.
 
@@ -241,7 +247,7 @@ Compose (externe DB, Dateien wie oben unter `secrets/`, die Dateien sind per Mod
 ```sh
 DBM_STATE_DB_HOST=db.internal.example \
   docker compose -f compose.yaml -f compose.state.yaml up -d
-# mit Migration beim Start zusätzlich: -f compose.state-migrate.yaml
+# Ausnahme (DDL-Passwort im Dienst, Migration beim Start): zusätzlich -f compose.state-migrate.yaml
 ```
 
 Pfade und Namen lassen sich über `DBM_STATE_DB_PASSWORD_PATH`, `DBM_STATE_SERVER_KEY_PATH`,
@@ -259,14 +265,24 @@ Verhalten bei Betrieb und Ausfall:
 
 - Start: DB, TLS und Schema müssen innerhalb von 30 Sekunden stimmen, sonst Abbruch
   (Zertifikats- und Anmeldefehler sofort). Der Server loggt nur feste Statuszeilen.
-- `/healthz` unterscheidet Prozess und Speicher: mit Serverzustand `{"status":"ok","state_store":"ok"}`,
-  bei Ausfall HTTP 503. Der Docker-Healthcheck wird dadurch `unhealthy`.
-- Fail closed: Ist die DB nicht erreichbar, beantwortet der Server **alle** `/api/`-Anfragen
-  mit 503 `state_unavailable`, auch mit gültigem Bearer-Token; die Oberfläche selbst
-  (statische Dateien) bleibt erreichbar. Kehrt die DB zurück, erholt sich der Dienst ohne
-  Neustart (Zustand wird alle 3 Sekunden geprüft). Das ist Implementierungsstand von SZ1,
-  keine endgültige Produktentscheidung (offene Frage 8 in ADR-0006).
-- Der Bearer-Token-Modus ändert sich nicht; der Token bleibt zusätzlich Pflicht.
+- `/healthz` ist reine **Liveness** ohne DB-Abhängigkeit und liefert immer `{"status":"ok"}`;
+  die Docker-/Swarm-Healthchecks nutzen sie unverändert. Damit ersetzt ein Orchestrator bei einer
+  DB-Störung keine Tasks (keine Austauschschleife durch `unhealthy`).
+- `/readyz` ist die **Readiness**: ohne Serverzustand `{"status":"ok","state_store":"disabled"}`, mit
+  Serverzustand `state_store` `ok` (200) oder `unreachable` (503). Sie liest nur den zwischengespeicherten
+  Zustand (Hintergrundprüfung alle 3 Sekunden, ein Ping je Intervall) und löst keine DB-Abfrage pro Aufruf aus.
+  Für Load Balancer/Monitoring gedacht, nicht für Docker-Healthchecks. Beide Routen sind
+  unauthentifiziert und verraten damit den Zustand des Speichers.
+- Fail closed gilt pro Route: `API.RequireState` liefert 503 `state_unavailable`, solange der Speicher
+  nicht erreichbar ist. Es gibt in SZ1 noch keine Route, die Serverzustand liest, daher ist **keine
+  Route gesperrt**; künftige Konten-/Session-/Freigabe-Routen müssen damit umhüllt werden. Der
+  Bearer-Token-Modus läuft bei DB-Ausfall unverändert weiter. Kehrt die DB zurück, erholt sich die
+  Readiness ohne Neustart. Ein vom Aufrufer abgebrochener Check ändert den Zustand nicht.
+
+Bekannte Grenzen (SZ1-Review, nicht behoben): `DBM_STATE_DB_CA_FILE` ergänzt die Systemwurzeln statt sie
+zu ersetzen (kein Pinning); Dateirechte der Secret-Dateien werden nicht geprüft; Serverschlüssel werden nur
+gegen Länge und Nullschlüssel geprüft, nicht auf Entropie; ein kurzer Pingfehler setzt die Readiness sofort
+auf `unreachable` (keine Hysterese).
 
 Prüfung: `python3 scripts/test-server-state.py` (nur eigene Wegwerf-MariaDB-Container mit
 TLS, ein eigenes Docker-Netz und ein Testimage; räumt alles ab). Ergebnisse und Grenzen:
