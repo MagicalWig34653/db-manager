@@ -59,7 +59,7 @@ func configure(conn *sqlite.Conn) error {
 			return sqlite.AUTH_DENY
 		case sqlite.AUTH_PRAGMA:
 			switch strings.ToLower(first) {
-			case "query_only", "table_info", "table_xinfo", "index_list", "index_info", "foreign_key_list", "database_list":
+			case "query_only", "table_info", "table_xinfo", "index_list", "index_info", "index_xinfo", "foreign_key_list", "database_list":
 				return sqlite.AUTH_OK
 			default:
 				return sqlite.AUTH_DENY

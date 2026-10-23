@@ -43,6 +43,7 @@ func New(engine core.Engine, token string) *API {
 	a.registerTables(mux)
 	a.registerMutations(mux)
 	a.registerInserts(mux)
+	a.registerStructure(mux)
 	a.handler = mux
 	return a
 }
