@@ -97,7 +97,7 @@ Der Abgleich der Plugin-Familien ergibt (Dateien mit Namen im Inventar genannt, 
   `Apple entfällt` = an PHP-Laufzeit, Webserver oder Browser gebunden. Die Einschätzung ist eine Analyse, keine Abnahme.
 - **Voraussetzung:** Abhängigkeiten, Konfigurationsspeicher und Rechte. Versions- und Rechteangaben stammen aus dem Quellcode,
   soweit belegt; sonst aus allgemeiner Datenbankkenntnis und sind damit Annahmen, die vor Implementierung gegen die Serverdokumentation zu prüfen sind.
-- **Hinweis:** Einschränkungen, Unsicherheiten, Abgrenzungen. `UNSICHER` markiert eine nicht geprüfte Aussage.
+- **Hinweis:** Einschränkungen, Unsicherheiten, Abgrenzungen. `UNSICHER` markiert jede Aussage, die nicht am Quellcode belegt ist. Die Markierung setzt das Erzeugungsskript einheitlich, wenn der Hinweis oder die Kurzbeschreibung Formulierungen wie "nicht verifiziert", "nicht im Detail geprüft", "abgeleitet" oder "ausstehend" enthält. Zeilen mit UNSICHER: 110 (davon neue Funde: 83).
 
 ## Grenzen
 
