@@ -62,7 +62,11 @@ keinen gefixten Server. [Vertragsindex](../contracts/README.md).
 | A2 / integriert | Apple-main `3c92f974aa6d1c3056b25e3bc9ec5b0d0cb9f161` (Produkt `7e97aae`), Provenienz `feat/apple-postgres` / `.worktrees/apple-postgres` | Quellen89b2683/abaa3dc/b72e62c als fdd533e/cd5d886/031b1e8 nach unabhängiger QA und exakter grüner nativer CI39503396485 integriert. Kalenderfix mit 1.008/4.032 Vektoren und drei echten TLS-PG-Fällen unabhängig geprüft; konkreter NIOssl-Pin ausdrücklich akzeptiert. Leadintegration Swift-/Kalender-/13Pins-/Originalcheckout-/Docs74/0 bestanden, sechs Livetests im Leadlauf ausdrücklich übersprungen. Kombinierte Apple-Main-CI39505094304 an 7e97aae erfolgreich. Unabhängiger A2-Review `0d96b86` als `4047180` aufgenommen; neuer Mainstand ändert nur Review/Status/Plan, Docs75/0 und Diffcheck bestanden. |
 | F4b / Frontend & UX (`p1a_parity`) | Hauptrepo, `feat/row-web-runtime`, `.worktrees/row-web-runtime`, Basis `4044341` | Freigegebene F4-Quelle reproduzierbar im Rootprodukt einbetten. Besitz Assets/Manifest/Lock, Build-/Browser-/Deployskripte und enge Webhelper/CI, README/Einrichtung/Betrieb/Webbuild/Lizenzen/Handoff; kein DB/Core/HTTP/GoMod/API/STATUS/Plan. Produkt `3770c4e95ae4617a6b4858c87f1e69c963253416`, Handoff `46e4bf1`, unabhängiger Review `533348a72c5432c9f46b701dd70afcc4c1bdf944` ohne bestätigte Findings. Zwei bytegleiche öffentliche Builds, Embeddedbrowser9/9, vollständige Go-Race/Vet, neun Pythonprüfungen, echte Compose-/isolierte-Swarm-CRUD/409/DefaultNULLPrecisionBinary mit Persistenz und sauberer öffentlicher Go-/Imagecheckout ohne Node/npm/Siblings unabhängig bestanden. Alle sieben exakten CIs grün; unverändert als ffcf519/2ad78b2 integriert, kombinierter Veröffentlichungsstand4de72bc. |
 | S2a / Apple & Security (`p3a_security`) | Apple, `feat/vault-core`, `.worktrees/vault-core`, Basis `7cbeb38` | Ausschließlich eigenständiges neues Paket Packages/DBManagerVault samt Prüfungen/Originaltexten, eigenen CI/Skripten, ADR-A003/Sicherheitsdokumenten/Handoff. Actor-Session, sichere lokale atomare Dateiablage, extern verankerte CAS-/Lebenszeit-AEAD-Reservierung und Recovery mit neuen Faktoren. Keine App-/Xcode-/Rootpackage-/A2-/zentralen Statusänderungen. Produktiver nicht zurückrollbarer Anchor bleibt gesondertes Gate; nur Testanker noch keine Produktfreigabe. |
-| B3a / Backend & Platform (`p2a_drivers`) | Hauptrepo, Feature `feat/schema-metadata`, Release `release/b3a` | Namespacebefund B3a-01 im Fix `7c66bb908a635e1de8e212a2003e3e0826de4210` unabhängig geschlossen, Review `570f5a0097afd772009b4556565f645b99835290`, alle acht exakten Fix-CIs success. Vollständige Feature-/Handoff-/Reviewprovenienz als `fddc574`/`ac9542d` integriert; API0.5-Clientvertrag nach Leadfreigabe eingefroren, Referenzbackend ac9542d enthält den Fix. Kombinierte Releasechecks und neue Main-CIs separat im folgenden Checkpoint. Keine Mutation/DDL aus dieser Freigabe. |
+| B3a / Backend & Platform (`p2a_drivers`) | Hauptrepo, Feature `feat/schema-metadata`, Release `release/b3a` | Namespacebefund B3a-01 im Fix `7c66bb908a635e1de8e212a2003e3e0826de4210` unabhängig geschlossen, Review `570f5a0097afd772009b4556565f645b99835290`, alle acht exakten Fix-CIs success. Vollständige Feature-/Handoff-/Reviewprovenienz als `fddc574`/`ac9542d` integriert; API0.5-Clientvertrag nach Leadfreigabe eingefroren, Referenzbackend ac9542d enthält den Fix. Kombinierte Releasechecks und alle acht exakten Main-CIs an8aab52b erfolgreich. Keine Mutation/DDL aus dieser Freigabe. |
+| B4a / Backend & Platform (`p2a_drivers`) | Hauptrepo, `feat/table-create`, `.worktrees/table-create`, Basis `8aab52b` | Eingefrorener öffentlicher Prüfkandidat `40defdc0ac4bf31f8e1778f55c22b1431de9c827`: strukturierte neue Tabelle, feste Typen/konstante Defaults/Nullable/PK, keine bestehende Tabelle ändern. API0.6 trennt bestätigten Abschluss von transaktionaler bzw. separater beobachteter/abweichender/fehlender Strukturprüfung; kein universelles DDL-Rollback. Vollständige Race/Vet, SQLite und echte MySQL/MariaDB/PG-TLS-Proben, Name-/MDL-/Rechte-/Abbruch-/Commit-/HTTP-/Schemafälle und Docs288/0 grün. Neun neue CIs aktiv, unabhängiger Review und0.6-Freeze offen. Besitz neue Core/DB/HTTPdateien/enge Route/eigener Vertrag/Tests/CI/Handoff, keine Main/Web/Docker/GoMod/Vaultänderung. |
+| W1 / Site Engineer (`p0_publication_review`) | Hauptrepo, `feat/pages-site`, `.worktrees/pages-site`, Basis `8aab52b` | Neuer ausdrücklicher Nutzerauftrag GitHub Pages: Landingpage, Doku und Roadmap aus kanonischen Rootdokumenten. Besitz nur neues site/, eigener Pagesworkflow/Sitebuild/Tests/Lizenzen/Handoff. Keine Go/API/Docker/Webassets/B4/RootSTATUS-/Planänderung; unabhängige QA vor Veröffentlichung. Pages waren bei lesender APIprüfung noch nicht eingerichtet. |
+| F5 / Frontend, vorübergehend zurückgestellt | Webrepo, eigener Autorencheckpoint | Strukturansicht mit freigegebenem0.5-Vertrag noch nicht als Rootprodukt angenommen. Zugunsten der neuen TestFlight-Priorität vorübergehend checkpointen; keine0.6-Clientbindung und keine Backenddateiänderung. |
+| Apple TestFlight / Apple Engineer (`p3a_security`) | Applerepo, Slotübernahme nach F5-Checkpoint | Neuer ausdrücklicher Nutzerauftrag TestFlight und Bundle-ID de.linolaske. Vorbereitung/Signing/Upload müssen tatsächlich belegt werden; noch keine erfolgreiche Distribution behauptet. Keine Apple-/Bundle-/Signingdateien durch Backend & Platform. |
 
 Für dieses verlängerte Fenster hat der Lead ausschließlich die beiden zentralen
 STATUS-/ARBEITSPLAN-Dateien des Hauptrepos an Backend & Platform zur Pflege übertragen;
@@ -203,3 +207,25 @@ Veröffentlichung gestartet und gesondert kontrolliert; frühere grüne Jobs ers
 diese nicht. Lokale Gitref-Anomalie reversibel behoben, gültige Refs unverändert,
 Fetch/show-ref/fsck erfolgreich: [Nachweis](handoffs/Git-Refs-2026-10-23.md).
 Keine eigenen lokalen Jobs/Testressourcen offen. B4a startet erst auf diesem Stand.
+
+## B4a-Kandidat und neue Nutzerprioritäten
+
+Öffentlicher Prüfkandidat40defdc, API0.6-SHA256
+`b08b6aba858f72a3bad1fce2933e487eed017f5e35b4690cfd9fae3a590a6887`.
+[Handoff](https://github.com/MagicalWig34653/db-manager/blob/40defdc0ac4bf31f8e1778f55c22b1431de9c827/docs/handoffs/B4a.md).
+Neue exakte Jobs: Tabellenanlage39905577680, Struktur39905577665,
+Engine39905577655, Backend39905577678, Tabellen39905577617,
+Mutationen39905577615, Insert39905577609, Web39905577711,
+Docs39905577731 (bereits success, übrige aktiv). Keine eigenen lokalen B4a-Jobs oder
+Testressourcen offen. Noch keine0.6-Freigabe oder Integration.
+
+Alle acht kombinierten B3a-Mainjobs an8aab52b inzwischen success:
+Struktur39903385487, Engine39903385441, Backend39903385549,
+Tabellen39903385422, Mutationen39903385437, Insert39903385476,
+Web39903385529 und Docs39903385427. API0.5 bleibt ausdrücklich freigegeben.
+
+GitHub-Pages-Existenz für alle drei Repos am23.10.2026 um05:14 UTC lesend geprüft:
+/pages jeweils404 bei vorhandenen Adminrechten, Homepage leer, kein Pagesworkflow.
+Danach ausdrücklicher neuer Siteauftrag W1, noch keine veröffentlichte Site behauptet.
+TestFlight/Bundle-ID de.linolaske hat neue Nutzerpriorität; F5 wird dafür sauber
+gecheckpointet, W1 läuft getrennt weiter. Keine Änderung der Deadline heute10:00 Berlin.

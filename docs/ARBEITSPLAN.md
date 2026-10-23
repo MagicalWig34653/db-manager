@@ -14,7 +14,7 @@ Tatsächliche Ergebnisse und feste Vertragspins: [STATUS](STATUS.md).
 | F4b / Frontend & UX | Hauptrepo / feat/row-web-runtime / .worktrees/row-web-runtime, Basis4044341 | F4-Quelle3a4a3fd nach unabhängigem Review01933d5 im Web-main bf75748 integriert. Jetzt separate reproduzierbare Rootasset-Einbettung; Besitz Root-Webassets/Manifest/Lock, Build-/Runtime-/Deploytests/enge CI, README/Einrichtung/Betrieb/Webbuild/Lizenzen/Handoff. Kein DB/Core/HTTP/GoMod/API/STATUS/Plan. Produkt3770c4e plus Handoff46e4bf1 und unabhängiger Review533348a ohne Findings angenommen. Zwei bytegleiche öffentliche Builds, Embeddedbrowser9/9, Compose-/isolierte-Swarm-CRUD/409/Persistenz und sauberer öffentlicher Go-/Imagecheckout ohne Node/npm/Siblings unabhängig grün; alle sieben Produkt-CIs success. Als ffcf519/2ad78b2 integriert; kombinierte Go-Race/Vet-/Manifest-/9Python-/Vertrags-/Docschecks bestanden. Neue Main-CIs jetzt kontrollieren. |
 | S2a / Apple & Security | Apple / feat/vault-core / .worktrees/vault-core, Basis7cbeb38 | Eigenständiger Core im neuen Packages/DBManagerVault, eigene Tests/Fixtures/Originaltexte/CI/Skripte, ADR-A003/Sicherheitsdokumente/Handoff. S1-Format exakt, Actor-Locksession, verwaltetes privates Root mit festen Zufallsnamen und sicheren Dateideskriptoren, flock/CAS/temp0600/fsync/rename/dirfsync. Unabhängiger Anchor reserviert lebenslange Root-AEAD-Nutzung dauerhaft vor Verschlüsselung, bestätigt Hash/Generation erst nach dauerhafter Datei; Pending nur bekannte alte/neue Zustände. Fehlender/zurückrollbarer importierter Anchor erlaubt keine schreibende Produktsession. Nur Testanker in Testtarget, kein stiller InMemory-Produktfallback. Recovery darf mit einem überlebenden alten Faktor in neuen Tresor mit beiden neuen rückgelesenen Faktoren migrieren; Original erhalten. Keine App-/Xcode-/Rootpackage-/A2-/zentralen Statusänderungen. Unabhängige Dateisystem-/Fehler-/Concurrency-/Bounds-/Interop-QA vor Integration. |
 | B3a / abgenommen | Hauptrepo / release/b3a / .worktrees/schema-release | B3a-01 unabhängig geschlossen, Fix7c66bb9 alle acht CIs success, Review570f5a. Feature-/Fix-/Review-Ancestry erhalten integriert als fddc574/ac9542d. API0.5 nach ausdrücklicher Freigabe im Vertragsindex eingefroren; nur lesende Strukturmetadaten. Releasegesamtchecks/MainCI als eigenes Gate dokumentieren. |
-| B4a / Backend & Platform | Hauptrepo / feat/table-create / .worktrees/table-create | Freigegebene strukturierte Neuanlage einer Tabelle, additive API0.6, feste Int64/Text/Binary/Decimal-Typen und konstante typisierte Defaults/PK/Nullable. Keine bestehende Tabelle ändern, keine freien SQL-Fragmente/Identity/FK/CHECK/DDL-Batches. MySQL-Ack und separate Strukturbeobachtung trennen, fehlende Antwort outcome_unknown; keine Retry-/Drop-/Markerlogik. Neue Core/DB/HTTPdateien/enge Route/eigener Vertrag/CI/Tests/Handoff, keine Web/Main/Docker/GoMod/Vaultdateien. Bis B3a-Release nur Lektüre, danach eigener Branch auf integrierten Stand. |
+| B4a / Backend & Platform | Hauptrepo / feat/table-create / .worktrees/table-create, Basis8aab52b | Prüfkandidat40defdc mit API0.6 eingefroren. Feste vier Typen, konstante Defaults, PK/Nullable; neue Tabelle ohne bestehende Änderungen. Ack/Commit und Strukturbeobachtung getrennt, unknown ohne Retry/Drop/Marker. Komplette lokale Race/Vet-/Vier-Treiber-/TLS-/Lock-/Rechte-/Commit-/HTTP-/Vertrags-/Metaschemafälle grün. Neun exakte CIs laut STATUS gestartet; unabhängiger Review und separater0.6-Freeze vor Clientbindung. Besitz neue Core/DB/HTTPdateien, enge Route, eigener Vertrag/Tests/CI/Handoff, keine Main/Web/Docker/GoMod/Vaultdateien. |
 
 A2 ist nach unabhängiger Kalenderfixprüfung und exakter grüner nativer
 CI39503396485 an b72e62c im Apple-main7e97aae integriert. Bestehender eigener Worktree
@@ -130,3 +130,17 @@ Main publizieren und acht neue Main-CIs beobachten. Gitref-Quarantäne separat
 nachvollziehbar dokumentiert; keine gültigen Refs oder fremden Änderungen verworfen.
 B4a danach im eigenen Branch auf diesen integrierten Stand bringen und umsetzen;
 keine0.6-Clientfreigabe ohne neues unabhängiges Review und exakte CI.
+
+## Aktueller endlicher Prüf-/Nutzercheckpoint
+
+B4a40defdc ist fertig eingefroren und wartet auf unabhängigen Review sowie die neun
+exakten nativen CIs. Keine weitere Funktion ohne Auftrag. Alle acht integrierten
+B3a-Main-CIs an8aab52b success,0.5-Vertrag freigegeben; kein0.6-Verbrauch daraus.
+
+W1 neu aktiv: Hauptrepo feat/pages-site/.worktrees/pages-site ab8aab52b, nur neues
+site/ und eigener Pagesworkflow/Sitebuild/Tests/Lizenzen/Handoff. Landingpage/Doku/
+Roadmap aus kanonischen Rootdokumenten, keine erfundenen Produktclaims; unabhängige
+QA vor Veröffentlichung. Keine Go/API/Docker/Webassets/B4/RootSTATUS-/Planüberlappung.
+Neuer Nutzerauftrag TestFlight/Bundle-ID de.linolaske ist priorisiert: F5 vorübergehend
+checkpointen, anschließend Apple-Engineer im Applerepo übernehmen lassen. Backend
+schreibt keine Apple-/Signingdateien. W1 läuft getrennt weiter, Deadline unverändert.
