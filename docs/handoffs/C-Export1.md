@@ -71,3 +71,35 @@ ViewModel/fileExporter und gemeinsame synthetische Vergleichsvektoren; echte
 OS-Dateidialoge und Geräte bleiben separate Nachweise. Keine eigenen Docker-/OS-
 Ressourcen oder Datenbankjobs angelegt. Laufende Jobs werden im finalen Checkpoint
 benannt; keine fremden Änderungen oder Caches bereinigen.
+
+## Öffentlicher frischer Abschlusscheckpoint
+
+Unveränderlicher Code-/Vertragskandidat
+`e5e973b0a31e9ca7e1ed8d2d52819c849b6a13a2` auf `docs/export-contract`.
+Schema-SHA256:
+`49e7d53b14ff142148a851753e980ad068b01aad7555b27808f3ffb0f4df85c7`.
+
+Ein eigenes zufälliges temporäres Verzeichnis enthielt zwei vollständig getrennte
+öffentliche Checkouts: Root exakt e5e973b sowie Web exakt1a8adfa mit zusätzlich
+explizit geholtem F5-SHAobjekt. Kein vorhandenes Geschwisterrepo für den Lauf.
+`npm ci --ignore-scripts --no-audit --no-fund` installierte185 Pakete aus dem
+gepinnten Original-Weblock. Node26.5.0/npm11.17.0; keine cachefreie Netzwerkbehauptung.
+
+Der tatsächliche `check.mjs`-Lauf aus diesem öffentlichen Rootcheckout bestand:
+Schema, sieben JSONfixtures, zwölf CSVbyte-Fixtures,21Negativfälle,
+254CSV-Steuerzeichenablehnungen und drei exakte8MiB-Grenzen. Quellen-/Werkzeug-/
+Originalnoticeshashes ebenfalls bestanden. Root-Dokumentationsprüfung320Dateien,
+nullFehler; beide Checkouts nachPrüfung Gitclean. Alle eigenen temporären öffentlichen
+Clones samt node_modules wurden nach erfolgreich beendetem Prozess entfernt.
+Keine lokalen Jobs/DB-/Container-/OSressourcen verbleiben.
+
+Die bestehende Root-Dokumentations-CI39911041527 am exakten e5e973b ist bereits
+success. Insgesamt neun bestehende Rootworkflows wurden automatisch ausgelöst;
+Insert39911041524/Table39911041494 ebenfalls bereits success, weitere beim
+Checkpoint noch aktiv. Das sind keine zusätzlichen Exportkonformitäts-CIs:
+Der konkrete Exportnachweis ist der getrennte frische Lauf oben. Nicht ausgeführte
+Swift-/App-/OS-/Go-/DBprüfungen bleiben ausdrücklich offen.
+
+Code, Schema, Fixtures und Hashlock bleiben nach diesem Kandidaten unverändert;
+der abschließende Folgecommit ergänzt ausschließlich diesen Handoff und überspringt
+unveränderte CIwiederholung. Unabhängige Abnahme/Rootfreeze sind weiterhin ausstehend.
