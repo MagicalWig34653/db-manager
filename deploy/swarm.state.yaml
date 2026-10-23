@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Optional stack file merged after swarm.yaml: connect the service to an external
+# MariaDB for the persistent server state (ADR-0006 option c).
+#
+#   docker stack deploy -c deploy/swarm.yaml -c deploy/swarm.state.yaml dbmanager
+#
+# This does not make the stack highly available or multi-replica capable: swarm.yaml
+# still pins one replica to the node holding the local SQLite volume (ADR-0004).
+# The database is operated by you and must be reachable from the service (for
+# example through an additional attachable overlay network). Secrets are external
+# Swarm secrets created beforehand; see docs/BETRIEB.md.
+version: "3.8"
+services:
+  app:
+    environment:
+      DBM_STATE_DB_HOST: ${DBM_STATE_DB_HOST:?set DBM_STATE_DB_HOST to the MariaDB host name}
+      DBM_STATE_DB_PORT: ${DBM_STATE_DB_PORT:-3306}
+      DBM_STATE_DB_NAME: ${DBM_STATE_DB_NAME:-dbmanager_state}
+      DBM_STATE_DB_USER: ${DBM_STATE_DB_USER:-dbmanager_runtime}
+      DBM_STATE_DB_PASSWORD_FILE: /run/secrets/state_db_password
+      DBM_STATE_SERVER_KEY_FILE: /run/secrets/state_server_key
+      DBM_STATE_DB_CA_FILE: /run/secrets/state_db_ca
+    secrets:
+      - state_db_password
+      - state_server_key
+      - state_db_ca
+secrets:
+  state_db_password:
+    external: true
+    name: ${DBM_STATE_DB_PASSWORD_SECRET:-dbmanager_state_db_password_v1}
+  state_server_key:
+    external: true
+    name: ${DBM_STATE_SERVER_KEY_SECRET:-dbmanager_state_server_key_v1}
+  state_db_ca:
+    external: true
+    name: ${DBM_STATE_DB_CA_SECRET:-dbmanager_state_db_ca_v1}
