@@ -79,3 +79,46 @@ Host-Node/npm/Geschwister für CLI-/Imagebau, exakte öffentliche Kandidaten-CIs
 unabhängiger F5b-Review. Produktcode erst nach diesen Nachweisen integrieren; keine
 Selbstfreigabe. Nächster Schritt: unveränderten Kandidaten veröffentlichen, frischen
 Clone prüfen und vollständige Evidenz als reinen Handoffnachtrag sichern.
+
+## Öffentlicher Abschlusscheckpoint
+
+Produkt-/Testkandidat `0dc9557c6a4d7ecf58aedc40987c64526aae416d` ist öffentlich auf
+`feat/schema-web-runtime` eingefroren. Neue Prüfungen verändern keine Produktbytes.
+Frischer öffentlicher Rootclone exakt dieses SHA ohne Geschwisterrepository:
+
+- CLI mit `CGO_ENABLED=0 GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local GOENV=off` auf
+  überprüft Node-/npm-freiem PATH gebaut. Go1.27.1 und vorhandener lokaler Modulcache;
+  kein behaupteter cachefreier Build. Frischer Clone blieb sauber.
+- Reguläres Dockerimage aus demselben frischen Clone gebaut; normale öffentliche
+  gepinnte Go-Moduldownloads zulässig, kein behaupteter netzloser Imagebau. Image
+  enthält originalen Root-AGPL-Text und alle vorhandenen Go-Lizenztexte, Weblock und
+  Manifest mit exakten Hashes, richtige OCI-/Webquelllabels und kein Node/npm.
+- Eigenes Cleanimage, öffentlicher Clone, CLI und Toolverzeichnis entfernt. Keine
+  ursprünglichen TestFlightarchive berührt. Autoritative Ressourcenabfrage zeigt
+  ausschließlich vier fremde Container, keine eigenen F5b-Container/Images und
+  Host-Swarm `inactive`.
+- Originale generierte neue JSdatei `index-Ay2aZLYy.js` enthält auf Zeile1 bereits
+  trailing whitespace. Zwei öffentliche Builds/Manifest bestätigen Originalbytes;
+  kein Handbereinigen dieses Fremd-/Buildartefakts. Eigene Quellen/Doku/Tests sind
+  diff-sauber; keine neue Lizenzdateiveränderung.
+
+Exakte öffentliche CIs am Produktcheckpoint:
+
+| Prüfung | Run | Tatsächlicher Stand bei Nachtrag |
+| --- | --- | --- |
+| Dokumentation | [39910176520](https://github.com/MagicalWig34653/db-manager/actions/runs/39910176520) | success |
+| Tabellenanlage | [39910176514](https://github.com/MagicalWig34653/db-manager/actions/runs/39910176514) | success |
+| Insert | [39910176523](https://github.com/MagicalWig34653/db-manager/actions/runs/39910176523) | success |
+| Update/Delete | [39910176612](https://github.com/MagicalWig34653/db-manager/actions/runs/39910176612) | success |
+| Tabellenansicht | [39910176571](https://github.com/MagicalWig34653/db-manager/actions/runs/39910176571) | success |
+| Strukturmetadaten | [39910176656](https://github.com/MagicalWig34653/db-manager/actions/runs/39910176656) | success |
+| Engine | [39910176605](https://github.com/MagicalWig34653/db-manager/actions/runs/39910176605) | in_progress |
+| Backend/Compose/Swarm | [39910176639](https://github.com/MagicalWig34653/db-manager/actions/runs/39910176639) | in_progress |
+| Web/Reproduktion/Browser | [39910176583](https://github.com/MagicalWig34653/db-manager/actions/runs/39910176583) | in_progress |
+
+Der unabhängige F5b-Reviewer hat den eingefrorenen Code übernommen und den freien
+Dockerheavytestslot nach tatsächlicher Autorenbereinigung bestätigt bekommen.
+Keine eigenen lokalen Prüfjobs/Server/DBfixtures/Images oder privaten Credentialdateien
+mehr aktiv. Weitere Quelländerungen nur nach konkretem Reviewbefund; Lead prüft die
+verbleibenden exakten CIs und entscheidet erst danach über Integration.
+Dieser reine Handoffnachtrag startet mit `[skip ci]` keine unveränderte neue Prüfserie.
