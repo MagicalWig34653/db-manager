@@ -370,3 +370,30 @@ func TestNewFileSyncIncludesDirectory(t *testing.T) {
 		t.Fatal("directory sync was skipped")
 	}
 }
+
+func TestIndexXInfoNarrowReadOnlyAllowlist(t *testing.T) {
+	db, cleanup, err := Open(t.TempDir(), "metadata")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cleanup()
+	defer db.Close()
+	if _, err = db.Exec(`CREATE TABLE items(value TEXT);CREATE INDEX by_value ON items(value COLLATE NOCASE DESC)`); err != nil {
+		t.Fatal(err)
+	}
+	var name, collation string
+	var descending bool
+	err = db.QueryRow(`SELECT name,coll,"desc" FROM pragma_index_xinfo(?) WHERE "key"=1`, "by_value").Scan(&name, &collation, &descending)
+	if err != nil || name != "value" || collation != "NOCASE" || !descending {
+		t.Fatalf("index metadata %q %q %v %v", name, collation, descending, err)
+	}
+	for _, query := range []string{`PRAGMA writable_schema=ON`, `PRAGMA journal_mode=WAL`, `PRAGMA temp_store=FILE`, `SELECT * FROM pragma_integrity_check`, `PRAGMA index_xinfo('by_value'); PRAGMA writable_schema=ON`} {
+		if _, err = db.Exec(query); err == nil {
+			t.Fatalf("nonallowlisted operation permitted: %s", query)
+		}
+	}
+	var count int
+	if err = db.QueryRow(`SELECT count(*) FROM pragma_index_xinfo(?)`, "by_value'); PRAGMA writable_schema=ON;--").Scan(&count); err != nil || count != 0 {
+		t.Fatalf("bound metadata argument was interpreted %d %v", count, err)
+	}
+}
