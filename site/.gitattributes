@@ -1,0 +1,2 @@
+# Preserve upstream license bytes, including CRLF and original whitespace.
+licenses/** -text

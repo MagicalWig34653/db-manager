@@ -1,0 +1,9 @@
+.venv/
+node_modules/
+.generated/
+dist/
+test-results/
+__pycache__/
+*.png
+!assets/screenshots/*.png
+.DS_Store

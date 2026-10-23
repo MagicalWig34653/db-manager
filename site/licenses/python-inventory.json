@@ -1,0 +1,258 @@
+[
+  {
+    "name": "click",
+    "version": "8.5.0",
+    "ecosystem": "PyPI",
+    "scope": "build-only",
+    "source": "https://pypi.org/project/click/8.5.0/",
+    "license": "BSD-3-Clause",
+    "notices": [
+      {
+        "path": "licenses/python/click/8.5.0/licenses/LICENSE.txt",
+        "sha256": "9a8ad106a394e853bfe21f42f4e72d592819a22805d991b5f3275029292b658d"
+      }
+    ]
+  },
+  {
+    "name": "ghp-import",
+    "version": "2.1.0",
+    "ecosystem": "PyPI",
+    "scope": "build-only",
+    "source": "https://pypi.org/project/ghp-import/2.1.0/",
+    "license": "Apache Software License",
+    "notices": [
+      {
+        "path": "licenses/python/ghp-import/2.1.0/LICENSE",
+        "sha256": "0bc8ffb45f26edd1cd0de4f50425ae2cb46c58c6d8ac113984d4120be355afa9"
+      }
+    ]
+  },
+  {
+    "name": "Jinja2",
+    "version": "3.1.6",
+    "ecosystem": "PyPI",
+    "scope": "build-only",
+    "source": "https://pypi.org/project/Jinja2/3.1.6/",
+    "license": "License :: OSI Approved :: BSD License",
+    "notices": [
+      {
+        "path": "licenses/python/Jinja2/3.1.6/licenses/LICENSE.txt",
+        "sha256": "3b49dcee4105eb37bac10faf1be260408fe85d252b8e9df2e0979fc1e094437b"
+      }
+    ]
+  },
+  {
+    "name": "Markdown",
+    "version": "3.11.2",
+    "ecosystem": "PyPI",
+    "scope": "build-only",
+    "source": "https://pypi.org/project/Markdown/3.11.2/",
+    "license": "BSD-3-Clause",
+    "notices": [
+      {
+        "path": "licenses/python/Markdown/3.11.2/licenses/LICENSE.md.txt",
+        "sha256": "7ba4eb6d10b32b2d11dce13821340351cdbbb30ba8ccc67841db2ffd86e79aca",
+        "original_filename": "LICENSE.md"
+      }
+    ]
+  },
+  {
+    "name": "MarkupSafe",
+    "version": "3.0.4",
+    "ecosystem": "PyPI",
+    "scope": "build-only",
+    "source": "https://pypi.org/project/MarkupSafe/3.0.4/",
+    "license": "BSD-3-Clause",
+    "notices": [
+      {
+        "path": "licenses/python/MarkupSafe/3.0.4/licenses/LICENSE.txt",
+        "sha256": "489a8e1108509ed98a37bb983e11e0f7e1d31f0bd8f99a79c8448e7ff37d07ea"
+      }
+    ]
+  },
+  {
+    "name": "mergedeep",
+    "version": "1.3.4",
+    "ecosystem": "PyPI",
+    "scope": "build-only",
+    "source": "https://pypi.org/project/mergedeep/1.3.4/",
+    "license": "License :: OSI Approved :: MIT License",
+    "notices": [
+      {
+        "path": "licenses/python/mergedeep/1.3.4/LICENSE",
+        "sha256": "11592bd9d56693c987da849c075d636690916d01a47ca234a14bbcf0fe176b37"
+      }
+    ]
+  },
+  {
+    "name": "mkdocs",
+    "version": "1.6.1",
+    "ecosystem": "PyPI",
+    "scope": "build-only",
+    "source": "https://pypi.org/project/mkdocs/1.6.1/",
+    "license": "License :: OSI Approved :: BSD License",
+    "notices": [
+      {
+        "path": "licenses/python/mkdocs/1.6.1/licenses/LICENSE",
+        "sha256": "26041bd625fc39411dc4b32748216236931c904adb90c2b3e0ba697090a5d54e"
+      }
+    ]
+  },
+  {
+    "name": "mkdocs-get-deps",
+    "version": "0.2.2",
+    "ecosystem": "PyPI",
+    "scope": "build-only",
+    "source": "https://pypi.org/project/mkdocs-get-deps/0.2.2/",
+    "license": "MIT",
+    "notices": [
+      {
+        "path": "licenses/python/mkdocs-get-deps/0.2.2/licenses/LICENSE.md.txt",
+        "sha256": "e5024bae9b4ecadda35184e20282a81cb25164620d2ffb0261e6da3249aab7b2",
+        "original_filename": "LICENSE.md"
+      }
+    ]
+  },
+  {
+    "name": "packaging",
+    "version": "26.3",
+    "ecosystem": "PyPI",
+    "scope": "build-only",
+    "source": "https://pypi.org/project/packaging/26.3/",
+    "license": "Apache-2.0 OR BSD-2-Clause",
+    "notices": [
+      {
+        "path": "licenses/python/packaging/26.3/licenses/LICENSE",
+        "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48"
+      },
+      {
+        "path": "licenses/python/packaging/26.3/licenses/LICENSE.APACHE",
+        "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+      },
+      {
+        "path": "licenses/python/packaging/26.3/licenses/LICENSE.BSD",
+        "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5"
+      }
+    ]
+  },
+  {
+    "name": "pathspec",
+    "version": "1.1.1",
+    "ecosystem": "PyPI",
+    "scope": "build-only",
+    "source": "https://pypi.org/project/pathspec/1.1.1/",
+    "license": "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+    "notices": [
+      {
+        "path": "licenses/python/pathspec/1.1.1/licenses/LICENSE",
+        "sha256": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85"
+      }
+    ]
+  },
+  {
+    "name": "platformdirs",
+    "version": "4.13.5",
+    "ecosystem": "PyPI",
+    "scope": "build-only",
+    "source": "https://pypi.org/project/platformdirs/4.13.5/",
+    "license": "MIT",
+    "notices": [
+      {
+        "path": "licenses/python/platformdirs/4.13.5/licenses/LICENSE",
+        "sha256": "29e0fd62e929850e86eb28c3fdccf0cefdf4fa94879011cffb3d0d4bed6d4db6"
+      }
+    ]
+  },
+  {
+    "name": "python-dateutil",
+    "version": "3.0.0",
+    "ecosystem": "PyPI",
+    "scope": "build-only",
+    "source": "https://pypi.org/project/python-dateutil/3.0.0/",
+    "license": "Dual License",
+    "notices": [
+      {
+        "path": "licenses/python/python-dateutil/3.0.0/licenses/LICENSE",
+        "sha256": "ba00f51a0d92823b5a1cde27d8b5b9d2321e67ed8da9bc163eff96d5e17e577e"
+      }
+    ]
+  },
+  {
+    "name": "PyYAML",
+    "version": "6.0.3",
+    "ecosystem": "PyPI",
+    "scope": "build-only",
+    "source": "https://pypi.org/project/PyYAML/6.0.3/",
+    "license": "MIT",
+    "notices": [
+      {
+        "path": "licenses/python/PyYAML/6.0.3/licenses/LICENSE",
+        "sha256": "8d3928f9dc4490fd635707cb88eb26bd764102a7282954307d3e5167a577e8a4"
+      }
+    ]
+  },
+  {
+    "name": "pyyaml_env_tag",
+    "version": "1.1",
+    "ecosystem": "PyPI",
+    "scope": "build-only",
+    "source": "https://pypi.org/project/pyyaml_env_tag/1.1/",
+    "license": "MIT",
+    "notices": [
+      {
+        "path": "licenses/python/pyyaml_env_tag/1.1/licenses/LICENSE",
+        "sha256": "75a5994afa284b67e6e66d7f83d2d39e729736511491b3d309ea7a064cbde3ce"
+      }
+    ]
+  },
+  {
+    "name": "six",
+    "version": "1.17.0",
+    "ecosystem": "PyPI",
+    "scope": "build-only",
+    "source": "https://pypi.org/project/six/1.17.0/",
+    "license": "MIT",
+    "notices": [
+      {
+        "path": "licenses/python/six/1.17.0/LICENSE",
+        "sha256": "4375ba20e2b9c6c4e7cad2940a628fd90e95cc3d50ee92aae755715d8ba1fbd0"
+      }
+    ]
+  },
+  {
+    "name": "tzdata",
+    "version": "2026.5",
+    "ecosystem": "PyPI",
+    "scope": "build-only",
+    "source": "https://pypi.org/project/tzdata/2026.5/",
+    "license": "Apache-2.0",
+    "notices": [
+      {
+        "path": "licenses/python/tzdata/2026.5/licenses/LICENSE",
+        "sha256": "df58f69ea88683035d720b5375bcef0cf5aeaa98a1d098d572e0992c378deb46"
+      },
+      {
+        "path": "licenses/python/tzdata/2026.5/licenses/licenses/LICENSE_APACHE",
+        "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+      }
+    ]
+  },
+  {
+    "name": "watchdog",
+    "version": "6.0.0",
+    "ecosystem": "PyPI",
+    "scope": "build-only",
+    "source": "https://pypi.org/project/watchdog/6.0.0/",
+    "license": "Apache-2.0",
+    "notices": [
+      {
+        "path": "licenses/python/watchdog/6.0.0/COPYING",
+        "sha256": "39f081828db6f94c70123fa4fb30c1bce3e215a8fdece53a49991fe076a69c08"
+      },
+      {
+        "path": "licenses/python/watchdog/6.0.0/LICENSE",
+        "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+      }
+    ]
+  }
+]

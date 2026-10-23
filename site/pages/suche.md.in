@@ -1,0 +1,8 @@
+# Dokumentation durchsuchen
+
+Suche lokal in den gerenderten Dokumenten. Mehrere Wörter werden gemeinsam
+gesucht. Historische Nachweise enthalten ausdrücklich frühere Projektstände.
+
+<form id="search-form" role="search"><label for="search-input">Suchbegriffe</label><div class="search-controls"><input id="search-input" type="search" name="q" required placeholder="Zum Beispiel: SQLite TLS" autocomplete="off"><button class="button primary" type="submit">Suchen</button></div></form>
+<div id="search-results" class="search-results" aria-live="polite"></div>
+<noscript>Die Suche benötigt JavaScript. Alle Seiten bleiben über die Dokumentationsnavigation erreichbar.</noscript>
