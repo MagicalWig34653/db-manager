@@ -19,6 +19,7 @@ Docker Compose und Docker Swarm sind verbindlich (ADR-0003).
 | B2b-Schutzfixes | SQLite OR ABORT verhindert fremde REPLACE-Löschungen; PostgreSQL-Rewrite-Tabellen werden gesperrt. Beide nachträglichen Integritätsbefunde unabhängig geschlossen | [SQLite](handoffs/B2b-konfliktstrategie.md), [PostgreSQL](handoffs/B2b-rewrite-regeln.md) |
 | B2c | Bestätigtes einzelnes INSERT mit getrennten Default-/NULL-Werten, konservativer PK-Ermittlung und tatsächlicher Rücklese nach Triggern | [B2c](handoffs/B2c.md) |
 | F3/F3b | Strukturierte Web-Tabellenoberfläche und Quellen-/Originallizenzdialog, exakt reproduziert im Go-/Dockerprodukt eingebettet. Filterzustandsbefund QA-F3-01 geschlossen | [F3b](handoffs/F3b.md), [unabhängiger Review](handoffs/F3b-backend-review.md) |
+| F4 / Webquelle | Einzelzeilen-Insert/Edit/Delete nach unabhängigem P0-Review im Webrepo integriert: Quelle `3a4a3fd`, Review `01933d5`, Merge `f28de33`, öffentliches Web-main `bf75748df9eb4422b084c20784d09ce931301d37`. Root-Einbettung F4b separat. | [Webquellen](https://github.com/MagicalWig34653/db-manager-web) |
 | S1 | Interoperables versioniertes Tresorformat mit Argon2id/AES-GCM/Recovery; ausschließlich Formatgrundlage, keine produktive Credentialpersistenz | [S1](handoffs/S1.md), [Format](security/VAULT-FORMAT-V1.md) |
 
 F3-Webquelle `6c6eb33c93eed355a10cd114f61ce27be7f3f55e`, Web-main `ffdd2a0`.
@@ -56,10 +57,10 @@ keinen gefixten Server. [Vertragsindex](../contracts/README.md).
 
 | Paket / Rolle | Repo, Branch / Worktree | Tatsächlicher Stand und Dateibesitz |
 | --- | --- | --- |
-| A2 / integriert | Apple-main `7e97aae`, Provenienz `feat/apple-postgres` / `.worktrees/apple-postgres` | Quellen89b2683/abaa3dc/b72e62c als fdd533e/cd5d886/031b1e8 nach unabhängiger QA und exakter grüner nativer CI39503396485 integriert. Kalenderfix mit 1.008/4.032 Vektoren und drei echten TLS-PG-Fällen unabhängig geprüft; konkreter NIOssl-Pin ausdrücklich akzeptiert. Leadintegration Swift-/Kalender-/13Pins-/Originalcheckout-/Docs74/0 bestanden, sechs Livetests im Leadlauf ausdrücklich übersprungen. Kombinierte Apple-Main-CI39505094304 an 7e97aae erfolgreich. |
-| F4 / Frontend & UX (`p1a_parity`) | Web, `feat/row-workbench`, `.worktrees/row-workbench`, Basis `ffdd2a0` | Einzelzeilen-Insert/Edit/Delete, bestätigte Aktionen, frische Eignung und vollständige Snapshots, ehrlicher Konflikt-/Unknown-Ausgang. Besitz Webprodukt/Vertragskopien/Build/Tests/Lizenzen/Einrichtung/Handoff. Keine zentralen Statusdateien. Öffentlicher Prüfkandidat 3a4a3fd mit drei erfolgreichen CIs liegt bei P0-QA. v4-Fähigkeiten und v3-Eignung verpflichtend, Referenzbackend72855cf. Unabhängige QA und separater Root-Webpin folgen. |
+| A2 / integriert | Apple-main `3c92f974aa6d1c3056b25e3bc9ec5b0d0cb9f161` (Produkt `7e97aae`), Provenienz `feat/apple-postgres` / `.worktrees/apple-postgres` | Quellen89b2683/abaa3dc/b72e62c als fdd533e/cd5d886/031b1e8 nach unabhängiger QA und exakter grüner nativer CI39503396485 integriert. Kalenderfix mit 1.008/4.032 Vektoren und drei echten TLS-PG-Fällen unabhängig geprüft; konkreter NIOssl-Pin ausdrücklich akzeptiert. Leadintegration Swift-/Kalender-/13Pins-/Originalcheckout-/Docs74/0 bestanden, sechs Livetests im Leadlauf ausdrücklich übersprungen. Kombinierte Apple-Main-CI39505094304 an 7e97aae erfolgreich. Unabhängiger A2-Review `0d96b86` als `4047180` aufgenommen; neuer Mainstand ändert nur Review/Status/Plan, Docs75/0 und Diffcheck bestanden. |
+| F4b / Frontend & UX (`p1a_parity`) | Hauptrepo, `feat/row-web-runtime`, `.worktrees/row-web-runtime`, Basis `4044341` | Freigegebene F4-Quelle reproduzierbar im Rootprodukt einbetten. Besitz Assets/Manifest/Lock, Build-/Browser-/Deployskripte und enge Webhelper/CI, README/Einrichtung/Betrieb/Webbuild/Lizenzen/Handoff; kein DB/Core/HTTP/GoMod/API/STATUS/Plan. Zwei bytegleiche öffentliche Builds, neun Embeddedbrowserfälle sowie echte v4INSERT/v3UPDATE/DELETE/409 in Compose und isoliertem Swarm mit Persistenz laut Autorencheckpoint bestanden; sauberer Go-/Imagecheckout, finale Doku/CI und unabhängige QA noch offen. |
 | S2a / Apple & Security (`p3a_security`) | Apple, `feat/vault-core`, `.worktrees/vault-core`, Basis `7cbeb38` | Ausschließlich eigenständiges neues Paket Packages/DBManagerVault samt Prüfungen/Originaltexten, eigenen CI/Skripten, ADR-A003/Sicherheitsdokumenten/Handoff. Actor-Session, sichere lokale atomare Dateiablage, extern verankerte CAS-/Lebenszeit-AEAD-Reservierung und Recovery mit neuen Faktoren. Keine App-/Xcode-/Rootpackage-/A2-/zentralen Statusänderungen. Produktiver nicht zurückrollbarer Anchor bleibt gesondertes Gate; nur Testanker noch keine Produktfreigabe. |
-| B3a / Backend & Platform (`p2a_drivers`) | Hauptrepo, `feat/schema-metadata`, `.worktrees/schema-metadata`, Basis5cb604a | Lesende Index-/Constraintmetadaten, additiver API0.5-Kandidat, v1-v4 unverändert. Scope freigegeben: keine DDL/SQL-Ausdruckstexte, ehrliche Katalogabdeckung/unknown und SQLite-CHECK-Lücke; enge lesende index_xinfo-Freigabe. Besitz neue Core-/DB-/HTTPdateien und enge Route/Authorizerregression, eigener Vertrag/Tests/CI/Doku/Handoff; zusätzlich exklusiv Root-STATUS/ARBEITSPLAN, kein Vertragsindex/GoMod/Main/Web/Docker. Nach Nutzungslimit lokal als WIP a582c45 gesichert, unfertig und nicht freigegeben; am 23.10. fortgesetzt. Spezifikation/HTTP-/Negativtests/nativeCI/echte vier Treiber werden jetzt tatsächlich geprüft; unabhängige QA folgt. |
+| B3a / Backend & Platform (`p2a_drivers`) | Hauptrepo, `feat/schema-metadata`, `.worktrees/schema-metadata`, Basis `5cb604a` | Eingefrorener öffentlicher Prüfkandidat `77eccb7add990ad65fc6149103c548a40e9b7f5f`: lesende additive API0.5 für Index-/Constraintmetadaten; v1–v4 unverändert, keine DDL/SQL-Ausdruckstexte, explizite unknown-/CHECK-Lücken. Neue Core-/DB-/HTTPdateien, enge Route/Authorizer, eigene Tests/CI/Vertrag/Doku; zusätzlich exklusiv Root-STATUS/Plan. Vollständiges Go-Race/Vet, echte MySQL/MariaDB/PG-TLS-Proben, SQLite/HTTP/Auth/Limit-/Authorizerregressionen und Docs270/0 grün. Acht native CIs gestartet, unabhängiger P0-Review und 0.5-Freeze offen. |
 
 Für dieses verlängerte Fenster hat der Lead ausschließlich die beiden zentralen
 STATUS-/ARBEITSPLAN-Dateien des Hauptrepos an Backend & Platform zur Pflege übertragen;
@@ -85,3 +86,19 @@ Go1.27.1, Node26.5.0/npm11.17.0, Swift6.4/Xcode27.1 und Docker/Colima verfügbar
 Nächste konkrete Schritte: neue Go-/Apple-Haupt-CIs kontrollieren,
 F4/S2a/B3a nach Autorenabschluss unabhängig prüfen, freigegebenen F4-Webpin separat einbetten. [Arbeitsplan](ARBEITSPLAN.md),
 [Team](TEAM.md), [Einrichtung](../EINRICHTUNG.md).
+
+## Paketcheckpoint 23.10.2026 – B3a eingefroren
+
+B3a-Vertrags-SHA256 `b5225339511d80fe4f52f09118fdad2060d8a92f31d44b73dd89fe9f76178c95`,
+öffentlicher Produktcommit `77eccb7add990ad65fc6149103c548a40e9b7f5f`. Keine
+Integration oder 0.5-Clientfreigabe vor unabhängiger QA und exakter grüner CI.
+Gestartete Jobs: Struktur39901687640, Engine39901687425, Backend39901687412,
+Tabellen39901687408, Mutationen39901687543, Insert39901687391, Web39901687396,
+Docs39901687478. Lokale eigene B3a-Container/Volumes/Prüfjobs sind entfernt/beendet.
+[Öffentlicher Handoff](https://github.com/MagicalWig34653/db-manager/blob/77eccb7add990ad65fc6149103c548a40e9b7f5f/docs/handoffs/B3a.md).
+
+Web-main `bf75748df9eb4422b084c20784d09ce931301d37`: integrierte 26 Units,
+Typecheck, vier Verträge/Standalone, Build und Docs112/0 bestanden. Die neuen
+Mainjobs39901222539/39901222403 waren beim letzten Autorencheckpoint aktiv;
+Docs39901222564 erfolgreich. S2a bleibt separater Kandidat ohne Produktanker/QA;
+aus dem dokumentarischen Apple-Mainupdate folgt keine Tresor-Coreintegration.
