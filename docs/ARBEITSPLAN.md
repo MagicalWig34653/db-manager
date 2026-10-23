@@ -10,9 +10,9 @@ Tatsächliche Ergebnisse und feste Vertragspins: [STATUS](STATUS.md).
 
 | ID / Rolle | Repo / Branch / Worktree | Ziel und Abnahme |
 | --- | --- | --- |
-| F4b / Frontend & UX | Hauptrepo / feat/row-web-runtime / .worktrees/row-web-runtime, Basis4044341 | F4-Quelle3a4a3fd nach unabhängigem Review01933d5 im Web-main bf75748 integriert. Jetzt separate reproduzierbare Rootasset-Einbettung; Besitz Root-Webassets/Manifest/Lock, Build-/Runtime-/Deploytests/enge CI, README/Einrichtung/Betrieb/Webbuild/Lizenzen/Handoff. Kein DB/Core/HTTP/GoMod/API/STATUS/Plan. Zwei bytegleiche Builds, Embeddedbrowser9/9 und Compose-/isolierte-Swarm-Mutations-/Persistenzfälle laut Autorencheckpoint grün; frischer Checkout/Image, finale CI und unabhängige QA folgen. |
+| F4b / Frontend & UX | Hauptrepo / feat/row-web-runtime / .worktrees/row-web-runtime, Basis4044341 | F4-Quelle3a4a3fd nach unabhängigem Review01933d5 im Web-main bf75748 integriert. Jetzt separate reproduzierbare Rootasset-Einbettung; Besitz Root-Webassets/Manifest/Lock, Build-/Runtime-/Deploytests/enge CI, README/Einrichtung/Betrieb/Webbuild/Lizenzen/Handoff. Kein DB/Core/HTTP/GoMod/API/STATUS/Plan. Produkt3770c4e plus Handoff46e4bf1 und unabhängiger Review533348a ohne Findings angenommen. Zwei bytegleiche öffentliche Builds, Embeddedbrowser9/9, Compose-/isolierte-Swarm-CRUD/409/Persistenz und sauberer öffentlicher Go-/Imagecheckout ohne Node/npm/Siblings unabhängig grün; alle sieben Produkt-CIs success. Freigegebene Agentintegration und Main-Gesamtcheck folgen. |
 | S2a / Apple & Security | Apple / feat/vault-core / .worktrees/vault-core, Basis7cbeb38 | Eigenständiger Core im neuen Packages/DBManagerVault, eigene Tests/Fixtures/Originaltexte/CI/Skripte, ADR-A003/Sicherheitsdokumente/Handoff. S1-Format exakt, Actor-Locksession, verwaltetes privates Root mit festen Zufallsnamen und sicheren Dateideskriptoren, flock/CAS/temp0600/fsync/rename/dirfsync. Unabhängiger Anchor reserviert lebenslange Root-AEAD-Nutzung dauerhaft vor Verschlüsselung, bestätigt Hash/Generation erst nach dauerhafter Datei; Pending nur bekannte alte/neue Zustände. Fehlender/zurückrollbarer importierter Anchor erlaubt keine schreibende Produktsession. Nur Testanker in Testtarget, kein stiller InMemory-Produktfallback. Recovery darf mit einem überlebenden alten Faktor in neuen Tresor mit beiden neuen rückgelesenen Faktoren migrieren; Original erhalten. Keine App-/Xcode-/Rootpackage-/A2-/zentralen Statusänderungen. Unabhängige Dateisystem-/Fehler-/Concurrency-/Bounds-/Interop-QA vor Integration. |
-| B3a / Backend & Platform | Hauptrepo / feat/schema-metadata / .worktrees/schema-metadata, Basis5cb604a | Öffentlicher Prüfkandidat77eccb7 eingefroren: lesende additive0.5-Strukturmetadaten, keine DDL/Ausdruckstexte; unknown/CHECK-Lücke und Bounds explizit. Code/Vertrag/Tests/Handoff fertig; volle Go-Race/Vet, SQLite+echte3TLS-DBs, Auth/Negativ-/Größen-/Authorizerfälle und Docs270/0 bestanden. Acht exakte CIs gestartet, unabhängiger P0-Review und separate0.5-Freigabe folgen. Besitz DB/neueCoreHTTP/engeRouteAuthorizer/eigeneVerträgeCIHandoff, zusätzlich exklusiv RootSTATUSPlan; kein Index/GoMod/Main/Web/Docker. |
+| B3a / Backend & Platform | Hauptrepo / feat/schema-metadata / .worktrees/schema-metadata, Basis5cb604a | Öffentlicher Prüfkandidat77eccb7 eingefroren: lesende additive0.5-Strukturmetadaten, keine DDL/Ausdruckstexte; unknown/CHECK-Lücke und Bounds explizit. Code/Vertrag/Tests/Handoff fertig; volle Go-Race/Vet, SQLite+echte3TLS-DBs, Auth/Negativ-/Größen-/Authorizerfälle und Docs270/0 bestanden. Alle acht exakten CIs success; unabhängiger Architecture-/Securitypeerreview und separate0.5-Freigabe folgen. Besitz DB/neueCoreHTTP/engeRouteAuthorizer/eigeneVerträgeCIHandoff, zusätzlich exklusiv RootSTATUSPlan; kein Index/GoMod/Main/Web/Docker. |
 
 A2 ist nach unabhängiger Kalenderfixprüfung und exakter grüner nativer
 CI39503396485 an b72e62c im Apple-main7e97aae integriert. Bestehender eigener Worktree
@@ -26,9 +26,10 @@ Signing, echte Geräte und OS-UI bleiben offen.
    Haupt-CIs nach Veröffentlichung kontrollieren; lokale Integrationschecks bestanden.
 2. A2 ist integriert, ADR-A002 und zentrale Apple-Dokumente aktualisiert; lokale
    Integrationsprüfung bestanden. Neue kombinierte Apple-Main-CI kontrollieren.
-3. F4 ist unabhängig angenommen und im Webrepo integriert. F4b als separaten
-   reproduzierbaren Rootpin nach Autorenabschluss unabhängig prüfen; keine
-   Rootproduktfreigabe allein aus dem Webquellenreview ableiten.
+3. F4 ist unabhängig angenommen und im Webrepo integriert. F4b wurde separat
+   durch Backend & Platform ohne Findings angenommen, alle sieben CIs success.
+   Produkt3770c4e/Handoff46e4bf1/Review533348a durch freigegebenen Agent integrieren,
+   passenden Gesamtcheck und MainCI starten; keine B3a-/S2a-Mitnahme.
 4. S2a unabhängig prüfen. Reale Keychain-/signierte Anchorintegration und Appablauf
    sind ein separates S2b-Gate; weder Testspeicher noch Build ist Produktpersistenz.
 5. B3a-Prüfkandidat77eccb7 und exakte acht CIs unabhängig prüfen; 0.5-Vertrag erst
@@ -73,3 +74,8 @@ bleibt heute 23.10.2026 10:00 Europe/Berlin. F4 ist unabhängig angenommen und i
 bf75748 integriert; F4b bleibt separates Rootpaket. Apple-main3c92f97 ergänzt nur A2-Review
 und Status/Plan, Produkt7e97aae und grüne CI39505094304 unverändert. S2a separat ohne
 Produktanker-/QAfreigabe. Keine weitere Funktion nach B3a ohne begrenzten Auftrag.
+
+Für genau den freigegebenen F4b-Integrationscheckpoint übernimmt Frontend & UX
+vorübergehend exklusiv RootSTATUS/ARBEITSPLAN. Backend & Platform bleibt danach idle
+und schreibt diese Dateien bis erneuter gezielter Zuweisung nicht parallel.
+Review- und Produktprovenienz bleiben erhalten; alle übrigen Besitzgrenzen unverändert.
