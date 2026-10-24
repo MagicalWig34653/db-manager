@@ -213,7 +213,9 @@ func reviewPartitionRadius(t *testing.T, h *opHarness) {
 	}
 	mentions := strings.Contains(strings.Join(p.Warnings, " "), "rv_inh_child") || strings.Contains(strings.Join(p.AffectedObjects, " "), "rv_inh_child")
 	res, err := h.execute(core.OpTableTruncate, core.ObjectOpRequest{Table: h.ref("rv_parent")}, p, core.ObjectOpConfirm{Action: core.OpTableTruncate, TargetName: "rv_parent"})
-	t.Logf("INHERITANCE: truncate parent -> outcome=%s err=%v child rows now=%s; plan mentions child=%v statements=%v", res.Outcome, err, h.count("rv_inh_child"), mentions, p.Statements)
+	if err != nil || res.Outcome != "completed" || !mentions || h.count("rv_inh_child") != "3" || !strings.Contains(p.Statements[0], "TRUNCATE TABLE ONLY") {
+		t.Fatalf("inheritance: outcome=%s err=%v child rows=%s mentions=%v statements=%v", res.Outcome, err, h.count("rv_inh_child"), mentions, p.Statements)
+	}
 	h.exec("CREATE TABLE " + h.q("rv_part") + "(id INTEGER, k INTEGER) PARTITION BY LIST (k)")
 	h.exec("CREATE TABLE " + h.q("rv_part_1") + " PARTITION OF " + h.q("rv_part") + " FOR VALUES IN (1)")
 	h.exec("INSERT INTO " + h.q("rv_part") + " VALUES(1,1)")
@@ -223,7 +225,10 @@ func reviewPartitionRadius(t *testing.T, h *opHarness) {
 		return
 	}
 	res, err = h.execute(core.OpTableDrop, core.ObjectOpRequest{Table: h.ref("rv_part")}, pp, core.ObjectOpConfirm{Action: core.OpTableDrop, TargetName: "rv_part"})
-	t.Logf("PARTITION: drop parent -> outcome=%s err=%v partition still exists=%v; plan affected=%v warnings=%v", res.Outcome, err, h.has("rv_part_1"), pp.AffectedObjects, pp.Warnings)
+	if !strings.Contains(strings.Join(pp.AffectedObjects, " "), "rv_part_1") || !strings.Contains(strings.Join(pp.Warnings, " "), "rv_part_1") {
+		t.Fatalf("partition not named in plan: affected=%v warnings=%v", pp.AffectedObjects, pp.Warnings)
+	}
+	_ = res
 }
 
 func reviewAll(t *testing.T, e *Engine, c core.Connection, schema, other string) {

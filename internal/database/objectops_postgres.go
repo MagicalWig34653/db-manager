@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
 
 	"github.com/MagicalWig34653/db-manager/internal/core"
 )
@@ -76,4 +77,71 @@ func postgresDependencies(ctx context.Context, q metadataQuerier, desc core.Tabl
 		return nil, err
 	}
 	return out, nil
+}
+
+// subObjects describes child tables of a target: PostgreSQL inheritance
+// children and partitions, MySQL/MariaDB partitions.
+type subObjects struct {
+	labels      []string
+	inherits    bool // PostgreSQL ordinary table with inheritance children
+	partitioned bool
+	truncated   bool
+	names       []string
+}
+
+func (s subObjects) warnings(action string) []string {
+	if len(s.names) == 0 && !s.partitioned {
+		return nil
+	}
+	list := strings.Join(s.names, ", ")
+	if s.truncated {
+		list += " und weitere"
+	}
+	switch {
+	case s.inherits:
+		out := []string{"Die Tabelle hat Vererbungs-Kindtabellen (" + list + ")."}
+		if action == core.OpTableTruncate {
+			out = append(out, "TRUNCATE ONLY leert nur diese Tabelle; die Kindtabellen bleiben unverändert.")
+		}
+		if action == core.OpTableDrop {
+			out = append(out, "Kindtabellen verhindern das Löschen (kein CASCADE).")
+		}
+		return out
+	case action == core.OpTableTruncate:
+		return []string{"Die partitionierte Tabelle wird samt ihren Partitionen geleert (" + list + ")."}
+	case action == core.OpTableDrop:
+		return []string{"Beim Löschen werden auch die Partitionen entfernt und ihre Daten gelöscht (" + list + ")."}
+	}
+	return []string{"Die Tabelle ist partitioniert (" + list + ")."}
+}
+
+func postgresSubObjects(ctx context.Context, q metadataQuerier, ref core.TableRef) (subObjects, error) {
+	var s subObjects
+	var kind string
+	if err := q.QueryRowContext(ctx, "SELECT c.relkind::text FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = $1 AND c.relname = $2", ref.Schema, ref.Name).Scan(&kind); err != nil {
+		return s, err
+	}
+	rows, err := q.QueryContext(ctx, `WITH RECURSIVE t(oid, depth) AS (
+ SELECT c.oid, 0 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = $1 AND c.relname = $2
+ UNION ALL SELECT i.inhrelid, t.depth + 1 FROM pg_inherits i JOIN t ON i.inhparent = t.oid WHERE t.depth < 8)
+SELECT n.nspname, c.relname FROM t JOIN pg_class c ON c.oid = t.oid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE t.depth > 0 ORDER BY 1, 2 LIMIT 51`, ref.Schema, ref.Name)
+	if err != nil {
+		return s, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var schema, name string
+		if err = rows.Scan(&schema, &name); err != nil {
+			return s, err
+		}
+		if len(s.names) == 50 {
+			s.truncated = true
+			break
+		}
+		s.names = append(s.names, schema+"."+name)
+		s.labels = append(s.labels, "table:"+schema+"."+name)
+	}
+	s.partitioned = kind == "p"
+	s.inherits = kind == "r" && len(s.names) > 0
+	return s, rows.Err()
 }

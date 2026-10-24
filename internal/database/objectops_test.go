@@ -380,6 +380,11 @@ func objectOpCases(t *testing.T, e *Engine, c core.Connection, schema string) {
 		_, res = h.run(core.OpTableOptions, core.ObjectOpRequest{Table: h.ref("keep"), Comment: sp("")})
 		h.completed(res)
 	case "mysql":
+		h.exec("CREATE TABLE " + h.q("parted") + " (id INT NOT NULL, k INT NOT NULL) PARTITION BY LIST (k) (PARTITION pa VALUES IN (1), PARTITION pb VALUES IN (2))")
+		pp := h.mustPlan(core.OpTableDrop, core.ObjectOpRequest{Table: h.ref("parted")})
+		if !strings.Contains(strings.Join(pp.Warnings, " "), "pa") || !strings.Contains(strings.Join(pp.AffectedObjects, " "), "partition:pb") {
+			t.Fatalf("partitions not named: %#v", pp)
+		}
 		_, err = h.plan(core.OpTableOptions, core.ObjectOpRequest{Table: h.ref("keep"), Engine: sp("NoSuchEngine")})
 		h.wantCode(err, "invalid_object_op")
 		_, err = h.plan(core.OpTableOptions, core.ObjectOpRequest{Table: h.ref("keep"), Collation: sp("no_such_collation")})
@@ -395,6 +400,12 @@ func objectOpCases(t *testing.T, e *Engine, c core.Connection, schema string) {
 		comment := "it's a \\ comment; DROP TABLE keep;--"
 		req := core.ObjectOpRequest{Table: h.ref("src_struct"), Engine: sp("MyISAM"), Comment: &comment, Collation: sp("utf8mb4_bin")}
 		op := h.mustPlan(core.OpTableOptions, req)
+		if !op.Confirmation.Destructive {
+			t.Fatal("engine change must require the typed name")
+		}
+		if cp := h.mustPlan(core.OpTableOptions, core.ObjectOpRequest{Table: h.ref("keep"), Comment: sp("c")}); cp.Confirmation.Destructive {
+			t.Fatal("comment must not be destructive")
+		}
 		dumpObjectOp(t, "plan-options", op)
 		if op.CurrentOptions == nil || op.CurrentOptions.Engine == nil {
 			t.Fatalf("current options %#v", op.CurrentOptions)

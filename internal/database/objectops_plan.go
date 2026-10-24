@@ -164,7 +164,10 @@ func buildOp(ctx context.Context, env *opEnv, action string, r core.ObjectOpRequ
 			if system || opSystemDatabase(driver, name) {
 				return nil, invalidOp("Systemdatenbanken können nicht gelöscht werden.")
 			}
-			isCurrent := env.c.Database == name
+			isCurrent, err := opIsCurrentDatabase(ctx, env, name)
+			if err != nil {
+				return nil, err
+			}
 			if isCurrent && driver == "postgres" {
 				return nil, invalidOp("PostgreSQL kann die Datenbank der aktuellen Verbindung nicht löschen. Mit einer anderen Datenbank verbinden.")
 			}
@@ -242,6 +245,14 @@ func buildOp(ctx context.Context, env *opEnv, action string, r core.ObjectOpRequ
 			return nil, err
 		}
 		deps = opEffects(action, driver, deps)
+		if action == core.OpTableTruncate || action == core.OpTableDrop || action == core.OpTableRename {
+			sub, err := tableSubObjects(ctx, env, desc.Table)
+			if err != nil {
+				return nil, err
+			}
+			st.sub = sub
+			affected = append(affected, sub.labels...)
+		}
 		switch action {
 		case core.OpTableRename:
 			st.destructive = true
@@ -261,6 +272,7 @@ func buildOp(ctx context.Context, env *opEnv, action string, r core.ObjectOpRequ
 		if err != nil {
 			return nil, err
 		}
+		warnings = append(warnings, st.sub.warnings(action)...)
 		warnings = append(warnings, opDependencyWarnings(deps, truncated)...)
 		if driver == "mysql" {
 			warnings = append(warnings, "MySQL und MariaDB führen DDL mit implizitem Commit aus; die Aktion ist nicht transaktional.")
@@ -486,6 +498,9 @@ func planTruncate(env *opEnv, st *opState, desc core.TableDescription, source st
 		warnings = append(warnings, "TRUNCATE ist DDL: implizites Commit, der Auto-Inkrement-Zähler wird zurückgesetzt, ON DELETE-Trigger laufen nicht.")
 	case "postgres":
 		statement = "TRUNCATE TABLE " + source
+		if st.sub.inherits {
+			statement = "TRUNCATE TABLE ONLY " + source
+		}
 		if restart {
 			statement += " RESTART IDENTITY"
 			warnings = append(warnings, "RESTART IDENTITY setzt die Sequenzen der Tabelle auf ihren Startwert zurück.")
@@ -526,6 +541,7 @@ func planOptions(ctx context.Context, env *opEnv, st *opState, desc core.TableDe
 			return nil, nil, nil, invalidOp("Die Speicher-Engine ist auf diesem Server nicht verfügbar.")
 		}
 		if current.Engine == nil || !strings.EqualFold(*current.Engine, engine) {
+			st.destructive = true
 			specs = append(specs, "ENGINE = "+engine)
 			warnings = append(warnings, "Ein Engine-Wechsel baut die Tabelle neu auf; das kann bei großen Tabellen lange dauern und Funktionen der alten Engine (zum Beispiel Fremdschlüssel) entfernen.")
 		}
@@ -588,6 +604,7 @@ func planOptions(ctx context.Context, env *opEnv, st *opState, desc core.TableDe
 				warnings = append(warnings, "Nur der Standard für neue Spalten ändert sich; vorhandene Spalten behalten ihre Kollation.")
 			}
 		case "convert":
+			st.destructive = true
 			specs = append(specs, "CONVERT TO CHARACTER SET "+charset+" COLLATE "+collation)
 			warnings = append(warnings, "Alle Textspalten werden umgewandelt und die Tabelle neu aufgebaut; bei Zeichensatzwechseln kann Text verändert werden oder Daten gehen verloren.")
 		default:

@@ -89,13 +89,13 @@ func tableDependencies(ctx context.Context, env *opEnv, desc core.TableDescripti
 
 func boolPointer(value bool) *bool { return &value }
 
-func countRows(ctx context.Context, env *opEnv, ref core.TableRef) *int64 {
+func countRows(ctx context.Context, env *opEnv, ref core.TableRef, only bool) *int64 {
 	name, err := opQualified(env.c.Driver, ref.Schema, ref.Name)
 	if err != nil {
 		return nil
 	}
 	var count int64
-	if err = env.sess.QueryRowContext(ctx, "SELECT COUNT(*) FROM "+name).Scan(&count); err != nil {
+	if err = env.sess.QueryRowContext(ctx, "SELECT COUNT(*) FROM "+map[bool]string{true: "ONLY "}[only]+name).Scan(&count); err != nil {
 		return nil
 	}
 	if count > maxSafeInteger {
@@ -158,12 +158,12 @@ func observeOp(ctx, parent context.Context, env *opEnv, st *opState, state strin
 	case core.OpTableCopy:
 		o.TargetExists = exists(st.dst)
 		if st.srcRows && !failed {
-			o.Rows = countRows(ctx, env, st.dst)
-			o.SourceRows = countRows(ctx, env, st.src)
+			o.Rows = countRows(ctx, env, st.dst, false)
+			o.SourceRows = countRows(ctx, env, st.src, false)
 		}
 	case core.OpTableTruncate:
 		o.TargetExists = exists(st.src)
-		o.Rows = countRows(ctx, env, st.src)
+		o.Rows = countRows(ctx, env, st.src, st.sub.inherits)
 		failed = failed || o.Rows == nil
 		switch driver {
 		case "mysql":
@@ -188,4 +188,20 @@ func observeOp(ctx, parent context.Context, env *opEnv, st *opState, state strin
 		o.State = "unavailable"
 	}
 	return o
+}
+
+func tableSubObjects(ctx context.Context, env *opEnv, ref core.TableRef) (subObjects, error) {
+	switch env.c.Driver {
+	case "mysql":
+		s, err := mysqlSubObjects(ctx, env.sess, ref)
+		if s.partitioned {
+			for _, n := range s.names {
+				s.labels = append(s.labels, "partition:"+n)
+			}
+		}
+		return s, err
+	case "postgres":
+		return postgresSubObjects(ctx, env.sess, ref)
+	}
+	return subObjects{}, nil
 }

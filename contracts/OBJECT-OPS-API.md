@@ -88,6 +88,21 @@ MariaDB ist Treiber `mysql`.
   entsprechen, entfallen; bleibt nichts übrig, ist die Anfrage `invalid_object_op`.
 * `tables/dependencies`: Fremdschlüssel (`foreign_key_in`, `foreign_key_out`) und Sichten, höchstens 100.
 
+## Konventionen für Clients und bekannte Grenzen
+
+* **Kein Replay:** `plan_sha256` ist zustandslos und deckt Treiber und Anweisungen ab. Dieselbe Bestätigung kann nach einem
+  `completed` erneut wirken, wenn die Tabelle inzwischen wieder Daten hat (`table_truncate`; `table_drop`, `table_rename` und
+  `database_drop` scheitern dann mit `object_not_found`). Clients müssen die Aktion nach `completed` und `outcome_unknown`
+  sperren und für eine weitere Ausführung einen neuen Plan laden und neu bestätigen lassen; kein automatischer Retry.
+* **Zeitfenster:** Plan und Ausführung bilden ein Fenster von Millisekunden (Plan wird auf derselben Sitzung unmittelbar vor
+  der Ausführung neu berechnet). Ersetzt eine andere Sitzung in diesem Fenster ein Objekt gleichen Namens, wirkt die
+  namensbasierte Anweisung auf das neue Objekt. Eine Sperre schließt dieses Fenster nicht vollständig und wird nicht versprochen.
+* **Kindobjekte:** PostgreSQL-Vererbungskinder und Partitionen sowie MySQL/MariaDB-Partitionen stehen in `affected_objects`
+  und `warnings`. `table_truncate` einer Tabelle mit Vererbungskindern verwendet `TRUNCATE ONLY`; eine partitionierte
+  Tabelle wird samt Partitionen geleert, `table_drop` entfernt Partitionen mit.
+* `table_options` mit Engine-Wechsel oder `collation_mode=convert` ist zerstörend (`confirmation.destructive`, getippter Name).
+* Die Verbindungsdatenbank wird in MySQL/MariaDB zusätzlich über `SELECT DATABASE()` der Sitzung erkannt.
+
 ## Abhängigkeiten und Wirkung
 
 Die Vorschau warnt vor Folgen, ohne sie zu verhindern oder zu umgehen: Fremdschlüsselprüfung bleibt aktiv, es gibt

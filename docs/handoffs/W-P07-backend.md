@@ -69,3 +69,11 @@ Verbindung, SQLite) und abgebrochener Kontext (nichts gesendet).
   ändert diese Zahl, Merge-Konflikt vom Lead zu lösen.
 - Review (Sicherheitsfokus: destruktive Pfade, Bestätigungsumgehung, Injektion) und Webpaket W-P07-web stehen aus. Ein Sperrentest
   (Zeitüberschreitung `lock_timeout` bei fremder Sperre) wurde nicht ausgeführt.
+
+## Nachbesserung nach Review ([W-P07-backend-review](W-P07-backend-review.md))
+
+- M1: Vererbungskinder und Partitionen (PostgreSQL `pg_inherits`, MySQL/MariaDB `information_schema.PARTITIONS`) in `affected_objects`
+  und Warnungen; `TRUNCATE TABLE ONLY` bei Vererbungselternteilen. Tests: `objectops_review_test.go` (Logfälle zu Assertions), MySQL-Partitionstest.
+- M2: serverseitig nicht ohne Zustand lösbar; Konvention (Client sperrt nach `completed`/`outcome_unknown`) in `OBJECT-OPS-API.md`.
+- L1: als bekannte Grenze dokumentiert. L2: Engine-Wechsel und `collation_mode=convert` sind zerstörend. L3: `SELECT DATABASE()`-Vergleich.
+- Vertrags-JSON, SHA und Fixtures unverändert (nur Verhalten und Vertragstext).
