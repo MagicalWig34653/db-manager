@@ -1,0 +1,15 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "columns"
+  },
+  "table": {
+    "name": "fixture"
+  },
+  "changes": [
+    {
+      "action": "drop",
+      "column": "value"
+    }
+  ]
+}
