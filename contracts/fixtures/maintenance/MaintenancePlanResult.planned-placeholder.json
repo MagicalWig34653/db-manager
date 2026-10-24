@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "table": {
+        "schema": "main",
+        "name": "beispiel"
+      },
+      "action": "analyze",
+      "state": "planned",
+      "reason": "",
+      "plan": {
+        "driver": "sqlite",
+        "statements": [
+          "ANALYZE \"main\".\"beispiel\""
+        ],
+        "warnings": [
+          "Die Laufzeit ist nicht vorhersagbar; Sperren sind möglich."
+        ],
+        "affected_objects": [
+          "main.beispiel"
+        ],
+        "plan_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "typed_confirmation": false,
+      "target_name": "beispiel"
+    }
+  ]
+}
