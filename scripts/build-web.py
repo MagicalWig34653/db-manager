@@ -203,8 +203,8 @@ def rebuild(lock: dict) -> None:
         output = checkout / "dist"
         files = inventory(output)
         source_link = f"https://github.com/MagicalWig34653/db-manager-web/tree/{lock['commit']}".encode()
-        if len([f for f in files if f['path'] not in PWA_FILES]) != 5 or not any(source_link in path.read_bytes() for path in (output / "assets").glob("*.js")):
-            raise ValueError("Expected five original artifacts and the exact built source link")
+        if len([f for f in files if f['path'] not in PWA_FILES]) < 5 or not any(source_link in path.read_bytes() for path in (output / "assets").glob("*.js")):
+            raise ValueError("Expected at least the five original artifacts and the exact built source link")
         if "GNU AFFERO GENERAL PUBLIC LICENSE" not in (output / "LICENSE.txt").read_text():
             raise ValueError("The frontend AGPL license is missing")
         if "shadcn-svelte" not in (output / "THIRD-PARTY-NOTICES.txt").read_text():

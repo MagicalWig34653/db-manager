@@ -199,3 +199,13 @@ Neubau und unabhängiges Review; die Bytevergleiche der fünf Originalassets ble
 `PWA_FILES`: ein Build enthält alle acht Dateien oder keine (der bisherige Pin `8ef738d` enthält
 keine und bleibt gültig). Der Neubau mit PWA-Dateien erfolgt erst mit dem nächsten Pin im
 gemeinsamen Bündel; Details: [W-P03-Handoff](handoffs/W-P03.md).
+
+## Pin Bündel 2 (24.10.2026, ersetzt Bündel 1)
+
+Das Lock pinnt Web-main `48c2f67113d8fd0a27e9cf966d20904fd7d0da61` (Shell, PWA mit Probe-Body-Fix, Tabelle anlegen,
+Katalog/Übersicht). Neu in der Vertragsliste: `create` 0.6.0 (`b08b6aba...6887`) und `overview` 0.7.0
+(`c6fd8c91...4d17`); die Webkopien (`src/lib/contract/v6/`, `v7/`) sind byte-identisch zu den Rootverträgen. Damit
+erscheint im Manifest `source.schema_version` 2 mit `additional_contracts`. Der Webbuild ist code-gesplittet
+(`assets/feature-*.js/css`); die Neubauprüfung verlangt daher mindestens die fünf Originalartefakte statt genau fünf, die
+exakte Quelllink-Prüfung bleibt. Das Dockerfile-Label `org.dbmanager.frontend.source` wird bei Pinwechsel von Hand gepflegt;
+`scripts/test-build-web.py` und `verify_image` schlagen bei Abweichung zum Lock fehl. Details: [PIN-BUNDLE-2](handoffs/PIN-BUNDLE-2.md).
