@@ -1,7 +1,7 @@
 # PIN-BUNDLE-2 Pin auf Web-main 48c2f67
 
 Stand 24.10.2026. Branch `release/pin-bundle2` (Basis Root-main 5921a9d), nicht nach main gemergt. Ersetzt das abgelehnte
-Bündel 1 ([Review](PIN-BUNDLE-1-review.md) liegt im Review-Branch `review/pin-bundle1`).
+Bündel 1 (Review: Datei `docs/handoffs/PIN-BUNDLE-1-review.md` im Branch `review/pin-bundle1`).
 
 ## Ergebnis
 
