@@ -58,3 +58,26 @@ Beleg: `isCurrent := env.c.Database == name`. Auf Servern mit `lower_case_table_
 
 ## Ergänzte Tests (Review-Branch)
 `internal/database/objectops_review_test.go`: `TestReviewObjectOpsSQLite`, `TestReviewObjectOpsLive` (mysql, maria, postgres). Die PostgreSQL-Fälle für M1 protokollieren das Ist-Verhalten (`t.Logf`) und schlagen nach einer Korrektur nicht fehl.
+
+## Nachreview (Autorenstand 7e50a90, Fixes zu M1, M2, L1 bis L3)
+
+Review-Branch enthält den Autorenbranch (Merge); Konflikt in `objectops_review_test.go` zugunsten der Autorenfassung gelöst, eigene Zusatztests in `objectops_review2_test.go`.
+
+Urteil: Freigabe (accept). M1, L2, L3 behoben und live bestätigt; M2 und L1 sind als Client-Konvention beziehungsweise bekannte Grenze ehrlich dokumentiert. Eine optionale Härtung für M2 siehe F1. Keine neuen blockierenden Befunde.
+
+Läufe (nacheinander, Load 56 bis 90): gofmt und go vet ohne Ausgabe; `go test -race -count=1 ./...` ok; fünf Wächter, overview- und object-ops-Wächter bestanden (80 Fixtures); SHA von `contracts/api-v0.8.0.json` unverändert `74aa39ed...a28264`, Vertrags-JSON und Fixtures gegenüber bebe262 unverändert; `scripts/test-object-ops.py` bestanden (44 Antworten); eigene Livetests je System in eigenem Wegwerf-Container, keine Reste.
+
+- (a) M1 bestätigt (PostgreSQL 18): Vererbungselternteil mit Kind und Enkel: Plan `TRUNCATE TABLE ONLY`, Kind und Enkel in `affected_objects`, Warnung "Kindtabellen bleiben unverändert"; nach Ausführung Elternzeilen 0, Kinder unverändert (5 Zeilen), Beobachtung zählt nur den Elternteil. DROP des Elternteils: Warnung, Server lehnt ab (`rejected/dependency_blocks`), nichts verändert. Partitionierte Tabelle: Truncate-Warnung "samt ihren Partitionen", Drop-Warnung "Partitionen entfernt", Partitionen in `affected_objects`, Drop entfernt Partitionen, Eltern bleibt. MySQL 8.4 und MariaDB 12.3: Partitionen (`partition:p0..p2`) in `affected_objects` und Warnung für truncate und drop.
+  Hinweis (niedrig, F2): `affected_objects` und Warnungen sind nicht Teil des Hashes (bekannt). Ändert sich nur die Partitionsmenge zwischen Plan und Ausführung, bleibt der Hash gleich. Folge: Vorschau und Wirkung können bei Partitions-DDL im Millisekundenfenster abweichen. Dokumentierte Grenze, akzeptabel.
+- (b) M2: Der Vertragsabschnitt "Konventionen für Clients und bekannte Grenzen" ist ehrlich und für das Webpaket ausreichend, aber ein reiner Client-Schutz. Ein zustandsloser serverseitiger Schutz ist teilweise möglich (F1).
+- (c) L2: `collation_mode=convert` und Engine-Wechsel liefern `destructive=true` mit getipptem Namen; Ausführung ohne Namen ergibt `confirmation_mismatch`; reiner Kommentar bleibt nicht destruktiv (MySQL, MariaDB). L3: Erkennung der Verbindungsdatenbank über `SELECT DATABASE()` und `lower_case_table_names`; Löschen der Verbindungsdatenbank ohne `acknowledge_current_database` abgelehnt (Datenbank bleibt); Verbindung ohne Standarddatenbank gilt nicht als "aktuell". Die Falschschreibung der Verbindungsdatenbank lässt bereits der Verbindungsaufbau scheitern (Linux, `lower_case_table_names=0`), also kein Bypass.
+- (d) Vertrag unverändert (siehe Läufe).
+- (e) Doku ehrlich: Handoff nennt M2 als nicht serverseitig gelöst, L1 als Grenze; der Vertragstext sagt ausdrücklich, dass eine Sperre das Zeitfenster nicht schließt.
+
+### F1 (optional, empfohlen als Auflage für PostgreSQL-TRUNCATE): zustandsloser Replay-Schutz
+Messung (Livetest): PostgreSQL `pg_class.oid/relfilenode` einer Tabelle: vor Insert `16405/16405`, nach Insert unverändert, nach `TRUNCATE` `16405/16408`. `relfilenode` ändert sich bei jedem TRUNCATE (und bei Rewrites wie VACUUM FULL, CLUSTER, ALTER TYPE); `oid` ändert sich bei Ersetzen der Tabelle.
+Empfehlung: den Plan-Hash für `table_truncate` (und optional alle Tabellenaktionen) in PostgreSQL um ein verdecktes Guard-Element (`oid`, `relfilenode`) erweitern, ohne es als Anweisung anzuzeigen (zum Beispiel zusätzliches längenpräfixiertes Feld in `dbplan.Digest`, neue Variante mit Guard). Wirkung: Wiederholung derselben Bestätigung nach einem Truncate liefert `plan_mismatch`; ersetzt eine andere Sitzung die Tabelle im Zeitfenster, ändert sich der Hash (schließt L1 für PostgreSQL). Nebenwirkung: harmlose Rewrite-Vorgänge zwischen Vorschau und Bestätigung erzwingen eine neue Vorschau.
+MySQL/MariaDB: kein sauberes Signal; `CREATE_TIME` bleibt über TRUNCATE gleich (Messung: unverändert), `UPDATE_TIME` ändert sich bei jedem Schreiben (würde die Vorschau-Bestätigung ständig ungültig machen). SQLite: kein Signal (`rootpage` bleibt). Für diese Treiber bleibt die Client-Konvention. Der Aufwand ist klein (eine Katalogabfrage plus Digest-Variante), das Risiko mittel/niedrig (nur eingeloggter Client, kein Fremdangriff); daher Auflage nur, wenn das Webpaket keine zuverlässige Sperre nach `completed` garantiert.
+
+### Ergänzte Tests
+`internal/database/objectops_review2_test.go`: `TestReview2ObjectOpsLive` (mysql, maria, postgres) mit M1-, L2-, L3-Prüfungen und den Fingerprint-Messungen (Logausgabe).
