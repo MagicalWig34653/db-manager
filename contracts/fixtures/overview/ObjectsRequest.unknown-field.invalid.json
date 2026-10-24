@@ -1,0 +1,7 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "fixture"
+  },
+  "sql": "DROP TABLE x"
+}

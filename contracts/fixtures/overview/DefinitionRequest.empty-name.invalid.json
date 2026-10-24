@@ -1,0 +1,9 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "fixture"
+  },
+  "object": {
+    "name": ""
+  }
+}

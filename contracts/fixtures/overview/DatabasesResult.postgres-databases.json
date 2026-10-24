@@ -1,0 +1,39 @@
+{
+  "driver": "postgres",
+  "databases": [
+    {
+      "name": "postgres",
+      "charset": "UTF8",
+      "collation": "en_US.utf8",
+      "current": false,
+      "system": true,
+      "object_count": null,
+      "size_bytes": 7701007,
+      "estimated": false
+    },
+    {
+      "name": "probe",
+      "charset": "UTF8",
+      "collation": "en_US.utf8",
+      "current": true,
+      "system": false,
+      "object_count": 27,
+      "size_bytes": 8476351,
+      "estimated": false
+    },
+    {
+      "name": "template1",
+      "charset": "UTF8",
+      "collation": "en_US.utf8",
+      "current": false,
+      "system": true,
+      "object_count": null,
+      "size_bytes": 7701007,
+      "estimated": false
+    }
+  ],
+  "total": 3,
+  "offset": 0,
+  "limit": 1000,
+  "has_more": false
+}

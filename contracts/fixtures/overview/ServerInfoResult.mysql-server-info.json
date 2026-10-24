@@ -1,0 +1,109 @@
+{
+  "driver": "mysql",
+  "variant": "mysql",
+  "version": "8.4.11",
+  "version_comment": "MySQL Community Server - GPL",
+  "uptime_seconds": 8,
+  "current_database": "probe",
+  "connection": {
+    "host": "localhost",
+    "port": 33106,
+    "database": "probe",
+    "username": "root",
+    "tls_mode": ""
+  },
+  "session": [
+    {
+      "name": "character_set_client",
+      "value": "utf8mb4"
+    },
+    {
+      "name": "character_set_connection",
+      "value": "utf8mb4"
+    },
+    {
+      "name": "character_set_database",
+      "value": "utf8mb4"
+    }
+  ],
+  "character_sets": [
+    {
+      "name": "armscii8",
+      "default_collation": "armscii8_general_ci",
+      "description": "ARMSCII-8 Armenian",
+      "max_bytes": 1
+    },
+    {
+      "name": "ascii",
+      "default_collation": "ascii_general_ci",
+      "description": "US ASCII",
+      "max_bytes": 1
+    },
+    {
+      "name": "big5",
+      "default_collation": "big5_chinese_ci",
+      "description": "Big5 Traditional Chinese",
+      "max_bytes": 2
+    }
+  ],
+  "character_sets_truncated": false,
+  "collations": [
+    {
+      "name": "armscii8_bin",
+      "charset": "armscii8",
+      "default": false
+    },
+    {
+      "name": "armscii8_general_ci",
+      "charset": "armscii8",
+      "default": true
+    },
+    {
+      "name": "ascii_bin",
+      "charset": "ascii",
+      "default": false
+    }
+  ],
+  "collations_truncated": false,
+  "engines": [
+    {
+      "name": "ARCHIVE",
+      "support": "YES",
+      "comment": "Archive storage engine",
+      "transactions": "NO"
+    },
+    {
+      "name": "BLACKHOLE",
+      "support": "YES",
+      "comment": "/dev/null storage engine (anything you write to it disappears)",
+      "transactions": "NO"
+    },
+    {
+      "name": "CSV",
+      "support": "YES",
+      "comment": "CSV storage engine",
+      "transactions": "NO"
+    }
+  ],
+  "plugins": [
+    {
+      "name": "ARCHIVE",
+      "type": "STORAGE ENGINE",
+      "status": "ACTIVE",
+      "version": "3.0"
+    },
+    {
+      "name": "binlog",
+      "type": "STORAGE ENGINE",
+      "status": "ACTIVE",
+      "version": "1.0"
+    },
+    {
+      "name": "BLACKHOLE",
+      "type": "STORAGE ENGINE",
+      "status": "ACTIVE",
+      "version": "1.0"
+    }
+  ],
+  "plugins_truncated": false
+}

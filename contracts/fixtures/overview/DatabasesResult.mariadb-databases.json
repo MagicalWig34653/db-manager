@@ -1,0 +1,39 @@
+{
+  "driver": "mysql",
+  "databases": [
+    {
+      "name": "information_schema",
+      "charset": "utf8mb3",
+      "collation": "utf8mb3_general_ci",
+      "current": false,
+      "system": true,
+      "object_count": 88,
+      "size_bytes": 212992,
+      "estimated": true
+    },
+    {
+      "name": "mysql",
+      "charset": "utf8mb4",
+      "collation": "utf8mb4_uca1400_ai_ci",
+      "current": false,
+      "system": true,
+      "object_count": 31,
+      "size_bytes": 5652480,
+      "estimated": true
+    },
+    {
+      "name": "p06_main",
+      "charset": "utf8mb4",
+      "collation": "utf8mb4_uca1400_ai_ci",
+      "current": false,
+      "system": false,
+      "object_count": 27,
+      "size_bytes": 425984,
+      "estimated": true
+    }
+  ],
+  "total": 6,
+  "offset": 0,
+  "limit": 1000,
+  "has_more": false
+}

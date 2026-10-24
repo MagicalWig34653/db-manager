@@ -1,0 +1,13 @@
+{
+  "driver": "sqlite",
+  "object": {
+    "schema": "main",
+    "name": "v_view",
+    "kind": "view"
+  },
+  "definition": "CREATE VIEW \"v_view\" AS SELECT id FROM \"t_000\"",
+  "source": "sqlite_schema",
+  "derived": false,
+  "notice": null,
+  "warnings": []
+}

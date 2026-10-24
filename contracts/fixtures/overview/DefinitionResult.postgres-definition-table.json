@@ -1,0 +1,15 @@
+{
+  "driver": "postgres",
+  "object": {
+    "schema": "p06_main",
+    "name": "we\"ird `na'me;DROP TABLE x",
+    "kind": "table"
+  },
+  "definition": "CREATE TABLE \"p06_main\".\"we\"\"ird `na'me;DROP TABLE x\" (\n  \"id\" integer NOT NULL,\n  \"v\" text,\n  CONSTRAINT \"we\"\"ird `na'me;DROP TABLE x_pkey\" PRIMARY KEY (id)\n);",
+  "source": "catalog_reconstruction",
+  "derived": true,
+  "notice": "Aus dem Katalog rekonstruiert; PostgreSQL besitzt kein SHOW CREATE. Die Anweisung kann von der ursprünglichen abweichen.",
+  "warnings": [
+    "Rechte, Kommentare, Trigger, Regeln und Storage-Parameter sind nicht enthalten."
+  ]
+}

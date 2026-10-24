@@ -1,0 +1,13 @@
+{
+  "driver": "mysql",
+  "object": {
+    "schema": "p06_main",
+    "name": "we\"ird `na'me;DROP TABLE x",
+    "kind": "table"
+  },
+  "definition": "CREATE TABLE `we\"ird ``na'me;DROP TABLE x` (\n  `id` int(11) NOT NULL,\n  `v` text DEFAULT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci",
+  "source": "show_create",
+  "derived": false,
+  "notice": null,
+  "warnings": []
+}

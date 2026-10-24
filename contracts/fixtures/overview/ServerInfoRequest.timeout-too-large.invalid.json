@@ -1,0 +1,7 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "fixture"
+  },
+  "timeout_ms": 30001
+}

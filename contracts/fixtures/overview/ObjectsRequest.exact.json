@@ -1,0 +1,13 @@
+{
+  "connection": {
+    "driver": "mysql",
+    "host": "db.example.test",
+    "database": "shop",
+    "username": "reader",
+    "password": "x",
+    "tls_mode": "verify-full"
+  },
+  "schema": "shop",
+  "exact_rows": true,
+  "limit": 100
+}

@@ -1,0 +1,13 @@
+{
+  "driver": "sqlite",
+  "object": {
+    "schema": "main",
+    "name": "we\"ird `na'me;DROP TABLE x",
+    "kind": "table"
+  },
+  "definition": "CREATE TABLE \"we\"\"ird `na'me;DROP TABLE x\"(id INTEGER PRIMARY KEY, v TEXT)",
+  "source": "sqlite_schema",
+  "derived": false,
+  "notice": null,
+  "warnings": []
+}
