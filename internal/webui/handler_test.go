@@ -219,6 +219,16 @@ func TestBundledAssetsMatchManifest(t *testing.T) {
 			t.Fatalf("missing required asset: %s", name)
 		}
 	}
+	for name, mediaType := range pwaFiles {
+		if !seen[name] {
+			t.Fatalf("missing PWA asset: %s", name)
+		}
+		rec := httptest.NewRecorder()
+		Wrap(http.NotFoundHandler()).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/"+name, nil))
+		if rec.Code != http.StatusOK || rec.Header().Get("Content-Type") != mediaType || rec.Header().Get("Cache-Control") != "no-store" || rec.Header().Get("X-Content-Type-Options") != "nosniff" {
+			t.Fatalf("PWA asset %s served with status %d, type %q, cache %q", name, rec.Code, rec.Header().Get("Content-Type"), rec.Header().Get("Cache-Control"))
+		}
+	}
 	if err := fs.WalkDir(assets, ".", func(name string, entry fs.DirEntry, err error) error {
 		if err != nil {
 			return err

@@ -8,7 +8,7 @@ Prüfstand und unabhängige Abnahme: [F5b-Handoff](handoffs/F5b.md).
 ## Quelle, Vertrag und Reproduzierbarkeit
 
 [web-build.lock.json](../web-build.lock.json) pinnt das öffentliche Webrepository auf
-Commit [8ef738d](https://github.com/MagicalWig34653/db-manager-web/tree/8ef738d22a1164291e2c8183d80e72d1f043c0f8).
+Commit [6cb9613](https://github.com/MagicalWig34653/db-manager-web/tree/6cb9613eebcca3196e115f30e67c9be1c2f4b943).
 F5 einschließlich lesender Index-/Constraintmetadaten, F6-Ergebnisexport und bisheriger
 Einzelzeilenaktionen wurde unabhängig
 geprüft; der Commit ist in der Web-main-Historie erreichbar. Vertrag `0.1.0`, API-SHA-256
@@ -199,3 +199,13 @@ Neubau und unabhängiges Review; die Bytevergleiche der fünf Originalassets ble
 `PWA_FILES`: ein Build enthält alle acht Dateien oder keine (der bisherige Pin `8ef738d` enthält
 keine und bleibt gültig). Der Neubau mit PWA-Dateien erfolgt erst mit dem nächsten Pin im
 gemeinsamen Bündel; Details: [W-P03-Handoff](handoffs/W-P03.md).
+
+## Pin Bündel 1 (24.10.2026)
+
+Das Lock pinnt Web-main `6cb9613eebcca3196e115f30e67c9be1c2f4b943` (W-P02 Web-Shell und W-P03 PWA-Basis);
+npm-Lock-SHA unverändert `bac4b32b...5c6`, Toolchain Node 26.5.0/npm 11.17.0. Die Vertragseinträge sind
+unverändert die fünf Bestandsverträge. API 0.6 ist nicht gepinnt: der Webstand enthält keine Kopie
+(`src/lib/contract/v6/` fehlt), er konsumiert 0.6 noch nicht. Die Einbettung umfasst nun 13 Dateien, darunter
+die acht PWA-Dateien (`manifest.webmanifest`, `sw.js`, Icons). Details und Hashes:
+[PIN-BUNDLE-1](handoffs/PIN-BUNDLE-1.md). Der Betrieb unter einem URL-Unterpfad (Reverse-Proxy mit Präfix)
+wird nicht unterstützt: `index.html` verweist mit absoluten Pfaden (`/assets/`, `/manifest.webmanifest`).

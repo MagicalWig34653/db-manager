@@ -11,25 +11,65 @@
       "size": 92896
     },
     {
-      "path": "assets/index-Ay2aZLYy.js",
-      "sha256": "c5c9343ca4cc21facd2420b397db398a992c60abd9b04a42f5effa41650950b0",
-      "size": 958092
+      "path": "apple-touch-icon.png",
+      "sha256": "16d0cdb88277d760d947ea00749dd912057995e2c50db8bc5bc985408892081d",
+      "size": 3664
     },
     {
-      "path": "assets/index-Br26lo6r.css",
-      "sha256": "11e4d1ad3f8b2d045b9349cf71cb8c01327358d41be6fe5ec6e6b55699f8aae5",
-      "size": 45599
+      "path": "assets/index-BoVDfYJP.js",
+      "sha256": "2c9dcad7017aa3f7075f395983bb3356b6a6c3c270da38fc490976a9ff8d29a8",
+      "size": 983774
+    },
+    {
+      "path": "assets/index-D-xDhZ-6.css",
+      "sha256": "440011f3b3f6da5c5ba62fdecf4819eb21568013c2ae4d5df489e674128bd719",
+      "size": 46204
+    },
+    {
+      "path": "favicon-32.png",
+      "sha256": "7b45cb31c1b94f78b7d9b6745c33a544f5426d87df779197eb64cc38a198b001",
+      "size": 1196
+    },
+    {
+      "path": "icon-192.png",
+      "sha256": "530e8598c7367a2ee3999250cd00962651cd995e536c3e1520e461ec2e0d650b",
+      "size": 6990
+    },
+    {
+      "path": "icon-512.png",
+      "sha256": "9f1074d82139629dc9350ba12c0fb21f79ea78295a5c85bc0466a44c72b4ba76",
+      "size": 19251
+    },
+    {
+      "path": "icon-maskable-512.png",
+      "sha256": "e1fd5502743b542a488dd22d3d4fb3144d9e6814bf20c5eaeb20224f94790bba",
+      "size": 9612
+    },
+    {
+      "path": "icon.svg",
+      "sha256": "d3dce0051a47d063a496849024190072fb3e2868c8d025a949760945456786b1",
+      "size": 269
     },
     {
       "path": "index.html",
-      "sha256": "bd6b06cf3ae1a04a20070f689d466be00f48a1b346d49f0236c103f4334dbc42",
-      "size": 424
+      "sha256": "318f5b4caff30556d036371a02554b30a4361851fdf2b60db494057890cc2ead",
+      "size": 666
+    },
+    {
+      "path": "manifest.webmanifest",
+      "sha256": "7949f25cca67f0956a0d81e9561d1d5d1888765b56c12eb90943613fea2d122b",
+      "size": 796
+    },
+    {
+      "path": "sw.js",
+      "sha256": "5d56adc4fae604b8544796eb25e8a2fd778ca24a24951974b32d634f7d548798",
+      "size": 3262
     }
   ],
   "schema_version": 1,
   "source": {
     "build_mode": "production",
-    "commit": "8ef738d22a1164291e2c8183d80e72d1f043c0f8",
+    "commit": "6cb9613eebcca3196e115f30e67c9be1c2f4b943",
     "contract_sha256": "4b598dc69a1904685e67a717997412654440ac10f47c17f7a025ccd114e294be",
     "contract_version": "0.1.0",
     "insert_contract_sha256": "4763ebf8632a9ef977cf7d3a6037299fc4dafde0a581fe10cb34d844f8356fbf",
