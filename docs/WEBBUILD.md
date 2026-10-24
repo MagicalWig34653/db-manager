@@ -16,6 +16,7 @@ geprüft; der Commit ist in der Web-main-Historie erreichbar. Vertrag `0.1.0`, A
 Tabellenvertrag `0.2.0`, SHA256
 `c15a848f01bb779429fd68a2b6eb6bba1575d3e07a4c68e6796cf7840a661838`;
 zusätzlich npm-Lockfile-SHA und exakte Node-/npm-Versionen sind im Lock festgehalten.
+Das Lock hat seit W-P04 `schema_version` 2 (siehe Abschnitt „Vertragsliste im Lock“).
 
 Neubau mit Python mindestens 3.9, Git, Node26.5.0 und npm11.17.0:
 
@@ -156,3 +157,33 @@ Sicherheit wird zugesagt. UTF-8 ohne BOM, Komma/CRLF, Header/Nicht-NULL gequotet
 NULL als ungequotetes `\N`. Literaltext `\N` bleibt gequotet. C0 außer CR/LF sowie DEL/C1
 werden vor Blob/URL/Download ausdrücklich abgewiesen; JSON erhält sie unverändert.
 Quelle-/Token-/Resultwechsel räumt Downloads auf; gestartete Downloads bleiben intakt.
+
+
+## Vertragsliste im Lock (Schema 2, W-P04)
+
+`web-build.lock.json` pinnt API-Verträge nicht mehr über feste Schlüsselnamen, sondern über
+`contracts: [{family, version, sha256}]`. Aktuelle Einträge (unverändert zu den bisherigen Pins):
+
+| family | version | SHA-256 |
+| --- | --- | --- |
+| api | 0.1.0 | `4b598dc69a1904685e67a717997412654440ac10f47c17f7a025ccd114e294be` |
+| table | 0.2.0 | `c15a848f01bb779429fd68a2b6eb6bba1575d3e07a4c68e6796cf7840a661838` |
+| mutation | 0.3.0 | `ec77c9739cda11df3f4cb9fe756a632e67840fdc0f6190deee1aa1d1333dc308` |
+| insert | 0.4.0 | `4763ebf8632a9ef977cf7d3a6037299fc4dafde0a581fe10cb34d844f8356fbf` |
+| structure | 0.5.0 | `b5225339511d80fe4f52f09118fdad2060d8a92f31d44b73dd89fe9f76178c95` |
+
+Regeln, die `scripts/build-web.py` hart prüft (Fehler, kein Warnhinweis): Liste vorhanden und nicht
+leer; jeder Eintrag hat genau `family`, `version` (`0.N.0`) und `sha256`; keine doppelte Familie, keine
+doppelte Version; aufsteigende Versionsreihenfolge; die fünf Bestandsverträge sind immer enthalten;
+jede SHA-256 muss mit `contracts/api-v<version>.json` im Root übereinstimmen. Beim Neubau muss
+außerdem die Kopie im Webcheckout (`src/lib/contract/api-v0.1.0.json` bzw.
+`src/lib/contract/v<N>/api-v0.<N>.0.json`) bytegleich sein. Unbekannte Lock-Schlüssel und die
+alten flachen Schlüssel (`contract_sha256`, `table_contract_*` usw.) werden abgewiesen.
+
+API 0.6 bleibt bewusst ungepinnt, weil der gepinnte Webstand ihn nicht konsumiert. Ein neuer
+Vertrag wird beim nächsten Pin als weiterer Listeneintrag ergänzt (Familie frei wählbar, z. B.
+`create`); `assets-manifest.json` zeigt solche Einträge unter `source.additional_contracts` und
+wechselt dann `source.schema_version` auf 2. Solange nur die fünf Bestandsverträge gepinnt sind,
+bleibt die Manifest-`source` im bisherigen flachen Format, die eingebetteten Assets und das
+Manifest sind byte-identisch zum Pin `8ef738d`. Ein Vertragswechsel erfordert weiterhin
+Neubau und unabhängiges Review; die Bytevergleiche der fünf Originalassets bleiben verbindlich.
