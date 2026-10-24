@@ -55,15 +55,7 @@ func New(engine core.Engine, token string, options ...Option) *API {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) { writeJSON(w, 200, map[string]string{"status": "ok"}) })
 	mux.HandleFunc("GET /readyz", a.ready)
-	mux.Handle("GET /api/v1/capabilities", a.auth(http.HandlerFunc(a.capabilities)))
-	mux.Handle("POST /api/v1/connections/test", a.auth(http.HandlerFunc(a.test)))
-	mux.Handle("POST /api/v1/catalog", a.auth(http.HandlerFunc(a.catalog)))
-	mux.Handle("POST /api/v1/query", a.auth(http.HandlerFunc(a.query)))
-	a.registerTables(mux)
-	a.registerMutations(mux)
-	a.registerInserts(mux)
-	a.registerStructure(mux)
-	a.registerCreate(mux)
+	a.registerFeatures(mux)
 	a.handler = mux
 	return a
 }
@@ -122,7 +114,7 @@ func decode(w http.ResponseWriter, r *http.Request, target any) bool {
 		fail(w, 415, "unsupported_media_type", "JSON ist erforderlich.")
 		return false
 	}
-	r.Body = http.MaxBytesReader(w, r.Body, MaxRequestBytes)
+	r.Body = http.MaxBytesReader(w, r.Body, requestBodyLimit(r))
 	var body bytes.Buffer
 	decoder := json.NewDecoder(io.TeeReader(r.Body, &body))
 	decoder.DisallowUnknownFields()
