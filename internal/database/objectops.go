@@ -46,6 +46,7 @@ type opState struct {
 	db          string
 	srcRows     bool // observation counts rows (copy/truncate)
 	expect      func(*core.ObjectOpObservation) bool
+	sub         subObjects
 }
 
 type opFieldSet map[string]bool

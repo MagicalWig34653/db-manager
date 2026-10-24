@@ -39,13 +39,13 @@ def main():
     with tempfile.TemporaryDirectory(prefix='dbmanager-w-p07-dump-') as scratch:
         dump = str(keep or scratch)
         Path(dump).mkdir(parents=True, exist_ok=True)
-        go_test(os.environ.copy(), 'TestSQLiteObjectOps|TestExecuteOutcomeClassification|TestObjectOpRequestValidation', dump)
+        go_test(os.environ.copy(), 'TestSQLiteObjectOps|TestReviewObjectOpsSQLite|TestExecuteOutcomeClassification|TestObjectOpRequestValidation', dump)
         go_test(os.environ.copy(), 'TestObjectOpsHTTP', dump, './internal/httpapi')
         prefixes = []
         for label, name in SYSTEMS:
             with Fixtures('w-p07', systems=(label,)) as fx:
                 prefixes.append(fx.prefix)
-                go_test(fx.environment(), 'TestLiveObjectOps/' + name, dump)
+                go_test(fx.environment(), 'TestLiveObjectOps/' + name + '|TestReviewObjectOpsLive/' + name, dump)
             left = subprocess.check_output(['docker', 'ps', '-a', '--filter', 'label=dbmanager.fixture=' + fx.prefix, '--format', '{{.Names}}'], text=True).split()
             assert not left, left
         spec_v8 = check.load_v8()

@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
 
 	"github.com/MagicalWig34653/db-manager/internal/core"
 	"github.com/MagicalWig34653/db-manager/internal/dbplan"
@@ -128,4 +129,44 @@ func mysqlDependencies(ctx context.Context, q metadataQuerier, desc core.TableDe
 		views = append(views, core.ObjectDependency{Kind: "view", Schema: schema, Name: name, Certainty: "textual"})
 	}
 	return append(append(in, out...), views...), rows.Err()
+}
+
+func mysqlSubObjects(ctx context.Context, q metadataQuerier, ref core.TableRef) (subObjects, error) {
+	var s subObjects
+	rows, err := q.QueryContext(ctx, "SELECT PARTITION_NAME FROM information_schema.PARTITIONS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND PARTITION_NAME IS NOT NULL ORDER BY PARTITION_ORDINAL_POSITION LIMIT 51", ref.Schema, ref.Name)
+	if err != nil {
+		return s, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var name string
+		if err = rows.Scan(&name); err != nil {
+			return s, err
+		}
+		if len(s.names) == 50 {
+			s.truncated = true
+			break
+		}
+		s.names = append(s.names, name)
+	}
+	s.partitioned = len(s.names) > 0
+	return s, rows.Err()
+}
+
+// opIsCurrentDatabase compares with the database the server reports for the
+// session, not with the spelling the client sent.
+func opIsCurrentDatabase(ctx context.Context, env *opEnv, name string) (bool, error) {
+	if env.c.Driver != "mysql" {
+		return env.c.Database == name, nil
+	}
+	var current sql.NullString
+	if err := env.sess.QueryRowContext(ctx, "SELECT DATABASE()").Scan(&current); err != nil {
+		return false, err
+	}
+	return env.c.Database == name || current.Valid && strings.EqualFold(current.String, name) && mysqlCaseInsensitive(ctx, env.sess), nil
+}
+
+func mysqlCaseInsensitive(ctx context.Context, q metadataQuerier) bool {
+	var mode int
+	return q.QueryRowContext(ctx, "SELECT @@lower_case_table_names").Scan(&mode) == nil && mode != 0
 }
