@@ -17,9 +17,21 @@ import (
 //go:embed static
 var bundled embed.FS
 
-const contentSecurityPolicy = "default-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self'; style-src-attr 'unsafe-inline'; connect-src 'self'; img-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'"
+const contentSecurityPolicy = "default-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self'; style-src-attr 'unsafe-inline'; connect-src 'self'; img-src 'self'; font-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'"
 
 var immutableAsset = regexp.MustCompile(`^assets/[A-Za-z0-9._-]+-[A-Za-z0-9_-]{8,}\.(js|css)$`)
+
+// pwaFiles is the exact allow-list of installable-app files at the site root (no wildcards).
+var pwaFiles = map[string]string{
+	"manifest.webmanifest":  "application/manifest+json",
+	"sw.js":                 "text/javascript; charset=utf-8",
+	"icon.svg":              "image/svg+xml",
+	"icon-192.png":          "image/png",
+	"icon-512.png":          "image/png",
+	"icon-maskable-512.png": "image/png",
+	"apple-touch-icon.png":  "image/png",
+	"favicon-32.png":        "image/png",
+}
 
 // Wrap serves the bundled UI and delegates API, liveness and readiness requests without alteration.
 func Wrap(api http.Handler) http.Handler {
@@ -70,6 +82,8 @@ func wrapFS(assets fs.FS, api http.Handler) http.Handler {
 		if immutableAsset.MatchString(name) {
 			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 		}
+		// The service worker keeps the default no-store and gets no Service-Worker-Allowed header,
+		// so its scope cannot grow beyond its own directory (the site root).
 		w.Header().Set("Content-Type", mediaType)
 		w.Header().Set("ETag", fmt.Sprintf(`"%x"`, sha256.Sum256(content)))
 		http.ServeContent(w, r, name, time.Time{}, bytes.NewReader(content))
@@ -82,6 +96,9 @@ func staticMediaType(name string) string {
 	}
 	if name == "LICENSE.txt" || name == "THIRD-PARTY-NOTICES.txt" {
 		return "text/plain; charset=utf-8"
+	}
+	if mediaType, ok := pwaFiles[name]; ok {
+		return mediaType
 	}
 	if !strings.HasPrefix(name, "assets/") {
 		return ""

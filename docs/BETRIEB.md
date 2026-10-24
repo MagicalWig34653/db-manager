@@ -60,6 +60,18 @@ Neue Journal-/Dateianlagen synchronisieren Datei und Verzeichnis; beim Löschen 
 Journals wird das Verzeichnis nach SQLite-Vorgabe synchronisiert. Prozessabbruch-Recovery
 ist geprüft; dies ist kein Nachweis gegen jeden Stromausfall oder Hardwarefehler.
 
+## Installierbare App (PWA)
+
+Die Oberfläche liefert `manifest.webmanifest`, Symbole und `sw.js` aus. Browser bieten die
+Installation und den Service Worker nur in einem sicheren Kontext an: **HTTPS** oder
+`localhost`/`127.0.0.1`. Hinter einem TLS-Proxy funktioniert die Installation; über Klartext-HTTP
+auf einem anderen Hostnamen wird sie nicht angeboten, das ist keine Fehlfunktion des Servers.
+Der Service Worker hält ausschließlich die App-Shell (HTML, gehashte Assets, Symbole) für den
+Offlinestart vor. `/api`, `/healthz` und `/readyz` werden nie abgefangen oder zwischengespeichert;
+Datenbankdaten, Tokens und Zugangsdaten bleiben ohne Offlinekopie. Ohne Verbindung zeigt die Shell
+den Hinweis „Keine Verbindung zum Server“. `sw.js` und Manifest werden mit `no-store` ausgeliefert;
+eine neue Version wird erst nach Klick auf „Neue Version laden“ aktiv.
+
 ## Netzwerkziele und DB-TLS
 
 `DBM_ALLOWED_HOSTS` enthält kommagetrennte **exakte** Hostnamen/IPs, keine Wildcards,

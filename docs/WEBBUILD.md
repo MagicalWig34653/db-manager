@@ -187,3 +187,15 @@ wechselt dann `source.schema_version` auf 2. Solange nur die fünf Bestandsvertr
 bleibt die Manifest-`source` im bisherigen flachen Format, die eingebetteten Assets und das
 Manifest sind byte-identisch zum Pin `8ef738d`. Ein Vertragswechsel erfordert weiterhin
 Neubau und unabhängiges Review; die Bytevergleiche der fünf Originalassets bleiben verbindlich.
+
+
+## PWA-Dateien (W-P03)
+
+`internal/webui` liefert zusätzlich eine exakte Namensliste (keine Wildcards): `manifest.webmanifest`
+(`application/manifest+json`), `sw.js` (`text/javascript`), `icon.svg` (`image/svg+xml`) sowie
+`icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `apple-touch-icon.png`, `favicon-32.png`
+(`image/png`). Alle sind `no-store`; kein `Service-Worker-Allowed`. Die CSP ergänzt nur
+`manifest-src 'self'` und `worker-src 'self'`. `scripts/build-web.py` kennt die Menge als
+`PWA_FILES`: ein Build enthält alle acht Dateien oder keine (der bisherige Pin `8ef738d` enthält
+keine und bleibt gültig). Der Neubau mit PWA-Dateien erfolgt erst mit dem nächsten Pin im
+gemeinsamen Bündel; Details: [W-P03-Handoff](handoffs/W-P03.md).

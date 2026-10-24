@@ -20,6 +20,10 @@ DEST = ROOT / "internal/webui/static"
 MANIFEST = ROOT / "internal/webui/assets-manifest.json"
 EXPECTED_REPOSITORY = "https://github.com/MagicalWig34653/db-manager-web.git"
 ROOT_FILES = {"index.html", "LICENSE.txt", "THIRD-PARTY-NOTICES.txt"}
+# Installable-app files (W-P03). Exact names, no wildcards; a build contains all of them or none, so
+# the pre-PWA pin stays valid. Keep in sync with pwaFiles in internal/webui/handler.go.
+PWA_FILES = {"manifest.webmanifest", "sw.js", "icon.svg", "icon-192.png", "icon-512.png",
+             "icon-maskable-512.png", "apple-touch-icon.png", "favicon-32.png"}
 ASSET_NAME = re.compile(r"assets/[A-Za-z0-9._-]+-[A-Za-z0-9_-]{8,}\.(js|css)\Z")
 
 
@@ -98,7 +102,7 @@ def load_lock() -> dict:
 
 
 def artifact(path: str, content: bytes) -> dict:
-    if path not in ROOT_FILES and not ASSET_NAME.fullmatch(path):
+    if path not in ROOT_FILES and path not in PWA_FILES and not ASSET_NAME.fullmatch(path):
         raise ValueError(f"Unexpected frontend artifact: {path}")
     if b"/Users/" in content or b"sourceMappingURL=" in content:
         raise ValueError(f"Private path or source map marker in artifact: {path}")
@@ -117,6 +121,9 @@ def inventory(folder: Path) -> list[dict]:
     names = {file["path"] for file in files}
     if not ROOT_FILES.issubset(names) or not any(name.endswith(".js") for name in names):
         raise ValueError("Required HTML, JavaScript or license artifacts are missing")
+    present = names & PWA_FILES
+    if present and present != PWA_FILES:
+        raise ValueError("Incomplete PWA file set: " + ", ".join(sorted(PWA_FILES - present)))
     return files
 
 
@@ -196,7 +203,7 @@ def rebuild(lock: dict) -> None:
         output = checkout / "dist"
         files = inventory(output)
         source_link = f"https://github.com/MagicalWig34653/db-manager-web/tree/{lock['commit']}".encode()
-        if len(files) != 5 or not any(source_link in path.read_bytes() for path in (output / "assets").glob("*.js")):
+        if len([f for f in files if f['path'] not in PWA_FILES]) != 5 or not any(source_link in path.read_bytes() for path in (output / "assets").glob("*.js")):
             raise ValueError("Expected five original artifacts and the exact built source link")
         if "GNU AFFERO GENERAL PUBLIC LICENSE" not in (output / "LICENSE.txt").read_text():
             raise ValueError("The frontend AGPL license is missing")
