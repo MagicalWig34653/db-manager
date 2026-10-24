@@ -1,0 +1,48 @@
+{
+  "action": "table_drop",
+  "driver": "postgres",
+  "target": {
+    "kind": "table",
+    "schema": "p07_main",
+    "name": "parent"
+  },
+  "statements": [
+    "DROP TABLE \"p07_main\".\"parent\""
+  ],
+  "warnings": [
+    "Die Tabelle und alle ihre Daten werden unwiderruflich gelöscht.",
+    "Die Tabelle p07_main.child verweist per Fremdschlüssel auf diese Tabelle; der Server lehnt die Aktion ab (kein CASCADE, Fremdschlüsselprüfung bleibt aktiv).",
+    "Die Sicht p07_main.v_par verwendet diese Tabelle und verhindert das Löschen (kein CASCADE)."
+  ],
+  "affected_objects": [
+    "table:p07_main.parent"
+  ],
+  "dependencies": [
+    {
+      "kind": "foreign_key_in",
+      "schema": "p07_main",
+      "name": "child",
+      "constraint": "child_parent_id_fkey",
+      "effect": "blocks",
+      "certainty": "exact"
+    },
+    {
+      "kind": "view",
+      "schema": "p07_main",
+      "name": "v_par",
+      "constraint": null,
+      "effect": "blocks",
+      "certainty": "exact"
+    }
+  ],
+  "dependencies_truncated": false,
+  "current_options": null,
+  "ddl_transactional": "yes",
+  "confirmation": {
+    "action": "table_drop",
+    "destructive": true,
+    "target_name": "parent",
+    "current_database": false
+  },
+  "plan_sha256": "3d617141c7b229e1b7b2152176cd33a5d7fe5c1f23bfe0259e88add043aa7e27"
+}

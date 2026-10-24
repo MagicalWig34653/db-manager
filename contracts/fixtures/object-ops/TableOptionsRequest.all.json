@@ -1,0 +1,18 @@
+{
+  "connection": {
+    "driver": "mysql",
+    "host": "db.example.test",
+    "port": 3306,
+    "database": "shop",
+    "username": "app",
+    "tls_mode": "verify-full"
+  },
+  "table": {
+    "name": "orders"
+  },
+  "engine": "InnoDB",
+  "comment": "Bestellungen",
+  "collation": "utf8mb4_bin",
+  "collation_mode": "convert",
+  "auto_increment": 1000
+}

@@ -1,0 +1,10 @@
+{
+  "connection": {
+    "driver": "mysql",
+    "host": "db.example.test",
+    "port": 3306,
+    "database": "shop",
+    "username": "app",
+    "tls_mode": "verify-full"
+  }
+}

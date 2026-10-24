@@ -1,0 +1,48 @@
+{
+  "action": "table_drop",
+  "driver": "sqlite",
+  "target": {
+    "kind": "table",
+    "schema": "main",
+    "name": "parent"
+  },
+  "statements": [
+    "DROP TABLE \"parent\""
+  ],
+  "warnings": [
+    "Die Tabelle und alle ihre Daten werden unwiderruflich gelöscht.",
+    "Die Tabelle child verweist per Fremdschlüssel auf diese Tabelle; der Server lehnt die Aktion ab (kein CASCADE, Fremdschlüsselprüfung bleibt aktiv).",
+    "Die Sicht v_par verwendet diese Tabelle und wird ungültig (anhand des Quelltextes erkannt)."
+  ],
+  "affected_objects": [
+    "table:parent"
+  ],
+  "dependencies": [
+    {
+      "kind": "foreign_key_in",
+      "schema": "main",
+      "name": "child",
+      "constraint": null,
+      "effect": "blocks",
+      "certainty": "exact"
+    },
+    {
+      "kind": "view",
+      "schema": "main",
+      "name": "v_par",
+      "constraint": null,
+      "effect": "breaks",
+      "certainty": "textual"
+    }
+  ],
+  "dependencies_truncated": false,
+  "current_options": null,
+  "ddl_transactional": "yes",
+  "confirmation": {
+    "action": "table_drop",
+    "destructive": true,
+    "target_name": "parent",
+    "current_database": false
+  },
+  "plan_sha256": "8354c75f713ba9b66eac16fcc1f78aa9cd29b53802ad43a523cca31d48e5a644"
+}

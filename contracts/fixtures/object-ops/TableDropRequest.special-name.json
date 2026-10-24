@@ -1,0 +1,9 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "main-db"
+  },
+  "table": {
+    "name": "we\"ird `na'me;DROP TABLE x"
+  }
+}

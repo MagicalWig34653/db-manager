@@ -1,0 +1,16 @@
+{
+  "connection": {
+    "driver": "mysql",
+    "host": "db.example.test",
+    "port": 3306,
+    "database": "shop",
+    "username": "app",
+    "tls_mode": "verify-full"
+  },
+  "database": "archive",
+  "confirm": {
+    "action": "database_drop",
+    "target_name": "archive"
+  },
+  "expected_plan_sha256": "abc"
+}

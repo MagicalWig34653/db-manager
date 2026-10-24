@@ -1,0 +1,10 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "main-db"
+  },
+  "table": {
+    "name": "orders"
+  },
+  "sql": "TRUNCATE TABLE orders"
+}
