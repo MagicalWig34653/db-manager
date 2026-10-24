@@ -65,6 +65,23 @@ class ArtifactTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "license"):
                 build_web.inventory(root)
 
+    def test_pwa_files_are_accepted_only_as_a_complete_exact_set(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.make_assets(root)
+            for name in build_web.PWA_FILES:
+                (root / name).write_bytes(b"synthetic")
+            names = {f["path"] for f in build_web.inventory(root)}
+            self.assertTrue(build_web.PWA_FILES <= names)
+            (root / "icon-192.png").unlink()
+            with self.assertRaisesRegex(ValueError, "Incomplete PWA file set: icon-192.png"):
+                build_web.inventory(root)
+        for name in ["sw.js.map", "icon-unlisted.png", "assets/sw.js", "manifest.json", "robots.txt"]:
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                build_web.artifact(name, b"synthetic")
+        with self.assertRaises(ValueError):
+            build_web.artifact("sw.js", b"//# sourceMappingURL=sw.js.map")
+
     def test_symlinks_cannot_enter_the_build(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

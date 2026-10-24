@@ -21,6 +21,16 @@ func testAssets() fs.FS {
 		"assets/unhashed.js":        {Data: []byte(`const other = true;`)},
 		"assets/hidden.map":         {Data: []byte(`{"sources":[]}`)},
 		"secret.json":               {Data: []byte(`{"not":"public"}`)},
+		"manifest.webmanifest":      {Data: []byte(`{"name":"DB Manager"}`)},
+		"sw.js":                     {Data: []byte(`self.addEventListener("fetch", () => {});`)},
+		"icon.svg":                  {Data: []byte(`<svg xmlns="http://www.w3.org/2000/svg"/>`)},
+		"icon-192.png":              {Data: []byte("\x89PNG")},
+		"icon-512.png":              {Data: []byte("\x89PNG")},
+		"icon-maskable-512.png":     {Data: []byte("\x89PNG")},
+		"apple-touch-icon.png":      {Data: []byte("\x89PNG")},
+		"favicon-32.png":            {Data: []byte("\x89PNG")},
+		"icon-unlisted.png":         {Data: []byte("\x89PNG")},
+		"sw.js.map":                 {Data: []byte("{}")},
 		"LICENSE.txt":               {Data: []byte("GNU AFFERO GENERAL PUBLIC LICENSE")},
 		"THIRD-PARTY-NOTICES.txt":   {Data: []byte("Original third-party notices")},
 	}
@@ -76,6 +86,14 @@ func TestStaticMIMECacheAndSecurityPolicy(t *testing.T) {
 		{"/assets/index-abcdefgh.js", "text/javascript; charset=utf-8", true},
 		{"/assets/index-abcdefgh.css", "text/css; charset=utf-8", true},
 		{"/assets/unhashed.js", "text/javascript; charset=utf-8", false},
+		{"/manifest.webmanifest", "application/manifest+json", false},
+		{"/sw.js", "text/javascript; charset=utf-8", false},
+		{"/icon.svg", "image/svg+xml", false},
+		{"/icon-192.png", "image/png", false},
+		{"/icon-512.png", "image/png", false},
+		{"/icon-maskable-512.png", "image/png", false},
+		{"/apple-touch-icon.png", "image/png", false},
+		{"/favicon-32.png", "image/png", false},
 		{"/LICENSE.txt", "text/plain; charset=utf-8", false},
 		{"/THIRD-PARTY-NOTICES.txt", "text/plain; charset=utf-8", false},
 	} {
@@ -91,8 +109,14 @@ func TestStaticMIMECacheAndSecurityPolicy(t *testing.T) {
 			if entry.target == "/" && recorder.Header().Get("Cache-Control") != "no-store" {
 				t.Fatal("index must not be stored")
 			}
+			if !immutableAsset.MatchString(strings.TrimPrefix(entry.target, "/")) && recorder.Header().Get("Cache-Control") != "no-store" {
+				t.Fatal("ungehashte Datei muss no-store liefern")
+			}
+			if recorder.Header().Get("Service-Worker-Allowed") != "" {
+				t.Fatal("service worker scope must not be widened")
+			}
 			policy := recorder.Header().Get("Content-Security-Policy")
-			if strings.Contains(policy, "unsafe-eval") || !strings.Contains(policy, "script-src 'self';") || !strings.Contains(policy, "script-src-attr 'none';") || !strings.Contains(policy, "frame-ancestors 'none'") {
+			if strings.Contains(policy, "unsafe-eval") || !strings.Contains(policy, "script-src 'self';") || !strings.Contains(policy, "script-src-attr 'none';") || !strings.Contains(policy, "frame-ancestors 'none'") || !strings.Contains(policy, "manifest-src 'self';") || !strings.Contains(policy, "worker-src 'self';") {
 				t.Fatal("script/frame CSP is insufficient")
 			}
 			if recorder.Header().Get("X-Content-Type-Options") != "nosniff" || recorder.Header().Get("Referrer-Policy") != "no-referrer" || recorder.Header().Get("Cross-Origin-Resource-Policy") != "same-origin" {
@@ -104,7 +128,7 @@ func TestStaticMIMECacheAndSecurityPolicy(t *testing.T) {
 
 func TestStaticTraversalUnknownPathsAndMethods(t *testing.T) {
 	handler := wrapFS(testAssets(), http.HandlerFunc(func(http.ResponseWriter, *http.Request) { t.Fatal("static path reached the API") }))
-	for _, target := range []string{"/assets/", "/assets", "/../LICENSE.txt", "/assets/../index.html", "/assets/%2e%2e/index.html", "/%2e%2e/", "/assets%5cindex-abcdefgh.js", "/secret.json", "/assets/hidden.map", "/node_modules/package.json", "/unknown", "/api-missing", "/healthz-missing"} {
+	for _, target := range []string{"/assets/", "/assets", "/../LICENSE.txt", "/assets/../index.html", "/assets/%2e%2e/index.html", "/%2e%2e/", "/assets%5cindex-abcdefgh.js", "/secret.json", "/assets/hidden.map", "/node_modules/package.json", "/unknown", "/icon-unlisted.png", "/sw.js.map", "/sw.js/", "/Sw.js", "/%2e%2e/sw.js", "/assets/sw.js", "/manifest.json", "/api-missing", "/healthz-missing"} {
 		t.Run(target, func(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, target, nil))
@@ -210,5 +234,33 @@ func TestBundledAssetsMatchManifest(t *testing.T) {
 	Wrap(http.NotFoundHandler()).ServeHTTP(root, httptest.NewRequest(http.MethodGet, "/", nil))
 	if root.Code != http.StatusOK || !strings.Contains(root.Body.String(), `lang="de"`) {
 		t.Fatal("real embedded German UI is unavailable")
+	}
+}
+
+func TestCSPDoesNotLoosenBeyondManifestAndWorker(t *testing.T) {
+	want := "default-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self'; style-src-attr 'unsafe-inline'; connect-src 'self'; img-src 'self'; font-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'"
+	if contentSecurityPolicy != want {
+		t.Fatalf("unexpected CSP: %s", contentSecurityPolicy)
+	}
+}
+
+func TestPWAFilesRejectUnsafeMethodsAndKeepAPIOutOfWorkerPaths(t *testing.T) {
+	handler := wrapFS(testAssets(), http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-store")
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	for _, target := range []string{"/sw.js", "/manifest.webmanifest", "/icon-192.png"} {
+		recorder := httptest.NewRecorder()
+		handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodPost, target, nil))
+		if recorder.Code != http.StatusMethodNotAllowed {
+			t.Fatalf("%s accepted POST", target)
+		}
+	}
+	for _, target := range []string{"/api/v1/query", "/healthz", "/readyz"} {
+		recorder := httptest.NewRecorder()
+		handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, target, nil))
+		if recorder.Code != http.StatusNoContent || recorder.Header().Get("Content-Security-Policy") != "" {
+			t.Fatalf("%s did not pass through to the API handler", target)
+		}
 	}
 }
