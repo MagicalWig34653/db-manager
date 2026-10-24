@@ -1,0 +1,10 @@
+{
+  "action": "table_drop",
+  "outcome": "rejected",
+  "reason": "dependency_blocks",
+  "message": "Abhängige Objekte (zum Beispiel Fremdschlüssel) verhindern die Aktion. Es wurde nichts geändert.",
+  "statements_total": 1,
+  "statements_executed": 0,
+  "atomic": false,
+  "observation": null
+}

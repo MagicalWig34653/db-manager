@@ -179,5 +179,74 @@ class ArtifactTests(unittest.TestCase):
         self.assertIn(label, (build_web.ROOT / "Dockerfile").read_text())
 
 
+    COMMIT = "a" * 40
+
+    def make_build(self, root, shell=None, extra=None):
+        link = "https://github.com/MagicalWig34653/db-manager-web/tree/" + self.COMMIT
+        files = {
+            "index.html": '<html><head><script type="module" crossorigin src="/assets/index-abcdefgh.js"></script>'
+                          '<link rel="stylesheet" crossorigin href="/assets/index-abcdefgh.css"></head></html>',
+            "LICENSE.txt": "GNU AFFERO GENERAL PUBLIC LICENSE",
+            "THIRD-PARTY-NOTICES.txt": "shadcn-svelte",
+            "assets/index-abcdefgh.js": 'import("./feature-abcdefgh.js");const l="' + link + '";',
+            "assets/index-abcdefgh.css": "body{}",
+            "assets/feature-abcdefgh.js": "export default 1;",
+        }
+        files.update(extra or {})
+        names = sorted(["index.html", *(build_web.PWA_FILES - {"sw.js"}), *[n for n in files if n.startswith("assets/")]])
+        files["sw.js"] = "SHELL = JSON.parse('" + json.dumps(shell if shell is not None else names) + "')"
+        for pwa in build_web.PWA_FILES - {"sw.js"}:
+            files[pwa] = "x"
+        for name, content in files.items():
+            target = root / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(content)
+        return build_web.inventory(root)
+
+    def verify_with(self, **kwargs):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            files = self.make_build(root, **kwargs)
+            build_web.verify_build(root, files, self.COMMIT)
+
+    def test_consistent_build_structure_is_accepted(self):
+        self.verify_with()
+
+    def test_orphan_chunks_are_rejected(self):
+        with self.assertRaisesRegex(ValueError, "Unreferenced"):
+            self.verify_with(extra={"assets/orphan-abcdefgh.js": "export default 2;"})
+
+    def test_chunk_limit_is_enforced(self):
+        chunks = {f"assets/c{i:02d}-abcdefgh.js": "x" for i in range(build_web.MAX_CHUNKS)}
+        entry = 'import("./feature-abcdefgh.js");const l="https://github.com/MagicalWig34653/db-manager-web/tree/' + self.COMMIT + '";' + "".join(f'import("./c{i:02d}-abcdefgh.js");' for i in range(build_web.MAX_CHUNKS))
+        with self.assertRaisesRegex(ValueError, "Too many"):
+            self.verify_with(extra={**chunks, "assets/index-abcdefgh.js": entry})
+
+    def test_source_link_must_be_in_the_entry_script_for_the_pinned_commit(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            files = self.make_build(root)
+            with self.assertRaisesRegex(ValueError, "source link"):
+                build_web.verify_build(root, files, "b" * 40)
+        with self.assertRaisesRegex(ValueError, "source link"):
+            self.verify_with(extra={"assets/index-abcdefgh.js": 'import("./feature-abcdefgh.js");'})
+
+    def test_entry_files_must_be_unique_and_present(self):
+        extra_script = '<script type="module" src="/assets/index-abcdefgh.js"></script><script type="module" src="/assets/feature-abcdefgh.js"></script>'
+        with self.assertRaisesRegex(ValueError, "exactly one"):
+            self.verify_with(extra={"index.html": extra_script + '<link rel="stylesheet" href="/assets/index-abcdefgh.css">'})
+        with self.assertRaisesRegex(ValueError, "missing"):
+            self.verify_with(extra={"index.html": '<script type="module" src="/assets/gone-abcdefgh.js"></script><link rel="stylesheet" href="/assets/index-abcdefgh.css">'})
+
+    def test_service_worker_shell_list_must_equal_the_inventory(self):
+        full = sorted(["index.html", *(build_web.PWA_FILES - {"sw.js"}), "assets/index-abcdefgh.js", "assets/index-abcdefgh.css", "assets/feature-abcdefgh.js"])
+        for shell in (full[:-1], full + ["assets/extra-abcdefgh.js"], full + [full[0]]):
+            with self.subTest(shell=len(shell)), self.assertRaisesRegex(ValueError, "shell list"):
+                self.verify_with(shell=shell)
+
+    def test_embedded_build_passes_the_structural_checks(self):
+        build_web.verify_build(build_web.DEST, build_web.inventory(build_web.DEST), build_web.load_lock()["commit"])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,31 @@
+{
+  "driver": "sqlite",
+  "table": {
+    "kind": "table",
+    "schema": "main",
+    "name": "parent"
+  },
+  "dependencies": [
+    {
+      "kind": "foreign_key_in",
+      "schema": "main",
+      "name": "child",
+      "constraint": null,
+      "effect": "blocks",
+      "certainty": "exact"
+    },
+    {
+      "kind": "view",
+      "schema": "main",
+      "name": "v_par",
+      "constraint": null,
+      "effect": "breaks",
+      "certainty": "textual"
+    }
+  ],
+  "truncated": false,
+  "notes": [
+    "effect gilt für das Löschen der Tabelle; Pläne nennen die Wirkung für die jeweilige Aktion.",
+    "Sichten werden anhand ihres Quelltextes erkannt (certainty=textual); Trigger werden nicht ausgewertet."
+  ]
+}

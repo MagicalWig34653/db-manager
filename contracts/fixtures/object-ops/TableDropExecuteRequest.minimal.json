@@ -1,0 +1,14 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "main-db"
+  },
+  "table": {
+    "name": "orders"
+  },
+  "confirm": {
+    "action": "table_drop",
+    "target_name": "orders"
+  },
+  "expected_plan_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+}

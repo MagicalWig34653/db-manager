@@ -1,0 +1,29 @@
+{
+  "action": "database_create",
+  "driver": "postgres",
+  "target": {
+    "kind": "database",
+    "name": "p07 odd`db\"x"
+  },
+  "statements": [
+    "CREATE DATABASE \"p07 odd`db\"\"x\" TEMPLATE template0 ENCODING 'UTF8' LC_COLLATE 'C' LC_CTYPE 'C'"
+  ],
+  "warnings": [
+    "Die Datenbank wird neu angelegt; sie enthält danach keine Objekte.",
+    "CREATE DATABASE läuft in PostgreSQL außerhalb einer Transaktion und erfordert das Recht CREATEDB."
+  ],
+  "affected_objects": [
+    "database:p07 odd`db\"x"
+  ],
+  "dependencies": [],
+  "dependencies_truncated": false,
+  "current_options": null,
+  "ddl_transactional": "no",
+  "confirmation": {
+    "action": "database_create",
+    "destructive": false,
+    "target_name": "p07 odd`db\"x",
+    "current_database": false
+  },
+  "plan_sha256": "20fe8c6b70896bf337270d54bf428d24d63494a2c41fd8ab0f0ece66866f5773"
+}

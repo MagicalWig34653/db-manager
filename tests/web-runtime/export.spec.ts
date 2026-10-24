@@ -65,9 +65,14 @@ for (const driver of ['sqlite', 'postgresql']) {
       };
     });
     await connect(page, driver);
-    let requests = 0;
+    // The table view refreshes insert eligibility asynchronously (observed after networkidle); it is not an export request.
+    const requests: string[] = [];
     page.on('request', (request) => {
-      if (new URL(request.url()).pathname.startsWith('/api/')) requests++;
+      if (
+        new URL(request.url()).pathname.startsWith('/api/') &&
+        !new URL(request.url()).pathname.endsWith('/insert-eligibility')
+      )
+        requests.push(`${request.method()} ${new URL(request.url()).pathname}`);
     });
     const binary = driver === 'sqlite' ? "X'00FF'" : "decode('00ff','hex')";
     const decimal =
@@ -78,9 +83,11 @@ for (const driver of ['sqlite', 'postgresql']) {
     await page.getByRole('textbox', { name: 'SQL-Abfrage', exact: true }).fill(statement);
     await page.getByRole('button', { name: 'Abfrage ausführen' }).click();
     await expect(page.getByRole('button', { name: 'Ergebnis herunterladen' })).toBeVisible();
-    const before = requests;
+    // Late catalog/state requests of the app may still be in flight; settle first so only downloads are measured.
+    await page.waitForLoadState('networkidle');
+    const before = requests.length;
     const json = JSON.parse(await download(page, 'json'));
-    expect(requests).toBe(before);
+    expect(requests.slice(before)).toEqual([]);
     expect(json.scope).toEqual({ kind: 'sql_result' });
     expect(json.schema_version).toBe(1);
     expect(json.truncated).toBe(false);
@@ -112,7 +119,7 @@ for (const driver of ['sqlite', 'postgresql']) {
     const spreadsheet = await download(page, 'csv-spreadsheet');
     expect(spreadsheet.startsWith('"\'same","\'same",')).toBe(true);
     expect(spreadsheet).toContain('"\'=1+2"');
-    expect(requests).toBe(before);
+    expect(requests.slice(before)).toEqual([]);
     expect(
       await page.evaluate(() => (window as unknown as { exportURLs: Set<string> }).exportURLs.size),
     ).toBe(1);
@@ -179,9 +186,9 @@ for (const driver of ['sqlite', 'postgresql']) {
     await page.getByRole('button', { name: 'Weiter', exact: true }).click();
     await expect(page.getByText(/Nur geladene Seite: 25 Zeilen ab Position 26/)).toBeVisible();
     await page.waitForLoadState('networkidle');
-    const pageBefore = requests;
+    const pageBefore = requests.length;
     const paged = JSON.parse(await download(page, 'json'));
-    expect(requests).toBe(pageBefore);
+    expect(requests.slice(pageBefore)).toEqual([]);
     expect(paged.scope).toEqual({ kind: 'table_page', offset: 25, page_size: 25, has_more: true });
     expect(paged.rows).toHaveLength(25);
     const serialized = JSON.stringify(paged);

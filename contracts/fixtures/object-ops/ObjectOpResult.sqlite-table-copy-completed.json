@@ -1,0 +1,18 @@
+{
+  "action": "table_copy",
+  "outcome": "completed",
+  "message": "Ausgeführt und in derselben Transaktion bestätigt.",
+  "statements_total": 1,
+  "statements_executed": 1,
+  "atomic": true,
+  "observation": {
+    "state": "transactional",
+    "target_exists": true,
+    "source_exists": null,
+    "rows": 3,
+    "source_rows": 3,
+    "auto_increment": null,
+    "collation": null,
+    "options": null
+  }
+}

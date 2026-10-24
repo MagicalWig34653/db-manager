@@ -1,0 +1,9 @@
+{
+  "action": "table_drop",
+  "outcome": "partial",
+  "message": "x",
+  "statements_total": 1,
+  "statements_executed": 1,
+  "atomic": false,
+  "observation": null
+}

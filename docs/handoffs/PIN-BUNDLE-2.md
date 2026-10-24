@@ -59,3 +59,23 @@ Bündel 1 (Review: Datei `docs/handoffs/PIN-BUNDLE-1-review.md` im Branch `revie
 - Es existieren sechs, nicht sieben, Vertragswächter-Skripte im Repo.
 - Kein Lighthouse; W-P03-Review-Befunde 2 bis 5 und der nicht unterstützte Unterpfadbetrieb bleiben bestehen.
 - Bytegleichheit gilt für dieselbe lokale Plattform/Toolchain; der Neubau holt den Commit aus GitHub.
+
+## Nachtrag: Review-Auflagen (Branch nach Merge von main b74d10e)
+
+- Doku: `WEBBUILD.md` (Kopfabsatz, API-0.6-Stellen als historisch gekennzeichnet) und `LIZENZEN.md` zeigen den Pin 48c2f67.
+- Neubauprüfung `verify_build` in `scripts/build-web.py` ersetzt "mindestens fünf": Entry-Skript/-Stylesheet aus `index.html`,
+  Quelllink im Entry-Skript, alle `assets/*` transitiv referenziert, höchstens `MAX_CHUNKS` = 12, `SHELL` in `sw.js` = Inventar
+  (`index.html` + PWA-Dateien ohne `sw.js` + `assets/*`). Negativtests je Prüfung in `scripts/test-build-web.py` (25 Tests).
+  Alter Pin: die statischen Dateien von 5921a9d (Pin 8ef738d, 5 Assets) bestehen `verify_build` unverändert (manuell geprüft;
+  der Reviewer hat die bytegleiche Rekonstruktion mit eingesetztem Lock von 5921a9d belegt).
+- `check-pwa-embedded.mjs` prüft zusätzlich: Worker-Cache = `SHELL`-Liste aus `sw.js` (alle Chunks), jede Shell-Datei offline mit 200.
+- Flake `export.spec.ts` (PostgreSQL) reproduziert (1 von 3 Läufen) und geklärt: nach `networkidle` sendet die Tabellenansicht noch
+  `POST /api/v4/tables/insert-eligibility` (Eignungsabfrage der Seite), also keine Export-Anfrage und kein Produktfehler. Der Test
+  zählt das nicht mehr (Anfrageliste statt Zähler, Eignungsabfragen ausgenommen). Danach 2 von 2 Läufen 13/13.
+- Assets nach erneutem `build-web.py` unverändert (`git status` ohne Änderung unter `internal/webui`), `--check` 17 Dateien.
+- Neue Oberflächen gegen die eingebetteten Assets: belegt vom Reviewer mit den Web-Skripten `scripts/test-real-create.py` und
+  `scripts/test-real-overview.py` (Kopien im Web-Review-Worktree, Basis-URL auf den Go-Server dieses Branches statt Vite-Preview,
+  Wegwerf-SQLite und PostgreSQL 18.6 TLS verify-full; je 2/2). Diese Anpassungen sind bewusst nicht in diesen Branch übernommen; in
+  der CI laufen sie nicht, `tests/web-runtime` deckt die neuen Oberflächen weiterhin nicht ab.
+- Läufe (nacheinander): `go test -race ./...`, `go vet`, `gofmt`, sieben Wächter (inkl. object-ops), `check-docs` (590, 0 Fehler),
+  `test-build-web.py`, `test-web-integration.py` 13/13 inkl. PWA-Check (zweimal), `test-deployment.py` Exit 0, keine Restcontainer.

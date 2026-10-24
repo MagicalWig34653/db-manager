@@ -1,0 +1,23 @@
+{
+  "action": "table_drop",
+  "driver": "sqlite",
+  "target": {
+    "kind": "table",
+    "name": "t"
+  },
+  "statements": [
+    "DROP TABLE \"t\""
+  ],
+  "warnings": [],
+  "affected_objects": [],
+  "dependencies": [],
+  "dependencies_truncated": false,
+  "current_options": null,
+  "ddl_transactional": "yes",
+  "confirmation": {
+    "action": "table_drop",
+    "destructive": true,
+    "target_name": "t",
+    "current_database": false
+  }
+}

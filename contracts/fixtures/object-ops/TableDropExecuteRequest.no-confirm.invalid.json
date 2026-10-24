@@ -1,0 +1,10 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "main-db"
+  },
+  "table": {
+    "name": "orders"
+  },
+  "expected_plan_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+}

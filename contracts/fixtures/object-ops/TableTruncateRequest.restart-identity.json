@@ -1,0 +1,13 @@
+{
+  "connection": {
+    "driver": "postgres",
+    "host": "db.example.test",
+    "database": "shop",
+    "username": "app"
+  },
+  "table": {
+    "schema": "public",
+    "name": "orders"
+  },
+  "restart_identity": true
+}

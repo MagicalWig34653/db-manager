@@ -1,0 +1,31 @@
+{
+  "driver": "mysql",
+  "table": {
+    "kind": "table",
+    "schema": "p07_main",
+    "name": "parent"
+  },
+  "dependencies": [
+    {
+      "kind": "foreign_key_in",
+      "schema": "p07_main",
+      "name": "child",
+      "constraint": "child_ibfk_1",
+      "effect": "blocks",
+      "certainty": "exact"
+    },
+    {
+      "kind": "view",
+      "schema": "p07_main",
+      "name": "v_par",
+      "constraint": null,
+      "effect": "breaks",
+      "certainty": "textual"
+    }
+  ],
+  "truncated": false,
+  "notes": [
+    "effect gilt für das Löschen der Tabelle; Pläne nennen die Wirkung für die jeweilige Aktion.",
+    "Sichten werden anhand ihres Quelltextes erkannt (certainty=textual); Trigger werden nicht ausgewertet."
+  ]
+}
