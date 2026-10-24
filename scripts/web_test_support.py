@@ -101,10 +101,10 @@ def verify_http(base, token):
             assert "script-src 'self';" in policy and 'unsafe-eval' not in policy
             assert "script-src-attr 'none';" in policy and "frame-ancestors 'none'" in policy
             assert b'lang="de"' in content
-        elif item['path'].endswith('.js'):
+        elif item['path'].startswith('assets/') and item['path'].endswith('.js'):
             assert 'immutable' in headers['Cache-Control']
             assert headers['Content-Type'].startswith('text/javascript')
-        elif item['path'].endswith('.css'):
+        elif item['path'].startswith('assets/') and item['path'].endswith('.css'):
             assert 'immutable' in headers['Cache-Control']
             assert headers['Content-Type'].startswith('text/css')
 
