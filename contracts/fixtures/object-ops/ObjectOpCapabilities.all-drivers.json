@@ -1,0 +1,141 @@
+{
+  "contract_version": "0.8.0",
+  "default_timeout_ms": 30000,
+  "drivers": {
+    "mysql": {
+      "database_collation": {
+        "support": "limited",
+        "reason": "Ändert nur den Standard der Datenbank, nicht bestehende Tabellen oder Spalten (dafür Tabellenoptionen mit Umwandlung)."
+      },
+      "database_create": {
+        "support": "supported"
+      },
+      "database_drop": {
+        "support": "limited",
+        "reason": "Entfernt alle Objekte der Datenbank; DDL ist nicht transaktional (implizites Commit). Die Verbindungsdatenbank verlangt eine zusätzliche Bestätigung."
+      },
+      "dependencies": {
+        "support": "limited",
+        "reason": "Sichten werden anhand ihrer Definition erkannt (textuell); Trigger werden nicht ausgewertet."
+      },
+      "table_copy": {
+        "support": "limited",
+        "reason": "CREATE TABLE LIKE kopiert Spalten und Indizes, keine Fremdschlüssel oder Trigger. Struktur und Daten sind zwei nicht atomare Schritte."
+      },
+      "table_drop": {
+        "support": "limited",
+        "reason": "Implizites Commit; kein CASCADE; scheitert, wenn Fremdschlüssel auf die Tabelle verweisen."
+      },
+      "table_options": {
+        "support": "supported"
+      },
+      "table_rename": {
+        "support": "limited",
+        "reason": "DDL ist nicht transaktional (implizites Commit). Sichten werden nicht nachgeführt und können ungültig werden."
+      },
+      "table_truncate": {
+        "support": "limited",
+        "reason": "Implizites Commit; der Auto-Inkrement-Zähler wird zurückgesetzt; scheitert, wenn Fremdschlüssel auf die Tabelle verweisen."
+      }
+    },
+    "postgres": {
+      "database_collation": {
+        "support": "unsupported",
+        "reason": "PostgreSQL legt die Kollation einer Datenbank bei der Anlage fest."
+      },
+      "database_create": {
+        "support": "limited",
+        "reason": "Kollation nur aus den libc-Locales des Servers; erfordert das Recht CREATEDB; nicht transaktional."
+      },
+      "database_drop": {
+        "support": "limited",
+        "reason": "Nicht die verbundene Datenbank und nicht mit offenen Sitzungen; der Inhalt einer anderen Datenbank ist von dieser Verbindung aus nicht einsehbar; nicht transaktional."
+      },
+      "dependencies": {
+        "support": "supported"
+      },
+      "table_copy": {
+        "support": "limited",
+        "reason": "LIKE ... INCLUDING ALL: serial-Standardwerte teilen die Sequenz der Quelle, Zähler der Kopie werden nicht nachgeführt; Fremdschlüssel und Trigger werden nicht kopiert."
+      },
+      "table_drop": {
+        "support": "supported"
+      },
+      "table_options": {
+        "support": "limited",
+        "reason": "Nur der Tabellenkommentar; Engine, Kollation und Auto-Inkrement sind in PostgreSQL keine Tabellenoptionen."
+      },
+      "table_rename": {
+        "support": "supported"
+      },
+      "table_truncate": {
+        "support": "supported"
+      }
+    },
+    "sqlite": {
+      "database_collation": {
+        "support": "unsupported",
+        "reason": "SQLite-Datenbanken sind verwaltete Kennungen der Verbindung; sie werden nicht über SQL angelegt, geändert oder gelöscht."
+      },
+      "database_create": {
+        "support": "unsupported",
+        "reason": "SQLite-Datenbanken sind verwaltete Kennungen der Verbindung; sie werden nicht über SQL angelegt, geändert oder gelöscht."
+      },
+      "database_drop": {
+        "support": "unsupported",
+        "reason": "SQLite-Datenbanken sind verwaltete Kennungen der Verbindung; sie werden nicht über SQL angelegt, geändert oder gelöscht."
+      },
+      "dependencies": {
+        "support": "limited",
+        "reason": "Sichten werden anhand ihres Quelltextes erkannt (textuell); Trigger werden nicht ausgewertet."
+      },
+      "table_copy": {
+        "support": "limited",
+        "reason": "Struktur wird mit CREATE TABLE AS vereinfacht kopiert: Spaltennamen und Affinitäten, aber keine Schlüssel, Indizes, Standardwerte oder Einschränkungen."
+      },
+      "table_drop": {
+        "support": "supported"
+      },
+      "table_options": {
+        "support": "unsupported",
+        "reason": "SQLite kennt keine Tabellenoptionen (Engine, Kommentar, Kollation, Auto-Inkrement)."
+      },
+      "table_rename": {
+        "support": "limited",
+        "reason": "Nur innerhalb der Datenbank main; Verschieben in ein anderes Schema entfällt. SQLite führt Verweise in Fremdschlüsseln und Sichten nach."
+      },
+      "table_truncate": {
+        "support": "limited",
+        "reason": "Wird als DELETE FROM ausgeführt; ein AUTOINCREMENT-Zähler bleibt erhalten."
+      }
+    }
+  },
+  "features": [
+    "database_create",
+    "database_drop",
+    "database_collation",
+    "table_rename",
+    "table_copy",
+    "table_truncate",
+    "table_drop",
+    "table_options",
+    "dependencies"
+  ],
+  "max_comment_length": 2048,
+  "max_dependencies": 100,
+  "max_request_bytes": 1048576,
+  "max_timeout_ms": 60000,
+  "mutations": true,
+  "table_option_fields": {
+    "mysql": [
+      "engine",
+      "comment",
+      "collation",
+      "auto_increment"
+    ],
+    "postgres": [
+      "comment"
+    ],
+    "sqlite": []
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "action": "table_copy",
+  "outcome": "completed",
+  "message": "Ausgeführt (DDL mit implizitem Commit); das Ergebnis wurde getrennt beobachtet (kein atomarer Snapshot).",
+  "statements_total": 2,
+  "statements_executed": 2,
+  "atomic": false,
+  "observation": {
+    "state": "observed",
+    "target_exists": true,
+    "source_exists": null,
+    "rows": 3,
+    "source_rows": 3,
+    "auto_increment": null,
+    "collation": null,
+    "options": null
+  }
+}

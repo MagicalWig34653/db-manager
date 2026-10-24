@@ -1,0 +1,18 @@
+{
+  "action": "table_truncate",
+  "outcome": "completed",
+  "message": "Ausgeführt und in derselben Transaktion bestätigt.",
+  "statements_total": 1,
+  "statements_executed": 1,
+  "atomic": true,
+  "observation": {
+    "state": "transactional",
+    "target_exists": true,
+    "source_exists": null,
+    "rows": 0,
+    "source_rows": null,
+    "auto_increment": null,
+    "collation": null,
+    "options": null
+  }
+}

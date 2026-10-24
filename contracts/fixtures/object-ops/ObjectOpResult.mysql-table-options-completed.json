@@ -1,0 +1,23 @@
+{
+  "action": "table_options",
+  "outcome": "completed",
+  "message": "Ausgeführt (DDL mit implizitem Commit); das Ergebnis wurde getrennt beobachtet (kein atomarer Snapshot).",
+  "statements_total": 1,
+  "statements_executed": 1,
+  "atomic": false,
+  "observation": {
+    "state": "observed",
+    "target_exists": null,
+    "source_exists": null,
+    "rows": null,
+    "source_rows": null,
+    "auto_increment": null,
+    "collation": null,
+    "options": {
+      "engine": "MyISAM",
+      "comment": "it's a \\ comment; DROP TABLE keep;--",
+      "collation": "utf8mb4_bin",
+      "auto_increment": 1
+    }
+  }
+}

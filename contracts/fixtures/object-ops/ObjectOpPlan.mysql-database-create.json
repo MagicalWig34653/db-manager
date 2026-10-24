@@ -1,0 +1,28 @@
+{
+  "action": "database_create",
+  "driver": "mysql",
+  "target": {
+    "kind": "database",
+    "name": "p07 odd`db\"x"
+  },
+  "statements": [
+    "CREATE DATABASE `p07 odd``db\"x` CHARACTER SET utf8mb4 COLLATE utf8mb4_bin"
+  ],
+  "warnings": [
+    "Die Datenbank wird neu angelegt; sie enthält danach keine Objekte."
+  ],
+  "affected_objects": [
+    "database:p07 odd`db\"x"
+  ],
+  "dependencies": [],
+  "dependencies_truncated": false,
+  "current_options": null,
+  "ddl_transactional": "no",
+  "confirmation": {
+    "action": "database_create",
+    "destructive": false,
+    "target_name": "p07 odd`db\"x",
+    "current_database": false
+  },
+  "plan_sha256": "5058cfa3f6f09e94c14e9b0f71e091835436cc88d1c2a2ee49c740b75a966be9"
+}

@@ -1,0 +1,18 @@
+{
+  "action": "table_truncate",
+  "outcome": "completed",
+  "message": "Ausgeführt (DDL mit implizitem Commit); das Ergebnis wurde getrennt beobachtet (kein atomarer Snapshot).",
+  "statements_total": 1,
+  "statements_executed": 1,
+  "atomic": false,
+  "observation": {
+    "state": "observed",
+    "target_exists": true,
+    "source_exists": null,
+    "rows": 0,
+    "source_rows": null,
+    "auto_increment": 1,
+    "collation": null,
+    "options": null
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "action": "table_drop",
+  "driver": "sqlite",
+  "target": {
+    "kind": "table",
+    "schema": "main",
+    "name": "a"
+  },
+  "statements": [
+    "DROP TABLE \"a\""
+  ],
+  "warnings": [
+    "Die Tabelle und alle ihre Daten werden unwiderruflich gelöscht."
+  ],
+  "affected_objects": [
+    "table:a"
+  ],
+  "dependencies": [],
+  "dependencies_truncated": false,
+  "current_options": null,
+  "ddl_transactional": "yes",
+  "confirmation": {
+    "action": "table_drop",
+    "destructive": true,
+    "target_name": "a",
+    "current_database": false
+  },
+  "plan_sha256": "8104cb8ab76b5430eaaa5b1a634c109aea5b9e1342fe36969fc64bfed3808c0b"
+}
