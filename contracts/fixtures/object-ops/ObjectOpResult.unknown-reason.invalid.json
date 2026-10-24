@@ -1,0 +1,10 @@
+{
+  "action": "table_drop",
+  "outcome": "rejected",
+  "reason": "password_wrong",
+  "message": "x",
+  "statements_total": 1,
+  "statements_executed": 0,
+  "atomic": false,
+  "observation": null
+}

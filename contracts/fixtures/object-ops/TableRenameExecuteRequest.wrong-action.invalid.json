@@ -1,0 +1,15 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "main-db"
+  },
+  "table": {
+    "name": "orders"
+  },
+  "new_name": "x",
+  "confirm": {
+    "action": "table_rename_all",
+    "target_name": "orders"
+  },
+  "expected_plan_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+}

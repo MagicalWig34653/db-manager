@@ -1,0 +1,9 @@
+{
+  "action": "table_copy",
+  "outcome": "outcome_unknown",
+  "message": "Das Ergebnis ist unbekannt (Verbindung oder Zeitlimit). Zustand prüfen; nicht automatisch wiederholen.",
+  "statements_total": 2,
+  "statements_executed": 1,
+  "atomic": false,
+  "observation": null
+}

@@ -1,0 +1,36 @@
+{
+  "action": "table_options",
+  "driver": "mysql",
+  "target": {
+    "kind": "table",
+    "schema": "p07_main",
+    "name": "src_struct"
+  },
+  "statements": [
+    "ALTER TABLE `p07_main`.`src_struct` ENGINE = MyISAM, COMMENT = 'it''s a \\ comment; DROP TABLE keep;--', DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin"
+  ],
+  "warnings": [
+    "Ein Engine-Wechsel baut die Tabelle neu auf; das kann bei großen Tabellen lange dauern und Funktionen der alten Engine (zum Beispiel Fremdschlüssel) entfernen.",
+    "Nur der Standard für neue Spalten ändert sich; vorhandene Spalten behalten ihre Kollation.",
+    "MySQL und MariaDB führen DDL mit implizitem Commit aus; die Aktion ist nicht transaktional."
+  ],
+  "affected_objects": [
+    "table:p07_main.src_struct"
+  ],
+  "dependencies": [],
+  "dependencies_truncated": false,
+  "current_options": {
+    "engine": "InnoDB",
+    "comment": "",
+    "collation": "utf8mb4_uca1400_ai_ci",
+    "auto_increment": null
+  },
+  "ddl_transactional": "no",
+  "confirmation": {
+    "action": "table_options",
+    "destructive": false,
+    "target_name": "src_struct",
+    "current_database": false
+  },
+  "plan_sha256": "0f1175362d4cc083bb1cec64e49eac7fb4250bc40624559457ef164059de5b40"
+}
