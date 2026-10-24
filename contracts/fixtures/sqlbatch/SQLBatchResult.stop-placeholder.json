@@ -1,0 +1,29 @@
+{
+  "statements": [
+    {
+      "index": 1,
+      "outcome": "completed",
+      "results": [],
+      "rows_affected": "2",
+      "warnings": [],
+      "duration_ms": 0
+    },
+    {
+      "index": 2,
+      "outcome": "outcome_unknown",
+      "results": [],
+      "warnings": [],
+      "duration_ms": 0,
+      "error_code": "database_error",
+      "server_code": "23505"
+    },
+    {
+      "index": 3,
+      "outcome": "not_executed",
+      "results": [],
+      "warnings": [],
+      "duration_ms": 0
+    }
+  ],
+  "duration_ms": 0
+}

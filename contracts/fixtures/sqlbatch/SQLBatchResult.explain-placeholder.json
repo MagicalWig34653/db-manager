@@ -1,0 +1,30 @@
+{
+  "statements": [
+    {
+      "index": 1,
+      "outcome": "completed",
+      "results": [
+        {
+          "columns": [
+            {
+              "name": "PLAN_PLACEHOLDER",
+              "database_type": "TEXT"
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "text",
+                "value": "PLAN_VALUE_PLACEHOLDER"
+              }
+            ]
+          ],
+          "truncated": false
+        }
+      ],
+      "warnings": [],
+      "duration_ms": 0
+    }
+  ],
+  "duration_ms": 0
+}
