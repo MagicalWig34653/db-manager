@@ -1,0 +1,13 @@
+{
+  "driver": "mysql",
+  "object": {
+    "schema": "p06_main",
+    "name": "v_view",
+    "kind": "view"
+  },
+  "definition": "CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `p06_main`.`v_view` AS select `p06_main`.`t_000`.`id` AS `id` from `p06_main`.`t_000`",
+  "source": "show_create",
+  "derived": false,
+  "notice": null,
+  "warnings": []
+}

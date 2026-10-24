@@ -1,0 +1,25 @@
+{
+  "driver": "sqlite",
+  "schema": "main",
+  "objects": [
+    {
+      "schema": "main",
+      "name": "t",
+      "kind": "table",
+      "rows": {
+        "value": 1,
+        "state": "guess"
+      },
+      "engine": null,
+      "collation": null,
+      "size_bytes": null,
+      "comment": null
+    }
+  ],
+  "total": 1,
+  "offset": 0,
+  "limit": 200,
+  "has_more": false,
+  "exact_requested": false,
+  "exact_incomplete": false
+}

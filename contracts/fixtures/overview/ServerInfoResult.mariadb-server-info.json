@@ -1,0 +1,109 @@
+{
+  "driver": "mysql",
+  "variant": "mariadb",
+  "version": "12.3.3-MariaDB-ubu2404",
+  "version_comment": "mariadb.org binary distribution",
+  "uptime_seconds": 6,
+  "current_database": "probe",
+  "connection": {
+    "host": "localhost",
+    "port": 33107,
+    "database": "probe",
+    "username": "root",
+    "tls_mode": ""
+  },
+  "session": [
+    {
+      "name": "character_set_client",
+      "value": "utf8mb4"
+    },
+    {
+      "name": "character_set_connection",
+      "value": "utf8mb4"
+    },
+    {
+      "name": "character_set_database",
+      "value": "utf8mb4"
+    }
+  ],
+  "character_sets": [
+    {
+      "name": "armscii8",
+      "default_collation": "armscii8_general_ci",
+      "description": "ARMSCII-8 Armenian",
+      "max_bytes": 1
+    },
+    {
+      "name": "ascii",
+      "default_collation": "ascii_general_ci",
+      "description": "US ASCII",
+      "max_bytes": 1
+    },
+    {
+      "name": "big5",
+      "default_collation": "big5_chinese_ci",
+      "description": "Big5 Traditional Chinese",
+      "max_bytes": 2
+    }
+  ],
+  "character_sets_truncated": false,
+  "collations": [
+    {
+      "name": "armscii8_bin",
+      "charset": "armscii8",
+      "default": false
+    },
+    {
+      "name": "armscii8_general_ci",
+      "charset": "armscii8",
+      "default": true
+    },
+    {
+      "name": "armscii8_general_nopad_ci",
+      "charset": "armscii8",
+      "default": false
+    }
+  ],
+  "collations_truncated": false,
+  "engines": [
+    {
+      "name": "Aria",
+      "support": "YES",
+      "comment": "Crash-safe tables with MyISAM heritage. Used for internal temporary tables and privilege tables",
+      "transactions": "NO"
+    },
+    {
+      "name": "CSV",
+      "support": "YES",
+      "comment": "Stores tables as CSV files",
+      "transactions": "NO"
+    },
+    {
+      "name": "InnoDB",
+      "support": "DEFAULT",
+      "comment": "Supports transactions, row-level locking, foreign keys and encryption for tables",
+      "transactions": "YES"
+    }
+  ],
+  "plugins": [
+    {
+      "name": "Aria",
+      "type": "STORAGE ENGINE",
+      "status": "ACTIVE",
+      "version": "1.6"
+    },
+    {
+      "name": "associative_array",
+      "type": "DATA TYPE",
+      "status": "ACTIVE",
+      "version": "1.0"
+    },
+    {
+      "name": "binlog",
+      "type": "DAEMON",
+      "status": "ACTIVE",
+      "version": "2.0"
+    }
+  ],
+  "plugins_truncated": false
+}

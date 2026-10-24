@@ -1,0 +1,15 @@
+{
+  "driver": "postgres",
+  "object": {
+    "schema": "p06_main",
+    "name": "v_view",
+    "kind": "view"
+  },
+  "definition": "CREATE VIEW \"p06_main\".\"v_view\" AS\nSELECT id\n   FROM p06_main.t_000;",
+  "source": "catalog_reconstruction",
+  "derived": true,
+  "notice": "Aus dem Katalog rekonstruiert; PostgreSQL besitzt kein SHOW CREATE. Die Anweisung kann von der ursprünglichen abweichen.",
+  "warnings": [
+    "Rechte, Kommentare, Trigger und Storage-Parameter sind nicht enthalten."
+  ]
+}

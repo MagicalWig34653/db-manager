@@ -1,0 +1,51 @@
+{
+  "driver": "mysql",
+  "schema": "p06_main",
+  "objects": [
+    {
+      "schema": "p06_main",
+      "name": "t_000",
+      "kind": "table",
+      "rows": {
+        "value": 0,
+        "state": "exact"
+      },
+      "engine": "InnoDB",
+      "collation": "utf8mb4_0900_ai_ci",
+      "size_bytes": 16384,
+      "comment": null
+    },
+    {
+      "schema": "p06_main",
+      "name": "t_001",
+      "kind": "table",
+      "rows": {
+        "value": 0,
+        "state": "exact"
+      },
+      "engine": "InnoDB",
+      "collation": "utf8mb4_0900_ai_ci",
+      "size_bytes": 16384,
+      "comment": null
+    },
+    {
+      "schema": "p06_main",
+      "name": "t_002",
+      "kind": "table",
+      "rows": {
+        "value": 0,
+        "state": "exact"
+      },
+      "engine": "InnoDB",
+      "collation": "utf8mb4_0900_ai_ci",
+      "size_bytes": 16384,
+      "comment": null
+    }
+  ],
+  "total": 27,
+  "offset": 0,
+  "limit": 100,
+  "has_more": false,
+  "exact_requested": true,
+  "exact_incomplete": false
+}

@@ -1,0 +1,19 @@
+{
+  "driver": "sqlite",
+  "databases": [
+    {
+      "name": "overview",
+      "charset": "UTF-8",
+      "collation": "BINARY",
+      "current": true,
+      "system": false,
+      "object_count": 27,
+      "size_bytes": null,
+      "estimated": false
+    }
+  ],
+  "total": 1,
+  "offset": 0,
+  "limit": 1000,
+  "has_more": false
+}

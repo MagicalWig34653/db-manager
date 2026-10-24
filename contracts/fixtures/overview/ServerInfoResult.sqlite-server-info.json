@@ -1,0 +1,46 @@
+{
+  "driver": "sqlite",
+  "variant": "sqlite",
+  "version": "3.53.4",
+  "version_comment": null,
+  "uptime_seconds": null,
+  "current_database": "overview",
+  "connection": {
+    "host": "",
+    "port": 0,
+    "database": "overview",
+    "username": "",
+    "tls_mode": ""
+  },
+  "session": [],
+  "character_sets": [
+    {
+      "name": "UTF-8",
+      "default_collation": null,
+      "description": "UTF-8",
+      "max_bytes": null
+    }
+  ],
+  "character_sets_truncated": false,
+  "collations": [
+    {
+      "name": "BINARY",
+      "charset": null,
+      "default": true
+    },
+    {
+      "name": "NOCASE",
+      "charset": null,
+      "default": false
+    },
+    {
+      "name": "RTRIM",
+      "charset": null,
+      "default": false
+    }
+  ],
+  "collations_truncated": false,
+  "engines": [],
+  "plugins": [],
+  "plugins_truncated": false
+}

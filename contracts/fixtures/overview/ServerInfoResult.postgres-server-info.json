@@ -1,0 +1,85 @@
+{
+  "driver": "postgres",
+  "variant": "postgres",
+  "version": "18.6",
+  "version_comment": "PostgreSQL 18.6 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+  "uptime_seconds": 5,
+  "current_database": "probe",
+  "connection": {
+    "host": "localhost",
+    "port": 33108,
+    "database": "probe",
+    "username": "postgres",
+    "tls_mode": ""
+  },
+  "session": [
+    {
+      "name": "server_encoding",
+      "value": "UTF8"
+    },
+    {
+      "name": "client_encoding",
+      "value": "UTF8"
+    },
+    {
+      "name": "lc_collate",
+      "value": null
+    }
+  ],
+  "character_sets": [
+    {
+      "name": "BIG5",
+      "default_collation": null,
+      "description": null,
+      "max_bytes": null
+    },
+    {
+      "name": "EUC_CN",
+      "default_collation": null,
+      "description": null,
+      "max_bytes": null
+    },
+    {
+      "name": "EUC_JIS_2004",
+      "default_collation": null,
+      "description": null,
+      "max_bytes": null
+    }
+  ],
+  "character_sets_truncated": false,
+  "collations": [
+    {
+      "name": "C",
+      "charset": null,
+      "default": false
+    },
+    {
+      "name": "POSIX",
+      "charset": null,
+      "default": false
+    },
+    {
+      "name": "af-NA-x-icu",
+      "charset": null,
+      "default": false
+    }
+  ],
+  "collations_truncated": false,
+  "engines": [
+    {
+      "name": "heap",
+      "support": "YES",
+      "comment": "table access method",
+      "transactions": "YES"
+    }
+  ],
+  "plugins": [
+    {
+      "name": "plpgsql",
+      "type": "extension",
+      "status": "INSTALLED",
+      "version": "1.0"
+    }
+  ],
+  "plugins_truncated": false
+}
