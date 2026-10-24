@@ -27,27 +27,70 @@ def digest(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+# Contract families that every lock must keep pinned (frozen API 0.1 to 0.5).
+LEGACY_CONTRACTS = (("api", "0.1.0"), ("table", "0.2.0"), ("mutation", "0.3.0"),
+                    ("insert", "0.4.0"), ("structure", "0.5.0"))
+CONTRACT_VERSION = re.compile(r"0\.([1-9][0-9]*)\.0\Z")
+CONTRACT_FAMILY = re.compile(r"[a-z][a-z0-9-]{0,31}\Z")
+SHA256 = re.compile(r"[0-9a-f]{64}\Z")
+LOCK_KEYS = {"schema_version", "repository", "commit", "npm_lock_sha256", "toolchain", "build_mode", "contracts"}
+
+
+def contract_major(version: str) -> int:
+    return int(CONTRACT_VERSION.fullmatch(version).group(1))
+
+
+def web_contract_path(version: str) -> str:
+    """Location of a contract copy inside the frontend checkout (0.1.0 lives in the folder root)."""
+    major = contract_major(version)
+    folder = "src/lib/contract/" if major == 1 else f"src/lib/contract/v{major}/"
+    return f"{folder}api-v{version}.json"
+
+
+def validate_contracts(contracts: object) -> list[dict]:
+    if not isinstance(contracts, list) or not contracts:
+        raise ValueError("The lock must contain a non-empty contracts list")
+    seen_families, seen_versions, last = set(), set(), 0
+    for entry in contracts:
+        if not isinstance(entry, dict) or set(entry) != {"family", "version", "sha256"}:
+            raise ValueError("Each contract entry needs exactly family, version and sha256")
+        family, version, sha = entry["family"], entry["version"], entry["sha256"]
+        if not isinstance(family, str) or not CONTRACT_FAMILY.fullmatch(family):
+            raise ValueError("Invalid contract family name")
+        if not isinstance(version, str) or not CONTRACT_VERSION.fullmatch(version):
+            raise ValueError(f"Invalid {family} contract version")
+        if not isinstance(sha, str) or not SHA256.fullmatch(sha):
+            raise ValueError(f"Missing {family} contract SHA-256")
+        if family in seen_families:
+            raise ValueError(f"Duplicate {family} contract family")
+        if version in seen_versions:
+            raise ValueError(f"Duplicate contract version {version}")
+        if contract_major(version) <= last:
+            raise ValueError("Contract entries must be in ascending version order")
+        seen_families.add(family)
+        seen_versions.add(version)
+        last = contract_major(version)
+    present = {(entry["family"], entry["version"]) for entry in contracts}
+    for family, version in LEGACY_CONTRACTS:
+        if (family, version) not in present:
+            raise ValueError(f"Missing frozen {family} contract")
+    return contracts
+
+
 def load_lock() -> dict:
     lock = json.loads(LOCK.read_text())
-    if lock.get("schema_version") != 1 or lock.get("repository") != EXPECTED_REPOSITORY:
+    if lock.get("schema_version") != 2 or lock.get("repository") != EXPECTED_REPOSITORY or not set(lock) <= LOCK_KEYS:
         raise ValueError("Unsupported source repository or lock version")
     if not re.fullmatch(r"[0-9a-f]{40}", lock.get("commit", "")):
         raise ValueError("The frontend source must be pinned to one full Git commit")
-    if not re.fullmatch(r"[0-9a-f]{64}", lock.get("contract_sha256", "")) or not re.fullmatch(r"[0-9a-f]{64}", lock.get("npm_lock_sha256", "")):
-        raise ValueError("Missing contract SHA-256")
-    if lock.get("contract_version") != "0.1.0" or lock.get("build_mode") != "production":
+    if not SHA256.fullmatch(lock.get("npm_lock_sha256", "")):
+        raise ValueError("Missing npm lockfile SHA-256")
+    if lock.get("build_mode") != "production":
         raise ValueError("Unsupported API contract")
-    if digest((ROOT / "contracts/api-v0.1.0.json").read_bytes()) != lock["contract_sha256"]:
-        raise ValueError("The main repository contract does not match the frontend lock")
-    if lock.get("table_contract_version") != "0.2.0" or not re.fullmatch(r"[0-9a-f]{64}", lock.get("table_contract_sha256", "")):
-        raise ValueError("Missing frozen table contract")
-    if digest((ROOT / "contracts/api-v0.2.0.json").read_bytes()) != lock["table_contract_sha256"]:
-        raise ValueError("The table contract does not match the frontend lock")
-    for family, version in [("mutation", "0.3.0"), ("insert", "0.4.0"), ("structure", "0.5.0")]:
-        if lock.get(family + "_contract_version") != version or not re.fullmatch(r"[0-9a-f]{64}", lock.get(family + "_contract_sha256", "")):
-            raise ValueError("Missing frozen " + family + " contract")
-        if digest((ROOT / ("contracts/api-v" + version + ".json")).read_bytes()) != lock[family + "_contract_sha256"]:
-            raise ValueError("The " + family + " contract does not match the frontend lock")
+    for entry in validate_contracts(lock.get("contracts")):
+        path = ROOT / ("contracts/api-v" + entry["version"] + ".json")
+        if not path.is_file() or digest(path.read_bytes()) != entry["sha256"]:
+            raise ValueError("The " + entry["family"] + " contract does not match the frontend lock")
     for tool in ("node", "npm"):
         if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", lock.get("toolchain", {}).get(tool, "")):
             raise ValueError("Toolchain versions must be pinned exactly")
@@ -77,8 +120,31 @@ def inventory(folder: Path) -> list[dict]:
     return files
 
 
+def manifest_source(lock: dict) -> dict:
+    """Provenance record for the manifest.
+
+    Locks that only pin the five frozen contracts project to the original flat
+    layout, so the committed manifest bytes stay unchanged. Further contracts are
+    listed under additional_contracts and move the record to schema_version 2.
+    """
+    legacy = dict(LEGACY_CONTRACTS)
+    source = {key: lock[key] for key in ("repository", "commit", "npm_lock_sha256", "toolchain", "build_mode")}
+    extra = []
+    for entry in lock["contracts"]:
+        if legacy.get(entry["family"]) == entry["version"]:
+            prefix = "" if entry["family"] == "api" else entry["family"] + "_"
+            source[prefix + "contract_version"] = entry["version"]
+            source[prefix + "contract_sha256"] = entry["sha256"]
+        else:
+            extra.append(entry)
+    source["schema_version"] = 2 if extra else 1
+    if extra:
+        source["additional_contracts"] = extra
+    return source
+
+
 def expected_manifest(lock: dict, files: list[dict]) -> dict:
-    return {"schema_version": 1, "source": lock, "files": files}
+    return {"schema_version": 1, "source": manifest_source(lock), "files": files}
 
 
 def check(lock: dict) -> None:
@@ -119,15 +185,10 @@ def rebuild(lock: dict) -> None:
         run(["git", "checkout", "--quiet", "--detach", "FETCH_HEAD"], checkout, env)
         if run(["git", "rev-parse", "HEAD"], checkout, env, capture=True) != lock["commit"]:
             raise ValueError("Fetched source commit differs from the lock")
-        contract = checkout / "src/lib/contract/api-v0.1.0.json"
-        if digest(contract.read_bytes()) != lock["contract_sha256"]:
-            raise ValueError("Frontend API contract differs from the lock")
-        if digest((checkout / "src/lib/contract/v2/api-v0.2.0.json").read_bytes()) != lock["table_contract_sha256"]:
-            raise ValueError("Frontend table contract differs from the lock")
-        for family, major in [("mutation", 3), ("insert", 4), ("structure", 5)]:
-            path = checkout / f"src/lib/contract/v{major}/api-v0.{major}.0.json"
-            if digest(path.read_bytes()) != lock[family + "_contract_sha256"]:
-                raise ValueError("Frontend " + family + " contract differs from the lock")
+        for entry in lock["contracts"]:
+            path = checkout / web_contract_path(entry["version"])
+            if not path.is_file() or path.is_symlink() or digest(path.read_bytes()) != entry["sha256"]:
+                raise ValueError("Frontend " + entry["family"] + " contract differs from the lock")
         if digest((checkout / "package-lock.json").read_bytes()) != lock["npm_lock_sha256"]:
             raise ValueError("Frontend npm lockfile differs from the pinned checksum")
         run(["npm", "ci", "--no-audit", "--no-fund"], checkout, env)
