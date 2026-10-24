@@ -1,6 +1,7 @@
 # ADR-0007: Nativer MySQL-/MariaDB-Adapter für die Apple-App
 
-Status: **Vorschlag**. Keine Entscheidung des Nutzers, keine Produktfreigabe.
+Status: **Vorschlag**. Keine Produktfreigabe; Annahme dieses ADR durch den Nutzer steht aus.
+Teilentscheidung des Nutzers vom 24.10.2026 siehe Abschnitt 3a (TLS nicht erzwungen, aber ausdrücklich gewählt).
 Datum: 23.10.2026. Betrifft PROD-003 in [PARITÄT](../PARITAET.md). Umsetzung im Apple-Repo,
 Paket A4 (Branch `feat/mysql-adapter`, Handoff `docs/handoffs/A4-mysql.md` dort).
 Unabhängiger Review und Annahme dieses ADR stehen aus.
@@ -83,6 +84,33 @@ Sicherheitsregeln:
 9. **Fehlertexte** enthalten nur feste deutsche Texte und den numerischen Serverfehlercode;
    nie SQL, Servermeldung, Hostnamen, Pfade oder Passwörter.
 
+## 3a. Nutzerentscheidung 24.10.2026: TLS nicht erzwungen, aber ausdrücklich
+
+Der Nutzer hat ausdrücklich entschieden: Der native Client erzwingt TLS nicht. Das ersetzt die
+Punkte 1 und 3 oben (Pflicht-TLS als einziger Standardpfad, Klartext nur Loopback). Gültig ist:
+
+- Die Transportsicherheit ist eine **ausdrückliche Einstellung pro Verbindung** mit drei Modi:
+  (1) TLS verifiziert (Standard), (2) TLS ohne Zertifikat-/Hostnamenprüfung, (3) kein TLS, auch für
+  Nicht-Loopback-Hosts. Die Modi (2) und (3) tragen eine ablesbare Warnstufe, die UI muss sie
+  anzeigen. Es gibt **keinen** automatischen Wechsel oder stillen Fallback.
+- Fehlt `CLIENT_SSL` beim Server und ein TLS-Modus ist gewählt, bleibt der Abbruch vor jedem
+  Authentifizierungsbyte.
+- Ohne TLS verlässt das Passwort den Client nur als Scramble (`mysql_native_password`,
+  `caching_sha2_password` Fast-Auth). Full-Auth von `caching_sha2` (Klartextpasswort) wird ohne TLS
+  abgelehnt; ein RSA-Public-Key-Austausch ist nicht umgesetzt, weil er ohne Server-Identität
+  keinen Schutz vor einem aktiven Angreifer bietet.
+
+**Sicherheitsfolgen** (vom Nutzer so in Kauf genommen):
+
+- Modus (2): Schutz nur gegen passives Mitlesen. Ein aktiver Angreifer auf dem Pfad kann den Server
+  imitieren und liest Benutzername, Scramble-Antwort und Daten; bei Full-Auth zusätzlich das
+  Klartextpasswort. Ein Scramble kann zudem für Offline-Ratenangriffe auf schwache Passwörter
+  dienen.
+- Modus (3): Alles ist mitlesbar und veränderbar (Daten, Ergebnisse, SQL), Sitzungsübernahme ist
+  möglich. Angemessen nur in vertrauenswürdigen, isolierten Netzen.
+- Der Schutz vor dem ursprünglichen MySQLNIO-Befund (stiller Downgrade) bleibt erhalten, weil der
+  Wechsel nie automatisch erfolgt und in den TLS-Modi kein Klartext gesendet wird.
+
 ## 4. Nicht Gegenstand
 
 Prepared Statements/Binärprotokoll (geeignet für spätere gebundene Filter, derzeit nicht
@@ -101,7 +129,7 @@ Go-Seite (go-sql-driver/mysql) ist unabhängig davon und von diesem ADR nicht be
 
 ## 6. Entscheidung
 
-Ausstehend. Akzeptanzkriterien für den Übergang auf „akzeptiert“: unabhängiger Review des
+Ausstehend (Annahme durch den Nutzer). Teilentscheidung zu TLS siehe 3a. Akzeptanzkriterien für den Übergang auf „akzeptiert“: unabhängiger Review des
 Handshake-Codes (Reihenfolge TLS vor Auth), Wiederholung der Negativtests (unbekannte CA,
 falscher Host, Server ohne TLS) auf einer zweiten Umgebung, Versionsmatrix MariaDB 10.11/
 11.4/12 und MySQL 8.0/8.4, Entscheidung zur UI-Darstellung der Entwicklungsoption.
