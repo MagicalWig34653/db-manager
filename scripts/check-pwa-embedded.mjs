@@ -62,6 +62,10 @@ try {
       for (const r of await (await caches.open(k)).keys()) paths.push(new URL(r.url).pathname);
     return paths;
   });
+  const swText = await (await ctx.request.get(base + '/sw.js')).text();
+  const shell = JSON.parse(/JSON\.parse\('(\[[^']*\])'\)/.exec(swText)?.[1] ?? 'null');
+  assert.ok(Array.isArray(shell) && shell.some((f) => f.startsWith('assets/')), 'SHELL list not found in sw.js');
+  assert.deepEqual([...new Set(cached)].sort(), shell.map((f) => '/' + f).sort(), 'worker cache differs from SHELL');
   assert.ok(cached.includes('/index.html'));
   assert.ok(!cached.some((p) => /^\/(api|healthz|readyz)/.test(p)), 'API paths cached');
 
@@ -74,6 +78,10 @@ try {
     await failing('/api/v1/connections/test', { method: 'POST', headers: { Authorization: 'Bearer x' }, body: '{}' }),
     'network-error',
   );
+  for (const file of shell) {
+    const status = await page.evaluate((u) => fetch(u).then((r) => r.status, () => 0), '/' + file);
+    assert.equal(status, 200, 'offline shell file unavailable: ' + file);
+  }
   const offline = await ctx.newPage();
   offline.on('console', (m) => /violat/i.test(m.text()) && violations.push(m.text()));
   await offline.goto(base + '/');
