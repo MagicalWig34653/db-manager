@@ -1,10 +1,11 @@
 # ADR-0007: Nativer MySQL-/MariaDB-Adapter für die Apple-App
 
-Status: **Vorschlag**. Keine Produktfreigabe; Annahme dieses ADR durch den Nutzer steht aus.
-Teilentscheidung des Nutzers vom 24.10.2026 siehe Abschnitt 3a (TLS nicht erzwungen, aber ausdrücklich gewählt).
-Datum: 23.10.2026. Betrifft PROD-003 in [PARITÄT](../PARITAET.md). Umsetzung im Apple-Repo,
-Paket A4 (Branch `feat/mysql-adapter`, Handoff `docs/handoffs/A4-mysql.md` dort).
-Unabhängiger Review und Annahme dieses ADR stehen aus.
+Status: **Akzeptiert** durch ausdrückliche Entscheidung des Nutzers am 24.10.2026: eigener Client,
+TLS nicht erzwungen (drei ausdrücklich gewählte Modi, Abschnitt 3a), RSA-Schlüsselaustausch auch ohne TLS.
+Keine Produktfreigabe der App; Umsetzung nur Paket A4.
+Datum: 24.10.2026 (Entwurf 23.10.2026). Betrifft PROD-003 in [PARITÄT](../PARITAET.md). Umsetzung im
+Apple-Repo, Paket A4 (Branch `feat/mysql-adapter`, Handoff `docs/handoffs/A4-mysql.md` dort,
+unabhängiger Review `A4-review.md` auf `review/a4-mysql`).
 
 ## 1. Anforderung und Befund
 
@@ -40,7 +41,7 @@ Das Protokoll selbst erzwingt TLS nicht: Das Greeting ist unauthentifiziert, die
 Eine Upstream-Korrektur in MySQLNIO bleibt wünschenswert, ist aber nicht planbar und
 würde die Punkte Backpressure und Abbruch nicht lösen.
 
-## 3. Vorschlag: Option (a), klar begrenzt
+## 3. Entscheidung: Option (a), klar begrenzt (Regeln 1 und 3 sind durch 3a ersetzt)
 
 Eigener Textprotokoll-Client (`COM_QUERY`) im Core, Dateien `MySQLWire.swift`,
 `MySQLConnection.swift`, `MySQLDatabase.swift`. Schnittstelle und Fehlerverhalten folgen
@@ -49,20 +50,22 @@ Sitzung über Requests, getaggte Zellen, `QueryLimits`).
 
 Sicherheitsregeln:
 
-1. **Standard ist erzwungenes, verifiziertes TLS** (TLS ≥ 1.2, `.fullVerification`, Host-
+1. **Standard ist verifiziertes TLS** (nicht mehr einziger Pfad, siehe 3a; TLS ≥ 1.2, `.fullVerification`, Host-
    name als Zertifikatsidentität, optional explizite CA nur für diese Verbindung).
 2. **Reihenfolge:** Greeting lesen → fehlt `CLIENT_SSL`, Abbruch mit `mysqlTLSRequired`
    ohne einen einzigen Anmeldebyte → SSLRequest-Paket → TLS-Handshake → erst danach
    Handshake-Response mit Benutzer und Auth-Daten. Es gibt keinen `prefer`-Modus.
-3. **Klartext nur über eine ausdrückliche Entwicklungsoption**
+3. **Ohne TLS nur über einen ausdrücklich gewählten Modus** (ursprünglich: Loopback-Entwicklungsoption, ersetzt durch 3a)
    (`plaintextLoopbackDevelopmentOnly`), die nur für Loopback-Hosts akzeptiert wird, nie
    mit CA kombiniert und nie Standard ist. Persistenz/UI-Gestaltung dieser Option ist
    Sache der App, hier nicht entschieden.
 4. **Authentifizierung:** `mysql_native_password` und `caching_sha2_password`
-   (Scramble-Antwort, Auth-Switch, Fast-Auth-Erfolg). Bei „Full Authentication“ wird das
-   Klartextpasswort nur innerhalb des bereits verifizierten TLS gesendet; ohne TLS keine
-   RSA-Schlüsselübernahme, sondern Ablehnung. Andere Plugins (`sha256_password`,
-   `client_ed25519`, `mysql_clear_password`, Kerberos, PAM) werden abgelehnt.
+   (Scramble-Antwort, Auth-Switch zwischen diesen beiden, Fast-Auth-Erfolg). Bei „Full
+   Authentication“ gilt: innerhalb einer TLS-Sitzung (verifiziert oder nicht) erwartet der Server das
+   Klartextpasswort, es wird durch die TLS-Sitzung gesendet; ohne TLS wird der öffentliche RSA-Schlüssel
+   des Servers angefordert und das Passwort (mit der Nonce verknüpft) RSA-OAEP-verschlüsselt gesendet
+   (wie die offiziellen MySQL-Clients, Security-Framework, Schlüssel ≥ 2048 Bit). Andere Plugins
+   (`sha256_password`, `client_ed25519`, `mysql_clear_password`, Kerberos, PAM) werden abgelehnt.
 5. **Grenzen:** Paketgröße vor dem Puffern geprüft, Sequenznummern erzwungen, Zeilen-,
    Zell-, Ergebnisbytes, höchstens 1024 Spalten, SQL ≤ 1 MiB. Leseseite pausiert nach zwei
    gepufferten Chunks (Backpressure). Kein `LOCAL INFILE`, keine Mehrfachanweisungen, keine
@@ -100,16 +103,30 @@ Punkte 1 und 3 oben (Pflicht-TLS als einziger Standardpfad, Klartext nur Loopbac
   abgelehnt; ein RSA-Public-Key-Austausch ist nicht umgesetzt, weil er ohne Server-Identität
   keinen Schutz vor einem aktiven Angreifer bietet.
 
-**Sicherheitsfolgen** (vom Nutzer so in Kauf genommen):
+Klarstellung des Nutzers am selben Tag: Wer TLS nicht wählt, hat einen Grund und soll nicht
+ausgesperrt werden; dass ohne TLS unverschlüsselt übertragen wird, ist ihm klar. Daher kann
+`caching_sha2_password` Full-Auth auch in den Modi (2) und (3) abgeschlossen werden (siehe Regel 4).
+Warnungen sind Hinweise, keine Sperren.
 
-- Modus (2): Schutz nur gegen passives Mitlesen. Ein aktiver Angreifer auf dem Pfad kann den Server
-  imitieren und liest Benutzername, Scramble-Antwort und Daten; bei Full-Auth zusätzlich das
-  Klartextpasswort. Ein Scramble kann zudem für Offline-Ratenangriffe auf schwache Passwörter
-  dienen.
-- Modus (3): Alles ist mitlesbar und veränderbar (Daten, Ergebnisse, SQL), Sitzungsübernahme ist
-  möglich. Angemessen nur in vertrauenswürdigen, isolierten Netzen.
+**Sicherheitsfolgen** (vom Nutzer so in Kauf genommen, hier ungeschönt):
+
+- Modus (2) TLS ohne Prüfung: Schutz nur gegen passives Mitlesen. Ein aktiver Angreifer kann den
+  Server imitieren und erhält Benutzername, Scramble-Antwort und Daten, bei Full-Auth das
+  Klartextpasswort (es geht in die ungeprüfte TLS-Sitzung).
+- Modus (3) kein TLS: Alles ist mitlesbar und veränderbar (Daten, Ergebnisse, SQL),
+  Sitzungsübernahme ist möglich. Der RSA-Schlüssel kommt über denselben ungeschützten Kanal; ein
+  aktiver Angreifer kann seinen eigenen Schlüssel unterschieben und erhält das Passwort. Der RSA-
+  Austausch schützt nur gegen passive Beobachter.
+- **Offline-Ratenangriffe:** In **beiden** Modi (2) und (3) liefert ein Mitschnitt oder aktiver
+  Angreifer Scramble-Material, das offline gegen schwache Passwörter geraten werden kann.
+- **Plugin-Wechsel:** Weil der Auth-Switch zwischen den beiden unterstützten Plugins in allen Modi
+  erlaubt ist, kann ein aktiver Angreifer in den Modi (2) und (3) das schwächere
+  `mysql_native_password` (SHA-1-Scramble) erzwingen, was die Offline-Angriffe erleichtert. Es
+  entsteht dadurch kein Klartextleck; `mysql_clear_password` und andere Plugins bleiben abgelehnt. In
+  Modus (1) ist dies nur durch einen kompromittierten, aber zertifikatsgültigen Server möglich.
 - Der Schutz vor dem ursprünglichen MySQLNIO-Befund (stiller Downgrade) bleibt erhalten, weil der
-  Wechsel nie automatisch erfolgt und in den TLS-Modi kein Klartext gesendet wird.
+  Wechsel nie automatisch erfolgt: Fehlt `CLIENT_SSL` und ein TLS-Modus ist gewählt, bricht der Client
+  vor jedem Authentifizierungsbyte ab.
 
 ## 4. Nicht Gegenstand
 
@@ -124,12 +141,14 @@ Go-Seite (go-sql-driver/mysql) ist unabhängig davon und von diesem ADR nicht be
 - Eigener Parser: Mitigation durch Längen-/Sequenzprüfung vor Pufferung, Unit-Tests mit
   gekürzten Eingaben und Live-Tests; ein Fuzzing- oder externes Audit-Gate steht aus.
 - Versionsmatrix: bisher nur je eine MariaDB- und MySQL-Version tatsächlich geprüft.
-- `caching_sha2_password` ohne TLS wird bewusst nicht unterstützt (kein RSA-Pfad).
+- `caching_sha2_password` ohne TLS nutzt den RSA-Austausch mit unauthentifiziertem Schlüssel (siehe 3a).
 - CryptoKit ist Apple-only; für eine Linux-Portierung des Core wäre swift-crypto nötig.
 
 ## 6. Entscheidung
 
-Ausstehend (Annahme durch den Nutzer). Teilentscheidung zu TLS siehe 3a. Akzeptanzkriterien für den Übergang auf „akzeptiert“: unabhängiger Review des
-Handshake-Codes (Reihenfolge TLS vor Auth), Wiederholung der Negativtests (unbekannte CA,
-falscher Host, Server ohne TLS) auf einer zweiten Umgebung, Versionsmatrix MariaDB 10.11/
-11.4/12 und MySQL 8.0/8.4, Entscheidung zur UI-Darstellung der Entwicklungsoption.
+**Akzeptiert am 24.10.2026 durch den Nutzer:** eigener Client (Option a), TLS nicht erzwungen, drei
+ausdrücklich gewählte Modi pro Verbindung (verifiziertes TLS als Standard, TLS ohne Prüfung, kein TLS),
+RSA-Schlüsselaustausch für `caching_sha2_password` ohne TLS, kein stiller Fallback. Offene Folgearbeit
+(keine Bedingung der Annahme): unabhängiger Review der Umsetzung (erfolgt für den Stand `4faa2e6`,
+Nachreview offen für spätere Änderungen), Versionsmatrix MariaDB 10.11/11.4/12 und MySQL 8.0/8.4,
+UI-Darstellung der Warnstufen (`MySQLSecurityWarning`) und Moduswahl.
