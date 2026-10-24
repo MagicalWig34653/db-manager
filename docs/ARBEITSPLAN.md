@@ -24,6 +24,14 @@ behauptet. Tatsächlicher Stand: [STATUS](STATUS.md).
 4. Keine weitere neue Featureintegration. Bisherige Produktanforderungen bleiben
    offen dokumentiert; dieser neue Abschluss bedeutet keine vollständige Parität.
 
+## Prio PWA-Parität (Nutzerfreigabe 24.10.2026)
+
+Der Nutzer hat am 24.10.2026 als höchste Priorität freigegeben, alle phpMyAdmin-Funktionen in der PWA (Svelte-Weboberfläche über den
+Go-Server) verfügbar zu machen, und autonomes Weiterarbeiten erlaubt. Für diese Linie ist die Zwischenregel „keine weitere neue
+Featureintegration“ (Punkt 4 oben) aufgehoben; die Apple-Linie ist nachrangig. Plan, Wellen, Pakete, Ablauf und Entscheidungsbedarf:
+[PWA-PLAN](PWA-PLAN.md) (Entwurf, bis zur Leadfreigabe kein Beschluss). Pakete verwenden eigene Worktrees und Dateibesitz wie dort
+beschrieben; Veröffentlichung (Images, Pages) bleibt ohne ausdrückliche Freigabe ausgeschlossen. Vollständige Parität bleibt offen.
+
 ## Integrationsstand und Dateibesitz
 
 | Paket | Geprüfter Stand | Abschlussgate |
