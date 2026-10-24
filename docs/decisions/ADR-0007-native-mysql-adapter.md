@@ -149,6 +149,6 @@ Go-Seite (go-sql-driver/mysql) ist unabhängig davon und von diesem ADR nicht be
 **Akzeptiert am 24.10.2026 durch den Nutzer:** eigener Client (Option a), TLS nicht erzwungen, drei
 ausdrücklich gewählte Modi pro Verbindung (verifiziertes TLS als Standard, TLS ohne Prüfung, kein TLS),
 RSA-Schlüsselaustausch für `caching_sha2_password` ohne TLS, kein stiller Fallback. Offene Folgearbeit
-(keine Bedingung der Annahme): unabhängiger Review der Umsetzung (erfolgt für den Stand `4faa2e6`,
+(keine Bedingung der Annahme): unabhängiger Review der Umsetzung (erfolgt; geprüfte Stände `026d7d7`, `4faa2e6`, `227b44d`, `293a949`,
 Nachreview offen für spätere Änderungen), Versionsmatrix MariaDB 10.11/11.4/12 und MySQL 8.0/8.4,
 UI-Darstellung der Warnstufen (`MySQLSecurityWarning`) und Moduswahl.
