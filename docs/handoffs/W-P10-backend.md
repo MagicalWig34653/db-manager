@@ -124,3 +124,13 @@ Fixtures sichern und gegebenenfalls Webvertrag/Pin separat integrieren.
 Alle eigenen Prüfjobs beendet; keine laufenden eigenen Jobs. Keine Container,
 Server oder fremden Ressourcen angelegt. Kein Wissen für die Fortsetzung nur im Chat;
 die ignorierten `.build`-Caches/Logs sind entbehrliche lokale Prüfartefakte.
+
+## Nachtrag Integration Welle 2 und Review ([W-P10-backend-review](W-P10-backend-review.md))
+
+API-Nummer endgültig 0.10 (`api-v0.10.0.json`), echte Fixtures `real-*`, Livetests auf allen vier Systemen ausgeführt. Review: Freigabe.
+- L1 behoben: Systemschema-/Systemtabellenprüfung wird nach `describe` auf dem aufgelösten Schema wiederholt (Tiefenverteidigung).
+- L2 bewusst unverändert: MySQL/MariaDB haben für OPTIMIZE/REPAIR/CHECKSUM kein serverseitiges Anweisungslimit; ein Abbruch garantiert keinen
+  Rollback, die Plan-Warnung sagt das.
+- L3 bewusst unverändert (Entscheidung): CHECK, ANALYZE und CHECKSUM verändern keine Daten; sie verlangen Aktion und frischen Plan-Hash, aber keinen
+  getippten Namen. Ein Pflichtname würde die Stapelbedienung ohne Sicherheitsgewinn erschweren; zerstörende Aktionen (optimize, repair, reindex,
+  vacuum full) bleiben typed. Das Webpaket soll bei `checksum` großer Tabellen die Laufzeitwarnung hervorheben.

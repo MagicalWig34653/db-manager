@@ -8,6 +8,7 @@ import (
 	"errors"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/MagicalWig34653/db-manager/internal/core"
 	"github.com/MagicalWig34653/db-manager/internal/dbplan"
@@ -58,7 +59,7 @@ func validateColumns(r core.ColumnsRequest) error {
 		default:
 			return invalidColumns()
 		}
-		if ch.NewName != "" && !createName(ch.NewName) {
+		if ch.NewName != "" && !columnName(ch.NewName) {
 			return invalidColumns()
 		}
 		if ch.Position != nil {
@@ -75,7 +76,7 @@ func validateColumns(r core.ColumnsRequest) error {
 			}
 		}
 		if d := ch.Definition; d != nil {
-			if !createName(d.Name) || d.Nullable == nil || d.Default == nil {
+			if !columnName(d.Name) || d.Nullable == nil || d.Default == nil {
 				return invalidColumns()
 			}
 			if _, err := dbplan.TypeSQL(r.Connection.Driver, d.Type); err != nil {
@@ -307,4 +308,18 @@ func columnsFailure(err error) (string, bool) {
 		return "database_error", true
 	}
 	return "connection_lost", false
+}
+
+// columnName additionally rejects edge whitespace and control characters in new
+// column names so unusable names fail in the plan, not as a generic server error.
+func columnName(name string) bool {
+	if !createName(name) || name != strings.TrimSpace(name) {
+		return false
+	}
+	for _, r := range name {
+		if unicode.IsControl(r) {
+			return false
+		}
+	}
+	return true
 }

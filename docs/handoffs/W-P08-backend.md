@@ -129,3 +129,17 @@ Nächster konkreter Schritt: Lead führt auf Docker-fähigem Host die geschriebe
 Vier-DB-Suite und den vollständigen Race-Lauf aus, lässt Vertrag und destruktive
 Pfade unabhängig prüfen und integriert W-P07/W-P08 mit zusammengeführter
 Featureanzahl. Erst danach Vertragsindex/Webkopie und später den Webpin aktualisieren.
+
+## Nachtrag Integration Welle 2 und Review ([W-P08-backend-review](W-P08-backend-review.md))
+
+Stand nach Integration (`integration/wave2-backend`, siehe [WAVE2-INTEGRATION](WAVE2-INTEGRATION.md)): Der Vertrag liegt unverändert als
+`api-v0.9.0.json` vor, die Fixtures umfassen jetzt 44 Dateien mit echten Antworten von SQLite, MySQL 8.4, MariaDB 12.3 und PostgreSQL 18.6
+(`real-*`), die Livetests und der Race-Lauf wurden ausgeführt (Aussagen weiter oben zu "nicht ausgeführt" sind überholt). Unabhängiger
+Review: Freigabe mit Auflagen, behoben:
+- M1: Abhängigkeiten werden treiberspezifisch gewarnt (MySQL/MariaDB: Sicht wird ungültig, Index entfällt oder wird verkürzt, Fremdschlüssel
+  verhindert; PostgreSQL: Sicht verhindert, Index entfällt; SQLite: Engine lehnt ab) und stehen in `affected_objects`; die Sichterkennung in
+  MySQL/MariaDB prüft jetzt Tabelle und Spalte textuell. Löschen bleibt zerstörend mit getipptem Namen.
+- M2: Bei `change`/`reorder` nennt die Warnung den bisherigen Standardwert (bei `nextval(` auch die verwaiste Sequenz).
+- L1: `rename` prüft Abhängigkeiten und warnt. L2: NOT-NULL-Planung nutzt `EXISTS` statt Zählung (Warnung ohne Zahl).
+- L3: neue Spaltennamen ohne Rand-Leerzeichen und Steuerzeichen (`columnName`). Tests: `wave2a_review_test.go`, `types_review_test.go`,
+  `TestColumnNamesRejectEdgeWhitespaceAndControl`.

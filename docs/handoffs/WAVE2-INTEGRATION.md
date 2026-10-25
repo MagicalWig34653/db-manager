@@ -72,3 +72,22 @@ Konflikte: nur `internal/httpapi/features.go` (eine Zeile je Paket, Reihenfolge 
 - `contracts/README.md` (Vertragsindex), STATUS/ARBEITSPLAN/PARITAET nicht aktualisiert (Lead).
 - Weiterhin nicht getestet: echte Sperrkonflikte/Verbindungsabbrüche gegen die Netzwerkengines (nur Fault-Injection), W-P15-Simulation für
   MySQL/MariaDB/PostgreSQL (bewusst nicht unterstützt).
+
+## Nachbesserung nach Review W-P08/W-P10 (`review/wave2-a`)
+
+Behoben und mit Tests belegt (Details in den Paket-Handoffs): W-P08 M1, M2, L1 bis L4; W-P10 L1; W-P10 L2/L3 als Entscheidung dokumentiert.
+Die Review-Tests (`wave2a_review_test.go`, `types_review_test.go`) sind übernommen, die Logfälle zu M1/M2 und L1 sind Assertions. Echte
+Spalten-Fixtures neu erzeugt (Warntexte). Prüfstand: gofmt, vet, `go test -race -count=1 ./...`, alle elf Wächter, `test-columns.py`,
+`test-maintenance.py` (alle vier Systeme nacheinander) und `check-docs.py` siehe Abschlussbericht dieses Commits.
+
+## Nachbesserung nach Review W-P11/W-P15 (`review/wave2-b`)
+
+Beide Reviews: Freigabe ohne Blocker. Umgesetzt (Details in den Paket-Handoffs und Vertragstexten):
+- W-P11: Client-Pflicht zur Schlussmarkenprüfung im Vertragstext `EXPORT-API.md`; MySQL-Dumpkopf neutralisiert `NO_BACKSLASH_ESCAPES` und stellt `sql_mode`
+  wieder her (Test: Restore unter `NO_BACKSLASH_ESCAPES`); `if_not_exists` auch für `CREATE INDEX` (SQLite/PostgreSQL, zweifacher Restore getestet);
+  Zeitlimit meldet `query_canceled`; höchstens 2 gleichzeitige Exporte (503 `export_busy`); Handoff-SHA und Nummer aktualisiert.
+- W-P15: `BEGIN ... END` bleibt fail-closed, `DELIMITER`-Workaround dokumentiert und getestet; `explain_analyze` und globale `confirm`-Zustimmung im Vertragstext
+  erklärt; MySQL/MariaDB `ANALYZE`/`OPTIMIZE`/`CHECK`/`REPAIR`/`CHECKSUM TABLE` liefern Zeilen (Livetest); `ABORT`, `LOCK`, `UNLOCK` gesperrt; Simulation
+  meldet nach Zeitlimit `rolled_back`; Handoff/ADR auf API 0.12 und SHA `7f0446ed...` korrigiert; `sqlite_differential_test.go` übernommen.
+- Vertrags-JSON v11 und v12 unverändert (SHAs wie oben); echte Export- und SQL-Stapel-Fixtures neu erzeugt.
+- Prüfstand: gofmt, vet, `go test -race -count=1 ./...`, alle elf Wächter, `test-export.py --live`, `test-sqlbatch.py` (je ein Container nach dem anderen), `check-docs.py`.

@@ -6,7 +6,7 @@
   "warnings": [
     "Strukturänderungen können die Tabelle sperren. Zeitlimit und DB-Rechte gelten.",
     "Plan-Hash ist kein Replay-Schutz; nach Abschluss oder unbekanntem Ausgang neu planen und bestätigen.",
-    "Spalte renamed \"`: alle Werte werden gelöscht; Abhängigkeiten können die Änderung verhindern. Kein CASCADE."
+    "Spalte renamed \"`: alle Werte werden gelöscht. Kein CASCADE."
   ],
   "affected_objects": [
     "probe.col \"`' ;DROP TABLE neighbor",

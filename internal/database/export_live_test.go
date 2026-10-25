@@ -115,7 +115,24 @@ func TestLiveExportRoundTrip(t *testing.T) {
 					t.Fatal("restore failed", err)
 				}
 			}
+			// Idempotent structure restore: a second pass of the structure-only dump with IF NOT EXISTS must succeed.
+			var again bytes.Buffer
+			if err = e.Export(context.Background(), core.ExportRequest{Connection: c, Tables: []core.TableRef{ref}, Data: exportBool(false), IfNotExists: true}, &again); err != nil {
+				cleanup()
+				t.Fatal(err)
+			}
+			for pass := 0; pass < 2; pass++ {
+				for _, statement := range splitExportTestSQL(again.String()) {
+					if _, err = db.ExecContext(context.Background(), statement); err != nil {
+						cleanup()
+						t.Fatalf("idempotent restore pass %d failed: %v\n%s", pass, err, statement)
+					}
+				}
+			}
 			cleanup()
+			if c.Driver == "mysql" {
+				exportBackslashRestore(t, e, c)
+			}
 			source := execute(t, e, c, "SELECT * FROM "+quoteIdentifier(c.Driver, ref.Name))
 			restored := execute(t, e, target, "SELECT * FROM "+quoteIdentifier(c.Driver, ref.Name))
 			if !reflect.DeepEqual(source.Results, restored.Results) {
@@ -219,4 +236,54 @@ func (w *exportChangeWriter) Write(p []byte) (int, error) {
 		}
 	}
 	return w.Buffer.Write(p)
+}
+
+// exportBackslashRestore restores a dump with backslashes in default and comment
+// literals on a session that runs with NO_BACKSLASH_ESCAPES.
+func exportBackslashRestore(t *testing.T, e *Engine, c core.Connection) {
+	t.Helper()
+	execute(t, e, c, "CREATE TABLE export_bs (id INT PRIMARY KEY, v VARCHAR(10) DEFAULT 'a\\\\b' COMMENT 'c\\\\d')")
+	var dump bytes.Buffer
+	if err := e.Export(context.Background(), core.ExportRequest{Connection: c, Tables: []core.TableRef{{Name: "export_bs"}}, Data: exportBool(false), Drop: true}, &dump); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(dump.String(), "sql_mode") {
+		t.Fatal("dump header does not neutralize sql_mode")
+	}
+	target := c
+	target.Database = "export_restored"
+	db, cleanup, err := e.open(context.Background(), target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cleanup()
+	if _, err = db.ExecContext(context.Background(), "SET SESSION sql_mode=CONCAT(@@sql_mode,',NO_BACKSLASH_ESCAPES')"); err != nil {
+		t.Fatal(err)
+	}
+	for _, statement := range splitExportTestSQL(dump.String()) {
+		if _, err = db.ExecContext(context.Background(), statement); err != nil {
+			t.Fatalf("restore under NO_BACKSLASH_ESCAPES failed: %v\n%s", err, statement)
+		}
+	}
+	var mode string
+	if err = db.QueryRowContext(context.Background(), "SELECT @@SESSION.sql_mode").Scan(&mode); err != nil || !strings.Contains(mode, "NO_BACKSLASH_ESCAPES") {
+		t.Fatalf("sql_mode not restored after the dump: %q %v", mode, err)
+	}
+	var def, comment string
+	query := "SELECT COLUMN_DEFAULT, COLUMN_COMMENT FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=? AND TABLE_NAME='export_bs' AND COLUMN_NAME='v'"
+	if err = db.QueryRowContext(context.Background(), query, "export_restored").Scan(&def, &comment); err != nil {
+		t.Fatal(err)
+	}
+	var wantDef, wantComment string
+	source, sourceCleanup, err := e.open(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer sourceCleanup()
+	if err = source.QueryRowContext(context.Background(), query, c.Database).Scan(&wantDef, &wantComment); err != nil {
+		t.Fatal(err)
+	}
+	if def != wantDef || comment != wantComment || !strings.Contains(comment, "\\") {
+		t.Fatalf("backslashes changed: default %q (source %q) comment %q (source %q)", def, wantDef, comment, wantComment)
+	}
 }

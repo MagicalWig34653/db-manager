@@ -8,7 +8,7 @@ Push, Merge oder Webpin. Lead übernimmt Commit und Integration.
 ## Ergebnis und Dateibesitz
 
 - `internal/core/sqlbatch.go`: additive Request-/Result-/Warning-Typen, optionale
-  `SQLBatchEngine`-Schnittstelle, vorläufige Vertragsversion 0.12.0.
+  `SQLBatchEngine`-Schnittstelle, Vertragsversion 0.12.0 (endgültig vergeben bei der Welle-2-Integration).
 - `internal/database/sqlbatch.go`, `sqlbatch_test.go`: eine Verbindung je Stapel,
   Stop/Fortsetzen, begrenzte Resultsets pro Statement, direkte Änderungszähler soweit
   verfügbar, Warncodes, feste Fehlercodes, Gesamtzeit-/Antwortgrenzen, Abbruch,
@@ -36,9 +36,9 @@ Webquellen und Assets. Eigener neuer Code mit SPDX AGPL-3.0-only.
 
 ## Vertragsstand und bewusste Grenzen
 
-[API0.16](../../contracts/api-v0.12.0.json), SHA256:
-`dd2d5e0ea82c7d5b1e30052d1278110d67af3acfbd0a314dab03645356c58573`.
-Nummer vorläufig; keine Freigabe/Freeze/Pinnung des Webclients.
+[API 0.12](../../contracts/api-v0.12.0.json), SHA256:
+`7f0446edccdc368a202e4eaae5689d4b44d641e34bdf77ec8314de9f3e3f2dcd`.
+Nummer endgültig (Integration Welle 2); nicht im Webclient gepinnt.
 Der Wächter sichert auch API0.7 als unveränderte Basis mit SHA256
 `c6fd8c91315e25185d949d309397c7c0d80cc67fcab87ae521e38068e7004d17`
 und über den bestehenden Wächter die eingefrorenen API0.1 bis 0.6.
@@ -134,3 +134,11 @@ vorläufige Nummer und gemeinsamen Splitter abgleichen, auf einem Host mit Docke
 Loopbackrecht die oben offenen Läufe ausführen, danach Review-/Integrationsgate und
 separater Commit/Push. STATUS/ARBEITSPLAN/Vertragsindex und Webpin bleiben beim Lead.
 Keine eigenen laufenden Jobs oder DB-Ressourcen verbleiben nach Abschluss.
+
+## Nachtrag Integration Welle 2 und Review ([W-P15-backend-review](W-P15-backend-review.md))
+
+Livetests wurden ausgeführt (`scripts/test-sqlbatch.py`, vier Systeme nacheinander); API 0.12 und SHA oben sind der Integrationsstand, "nicht ausgeführt" weiter
+oben ist überholt. Review: Freigabe. Umgesetzt: `ABORT`, `LOCK`, `UNLOCK` in der Sperrliste; MySQL/MariaDB `ANALYZE`/`OPTIMIZE`/`CHECK`/`REPAIR`/`CHECKSUM TABLE`
+liefern Ergebniszeilen; Simulation meldet nach Zeitlimit `rolled_back` statt `rollback_unknown`; `BEGIN ... END` bleibt fail-closed mit dokumentiertem
+`DELIMITER`-Workaround; `explain_analyze`-Bedeutung und globale `confirm`-Zustimmung stehen im Vertragstext (`SQL-BATCH-API.md`, Abschnitt "Hinweise und Grenzen");
+Differenztest `internal/sqlsplit/sqlite_differential_test.go` übernommen.
