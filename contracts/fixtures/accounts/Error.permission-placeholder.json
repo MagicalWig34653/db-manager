@@ -1,0 +1,6 @@
+{
+  "error": {
+    "code": "permission_denied",
+    "message": "PLATZHALTER: fehlende Serverrechte."
+  }
+}
