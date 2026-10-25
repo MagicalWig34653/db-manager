@@ -55,3 +55,24 @@ Beleg: nennt „29 Fixtures, 23 Platzhalter", „Live-Skript nicht ausgeführt",
 4. Fähigkeiten und Meldungen: SQLite kein change/reorder (Neuaufbau nicht unterstützt), PostgreSQL kein reorder; Ergebnisse tragen feste Gründe, im Test keine Tabellen-/SQL-Texte in Meldungen.
 5. Typkatalog `internal/dbplan/types.go`: Grenzen (text 1..1024, decimal 1..38 / scale ≤ precision, enum ≤ 256, set ≤ 64, Werte ≤ 255 Byte, kein NUL/ungültiges UTF-8/Komma in SET/Endleerzeichen/Duplikate), Kataloge je Treiber (ENUM/SET nur MySQL/MariaDB), irrelevante Parameter und Kinds wie `"text VARCHAR(1)"` abgelehnt (`TestTypeSQLBoundaries`). Die MariaDB-Abweichung (`COLUMN_DEFAULT='NULL'` als Text) betrifft nur die Testabfrage (Integrationshandoff Korrektur 1), nicht den Produktcode. PostgreSQL `USING "col"::TYPE` wird nur aus dem festen Katalog erzeugt.
 6. Verträge: SHA stimmt; v1 bis v8 byteidentisch (Wächter), v9 additiv und strikt. Mutationstest: zusätzliches Feld in einem echten Fixture, angehängtes Byte an v8, entfernte Strikt-Eigenschaft in v9 lassen den Wächter fehlschlagen (`AssertionError`). Auth: alle drei v9-Routen hinter Bearer (HTTP-Test 401), POST/GET wie im Vertrag, Body 1 MiB (413/400 im HTTP-Test).
+
+## Nachreview (Integrationsstand 675adcc, Fixes in 75c0d3b)
+
+Review-Branch enthält den Integrationsbranch (Merge); Konflikt in `wave2a_review_test.go` zugunsten der Autorenfassung (Assertions) gelöst. Eigene Zusatztests: `wave2a_followup_test.go`.
+
+Urteil: Freigabe (accept). M1, M2, L1, L2, L3 sind behoben und live bestätigt. Zwei neue niedrige Befunde (N1, N2), zwei Hinweise.
+
+Läufe nacheinander (Load 135 bis 180): gofmt und go vet ohne Ausgabe; `go test -race -count=1 ./...` ok; alle elf Wächter bestanden; `contracts/api-v0.9.0.json` bis `api-v0.12.0.json` und die Vorgänger gegenüber 60592de unverändert (SHAs 508b9951…, 077a0e02…, b3bcc38b…, 7f0446ed…); `scripts/test-columns.py` bestanden (21 echte Antworten, keine Container übrig); check-docs 0 Fehler; Livetests (eigene und Autor) auf MySQL 8.4, MariaDB 12.3, PostgreSQL 18.6 bestanden. Mutationstest am neu erzeugten Fixture `ColumnsPlan.real-mysql-TestLiveColumns-8.json` (Warnung als Zahl): Wächter schlägt an.
+
+- M1 behoben: MySQL/MariaDB `drop` nennt die Sicht (`Die Sicht probe.fu_v_a ... wird danach ungültig; der Server lehnt die Änderung nicht ab`) und den Index (`entfällt oder wird verkürzt`); `affected_objects` enthalten `view:` und `index:`. PostgreSQL: Warnung "verhindert das Entfernen (kein CASCADE)", Ausführung weiter `rejected/dependency_blocks`. Kein falscher Alarm für Spalten ohne Abhängigkeit (`b`, `c`) und nicht für eine Sicht, die die Spalte nicht nutzt, oder eine gleichnamige Spalte einer anderen Tabelle (MySQL-Suche nutzt jetzt `schema.tabelle` und die zitierte Spalte).
+- M2 behoben: PostgreSQL `serial`: Warnung nennt `nextval('...')`, "entfällt" und die verwaiste Sequenz; MySQL-Standardwert `5` wird genannt.
+- L1 behoben: `rename` liefert Abhängigkeitswarnungen (MySQL: Sicht wird ungültig, Fremdschlüssel/Constraint; keine Sichtwarnung bei Spalte `b` ohne Sicht).
+- L2 behoben: NOT-NULL-Planung per `EXISTS`: leere Zeichenfolgen und Spalten ohne NULL erzeugen keine Warnung, NULL-Zeilen warnen, leere Tabelle ohne Warnung.
+- L3 behoben: Unicode, innere Leerzeichen, Bindestrich und 41 Zeichen bleiben gültig; Rand-Leerzeichen, Tab, Zeilenumbruch, BEL und U+0085 werden als Neuname und Neudefinition abgelehnt.
+- Kein neuer Bypass: die Bestätigungstests (Name, Aktion, Hash, Replay) bestehen unverändert; Warnungen sind weiterhin nicht im Hash (akzeptiert).
+
+Neue Befunde:
+- N1 (niedrig): MariaDB meldet `COLUMN_DEFAULT='NULL'` (Text) für nullbare Spalten ohne Default; die neue Warnung sagt dann fälschlich "der bisherige Standardwert NULL wird ersetzt und entfällt" (Beleg: `nodef`-Spalte, MariaDB 12.3; MySQL und PostgreSQL ohne Alarm). Harmlos (Falschalarm), Fix: bei nullbarer Spalte und Wert `NULL` keine Standardwert-Warnung.
+- N2 (niedrig): Neue Namensprüfung gilt auch für bestehende Namen: eine ältere PostgreSQL/SQLite-Spalte mit Randleerzeichen (`"edge "`) kann zwar gelöscht, aber nicht mehr mit `change` geändert werden (`invalid_columns`). Fix: `columnName` nur anwenden, wenn der Name vom bestehenden abweicht.
+- H1 (Hinweis): Die allgemeine Rename-Warnung sagt auch für PostgreSQL, Sichten "funktionieren danach nicht mehr"; PostgreSQL passt Sichten bei `RENAME COLUMN` an. Der MySQL-Text "Fremdschlüssel verhindert das Ändern oder Entfernen" ist für `RENAME` ebenfalls zu streng (MySQL/MariaDB stellen Fremdschlüssel um). Zu vorsichtig, nicht gefährlich.
+- H2 (Hinweis): SQLite-Warnung "SQLite lehnt das Entfernen ab, wenn Index, Sicht, ..." erscheint für jede Spalte, sobald Tabelle oder Index zur Suche passen (die Suche ist tabellenweit); die Formulierung ist bedingt, daher nur weicher Falschalarm.
