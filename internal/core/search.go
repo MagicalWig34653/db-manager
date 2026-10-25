@@ -6,7 +6,7 @@ import (
 	"github.com/MagicalWig34653/db-manager/internal/dbplan"
 )
 
-const SearchContractVersion = "0.15.0"
+const SearchContractVersion = "0.14.0"
 const SearchMaxTables = 20
 const SearchMaxRows = 1000
 const SearchMaxPreview = 20

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Guard the additive provisional v15 contract and synthetic fixtures."""
+"""Guard the additive v14 contract and synthetic fixtures."""
 import hashlib
 import importlib.util
 import json
@@ -10,11 +10,18 @@ ROOT = Path(__file__).resolve().parent.parent
 module_spec = importlib.util.spec_from_file_location('object_guard', ROOT / 'scripts/check-object-ops-contract.py')
 base = importlib.util.module_from_spec(module_spec)
 module_spec.loader.exec_module(base)
-ROUTES = {'/api/v15/' + route for route in ('capabilities', 'search', 'tables/browse', 'replace/plan', 'replace')}
+FROZEN = dict(base.FROZEN, **{
+    'api-v0.8.0.json': '74aa39ed06311f2c45afc274a2412a0ac30912e3a5683ec96b812fd473a28264',
+    'api-v0.9.0.json': '508b9951d102ec44bf4cafc9fe444f7266b31f898d9e91c887f4bef39735e3f8',
+    'api-v0.10.0.json': '077a0e0222963b112bd6ea528ef5668d2ff7fbe2b2d3555669487c4beaf55cc5',
+    'api-v0.11.0.json': 'b3bcc38b44b020335151aead207e281f9c54bdc7463d6fb1ddd7a6cc22396620',
+    'api-v0.12.0.json': '7f0446edccdc368a202e4eaae5689d4b44d641e34bdf77ec8314de9f3e3f2dcd',
+})
+ROUTES = {'/api/v14/' + route for route in ('capabilities', 'search', 'tables/browse', 'replace/plan', 'replace')}
 
 
 def load():
-    return json.loads((ROOT / 'contracts/api-v0.15.0.json').read_text())
+    return json.loads((ROOT / 'contracts/api-v0.14.0.json').read_text())
 
 
 def validate(component, value):
@@ -24,10 +31,23 @@ def validate(component, value):
 
 def main():
     base.main()
-    assert hashlib.sha256((ROOT / "contracts/api-v0.8.0.json").read_bytes()).hexdigest() == "74aa39ed06311f2c45afc274a2412a0ac30912e3a5683ec96b812fd473a28264"
-    old = base.load_v8()
+    for name, digest in FROZEN.items():
+        assert hashlib.sha256((ROOT / 'contracts' / name).read_bytes()).hexdigest() == digest, name
+    # W-P09 is developed independently: absence is allowed, but once present its
+    # routes/schemas must be reconciled into v14 by the integrating lead.
+    predecessor = ROOT / 'contracts/api-v0.13.0.json'
+    baseline = json.loads((ROOT / 'contracts/api-v0.12.0.json').read_text())
+    old = json.loads(predecessor.read_text()) if predecessor.exists() else baseline
+    if predecessor.exists():
+        assert old['info']['version'] == '0.13.0'
+    for group in ('paths',):
+        for name, definition in baseline[group].items():
+            assert old[group][name] == definition, name
+    for name, definition in baseline['components']['schemas'].items():
+        assert old['components']['schemas'][name] == definition, name
+    assert old['components']['securitySchemes'] == baseline['components']['securitySchemes']
     spec = load()
-    assert spec['info']['version'] == '0.15.0'
+    assert spec['info']['version'] == '0.14.0'
     assert spec['components']['securitySchemes'] == old['components']['securitySchemes']
     for name, value in old['paths'].items():
         assert spec['paths'][name] == value, name
@@ -59,8 +79,9 @@ def main():
     plan = spec['components']['schemas']['ReplaceRequest']
     execute = spec['components']['schemas']['ReplaceExecuteRequest']
     assert set(execute['required']) == set(plan['required']) | {'confirm', 'expected_plan_sha256'}
-    print('Additive v15 routes, strict schemas, references and search fixtures passed.')
-    print('SHA256 ' + hashlib.sha256((ROOT / 'contracts/api-v0.15.0.json').read_bytes()).hexdigest())
+    print('Pinned v1-v12; v13 ' + ('present and additive' if predecessor.exists() else 'absent (optional; lead reconciliation pending)'))
+    print('Additive v14 routes, strict schemas, references and search fixtures passed.')
+    print('SHA256 ' + hashlib.sha256((ROOT / 'contracts/api-v0.14.0.json').read_bytes()).hexdigest())
 
 
 if __name__ == '__main__':

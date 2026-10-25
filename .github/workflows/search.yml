@@ -1,4 +1,5 @@
-name: Suche und Ersetzen (API 0.15 vorläufig)
+# SPDX-License-Identifier: AGPL-3.0-only
+name: Suche und Ersetzen (API 0.14)
 on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
@@ -31,4 +32,5 @@ jobs:
           go test -race -count=1 ./...
           go vet ./...
           python3 scripts/check-search-contract.py
+          python3 scripts/test-search-guard.py
           python3 scripts/test-search.py

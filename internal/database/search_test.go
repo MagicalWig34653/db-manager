@@ -32,7 +32,7 @@ func TestSQLiteSearch(t *testing.T) { searchCases(t, testEngine(t), sqliteConnec
 func searchCases(t *testing.T, e *Engine, c core.Connection) {
 	ctx := context.Background()
 	q := func(s string) string { return quoteIdentifier(c.Driver, s) }
-	name := "p15 odd'`\" --"
+	name := "p14 odd'`\" --"
 	ref := core.TableRef{Name: name}
 	col := "value'`\""
 	bin := "BLOB"
@@ -415,7 +415,7 @@ func liveSearchLock(t *testing.T, e *Engine, c core.Connection) {
 		t.Fatal(err)
 	}
 	defer s.rollback()
-	name := quoteIdentifier(c.Driver, "p15 odd'`\" --")
+	name := quoteIdentifier(c.Driver, "p14 odd'`\" --")
 	rows, err := s.QueryContext(ctx, "SELECT id FROM "+name+" WHERE id=1 FOR UPDATE")
 	if err != nil {
 		t.Fatal(err)
@@ -423,7 +423,7 @@ func liveSearchLock(t *testing.T, e *Engine, c core.Connection) {
 	rows.Close()
 	col := "value'`\""
 	replacement := "cat"
-	r := core.ReplaceRequest{Connection: c, Table: core.TableRef{Name: "p15 odd'`\" --"}, Column: &col, Term: "wolf", Replacement: &replacement, Mode: "substring", TimeoutMS: 50}
+	r := core.ReplaceRequest{Connection: c, Table: core.TableRef{Name: "p14 odd'`\" --"}, Column: &col, Term: "wolf", Replacement: &replacement, Mode: "substring", TimeoutMS: 50}
 	start := time.Now()
 	_, err = e.ReplacePlan(ctx, r)
 	if err == nil || time.Since(start) > 3*time.Second {
@@ -435,24 +435,67 @@ func liveSearchRestrictions(t *testing.T, e *Engine, c core.Connection) {
 	t.Helper()
 	col := "value"
 	replacement := "cat"
-	name := "p15_restricted"
+	name := "p14_restricted"
 	ddl := "CREATE TABLE " + name + " (id INTEGER NOT NULL PRIMARY KEY,value TEXT)"
 	if c.Driver == "mysql" {
 		ddl += " ENGINE=MyISAM"
 	}
 	execute(t, e, c, ddl)
 	if c.Driver == "postgres" {
-		execute(t, e, c, "CREATE TABLE p15_inherited () INHERITS (p15_restricted)")
+		execute(t, e, c, "CREATE TABLE p14_inherited () INHERITS (p14_restricted)")
 	}
 	r := core.ReplaceRequest{Connection: c, Table: core.TableRef{Name: name}, Column: &col, Term: "fox", Replacement: &replacement, Mode: "substring"}
 	_, err := e.ReplacePlan(context.Background(), r)
 	requireMutationCode(t, err, "unsupported_search")
-	r.Table.Name = "p15 odd'`\" --"
+	r.Table.Name = "p14 odd'`\" --"
 	col = "value'`\""
 	r.Mode = "regex"
 	r.Term = "["
 	_, err = e.ReplacePlan(context.Background(), r)
 	if err == nil || strings.Contains(err.Error(), "REGEXP") || strings.Contains(err.Error(), "syntax") {
 		t.Fatalf("raw regex error: %v", err)
+	}
+}
+
+func TestSearchBrowseSQL(t *testing.T) {
+	// SQL keywords and PostgreSQL parameter tokens inside quoted catalog names
+	// must survive predicate insertion and pagination binding unchanged.
+	for _, driver := range []string{"sqlite", "mysql", "postgres"} {
+		t.Run(driver, func(t *testing.T) {
+			column := "value ORDER BY $1 LIMIT $2 "
+			d := core.TableDescription{Table: core.TableRef{Schema: "schema$2", Name: "table LIMIT $1 ORDER BY "}, Columns: []core.TableColumn{{Name: column}, {Name: "id"}}, PrimaryKey: []string{"id"}}
+			r := core.BrowseRequest{Connection: core.Connection{Driver: driver}, PageSize: 7, Offset: 3, Sort: []core.TableSort{{Column: column, Direction: "desc"}}, Filters: []core.TableFilter{{Column: column, Operator: "contains", Value: &core.Cell{Kind: "text", Value: "%_!"}}, {Column: "id", Operator: "gte", Value: &core.Cell{Kind: "integer", Value: "2"}}}}
+			query, args, err := searchBrowseSQL(r, d)
+			if err != nil {
+				t.Fatal(err)
+			}
+			name := quoteIdentifier(driver, column)
+			p := []string{"?", "?", "?", "?"}
+			if driver == "postgres" {
+				p = []string{"$1", "$2", "$3", "$4"}
+			}
+			want := "SELECT " + name + "," + quoteIdentifier(driver, "id") + " FROM " + searchTable(d, driver) + " WHERE " + name + " LIKE " + p[0] + " ESCAPE '!' AND " + quoteIdentifier(driver, "id") + " >= " + p[1] + " ORDER BY " + name + " DESC," + quoteIdentifier(driver, "id")
+			if driver == "sqlite" {
+				want += " COLLATE BINARY"
+			}
+			want += " ASC LIMIT " + p[2] + " OFFSET " + p[3]
+			if query != want || !reflect.DeepEqual(args, []any{"%!%!_!!%", int64(2), int64(8), int64(3)}) {
+				t.Fatalf("query %s args %#v; want %s", query, args, want)
+			}
+		})
+	}
+}
+
+func TestSQLiteSearchBrowseQuotedKeywords(t *testing.T) {
+	e := testEngine(t)
+	c := sqliteConnection()
+	name, column := "table ORDER BY LIMIT $1 ", "value LIMIT $2 ORDER BY "
+	q := func(s string) string { return quoteIdentifier(c.Driver, s) }
+	execute(t, e, c, "CREATE TABLE "+q(name)+" (id INTEGER PRIMARY KEY,"+q(column)+" TEXT)")
+	execute(t, e, c, "INSERT INTO "+q(name)+" VALUES (1,'fox'),(2,'cat')")
+	r := core.BrowseRequest{Connection: c, Table: core.TableRef{Name: name}, Filters: []core.TableFilter{{Column: column, Operator: "contains", Value: &core.Cell{Kind: "text", Value: "fox"}}}}
+	result, err := e.SearchBrowse(context.Background(), r)
+	if err != nil || len(result.Result.Rows) != 1 || result.Result.Rows[0][0].Value != "1" {
+		t.Fatalf("quoted catalog names %#v %v", result, err)
 	}
 }

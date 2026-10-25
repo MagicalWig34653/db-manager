@@ -1,6 +1,6 @@
 # Synthetische W-P14-Fixtures
 
-Alle Namen und Werte sind erfunden. `synthetic_p15` ist eine verwaltete SQLite-Kennung,
+Alle Namen und Werte sind erfunden. `synthetic_p14` ist eine verwaltete SQLite-Kennung,
 kein Dateipfad. Die 64 Nullen in `ReplacePlan.placeholder.json` und
 `ReplaceExecuteRequest.placeholder.json` sind ausdrücklich **Hash-Platzhalter** und
 kein ausführbarer Plan. Echte Hashes entstehen erst aus Anfrage, Treiber, Metadaten,

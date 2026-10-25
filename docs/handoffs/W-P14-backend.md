@@ -1,128 +1,160 @@
-# Handoff W-P14 Backend – Suche und Ersetzen
+# Handoff W-P14 Backend – Suche und Ersetzen (API 0.14)
 
-Stand: 24.10.2026. Implementierung im vorhandenen Worktree `.worktrees/w-p14-backend`,
-Branch `feat/w-p14-backend`, unveränderte Basis/HEAD
-`b74d10e6ff50ed49dccb0484ee3f8d2f0ca5b656`. Alle Paketänderungen liegen als Dateien vor.
-**Keine Git-Schreibbefehle, kein Commit, kein Push, keine Integration.** Lead übernimmt
-Commit und unabhängige Abnahme. Kein Vertragsfreeze oder Web-Pin behauptet.
+Stand: 25.10.2026. Implementierungskandidat im zugewiesenen Worktree
+`.worktrees/w-p14-backend`, Branch `feat/w-p14-backend`. Verifizierter HEAD
+`b5651cc5cac140fcc919827b107eba522762436d`: enthält den unreviewten WIP
+`f9ffa3d3ccd3ec6fd322f28c951325be073f1c45` und den bereits abgeschlossenen Merge
+von main `c331c64`. Die hier beschriebenen Nacharbeiten sind **uncommittete Dateien**.
+Keine Git-Schreibbefehle, kein Commit, Push oder Merge in dieser Sitzung.
+Lead übernimmt Commit, unabhängigen Review und Integration. Kein Vertragsfreeze,
+Web-Pin, Deployment oder vollständiger Paritätsnachweis.
 
-## Ergebnis und Dateibesitz
+## Auftrag, Dateibesitz und Ergebnis
 
-- `internal/core/search.go`: additive Typen, Suchmodi, Treiberfähigkeiten und feste Grenzen.
-- `internal/database/search.go`: kataloggeprüfte Mehrtabellen-/Mehrspaltensuche mit
-  Teilstring, allen Wörtern, exakt und nativer Regex; gebundene Werte, explizites
-  LIKE-Escape `!` in allen Dialekten, gemeinsames Trefferbudget und gekürzte Vorschau.
-  Erweiterte UND-Filter ausschließlich über v15 (`ne/lt/lte/gt/gte/contains/like`).
-- `internal/database/search_replace.go`: Plan/Bestätigung je Tabelle/Spalte,
-  vollständiger kanonischer Bestandsvergleich im Hash, native REPLACE-/REGEXP_REPLACE-
-  Berechnung, transaktionale PK-Updates, Rücklesen und Rollback bei Konflikten.
-  Ergebnis `completed/rejected/outcome_unknown`; keine rohen Treiberdiagnosen.
-- `internal/httpapi/search.go`: authentifizierte `/api/v15/capabilities`, `/search`,
-  `/tables/browse`, `/replace/plan`, `/replace`, strikte Dekodierung und Feldpräsenz.
-  `features.go`: genau ein zusätzlicher Eintrag; `features_test.go`: nur Zähler 8→9.
-- `internal/database/search_test.go`, `internal/httpapi/search_test.go`: SQLite-,
-  HTTP- und vorbereitete TLS-Livetests für MySQL/MariaDB/PostgreSQL.
-- `contracts/api-v0.15.0.json`, `contracts/SEARCH-API.md`,
-  `contracts/fixtures/search/` (25 JSON-Fixtures plus README; gültige/ungültige Fälle,
-  Hash-Platzhalter ausdrücklich gekennzeichnet).
-- `scripts/check-search-contract.py`, `scripts/test-search.py` (dbfix, optional
-  `--sqlite-only`, echte Antworten einschließlich HTTP gegen Schema geprüft),
-  `.github/workflows/search.yml` für native Linux- und Vier-Treiber-Prüfung.
-- `docs/decisions/ADR-0008-suche-ersetzen.md`: konservative vollständige Tabellen-
-  begrenzung und Konfliktmodell; Nummer/Entscheidung vom Lead unabhängig prüfen.
-- Dieses Handoff. Zentrale Status-/Plan-/Vertragsindexdateien, Bestandsverträge,
-  Web-Lock, Assets, Module und bestehende Mutation-/Browseimplementierungen unverändert.
+Begrenztes Backendpaket für PMA-DATA-010 (erweiterte gebundene Filter),
+PMA-DATA-011 (gewählte Tabellen/Spalten) und PMA-DATA-012 (Plan und bestätigte
+Einspaltenersetzung). Abnahme: reine Vorschau, gebundene Werte und kataloggeprüfte
+Identifier, harte Grenzen/Abbruch, genau bestätigte Änderungen, Konfliktprüfung
+und ehrliche Ergebnisse. Keine Weboberfläche oder zentralen Statusdateien geändert.
 
-Vorläufiger Vertrag 0.15.0, SHA-256:
-`bd82f86aff1f9551f1abc96036f4246f72580da3fd1674d1f48dcf286cef6a20`.
-Wächter prüft eingefrorene v1–v8-Bytes, unveränderte Bestandsdefinitionen/-routen,
-Auth, lokale Referenzen, strikte neue Objekte und Fixtures. Keine Clientbindung vor
-unabhängiger Freigabe.
+- `internal/core/search.go`: Typen, feste Grenzen, treiberspezifische Fähigkeiten,
+  endgültige Versionskonstante `0.14.0`.
+- `internal/database/search.go`: Mehrtabellen-/Mehrspaltensuche; Teilstring, alle
+  Wörter, exakt und native Regex; Werte einschließlich Limits gebunden, explizites
+  LIKE-Escape `!`, gemeinsames Trefferbudget und gekürzte Vorschau. Erweiterte
+  UND-Filter `ne/lt/lte/gt/gte/contains/like` ausschließlich über v14.
+- `internal/database/search_replace.go` (aus dem WIP übernommen und geprüft):
+  Plan/Bestätigung je Tabelle/Spalte; vollständiger kanonischer Bestandsvergleich
+  im Hash, native Berechnung, transaktionale PK-Updates und Nachprüfung vor Commit.
+  Ergebnisse `completed/rejected/outcome_unknown`, feste redigierte Fehlergründe.
+- `internal/httpapi/search.go`: authentifizierte `/api/v14/capabilities`, `/search`,
+  `/tables/browse`, `/replace/plan`, `/replace`; strikte Dekodierung/Feldpräsenz.
+  Bereits aufgelöste `features.go`/`features_test.go` unverändert, Zähler **13**.
+- `internal/database/search_test.go`, `internal/httpapi/search_test.go`: SQLite,
+  HTTP und geschriebene TLS-Livetests für MySQL/MariaDB/PostgreSQL. Neu: sichere
+  Filtererzeugung bei SQL-Schlüsselwörtern und `$1`/`$2` in gequoteten Katalognamen;
+  SQL-Vergleich für alle Dialekte und echte SQLite-Ausführung.
+- `contracts/api-v0.14.0.json`, `contracts/SEARCH-API.md`,
+  `contracts/fixtures/search/`: 25 synthetische JSON-Fixtures; Hash-Platzhalter
+  ausdrücklich gekennzeichnet. Provisorische v15-Datei entfernt.
+- `scripts/check-search-contract.py`, `scripts/test-search-guard.py`,
+  `scripts/test-search.py`: eingefrorene Vorgänger, Additivität, Schema-/Fixture-
+  Prüfung; isolierte Guardregressionen; dbfix-Suite mit Schemaabgleich echter
+  Antworten und `--sqlite-only`. Netzwerkfixtures jetzt strikt nacheinander.
+- `.github/workflows/search.yml`: API 0.14, vollständige Race-/Vet-/Guard-/Livechecks
+  vorbereitet. `docs/decisions/ADR-0008-suche-ersetzen.md`: vollständige begrenzte
+  Bestandsprüfung; unabhängige Annahme durch Lead offen. Dieses Handoff.
 
-## Tatsächlicher Prüfstand
+Keine neuen Abhängigkeiten, Migrationen oder Lizenzänderungen; eigener Code mit
+SPDX AGPL-3.0-only. Gemeinsame Helper, bisherige Browse-/Mutationsimplementierungen,
+Vertragsdateien v1–v12, Vertragsindex, zentrale Pläne, Web-Lock und Assets unverändert.
 
-Go 1.27.1, macOS arm64. Für Go-Prüfungen verwendet:
-`GOCACHE=/private/tmp/dbmanager-w-p14-go-cache GOPROXY=off`.
-Der Standard-Go-Cache ist in dieser Sandbox nicht beschreibbar; der erste normale
-Teststart scheiterte schon vor dem Kompilieren. Mit temporärem Cache liefen alle
-unten als erfolgreich bezeichneten Go-Prüfungen ohne Netzwerkabruf.
+## Vertragsbasis und Übergang zu v13
+
+Endgültige Paketnummer **0.14**, Pfade `/api/v14/`, Vertragsdatei
+`contracts/api-v0.14.0.json`. SHA-256:
+`fda8077af88401eb7a306dba8aedb963d6befc98e43a098b751d381e6539206c`.
+
+Vertrag additiv auf dem tatsächlichen v12-Vertrag aufgebaut; sämtliche geerbten
+Pfade, Schemata und Authdefinitionen unverändert. Wächter pinnt die Bytes von
+**v1 bis v12**. `api-v0.13.0.json` (paralleles W-P09) fehlt hier und ist optional:
+Sobald vorhanden, verlangt der Wächter auch dessen Versionsnummer, unveränderte
+v12-Definitionen und additive Übernahme sämtlicher v13-Pfade/-Schemata in v14.
+Der Lead muss diese Übernahme beim Merge ausführen; eine bereits erfolgte
+Additivität gegenüber dem noch fehlenden v13 wird nicht behauptet. Guardtests
+belegen Abwesenheit, fehlende Übernahme (Ablehnung), übernommene Vorgänger sowie
+manipulierte v12-Bytes/-Definitionen (Ablehnung), ausschließlich in temporären Kopien.
+
+## Tatsächlicher Prüfstand dieser Sitzung
+
+Go 1.27.1, macOS arm64; alle Go-Befehle einschließlich Python-Teststarter mit
+`GOCACHE=/private/tmp/dbmanager-w-p14-go-cache GOPROXY=off` ausgeführt.
+Keine Netzwerkdownloads oder Änderungen an Modulen. `rg` fehlt; Dateisuche mit
+`grep`/Python durchgeführt. Alle folgenden Ergebnisse stammen vom aktuellen Paket,
+keine Übernahme früherer Erfolgsaussagen aus dem WIP-Handoff.
 
 | Befehl | Tatsächliches Ergebnis |
 | --- | --- |
-| `gofmt -l $(rg --files -g '*.go' internal cmd)` | keine Ausgabe |
-| `go vet ./...` | erfolgreich, keine Ausgabe |
-| `go test -race -count=1 ./...` | ausgeführt, **nicht grün**: ausschließlich vorhandener `TestMySQLPerConnectionLoggerSuppressesServerInput` scheitert an `listen tcp 127.0.0.1:0: bind: operation not permitted`; übrige Pakete grün, Livefälle ohne Fixtureports übersprungen |
-| `go test -race -count=1 ./... -skip TestMySQLPerConnectionLoggerSuppressesServerInput` | erfolgreich für sämtliche Pakete; genau dieser bestehende Listener-Test ausgenommen, keine Sandboxumgehung |
-| `python3 -B scripts/test-search.py --sqlite-only` | erfolgreich mit Race; `TestSQLiteSearch`, `TestSQLiteReplaceSafety`, `TestSQLiteSearchBoundaries`, `TestSearchHTTP`; echte Engine-/HTTP-Antworten gegen v15-Schema validiert; drei Netzwerk-Subtests ausdrücklich SKIP |
-| `python3 -B scripts/test-search.py` | versucht, bereits bei lesendem `docker ps` abgebrochen: Zugriff auf Docker-API-Socket verweigert; **kein** Container gestartet |
-| `python3 -B scripts/check-table-contract.py` | erfolgreich |
-| `python3 -B scripts/check-mutation-contract.py` | erfolgreich |
-| `python3 -B scripts/check-insert-contract.py` | erfolgreich |
-| `python3 -B scripts/check-structure-contract.py` | erfolgreich |
-| `python3 -B scripts/check-create-contract.py` | erfolgreich |
-| `python3 -B scripts/check-overview-contract.py` | erfolgreich, 32 Fixtures |
-| `python3 -B scripts/check-object-ops-contract.py` | erfolgreich, 80 Fixtures |
-| `python3 -B scripts/check-search-contract.py` | erfolgreich, additive v15-Schemas und alle 25 eigenen JSON-Fixtures |
-| `python3 -B scripts/check-docs.py` | erfolgreich, null Fehler; nach Handoff erneut geprüft |
-| `git diff --check` | erfolgreich (nur lesend) |
-| `python3 -B -m py_compile scripts/check-search-contract.py scripts/test-search.py` | erfolgreich |
+| `gofmt -l .` | bestanden, keine Ausgabe |
+| `go vet ./...` | bestanden, keine Ausgabe |
+| `go test -race -count=1 ./...` | ausgeführt, nicht grün: ausschließlich bestehender `TestMySQLPerConnectionLoggerSuppressesServerInput` scheitert an verbotenem lokalem TCP-Listener (`bind: operation not permitted`); übrige Pakete grün |
+| `go test -race -count=1 ./... -skip TestMySQLPerConnectionLoggerSuppressesServerInput` | alle Pakete bestanden, genau dieser Bestandsfall ausgenommen; Netzwerk-Livefälle ohne Fixturevariablen übersprungen |
+| `python3 -B scripts/test-search.py --sqlite-only` | bestanden mit Race; SQLite-Suche, Safety/Boundaries, gequotete Namen, Drei-Dialekt-SQL-Erzeugung und HTTP; echte Engine-/HTTP-Antworten gegen v14 validiert, drei Netzwerkfälle SKIP |
+| `python3 -B scripts/test-search.py` | versucht, bereits vor Fixtureanlage bei lesendem `docker ps` abgebrochen: Docker-API-Socketzugriff verweigert, kein Container gestartet |
+| `python3 -B scripts/test-search-guard.py` | bestanden; optionale v13-Konfigurationen, Additivitäts- und Byte-Manipulationen isoliert geprüft |
+| `python3 -B scripts/check-table-contract.py` | bestanden |
+| `python3 -B scripts/check-mutation-contract.py` | bestanden |
+| `python3 -B scripts/check-insert-contract.py` | bestanden |
+| `python3 -B scripts/check-structure-contract.py` | bestanden |
+| `python3 -B scripts/check-create-contract.py` | bestanden |
+| `python3 -B scripts/check-overview-contract.py` | bestanden, 32 Fixtures |
+| `python3 -B scripts/check-object-ops-contract.py` | bestanden, 80 Fixtures |
+| `python3 -B scripts/check-columns-contract.py` | bestanden, 44 Fixtures |
+| `python3 -B scripts/check-maintenance-contract.py` | bestanden, 83 Fixtures |
+| `python3 -B scripts/check-export-contract.py` | bestanden, 23 JSON- und 3 Streamfixtures |
+| `python3 -B scripts/check-sqlbatch-contract.py` | bestanden, 23 Fixtures |
+| `python3 -B scripts/check-search-contract.py` | bestanden, v1–v12 gepinnt, v13 ausdrücklich abwesend/optional, additive v14-Schemas und 25 W-P14-Fixtures |
+| Python-Syntaxprüfung mit `compile()` ohne Bytecodeausgabe für die drei Searchskripte | bestanden |
+| `python3 -B scripts/check-docs.py` | bestanden, null Fehler, nach Handoff erneut geprüft |
+| `git diff --check` | bestanden, nur lesend |
 
-Belegte W-P14-Fälle: Sondernamen mit Quotes/Backticks/SQL-Text, gebundene
-Injektionswerte, literale `%/_/!`, Wörter über verschiedene Spalten, exakte Suche,
-NULL, Binärspalten und SQLite-Laufzeit-BLOBs ausgeschlossen, gemeinsames Budget und
-explizit ungenaue Zählung, SQL-seitige Vorschaukürzung, ungültige Grenzen und Abbruch/
-Zeitlimit. Plan vor/nach mit vollständigen gelesenen Resultaten verglichen: keine
-Datenänderung. Ersetzung nativ berechnet, stale Hash bei geänderter fremder Spalte,
-Replay nach geänderten Daten abgewiesen, PK/Generated/Binär/NoPK gesperrt, leere
-Ersatzwerte und No-op, erzeugte Nachherwerte, Constraint-/REPLACE-Schutz, Trigger-
-Nebenänderung mit Rollback, konkurrierende Bestätigungen höchstens ein Erfolg,
-echter verzögerter FK-Commitfehler ergibt `outcome_unknown`. HTTP: Auth, fehlend/NULL,
-Bestätigungsanzahl, fremde Felder, 409 und redigierte 404.
+Belegte Fälle: Sondernamen, gebundene Injektionswerte, literale `%/_/!`, Wörter über
+Spalten, exakt, NULL, Binär-/SQLite-Laufzeit-BLOB-Ausschluss, Trefferbudget und
+explizit ungenaue Zählung, SQL-seitige Vorschaukürzung, Grenzen und Abbruch/Timeout.
+Vorschau per vollständigem Vorher/Nachher-Vergleich ohne Änderung geprüft.
+Ersetzung: stale Hash bei Änderung einer fremden Spalte, Replay nach geänderten
+Daten, PK/Generated/Binär/NoPK-Verbot, leere Ersatzwerte, No-op, generierte
+Nachherwerte, Constraint-/SQLite-REPLACE-Schutz, Triggerkonflikt mit Rollback,
+konkurrierende Bestätigungen (genau ein Erfolg) und tatsächlicher verzögerter
+SQLite-FK-Commitfehler (`outcome_unknown`). HTTP prüft Auth, fehlend/NULL,
+Bestätigungszahl, fremde Felder, 409 und redigierte 404.
 
-Eine zusätzlich geschriebene große SQLite-Fixture überschritt zunächst die bereits
-bestehende Zellgrenze. Fixture auf 100000 Zeichen verkleinert; die abschließende
-Grenzfallserie und die Gesamtsuite mit dem benannten Listener-Ausschluss sind grün.
-Dies war kein fehlgeschlagener Produktfall.
+Bei der Nacharbeit wurde ein WIP-Fehler in erweiterten Filtern geschlossen:
+Globale Parameterslot-Ersetzung und die Suche nach `ORDER BY`/`LIMIT` konnten
+gequotete Katalognamen verändern. Jetzt wird der exakte katalogbasierte SELECT-
+Präfix verwendet und die Pagination in derselben Parameterfolge gebunden.
+Die neuen Regressionen sind im aktuellen Race-/SQLite-Lauf grün.
 
-## Exakt nicht ausgeführte oder nicht erfolgreich abgeschlossene Nachweise
+## Nicht ausgeführte Nachweise und Grenzen
 
-1. **Keine realen W-P14-Läufe gegen MySQL 8.4, MariaDB 12.3 oder PostgreSQL 18.6.**
-   Docker-Socket gesperrt; damit auch deren native Regex-/Ersetzungssemantik,
-   PostgreSQL-Parameterslots der erweiterten Filter, TLS-verify-full-Verbindungen,
-   gehaltene Rowlock-Deadline, MyISAM-/Vererbungsverbote und redigierte Regexfehler
-   noch nicht live belegt. Diese Fälle sind in `TestLiveSearch` und seinen Helfern
-   geschrieben und über `scripts/dbfix.py` ausführbar.
-2. **Kein erfolgreicher uneingeschränkter Gesamtracelauf.** Der bestehende
-   MySQL-Logger-Regressionstest braucht einen lokalen Listener, dessen Bindung die
-   Sandbox untersagt. Er wurde nicht verändert; der erfolgreiche Ersatzlauf
-   schließt ausschließlich diesen Test aus.
-3. **Keine neue Linux-amd64-CI**, kein Docker-/Compose-/Swarm-, Web-/Browser-/Build-
-   oder Release-Lauf. Neue Workflowdatei nur vorbereitet, nicht veröffentlicht.
-   Keine tatsächliche Netzwerkunterbrechung genau während COMMIT reproduziert.
-4. **Kein unabhängiger Review, Vertragsfreeze, Commit oder Push.** Dateiarbeit ist
-   abgeschlossen; diese Gates und die Integration liegen beim Lead.
+1. **Keine W-P14-Liveläufe gegen MySQL 8.4, MariaDB 12.3 oder PostgreSQL 18.6.**
+   Docker ist gesperrt. Deren Regex-/Ersetzungssemantik, TLS verify-full,
+   Rowlock-Deadline, MyISAM-/Vererbungsverbote und redigierte Regexfehler sind als
+   `TestLiveSearch` mit dbfix vorbereitet, hier nicht live belegt. SQL-Erzeugung
+   für PostgreSQL ist offline geprüft, ersetzt keinen echten PG-Lauf.
+2. **Kein uneingeschränkt erfolgreicher Gesamtracelauf:** Listener-Test wegen
+   Sandboxverbot fehlgeschlagen, unverändert belassen. Nur der Lauf mit dem exakt
+   benannten Ausschluss ist grün. Keine tatsächliche Netzwerkunterbrechung während
+   COMMIT reproduziert; keine echten Rechte-/Verbindungsverlustproben gegen die
+   Netzwerkengines in dieser Sitzung.
+3. **Keine Linux-amd64-CI, Docker-/Compose-/Swarm-, Web-/Browser-/Build-/Release-
+   Prüfung.** Workflow nur vorbereitet; keine Veröffentlichung oder Integration.
+4. **Unabhängiger Review und Vertragsfreeze offen.** Der Lead reconciliert v13,
+   entscheidet über ADR und nimmt das Backend getrennt von Web/Parität ab.
 
-## Grenzen und nächster konkreter Schritt
+Ersetzung begrenzt den **vollständigen** Tabellenbestand auf Standard 100,
+maximal 1000 Zeilen, darüber 422 statt Teilersetzung. Suche zählt nur bis zum
+Trefferbudget; 256-Zeichen-Vorschau ist kein vollständiger Mutationssnapshot.
+Kollation, case-sensitive Literalersetzung und Regex-Rückreferenzen sind
+DB-spezifisch; SQLite ohne Regex. Clients sperren nach Abschluss/unbekanntem
+Ausgang und verlangen neue Planung/Bestätigung, kein automatischer Retry.
 
-Ersetzung begrenzt absichtlich den **vollständigen** Tabellenbestand auf Standard
-100, maximal 1000 Zeilen (nicht nur Treffer). Darüber 422 statt Teilersetzung.
-Search-Vorschau ist auf 256 Zeichen gekürzt und kein Mutationssnapshot. Kollation,
-case-sensitive Literalersetzung und Regex-Rückreferenzen sind treiberspezifisch;
-SQLite bietet keine Regex. Kein vollständiger QBE-/Join-/gespeicherte-Suche-Editor.
+B2c-Modell: vollständige kanonische Cells, keine historische ABA-/Exactly-once-
+Garantie. Externe Trigger-/Kaskadeneffekte und nichttransaktionale Nebentabellen
+bleiben begrenzt. MySQL Read-Committed verhindert keine Phantome nach dem letzten
+Snapshot. Nur transaktionale Basistabellen mit stabilem PK, PostgreSQL ohne
+Vererbung/Partitionen/Regeln, keine PK-/Generated-/Binärersetzung. SQLite-VFS,
+SingleReplica und globale Anfragegrenzen bleiben unverändert.
 
-Wie B2c: kanonische Zellen, kein historischer ABA-/Exactly-once-Nachweis; externe
-Trigger-/Kaskadeneffekte und nichttransaktionale Nebentabellen bleiben begrenzt.
-MySQL Read-Committed verspricht keinen Phantomschutz nach dem letzten Snapshot.
-Nur transaktionale Basistabellen mit stabilem PK; PostgreSQL keine Partitionen,
-Vererbung oder Regeln. Keine PK-/Generated-/Binärersetzung. Bestehende SQLite-VFS-,
-Dateibesitz-/SingleReplica- und vier globale Anfragegrenzen bleiben bestehen.
-Keine neuen Abhängigkeiten, Datenmigrationen oder Lizenzänderungen; neuer Code AGPL-3.0-only.
+## Fortsetzung und Ressourcen
 
-Keine eigenen Container gestartet, keine laufenden Prüfjobs bei Übergabe.
-Prozessauflistung über `ps` wurde durch die Sandbox untersagt; eigene über Tools
-bekannte Sitzungen wurden bis zum Abschluss verfolgt. Temporärer Go-Cache bleibt
-außerhalb des Repositories; dbfix-SQLite-/Ergebnisverzeichnisse wurden aufgeräumt.
-Unintegrierte Arbeit: sämtliche oben genannten Dateien im vorhandenen Branch.
-Nächster Schritt für den Lead: Diff unabhängig prüfen lassen, Vier-Treiber-Suite
-und uneingeschränkten Racelauf auf geeignetem Host ausführen, ADR/API-Nummer und
-Vertrag freigeben, anschließend selbst committen und integrieren.
+Keine eigenen Container angelegt, temporäre dbfix-/Guard-/Antwortverzeichnisse
+aufgeräumt. Alle eigenen Prüfprozesse sind abgeschlossen; keine eigenen Jobs offen.
+Temporärer Go-Cache bleibt außerhalb des Repositories. Unintegriert sind die oben
+beschriebenen Änderungen gegenüber HEAD; `git status --short` zeigt auch die neue
+v14-Datei und das neue Guardtestskript, die der Lead beim Commit aufnehmen muss.
+
+Nächster konkreter Schritt: Lead lässt den Diff unabhängig prüfen, führt auf einem
+geeigneten Host `python3 -B scripts/test-search.py` und den uneingeschränkten
+Gesamtracelauf aus, übernimmt den finalen v13-Vertrag additiv in v14, prüft alle
+Wächter erneut und committet/integriert nach Freigabe selbst.

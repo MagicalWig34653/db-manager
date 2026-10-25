@@ -32,7 +32,7 @@ func TestSearchHTTP(t *testing.T) {
 		if path == "capabilities" {
 			method = "GET"
 		}
-		r := httptest.NewRequest(method, "/api/v15/"+path, bytes.NewReader(data))
+		r := httptest.NewRequest(method, "/api/v14/"+path, bytes.NewReader(data))
 		r.Header.Set("Content-Type", "application/json")
 		if auth {
 			r.Header.Set("Authorization", "Bearer "+token)
@@ -52,7 +52,7 @@ func TestSearchHTTP(t *testing.T) {
 			t.Fatal(path, w.Code)
 		}
 	}
-	if w := send("capabilities", nil, true); w.Code != 200 || !strings.Contains(w.Body.String(), "0.15.0") {
+	if w := send("capabilities", nil, true); w.Code != 200 || !strings.Contains(w.Body.String(), "0.14.0") {
 		t.Fatal(w.Code, w.Body.String())
 	}
 	conn := core.Connection{Driver: "sqlite", Database: "search_http"}

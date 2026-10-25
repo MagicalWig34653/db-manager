@@ -17,7 +17,7 @@ Metadaten und nativ berechnete Nachherwerte in den Plan-Hash aufnehmen. Nur
 transaktionale Basistabellen mit stabilem PK zulassen; unter Sperren neu berechnen,
 danach gebundene Einzelupdates und vollständige Nachprüfung in derselben Transaktion.
 Die [API-Beschreibung](../../contracts/SEARCH-API.md) definiert Details und Grenzen.
-Keine Bestands-API erweitern; zusätzliche Filter liegen allein auf v15.
+Keine Bestands-API erweitern; zusätzliche Filter liegen allein auf v14.
 
 ## Folgen und Alternativen
 

@@ -21,11 +21,16 @@ def main():
     systems = () if args.sqlite_only else ('mysql', 'maria', 'postgres')
     if not args.sqlite_only:
         subprocess.run(['docker', 'ps', '--format', '{{.Names}} {{.Status}}'], check=True)
-    with Fixtures('w-p14', systems=systems) as fx, tempfile.TemporaryDirectory(prefix='dbmanager-w-p14-results-') as scratch:
-        env = fx.environment()
-        env['DBM_SEARCH_DUMP'] = scratch
-        subprocess.run(['go', 'test', '-race', '-count=1', '-v', './internal/database', './internal/httpapi', '-run',
-                        'TestSQLiteSearch|TestSQLiteReplaceSafety|TestLiveSearch|TestSearchHTTP'], cwd=ROOT, env=env, check=True)
+    # Run one owned network fixture at a time to keep the shared host bounded.
+    with tempfile.TemporaryDirectory(prefix='dbmanager-w-p14-results-') as scratch:
+        for system in systems or (None,):
+            with Fixtures('w-p14', systems=(system,) if system else ()) as fx:
+                env = fx.environment()
+                env['DBM_SEARCH_DUMP'] = scratch
+                subprocess.run(['go', 'test', '-race', '-count=1', '-v', './internal/database', './internal/httpapi', '-run',
+                                'TestSQLiteSearch|TestSQLiteReplaceSafety|TestSearchBrowseSQL|TestLiveSearch|TestSearchHTTP'], cwd=ROOT, env=env, check=True)
+            if system:
+                assert not fx.leftovers(), 'owned fixture containers remain'
         components = {'search': 'SearchResult', 'plan': 'ReplacePlan', 'result': 'ReplaceResult',
                       'browse': 'BrowseResult', 'rejected': 'ReplaceResult', 'unknown': 'ReplaceResult', 'capabilities': 'SearchCapabilities'}
         seen = set()
@@ -39,8 +44,6 @@ def main():
             expected |= {'TestLiveSearch_mysql', 'TestLiveSearch_maria', 'TestLiveSearch_postgres'}
         assert expected <= seen, (expected, seen)
         print('search: native results validated for ' + ', '.join(sorted(seen)))
-    if not args.sqlite_only:
-        assert not fx.leftovers(), 'owned fixture containers remain'
 
 
 if __name__ == '__main__':

@@ -7,9 +7,9 @@ import (
 )
 
 func (a *API) registerSearch(mux *http.ServeMux) {
-	mux.Handle("GET /api/v15/capabilities", a.auth(http.HandlerFunc(a.searchCapabilities)))
+	mux.Handle("GET /api/v14/capabilities", a.auth(http.HandlerFunc(a.searchCapabilities)))
 	for _, path := range []string{"search", "tables/browse", "replace/plan", "replace"} {
-		mux.Handle("POST /api/v15/"+path, a.auth(a.searchHandler(path)))
+		mux.Handle("POST /api/v14/"+path, a.auth(a.searchHandler(path)))
 	}
 }
 func (a *API) searchCapabilities(w http.ResponseWriter, r *http.Request) {

@@ -1,19 +1,20 @@
-# Suche und Ersetzen – vorläufig API 0.15.0
+# Suche und Ersetzen – API 0.14.0
 
-[Schema](api-v0.15.0.json), [synthetische Fixtures](fixtures/search/README.md).
-Kandidat für W-P14, kein Vertragsfreeze und kein Web-Pin. Alle Bestandsrouten und
-Schemas bis einschließlich 0.8 bleiben unverändert. Jede Route verlangt Bearer-Auth,
+[Schema](api-v0.14.0.json), [synthetische Fixtures](fixtures/search/README.md).
+Kandidat für W-P14 mit endgültiger API-Nummer 0.14, kein Vertragsfreeze und kein Web-Pin.
+Auf v12 aufgebaut; v13 (W-P09) entsteht parallel und wird vom Lead vor Integration additiv übernommen. Alle Bestandsrouten und
+Schemas bis einschließlich 0.12 bleiben unverändert. Jede Route verlangt Bearer-Auth,
 eine flüchtige Verbindung wie bisher und strikt strukturierte JSON-Anfragen bis 1 MiB.
 Unbekannte Felder, explizites `null`, fehlende Pflichtfelder und ungültige Grenzen
 werden abgewiesen. Keine Anfrage enthält freies SQL.
 
 | Route | Zweck |
 | --- | --- |
-| `GET /api/v15/capabilities` | Modi, Treibergrenzen und Limits |
-| `POST /api/v15/search` | Mehrtabellensuche mit Trefferzählung und Vorschau |
-| `POST /api/v15/tables/browse` | Bestehende Zeilenansicht mit erweiterten UND-Filtern |
-| `POST /api/v15/replace/plan` | Ersetzungsvorschau ohne UPDATE oder Commit |
-| `POST /api/v15/replace` | Bestätigte transaktionale Ersetzung |
+| `GET /api/v14/capabilities` | Modi, Treibergrenzen und Limits |
+| `POST /api/v14/search` | Mehrtabellensuche mit Trefferzählung und Vorschau |
+| `POST /api/v14/tables/browse` | Bestehende Zeilenansicht mit erweiterten UND-Filtern |
+| `POST /api/v14/replace/plan` | Ersetzungsvorschau ohne UPDATE oder Commit |
+| `POST /api/v14/replace` | Bestätigte transaktionale Ersetzung |
 
 ## Suche und Filter
 
@@ -109,7 +110,9 @@ Antwort HTTP200:
 - `outcome_unknown`: Fehler beim Commitversuch, Anzahl 0 bedeutet **unbekannt**,
   nicht „sicher keine Änderung“; `reason:commit_unknown`. Zustand laden, niemals blind
   wiederholen. Auch `completed` verhindert keinen Replay nach späterer Wiederherstellung
-  identischer Daten; es gibt keinen persistenten Plan-/Idempotenzspeicher.
+  identischer Daten; es gibt keinen persistenten Plan-/Idempotenzspeicher. Clients
+  sperren die Aktion nach `completed` oder `outcome_unknown` und verlangen für
+  jede weitere Ausführung einen neuen Plan und eine neue Bestätigung.
 
 ## Grenzen und Fehler
 

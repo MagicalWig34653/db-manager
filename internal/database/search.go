@@ -209,7 +209,7 @@ func (e *Engine) Search(ctx context.Context, r core.SearchRequest) (core.SearchR
 	return result, nil
 }
 
-// SearchBrowse adds operators only on v15; the frozen v2 SQL builder stays unchanged.
+// SearchBrowse adds operators only on v14; the frozen v2 SQL builder stays unchanged.
 func (e *Engine) SearchBrowse(ctx context.Context, r core.BrowseRequest) (core.BrowseResult, error) {
 	if !validTableRef(r.Table) || len(r.Filters) > 16 || len(r.Sort) > 16 {
 		return core.BrowseResult{}, invalidSearch()
@@ -229,77 +229,10 @@ func (e *Engine) SearchBrowse(ctx context.Context, r core.BrowseRequest) (core.B
 	if err != nil {
 		return core.BrowseResult{}, safe(ctx, err)
 	}
-	base := r
-	base.Filters = nil
-	query, args, err := browseSQL(base, d)
+	query, args, err := searchBrowseSQL(r, d)
 	if err != nil {
 		return core.BrowseResult{}, err
 	}
-	// Build predicates independently, then shift PostgreSQL LIMIT/OFFSET slots.
-	b := searchBuilder{driver: r.Connection.Driver}
-	clauses := []string{}
-	for _, f := range r.Filters {
-		found := false
-		for _, col := range d.Columns {
-			if col.Name == f.Column {
-				found = true
-			}
-		}
-		if !found {
-			return core.BrowseResult{}, invalidSearch()
-		}
-		name := quoteIdentifier(b.driver, f.Column)
-		if f.Operator == "is_null" || f.Operator == "is_not_null" {
-			if f.Value != nil {
-				return core.BrowseResult{}, invalidSearch()
-			}
-			suffix := " IS NULL"
-			if f.Operator == "is_not_null" {
-				suffix = " IS NOT NULL"
-			}
-			clauses = append(clauses, name+suffix)
-			continue
-		}
-		if f.Value == nil {
-			return core.BrowseResult{}, invalidSearch()
-		}
-		v, err := filterValue(*f.Value)
-		if err != nil {
-			return core.BrowseResult{}, err
-		}
-		op := map[string]string{"eq": "=", "ne": "<>", "lt": "<", "lte": "<=", "gt": ">", "gte": ">="}[f.Operator]
-		if f.Operator == "contains" {
-			if f.Value.Kind != "text" {
-				return core.BrowseResult{}, invalidSearch()
-			}
-			clauses = append(clauses, name+" LIKE "+b.bind("%"+escapeLike(f.Value.Value)+"%")+" ESCAPE '!'")
-			continue
-		}
-		if f.Operator == "like" {
-			if f.Value.Kind != "text" {
-				return core.BrowseResult{}, invalidSearch()
-			}
-			clauses = append(clauses, name+" LIKE "+b.bind(v)+" ESCAPE '!'")
-			continue
-		}
-		if op == "" {
-			return core.BrowseResult{}, invalidSearch()
-		}
-		clauses = append(clauses, name+" "+op+" "+b.bind(v))
-	}
-	if len(clauses) > 0 {
-		if b.driver == "postgres" {
-			query = strings.ReplaceAll(query, "$2", "$"+strconv.Itoa(len(b.args)+2))
-			query = strings.ReplaceAll(query, "$1 ", "$"+strconv.Itoa(len(b.args)+1)+" ")
-		}
-		marker := " LIMIT "
-		if strings.Contains(query, " ORDER BY ") {
-			marker = " ORDER BY "
-		}
-		at := strings.Index(query, marker)
-		query = query[:at] + " WHERE " + strings.Join(clauses, " AND ") + query[at:]
-	}
-	args = append(b.args, args...)
 	set, err := boundTableRows(ctx, db, r.Connection, query, args, r.PageSize)
 	if err != nil {
 		return core.BrowseResult{}, safe(ctx, err)
@@ -316,4 +249,84 @@ func (e *Engine) SearchBrowse(ctx context.Context, r core.BrowseRequest) (core.B
 		return core.BrowseResult{}, public("result_too_large", "Ergebnis ist zu groß.")
 	}
 	return result, nil
+}
+
+func searchBrowseSQL(r core.BrowseRequest, d core.TableDescription) (string, []any, error) {
+	base := r
+	base.Filters = nil
+	query, args, err := browseSQL(base, d)
+	if err != nil {
+		return "", nil, err
+	}
+	// Build predicates and pagination parameters in a single binding sequence.
+	b := searchBuilder{driver: r.Connection.Driver}
+	clauses := []string{}
+	for _, f := range r.Filters {
+		found := false
+		for _, col := range d.Columns {
+			if col.Name == f.Column {
+				found = true
+			}
+		}
+		if !found {
+			return "", nil, invalidSearch()
+		}
+		name := quoteIdentifier(b.driver, f.Column)
+		if f.Operator == "is_null" || f.Operator == "is_not_null" {
+			if f.Value != nil {
+				return "", nil, invalidSearch()
+			}
+			suffix := " IS NULL"
+			if f.Operator == "is_not_null" {
+				suffix = " IS NOT NULL"
+			}
+			clauses = append(clauses, name+suffix)
+			continue
+		}
+		if f.Value == nil {
+			return "", nil, invalidSearch()
+		}
+		v, err := filterValue(*f.Value)
+		if err != nil {
+			return "", nil, err
+		}
+		op := map[string]string{"eq": "=", "ne": "<>", "lt": "<", "lte": "<=", "gt": ">", "gte": ">="}[f.Operator]
+		if f.Operator == "contains" {
+			if f.Value.Kind != "text" {
+				return "", nil, invalidSearch()
+			}
+			clauses = append(clauses, name+" LIKE "+b.bind("%"+escapeLike(f.Value.Value)+"%")+" ESCAPE '!'")
+			continue
+		}
+		if f.Operator == "like" {
+			if f.Value.Kind != "text" {
+				return "", nil, invalidSearch()
+			}
+			clauses = append(clauses, name+" LIKE "+b.bind(v)+" ESCAPE '!'")
+			continue
+		}
+		if op == "" {
+			return "", nil, invalidSearch()
+		}
+		clauses = append(clauses, name+" "+op+" "+b.bind(v))
+	}
+	// Split at the exact catalog-derived SELECT prefix, never at SQL-looking
+	// text that may occur inside a quoted table/column name.
+	names := []string{}
+	for _, col := range d.Columns {
+		names = append(names, quoteIdentifier(b.driver, col.Name))
+	}
+	prefix := "SELECT " + strings.Join(names, ",") + " FROM " + searchTable(d, b.driver)
+	suffix := strings.TrimPrefix(query, prefix)
+	limit := " LIMIT ? OFFSET ?"
+	if b.driver == "postgres" {
+		limit = " LIMIT $1 OFFSET $2"
+	}
+	order := strings.TrimSuffix(suffix, limit)
+	query = prefix
+	if len(clauses) > 0 {
+		query += " WHERE " + strings.Join(clauses, " AND ")
+	}
+	query += order + " LIMIT " + b.bind(args[0]) + " OFFSET " + b.bind(args[1])
+	return query, b.args, nil
 }
