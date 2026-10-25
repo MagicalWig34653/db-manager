@@ -1,0 +1,42 @@
+{
+  "driver": "mysql",
+  "objects": [
+    {
+      "object": {
+        "kind": "event",
+        "schema": "placeholder_schema",
+        "name": "placeholder_event"
+      },
+      "definition": "Platzhalter: vollständige Definition aus describe.",
+      "body": "Platzhalter: Nutzer-SQL",
+      "parameters": [],
+      "properties": {
+        "status": "DISABLED",
+        "event_type": "RECURRING",
+        "interval_value": "1",
+        "interval_unit": "DAY",
+        "starts": "2099-01-01 00:00:00",
+        "ends": "",
+        "last_executed": "",
+        "on_completion": "PRESERVE",
+        "time_zone": "SYSTEM"
+      },
+      "definer": {
+        "name": "placeholder_owner",
+        "host": "placeholder_host"
+      },
+      "security": null,
+      "dependencies": [],
+      "dependencies_truncated": false,
+      "warnings": [
+        "Synthetischer Platzhalter, keine beobachtete Serverantwort."
+      ]
+    }
+  ],
+  "has_more": false,
+  "scheduler": "OFF",
+  "event_errors_state": "unavailable",
+  "warnings": [
+    "Synthetischer Platzhalter."
+  ]
+}
