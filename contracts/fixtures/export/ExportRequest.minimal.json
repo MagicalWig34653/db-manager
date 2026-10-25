@@ -1,0 +1,11 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "synthetic_export"
+  },
+  "tables": [
+    {
+      "name": "synthetic table"
+    }
+  ]
+}

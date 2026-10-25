@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dbmanager:export-format:1",
+  "title": "DB Manager Exportformat 1 (vorläufig)",
+  "$defs": {
+    "Cell": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "null",
+            "text",
+            "integer",
+            "decimal",
+            "float",
+            "boolean",
+            "binary",
+            "timestamp"
+          ]
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "kind": {
+              "const": "null"
+            }
+          },
+          "not": {
+            "required": [
+              "value"
+            ]
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "enum": [
+                "text",
+                "integer",
+                "decimal",
+                "float",
+                "boolean",
+                "binary",
+                "timestamp"
+              ]
+            }
+          },
+          "required": [
+            "value"
+          ]
+        }
+      ]
+    },
+    "ExportTableRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "schema": {
+          "type": "string",
+          "maxLength": 1024,
+          "pattern": "^[^\\u0000]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^[^\\u0000]+$"
+        }
+      }
+    },
+    "ExportColumn": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "database_type"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "database_type": {
+          "type": "string"
+        }
+      }
+    },
+    "ExportJSONTable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "database",
+        "table",
+        "columns",
+        "rows"
+      ],
+      "properties": {
+        "database": {
+          "type": "string"
+        },
+        "table": {
+          "$ref": "#/$defs/ExportTableRef"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ExportColumn"
+          },
+          "maxItems": 1024
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/Cell"
+            },
+            "maxItems": 1024
+          }
+        }
+      }
+    },
+    "ExportDocument": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "format",
+        "version",
+        "snapshot",
+        "tables",
+        "complete"
+      ],
+      "properties": {
+        "format": {
+          "type": "string",
+          "const": "dbmanager-export"
+        },
+        "version": {
+          "type": "integer",
+          "const": 1
+        },
+        "snapshot": {
+          "type": "string",
+          "enum": [
+            "per_database",
+            "read_only_best_effort"
+          ]
+        },
+        "tables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ExportJSONTable"
+          }
+        },
+        "complete": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    },
+    "ResultSnapshotColumn": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "type"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "ResultSnapshotScope": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "sql_result"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "offset",
+            "page_size",
+            "has_more"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "table_page"
+            },
+            "offset": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "page_size": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "has_more": {
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    },
+    "ResultSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "scope",
+        "truncated",
+        "columns",
+        "rows"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "integer",
+          "const": 1
+        },
+        "scope": {
+          "$ref": "#/$defs/ResultSnapshotScope"
+        },
+        "truncated": {
+          "type": "boolean"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ResultSnapshotColumn"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/Cell"
+            }
+          }
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/ResultSnapshot"
+    },
+    {
+      "$ref": "#/$defs/ExportDocument"
+    }
+  ],
+  "$comment": "SPDX-License-Identifier: AGPL-3.0-only"
+}

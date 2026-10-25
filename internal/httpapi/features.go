@@ -69,6 +69,7 @@ var featureList = []Feature{
 	func(mux *http.ServeMux, a *API) { a.registerObjectOps(mux) },
 	func(mux *http.ServeMux, a *API) { a.registerColumns(mux) },
 	func(mux *http.ServeMux, a *API) { a.registerMaintenance(mux) },
+	func(mux *http.ServeMux, a *API) { a.registerExport(mux) },
 }
 
 func (a *API) registerFeatures(mux *http.ServeMux) {

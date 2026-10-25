@@ -1,0 +1,60 @@
+{
+  "format": "dbmanager-export",
+  "version": 1,
+  "snapshot": "per_database",
+  "tables": [
+    {
+      "database": "synthetic_export",
+      "table": {
+        "schema": "main",
+        "name": "synthetic table"
+      },
+      "columns": [
+        {
+          "name": "number",
+          "database_type": "INTEGER"
+        },
+        {
+          "name": "empty",
+          "database_type": "TEXT"
+        },
+        {
+          "name": "null",
+          "database_type": "TEXT"
+        },
+        {
+          "name": "binary",
+          "database_type": "BLOB"
+        },
+        {
+          "name": "unicode",
+          "database_type": "TEXT"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "kind": "integer",
+            "value": "9007199254740993"
+          },
+          {
+            "kind": "text",
+            "value": ""
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "binary",
+            "value": "AP8="
+          },
+          {
+            "kind": "text",
+            "value": "雪,Grüße\n'\\"
+          }
+        ]
+      ]
+    }
+  ],
+  "complete": true
+}

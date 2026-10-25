@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "scope": {
+    "kind": "table_page",
+    "offset": 25,
+    "page_size": 25,
+    "has_more": true
+  },
+  "truncated": true,
+  "columns": [
+    {
+      "name": "synthetic",
+      "type": "INTEGER"
+    },
+    {
+      "name": "synthetic",
+      "type": "TEXT"
+    }
+  ],
+  "rows": [
+    [
+      {
+        "kind": "integer",
+        "value": "9007199254740993"
+      },
+      {
+        "kind": "text",
+        "value": ""
+      }
+    ]
+  ]
+}
