@@ -1,0 +1,7 @@
+{
+  "format": "dbmanager-export",
+  "version": 1,
+  "snapshot": "per_database",
+  "tables": [],
+  "complete": false
+}

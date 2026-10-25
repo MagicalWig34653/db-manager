@@ -1,0 +1,6 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "synthetic_export"
+  }
+}

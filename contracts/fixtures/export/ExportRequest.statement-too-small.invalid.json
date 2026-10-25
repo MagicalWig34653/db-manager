@@ -1,0 +1,12 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "synthetic_export"
+  },
+  "tables": [
+    {
+      "name": "synthetic"
+    }
+  ],
+  "max_statement_bytes": 1023
+}

@@ -103,7 +103,7 @@ FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE `+where+` ORDE
 	return result, nil
 }
 
-func postgresDefinition(ctx context.Context, db *sql.DB, ref core.TableRef) (core.DefinitionResult, error) {
+func postgresDefinition(ctx context.Context, db metadataQuerier, ref core.TableRef) (core.DefinitionResult, error) {
 	result := core.DefinitionResult{Warnings: []string{}}
 	var oid, ns, name, relkind string
 	err := db.QueryRowContext(ctx, `SELECT c.oid::text, n.nspname, c.relname, c.relkind::text FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace

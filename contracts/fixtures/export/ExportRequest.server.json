@@ -1,0 +1,14 @@
+{
+  "connection": {
+    "driver": "mysql",
+    "host": "localhost",
+    "database": "synthetic_db",
+    "username": "PLACEHOLDER_USER",
+    "password": "PLACEHOLDER_NOT_A_SECRET"
+  },
+  "scope": "server",
+  "databases": [
+    "synthetic_db"
+  ],
+  "format": "json"
+}
