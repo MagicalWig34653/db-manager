@@ -96,6 +96,34 @@ func TestLivePrograms(t *testing.T) {
 				}
 			}
 			execute(t, e, c, "DROP VIEW p19_dependent")
+			// A hidden schema must not leak through dependency responses, even if
+			// the caller has SELECT on an object inside it.
+			if c.Driver == "postgres" {
+				execute(t, e, c, "CREATE ROLE p19_dependency_reader LOGIN PASSWORD 'public-p19-dependency-fixture'")
+				execute(t, e, c, "CREATE SCHEMA p19_private")
+				execute(t, e, c, "CREATE VIEW p19_private.hidden_view AS SELECT * FROM "+q)
+				execute(t, e, c, "GRANT USAGE ON SCHEMA public TO p19_dependency_reader")
+				execute(t, e, c, "GRANT SELECT ON "+q+", p19_private.hidden_view TO p19_dependency_reader")
+				reader := c
+				reader.Username, reader.Password = "p19_dependency_reader", "public-p19-dependency-fixture"
+				details := programReadOne(t, e, reader, view)
+				for _, dep := range details.Dependencies {
+					if dep.Object.Schema == "p19_private" {
+						t.Fatal("dependency disclosed an inaccessible schema")
+					}
+				}
+				execute(t, e, c, "GRANT USAGE ON SCHEMA p19_private TO p19_dependency_reader")
+				details = programReadOne(t, e, reader, view)
+				visible := false
+				for _, dep := range details.Dependencies {
+					visible = visible || dep.Object.Schema == "p19_private" && dep.Object.Name == "hidden_view"
+				}
+				if !visible {
+					t.Fatal("visible dependency missing")
+				}
+				execute(t, e, c, "DROP VIEW p19_private.hidden_view")
+				execute(t, e, c, "DROP SCHEMA p19_private")
+			}
 			// Both routine kinds: metadata, native export, structured replace and DROP.
 			// Their bodies are never invoked, including during validation.
 			for _, kind := range []string{"function", "procedure"} {
@@ -194,7 +222,39 @@ func TestLivePrograms(t *testing.T) {
 				req.Input.Body = "BEGIN INSERT INTO p19_audit VALUES(NEW.value); END"
 				programApply(t, e, req)
 			}
-			programApply(t, e, core.ProgramChangeRequest{Connection: c, Action: "drop", Object: trigger})
+			if c.Driver == "postgres" {
+				replacement := core.ProgramRef{Kind: "function", Schema: schema, Name: "p19_trigger_fn_new"}
+				programApply(t, e, core.ProgramChangeRequest{Connection: c, Action: "create", Object: replacement, Input: &core.ProgramInput{Body: "BEGIN RETURN NEW; END", Returns: "trigger", Language: "plpgsql"}})
+				req.Action, req.Input.Function = "replace", &replacement
+				plan, err := e.ProgramPlan(ctx, req)
+				if err != nil {
+					t.Fatal(err)
+				}
+				found := false
+				for _, dep := range plan.Dependencies {
+					found = found || dep.Direction == "outgoing" && dep.Object.Name == replacement.Name
+				}
+				if !found {
+					t.Fatal("planned trigger function missing from dependencies")
+				}
+				programApply(t, e, req)
+				programApply(t, e, core.ProgramChangeRequest{Connection: c, Action: "drop", Object: trigger})
+				programApply(t, e, core.ProgramChangeRequest{Connection: c, Action: "drop", Object: replacement})
+			} else {
+				programApply(t, e, core.ProgramChangeRequest{Connection: c, Action: "drop", Object: trigger})
+			}
+			// Driver parsing must reject appended statements without applying either.
+			injection := core.ProgramChangeRequest{Connection: c, Action: "create", Object: core.ProgramRef{Kind: "view", Schema: schema, Name: "p19_injected"}, Input: &core.ProgramInput{Body: "SELECT 1 AS value; DROP TABLE p19_neighbor"}}
+			badPlan, err := e.ProgramPlan(ctx, injection)
+			if err != nil {
+				t.Fatal(err)
+			}
+			result, err := e.ProgramExecute(ctx, core.ProgramExecuteRequest{ProgramChangeRequest: injection, Confirm: dbplan.Confirmation{Action: "create"}, ExpectedPlanSHA256: badPlan.SHA256})
+			if err != nil || result.Outcome != "rejected" {
+				t.Fatalf("trailing statement %#v %v", result, err)
+			}
+			_, err = e.Programs(ctx, core.ProgramsRequest{Connection: c, Object: &injection.Object})
+			programCode(t, err, "object_not_found")
 			execute(t, e, c, "INSERT INTO p19_source VALUES(9)")
 			if queryText(t, e, c, "SELECT sum(value) FROM p19_audit") != "15" {
 				t.Fatal("trigger remained")
@@ -204,7 +264,7 @@ func TestLivePrograms(t *testing.T) {
 			}
 			if c.Driver == "mysql" {
 				event := core.ProgramRef{Kind: "event", Schema: schema, Name: "p19_event"}
-				req := core.ProgramChangeRequest{Connection: c, Action: "create", Object: event, Input: &core.ProgramInput{Body: "BEGIN INSERT INTO p19_audit VALUES(99); END", Schedule: &core.ProgramSchedule{Every: 1, Unit: "day", Starts: "2099-01-01 00:00:00", Preserve: true}, Status: "disabled"}}
+				req := core.ProgramChangeRequest{Connection: c, Action: "create", Object: event, Input: &core.ProgramInput{Body: "BEGIN INSERT INTO p19_audit VALUES(99); END", Schedule: &core.ProgramSchedule{Every: 1, Unit: "day", Starts: "2030-01-01 00:00:00", Preserve: true}, Status: "disabled"}}
 				programApply(t, e, req)
 				details := programReadOne(t, e, c, event)
 				if details.Properties["status"] != "DISABLED" || details.Properties["interval_unit"] != "DAY" || details.Definition == nil {
@@ -242,7 +302,7 @@ func TestLivePrograms(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			result, err := e.ProgramExecute(ctx, core.ProgramExecuteRequest{ProgramChangeRequest: request, Confirm: dbplan.Confirmation{Action: "create"}, ExpectedPlanSHA256: plan.SHA256})
+			result, err = e.ProgramExecute(ctx, core.ProgramExecuteRequest{ProgramChangeRequest: request, Confirm: dbplan.Confirmation{Action: "create"}, ExpectedPlanSHA256: plan.SHA256})
 			if err != nil || result.Outcome != "rejected" || result.Reason != "permission_denied" {
 				t.Fatalf("privileges %#v %v", result, err)
 			}

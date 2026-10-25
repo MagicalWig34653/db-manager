@@ -23,7 +23,7 @@ func TestProgramsHTTP(t *testing.T) {
 	api := httpapi.New(e, strings.Repeat("p", 32))
 	send := func(method, path string, input any, auth bool) *httptest.ResponseRecorder {
 		raw, _ := json.Marshal(input)
-		r := httptest.NewRequest(method, "/api/v19/"+path, strings.NewReader(string(raw)))
+		r := httptest.NewRequest(method, "/api/v17/"+path, strings.NewReader(string(raw)))
 		r.Header.Set("Content-Type", "application/json")
 		if auth {
 			r.Header.Set("Authorization", "Bearer "+strings.Repeat("p", 32))

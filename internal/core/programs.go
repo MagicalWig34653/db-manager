@@ -6,7 +6,7 @@ import (
 	"github.com/MagicalWig34653/db-manager/internal/dbplan"
 )
 
-const ProgramsContractVersion = "0.19.0"
+const ProgramsContractVersion = "0.17.0"
 const ProgramsMaxBodyBytes = 262144
 const ProgramsMaxObjects = 200
 

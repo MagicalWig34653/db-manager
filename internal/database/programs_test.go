@@ -275,3 +275,27 @@ func TestProgramDialectStatements(t *testing.T) {
 		t.Fatal(schedule, err)
 	}
 }
+
+func TestProgramsReplacementDependencies(t *testing.T) {
+	e := testEngine(t)
+	c := sqliteConnection()
+	execute(t, e, c, "CREATE TABLE old_source(value INTEGER)")
+	execute(t, e, c, "CREATE TABLE new_source(value INTEGER)")
+	request := core.ProgramChangeRequest{Connection: c, Action: "create", Object: core.ProgramRef{Kind: "view", Name: "changing_view"}, Input: &core.ProgramInput{Body: "SELECT value FROM old_source"}}
+	programApply(t, e, request)
+	request.Action = "replace"
+	request.Input.Body = "SELECT value FROM new_source"
+	plan, err := e.ProgramPlan(context.Background(), request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	found := map[string]bool{}
+	for _, dep := range plan.Dependencies {
+		if dep.Direction == "outgoing" {
+			found[dep.Object.Name] = true
+		}
+	}
+	if !found["old_source"] || !found["new_source"] {
+		t.Fatalf("current and planned dependencies missing: %#v", plan.Dependencies)
+	}
+}

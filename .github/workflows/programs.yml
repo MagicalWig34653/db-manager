@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-name: Programmobjekte (API 0.19, vorläufig)
+name: Programmobjekte (API 0.17)
 on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read

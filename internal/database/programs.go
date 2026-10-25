@@ -273,14 +273,18 @@ func buildProgramPlan(ctx context.Context, env *opEnv, r core.ProgramChangeReque
 			warnings = append(warnings, "Ersetzen ist destruktiv. Bestehende Eigenschaften, Privilegien und Abhängigkeiten müssen anhand der exakten Anweisungen geprüft werden.")
 		}
 	}
-	if r.Action == "create" {
+	if r.Action != "drop" {
 		candidate := newProgram(p.Object)
 		candidate.Body = &r.Input.Body
 		if err = programDependencies(ctx, env, &candidate); err != nil {
 			return p, err
 		}
-		p.Dependencies = candidate.Dependencies
-		p.DependenciesTruncated = candidate.DependenciesTruncated
+		// Keep current dependencies as well as hints from the proposed body.
+		// Incoming references matter when replacing an existing definition.
+		for _, dependency := range candidate.Dependencies {
+			appendProgramDependency(&p, dependency)
+		}
+		p.DependenciesTruncated = p.DependenciesTruncated || candidate.DependenciesTruncated
 		if r.Input.Function != nil && env.c.Driver == "postgres" {
 			functionRef := *r.Input.Function
 			functionRef.Schema, err = programSchema(ctx, env, functionRef.Schema)
@@ -291,11 +295,7 @@ func buildProgramPlan(ctx context.Context, env *opEnv, r core.ProgramChangeReque
 			if err != nil {
 				return p, err
 			}
-			if len(p.Dependencies) < 100 {
-				p.Dependencies = append(p.Dependencies, core.ProgramDependency{Object: fn.Object, Direction: "outgoing", Certainty: "exact"})
-			} else {
-				p.DependenciesTruncated = true
-			}
+			appendProgramDependency(&p, core.ProgramDependency{Object: fn.Object, Direction: "outgoing", Certainty: "exact"})
 		}
 	}
 	affected := []string{r.Object.Kind + ":" + schema + "." + r.Object.Name}
@@ -311,6 +311,24 @@ func buildProgramPlan(ctx context.Context, env *opEnv, r core.ProgramChangeReque
 	}
 	return p, nil
 }
+
+// appendProgramDependency bounds and deduplicates current and planned references.
+func appendProgramDependency(plan *core.ProgramPlan, dependency core.ProgramDependency) {
+	for _, existing := range plan.Dependencies {
+		if existing.Direction == dependency.Direction && existing.Certainty == dependency.Certainty &&
+			existing.Object.Kind == dependency.Object.Kind && existing.Object.Schema == dependency.Object.Schema &&
+			existing.Object.Name == dependency.Object.Name && existing.Object.Identity == dependency.Object.Identity &&
+			programTableName(existing.Object) == programTableName(dependency.Object) {
+			return
+		}
+	}
+	if len(plan.Dependencies) >= 100 {
+		plan.DependenciesTruncated = true
+		return
+	}
+	plan.Dependencies = append(plan.Dependencies, dependency)
+}
+
 func programDrop(env *opEnv, ref core.ProgramRef) (string, error) {
 	q, err := opQualified(env.c.Driver, ref.Schema, ref.Name)
 	if err != nil {

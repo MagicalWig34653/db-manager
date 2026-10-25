@@ -8,12 +8,12 @@ import (
 )
 
 func (a *API) registerPrograms(mux *http.ServeMux) {
-	mux.Handle("GET /api/v19/capabilities", a.auth(http.HandlerFunc(a.programCapabilities)))
+	mux.Handle("GET /api/v17/capabilities", a.auth(http.HandlerFunc(a.programCapabilities)))
 	for _, route := range []string{"list", "describe", "dependencies"} {
-		mux.Handle("POST /api/v19/programs/"+route, a.auth(a.programRead(route)))
+		mux.Handle("POST /api/v17/programs/"+route, a.auth(a.programRead(route)))
 	}
-	mux.Handle("POST /api/v19/programs/plan", a.auth(http.HandlerFunc(a.programPlan)))
-	mux.Handle("POST /api/v19/programs/execute", a.auth(http.HandlerFunc(a.programExecute)))
+	mux.Handle("POST /api/v17/programs/plan", a.auth(http.HandlerFunc(a.programPlan)))
+	mux.Handle("POST /api/v17/programs/execute", a.auth(http.HandlerFunc(a.programExecute)))
 }
 func (a *API) programCapabilities(w http.ResponseWriter, r *http.Request) {
 	features := []string{}

@@ -15,7 +15,7 @@
         "event_type": "RECURRING",
         "interval_value": "1",
         "interval_unit": "DAY",
-        "starts": "2099-01-01 00:00:00",
+        "starts": "2030-01-01 00:00:00",
         "ends": "",
         "last_executed": "",
         "on_completion": "PRESERVE",

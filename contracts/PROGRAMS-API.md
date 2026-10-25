@@ -1,18 +1,20 @@
-# Programmobjekte – API 0.19 (vorläufig)
+# Programmobjekte – API 0.17
 
-W-P19 ergänzt API 0.8 um sechs Routen. Die Versionsnummer ist vorläufig und nicht
-im Web-Lock gepinnt. Eigener Code steht unter AGPL-3.0-only. Bestehende Vertragsbytes
-bleiben unverändert. Die [Schemas](api-v0.19.0.json) sind maßgeblich für JSON-Felder;
+W-P19 ergänzt API 0.12 um sechs Routen unter der endgültigen Nummer 0.17.
+V1 bis v12 bleiben unverändert; v13 bis v16 entstehen parallel und werden vom Lead
+bei der Integration additiv abgeglichen. Der Vertrag ist nicht im Web-Lock gepinnt.
+Eigener Code steht unter AGPL-3.0-only. Bestehende Vertragsbytes
+bleiben unverändert. Die [Schemas](api-v0.17.0.json) sind maßgeblich für JSON-Felder;
 dieser Text beschreibt zusätzliche semantische und dialektbezogene Prüfungen.
 
 | Methode und Route | Zweck |
 | --- | --- |
-| GET `/api/v19/capabilities` | Fähigkeiten je Treiber, Grenzen und ausgeschlossene Aktionen |
-| POST `/api/v19/programs/list` | Liste je Schema, Objektart und optional Tabelle für Trigger; Limit/Offset |
-| POST `/api/v19/programs/describe` | Ein Objekt mit Definition, Körper, Parametern, Eigenschaften, Definer, Sicherheitskontext und Abhängigkeiten |
-| POST `/api/v19/programs/dependencies` | Dieselbe Detailantwort, einschließlich Abhängigkeiten |
-| POST `/api/v19/programs/plan` | Wirkungsloser Plan für `create`, `replace` oder `drop` |
-| POST `/api/v19/programs/execute` | Neu berechneten Plan nach Hash- und Bestätigungsprüfung ausführen |
+| GET `/api/v17/capabilities` | Fähigkeiten je Treiber, Grenzen und ausgeschlossene Aktionen |
+| POST `/api/v17/programs/list` | Liste je Schema, Objektart und optional Tabelle für Trigger; Limit/Offset |
+| POST `/api/v17/programs/describe` | Ein Objekt mit Definition, Körper, Parametern, Eigenschaften, Definer, Sicherheitskontext und Abhängigkeiten |
+| POST `/api/v17/programs/dependencies` | Dieselbe Detailantwort, einschließlich Abhängigkeiten |
+| POST `/api/v17/programs/plan` | Wirkungsloser Plan für `create`, `replace` oder `drop` |
+| POST `/api/v17/programs/execute` | Neu berechneten Plan nach Hash- und Bestätigungsprüfung ausführen |
 
 Alle Routen sind Bearer-authentifiziert. Zugangsdaten bleiben wie bei den
 Bestandsrouten Teil der flüchtigen Verbindungseingabe. Unbekannte JSON-Felder
@@ -44,7 +46,9 @@ anschließend gequotet. Systemschemas sind ausgeschlossen. Ohne `schema` gelten
 Ein Tabellenfilter ist nur zusammen mit `kind=trigger` zulässig.
 
 Listen liefern die verfügbaren Katalogfelder; vollständige Definitionen und
-Parameter werden über `describe` geladen. MySQL/MariaDB verwendet dort SHOW
+Parameter werden über `describe` geladen. SQLite stellt Triggerzeitpunkt und
+Ereignis ausschließlich im Definitionstext bereit; `properties` bleibt dort leer.
+MySQL/MariaDB verwendet dort SHOW
 CREATE, SQLite `sqlite_schema`, PostgreSQL `pg_get_functiondef` bzw.
 `pg_get_triggerdef`. PostgreSQL-Views sind aus `pg_get_viewdef` und Katalogoptionen
 abgeleitet und als solche gekennzeichnet. `definition=null` bedeutet nicht
@@ -149,7 +153,11 @@ Erweiterungen, unsichtbare Objekte und noch nicht angelegte Definitionen können
 Verweise verbergen. SQLite/MySQL/MariaDB scannen höchstens 1000 sichtbare
 Kandidaten im selben Schema textuell, mit möglichen Fehlpositiven. Höchstens
 100 Beziehungen; `dependencies_truncated` kennzeichnet gekappte Ergebnisse.
-Das ist keine Zusage vollständiger oder schemaübergreifender Analyse.
+Beim Ersetzen vereinigt der Plan bestehende und aus der neuen Eingabe erkennbare
+Beziehungen; er ist keine Prognose des endgültigen Katalogzustands. Neue PostgreSQL-
+Triggerfunktionen werden ausdrücklich ergänzt. Abhängigkeiten aus Schemas ohne
+USAGE-Recht werden nicht offengelegt. Das ist keine Zusage vollständiger oder
+schemaübergreifender Analyse.
 
 MySQL/MariaDB liefert globalen Schedulerstatus ausschließlich lesend sowie
 Eventstatus, Zeitplan, letzte Ausführung, Zeitzone und ON COMPLETION aus dem
