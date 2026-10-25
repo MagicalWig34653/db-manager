@@ -1,0 +1,16 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "columns"
+  },
+  "table": {
+    "name": "fixture"
+  },
+  "changes": [
+    {
+      "action": "rename",
+      "column": "value",
+      "new_name": "renamed"
+    }
+  ]
+}

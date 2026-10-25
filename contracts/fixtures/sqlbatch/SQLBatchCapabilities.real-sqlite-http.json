@@ -1,0 +1,34 @@
+{
+  "available": true,
+  "confirmation_required": true,
+  "contract_version": "0.12.0",
+  "drivers": [
+    {
+      "batch": "limited",
+      "driver": "sqlite",
+      "explain": "limited",
+      "reason": "SQLite-Sandbox; Simulation einfacher DML ohne RETURNING und virtuelle Tabellen, Rollback erforderlich.",
+      "simulation": "limited"
+    },
+    {
+      "batch": "limited",
+      "driver": "mysql",
+      "explain": "limited",
+      "reason": "Auch MariaDB: keine allgemeine Rücknahme von Engine-, Trigger- und externen Effekten; maximal 100 Warncodes ohne Rohtext.",
+      "simulation": "unsupported"
+    },
+    {
+      "batch": "limited",
+      "driver": "postgres",
+      "explain": "limited",
+      "reason": "Sequenzen und externe Effekte sind nicht allgemein rücknehmbar; Serverhinweise nicht erfasst.",
+      "simulation": "unsupported"
+    }
+  ],
+  "explain_analyze": false,
+  "max_response_bytes": 8388608,
+  "max_rows": 10000,
+  "max_sql_bytes": 1048576,
+  "max_statements": 100,
+  "max_timeout_ms": 60000
+}

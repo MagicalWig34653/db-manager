@@ -1,0 +1,27 @@
+{
+  "items": [
+    {
+      "table": {
+        "schema": "main",
+        "name": "beispiel"
+      },
+      "action": "analyze",
+      "outcome": "completed",
+      "reason": "",
+      "checksum": null,
+      "duration_ms": 1
+    },
+    {
+      "table": {
+        "schema": "main",
+        "name": "beispiel"
+      },
+      "action": "analyze",
+      "outcome": "rejected",
+      "reason": "object_not_found",
+      "checksum": null,
+      "duration_ms": 1
+    }
+  ],
+  "partial": true
+}

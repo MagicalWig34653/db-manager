@@ -1,0 +1,21 @@
+{
+  "name": "DB Manager",
+  "short_name": "DB Manager",
+  "description": "Webbasierte Datenbankverwaltung für SQLite, MySQL, MariaDB und PostgreSQL.",
+  "lang": "de",
+  "dir": "ltr",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f7f9fc",
+  "theme_color": "#f7f9fc",
+  "categories": ["developer", "productivity", "utilities"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

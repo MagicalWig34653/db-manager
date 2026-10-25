@@ -1,0 +1,23 @@
+{
+  "driver": "sqlite",
+  "statements": [
+    "ALTER TABLE \"main\".\"col \"\"`' ;DROP TABLE neighbor\" ADD COLUMN \"new \"\"` value\" VARCHAR(40) NULL DEFAULT 'q''\\;DROP TABLE neighbor;--'"
+  ],
+  "warnings": [
+    "Strukturänderungen können die Tabelle sperren. Zeitlimit und DB-Rechte gelten.",
+    "Plan-Hash ist kein Replay-Schutz; nach Abschluss oder unbekanntem Ausgang neu planen und bestätigen."
+  ],
+  "affected_objects": [
+    "main.col \"`' ;DROP TABLE neighbor",
+    "main.col \"`' ;DROP TABLE neighbor.new \"` value"
+  ],
+  "plan_sha256": "c0dccf71c9727cb18e558f3e4498ae8e2eca7511a822c84f2dd95482e4e75e18",
+  "table": {
+    "schema": "main",
+    "name": "col \"`' ;DROP TABLE neighbor"
+  },
+  "destructive": false,
+  "target_name": "col \"`' ;DROP TABLE neighbor",
+  "dependencies": [],
+  "ddl_transactional": true
+}

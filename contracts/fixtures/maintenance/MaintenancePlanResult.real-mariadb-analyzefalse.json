@@ -1,0 +1,29 @@
+{
+  "items": [
+    {
+      "table": {
+        "schema": "p10_fixture",
+        "name": "maint_sentinel"
+      },
+      "action": "analyze",
+      "state": "planned",
+      "reason": "",
+      "plan": {
+        "driver": "mysql",
+        "statements": [
+          "ANALYZE TABLE `p10_fixture`.`maint_sentinel`"
+        ],
+        "warnings": [
+          "Die Laufzeit ist nicht vorhersagbar; Sperren können andere Sitzungen blockieren. Das Zeitlimit umfasst den gesamten Stapel.",
+          "Ein Abbruch garantiert keinen Rollback. Nach unbekanntem Ausgang nicht automatisch wiederholen."
+        ],
+        "affected_objects": [
+          "p10_fixture.maint_sentinel"
+        ],
+        "plan_sha256": "10bcb587566c0796db81adec60a7b646abd8358ee7792f68040c35b5a9982dcc"
+      },
+      "typed_confirmation": false,
+      "target_name": "maint_sentinel"
+    }
+  ]
+}

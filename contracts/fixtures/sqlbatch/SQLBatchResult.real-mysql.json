@@ -1,0 +1,44 @@
+{
+  "statements": [
+    {
+      "index": 1,
+      "outcome": "completed",
+      "results": [],
+      "rows_affected": "1",
+      "warnings": [],
+      "duration_ms": 5
+    },
+    {
+      "index": 2,
+      "outcome": "completed",
+      "results": [],
+      "rows_affected": "1",
+      "warnings": [],
+      "duration_ms": 3
+    },
+    {
+      "index": 3,
+      "outcome": "outcome_unknown",
+      "results": [],
+      "warnings": [],
+      "duration_ms": 0,
+      "error_code": "database_error",
+      "server_code": "1062"
+    },
+    {
+      "index": 4,
+      "outcome": "not_executed",
+      "results": [],
+      "warnings": [],
+      "duration_ms": 0
+    },
+    {
+      "index": 5,
+      "outcome": "not_executed",
+      "results": [],
+      "warnings": [],
+      "duration_ms": 0
+    }
+  ],
+  "duration_ms": 21
+}

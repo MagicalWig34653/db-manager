@@ -1,0 +1,27 @@
+{
+  "items": [
+    {
+      "table": {
+        "schema": "p10_fixture",
+        "name": "missing"
+      },
+      "action": "analyze",
+      "outcome": "rejected",
+      "reason": "object_not_found",
+      "checksum": null,
+      "duration_ms": 31
+    },
+    {
+      "table": {
+        "schema": "p10_fixture",
+        "name": "maint \"`'; SELECT 1--"
+      },
+      "action": "analyze",
+      "outcome": "completed",
+      "reason": "",
+      "checksum": null,
+      "duration_ms": 21
+    }
+  ],
+  "partial": true
+}

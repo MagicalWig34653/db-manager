@@ -1,0 +1,23 @@
+{
+  "driver": "mysql",
+  "statements": [
+    "ALTER TABLE `probe`.`col \"``' ;DROP TABLE neighbor` ADD COLUMN `new \"`` value` VARCHAR(40) NULL DEFAULT 'q''\\;DROP TABLE neighbor;--'"
+  ],
+  "warnings": [
+    "Strukturänderungen können die Tabelle sperren. Zeitlimit und DB-Rechte gelten.",
+    "Plan-Hash ist kein Replay-Schutz; nach Abschluss oder unbekanntem Ausgang neu planen und bestätigen."
+  ],
+  "affected_objects": [
+    "probe.col \"`' ;DROP TABLE neighbor",
+    "probe.col \"`' ;DROP TABLE neighbor.new \"` value"
+  ],
+  "plan_sha256": "5a13491d9d920b28dc041f98e755d753dcf5158c1869bf141e0ade126cf649ab",
+  "table": {
+    "schema": "probe",
+    "name": "col \"`' ;DROP TABLE neighbor"
+  },
+  "destructive": false,
+  "target_name": "col \"`' ;DROP TABLE neighbor",
+  "dependencies": [],
+  "ddl_transactional": false
+}

@@ -1,0 +1,11 @@
+{
+  "outcome": "rolled_back",
+  "rows_affected": "2",
+  "warnings": [
+    {
+      "code": "simulation_scope",
+      "message": "PLATZHALTER: Direkte Änderungen; keine spätere Ausführungsgarantie."
+    }
+  ],
+  "duration_ms": 0
+}

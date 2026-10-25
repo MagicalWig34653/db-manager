@@ -1,0 +1,10 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "columns"
+  },
+  "table": {
+    "name": "fixture"
+  },
+  "changes": null
+}

@@ -1,0 +1,29 @@
+{
+  "items": [
+    {
+      "table": {
+        "schema": "p10_fixture",
+        "name": "maint \"`'; SELECT 1--"
+      },
+      "action": "vacuum",
+      "state": "planned",
+      "reason": "",
+      "plan": {
+        "driver": "postgres",
+        "statements": [
+          "VACUUM (ANALYZE) \"p10_fixture\".\"maint \"\"`'; SELECT 1--\""
+        ],
+        "warnings": [
+          "Die Laufzeit ist nicht vorhersagbar; Sperren können andere Sitzungen blockieren. Das Zeitlimit umfasst den gesamten Stapel.",
+          "Ein Abbruch garantiert keinen Rollback. Nach unbekanntem Ausgang nicht automatisch wiederholen."
+        ],
+        "affected_objects": [
+          "p10_fixture.maint \"`'; SELECT 1--"
+        ],
+        "plan_sha256": "8168b1b579097d80a8f3bf0d35a65733459ba6b97c724e00283d2640abf01aaa"
+      },
+      "typed_confirmation": false,
+      "target_name": "maint \"`'; SELECT 1--"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "columns"
+  },
+  "table": {
+    "name": "fixture"
+  },
+  "changes": [
+    {
+      "action": "add",
+      "definition": {
+        "name": "new_value",
+        "type": {
+          "kind": "text",
+          "length": 40,
+          "precision": 0
+        },
+        "nullable": true,
+        "default": {
+          "mode": "none"
+        }
+      }
+    }
+  ]
+}
