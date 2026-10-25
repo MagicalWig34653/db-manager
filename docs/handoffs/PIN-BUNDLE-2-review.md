@@ -56,3 +56,20 @@ assets`, alle Dateien bytegleich zu 5921a9d (`cmp`); danach zurückgesetzt.
 | Quelltext-Lecks: `sourceMappingURL`, `/Users/` in `static/`; externe URLs in den Bundles | keine Treffer; nur w3.org-Namensräume, svelte.dev-Fehlerlinks (Text), Projekt-/Quelllinks; `connect-src 'self'` |
 
 Nicht ausgeführt: Lighthouse.
+
+## Nachreview (Autorenstand ef792ad, in den Review-Branch gemergt)
+
+Geprüft: `git diff 40d3d8e..origin/release/pin-bundle2` (Root-main b74d10e eingemergt, Assets unverändert).
+
+**Urteil: Freigabe.** Die Auflagen 1 bis 3 sind erfüllt, die Flake-Änderung ist plausibel. Keine Blocker, keine neuen Mittleren Befunde.
+
+| Prüfung | Ergebnis |
+| --- | --- |
+| (a) `verify_build` mit sechs provozierten Fehlern (Aufruf mit Kopie von `static/`) | verwaiste Datei: `Unreferenced asset chunks`; Chunk fehlt in `SHELL`: `shell list differs`; Quelllink fehlt: abgelehnt; Quelllink nur in einem Chunk statt im Entry: abgelehnt; 19 Chunks: `Too many asset chunks: 19 > 12`; zweites Entry-Skript: abgelehnt. Alle als `ValueError`, den `main()` mit Exit 1 meldet. Unverändertes Inventar besteht. |
+| (a) alter Pin 8ef738d | Lock aus 5921a9d eingesetzt, `build-web.py` ok (5 Assets), `index.html`, Assets, Lizenztexte und `assets-manifest.json` bytegleich zu 5921a9d; danach zurückgesetzt, `--check` mit 17 Dateien ok |
+| (b) `check-pwa-embedded.mjs` | grün; Fehler provoziert (Proxy lässt `cache.put` für einen Chunk aus): `worker cache differs from SHELL`, Exit 1. Der Offline-Abruf aller Shell-Dateien (HTTP 200) ist im grünen Lauf Teil der Assertions |
+| (c) `export.spec.ts` | Begründung plausibel: Die Tabellenansicht stößt asynchron `POST .../insert-eligibility` an (zuvor 3 unerwartete Anfragen nach `networkidle`). Der Test sammelt jetzt Methode und Pfad, wartet auf `networkidle` und fordert `[]` neue API-Anfragen während der Downloads; die Aussagekraft bleibt, nur dieser eine schreibfreie Prüfpfad ist ausgenommen |
+| (d) Doku | `WEBBUILD.md` und `LIZENZEN.md` nennen 48c2f67; die verbleibenden Nennungen von 8ef738d und „ungepinnt“ sind ausdrücklich als historisch gekennzeichnet bzw. bedingt formuliert; `check-docs` 591 Dateien 0 Fehler |
+| Läufe | `build-web.py --check` (17), `test-build-web.py` OK, `go test -race ./...` ohne Fehler, `go vet`, `gofmt` leer, sieben Wächter ok, `test-web-integration.py` Exit 0 (13 von 13, `PWA embedded check passed.`), `test-deployment.py` (Compose, Swarm) ok, Ressourcen entfernt |
+
+Hinweise (niedrig, nicht blockierend): Der Ausschluss in `export.spec.ts` ist ein Suffixvergleich (`endsWith('/insert-eligibility')`); enger wäre der exakte Pfad `/api/v4/tables/insert-eligibility`. Der Cache-gegen-`SHELL`-Vergleich im PWA-Check ist selbstbezüglich (der Worker legt seine eigene Liste an); dass `SHELL` dem Inventar entspricht, stellt `verify_build` sicher. Beides zusammen ist ausreichend.
