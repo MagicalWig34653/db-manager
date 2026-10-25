@@ -37,7 +37,7 @@ beschrieben; Veröffentlichung (Images, Pages) bleibt ohne ausdrückliche Freiga
 | Paket | Geprüfter Stand | Abschlussgate |
 | --- | --- | --- |
 | B4a | Rootmain1b02ea3/API0.6, Reviewf36463d | Alle neun Main-CIs erfolgreich, keine neue Clientfunktion daraus ableiten |
-| F5/F6 | Webmainf75bfa1, Source8ef738d, Review469653dd | Alle drei Webmain-CIs erfolgreich |
+| F5/F6 (historischer Pin; Bündel 2 pinnt `48c2f67`, siehe [PIN-BUNDLE-2](handoffs/PIN-BUNDLE-2.md)) | Webmainf75bfa1, Source8ef738d, Review469653dd | Alle drei Webmain-CIs erfolgreich |
 | F5b | Produkt0dc9557, Handoff83dae46, Review968f375; Source8ef unverändert | Kombinierte Rootchecks/Main-CI, keine erneute Bytebereinigung oder Assetneubau |
 | W1 | Produkt08021c1, Handoff07b6b9c, Review983ac36, alle zehn Source-CIs grün | Kombinierter Build/Link-/Notices-/Browsercheck, autorisierte Veröffentlichung und echter Livebeweis |
 | A-TF1 | Apple-main359666f, Source645c8c1, Review7e6619e | Neue Main-CI getrennt prüfen; Upload/Verarbeitung durch Delivery-Agent |

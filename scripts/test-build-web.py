@@ -111,7 +111,8 @@ class ArtifactTests(unittest.TestCase):
     def test_lock_pins_the_five_frozen_contracts_in_order(self):
         lock = build_web.load_lock()
         self.assertEqual(lock["schema_version"], 2)
-        self.assertEqual([(c["family"], c["version"]) for c in lock["contracts"]], list(build_web.LEGACY_CONTRACTS))
+        self.assertEqual([(c["family"], c["version"]) for c in lock["contracts"]][:5], list(build_web.LEGACY_CONTRACTS))
+        self.assertEqual([(c["family"], c["version"]) for c in lock["contracts"]][5:], [("create", "0.6.0"), ("overview", "0.7.0")])
 
     def test_missing_or_empty_contract_list_is_rejected(self):
         for mutate in [lambda l: l.pop("contracts"), lambda l: l.update(contracts=[]), lambda l: l.update(contracts={})]:
@@ -119,7 +120,7 @@ class ArtifactTests(unittest.TestCase):
                 self.load_with(mutate)
 
     def test_each_frozen_contract_is_required_and_must_match(self):
-        for index, entry in enumerate(build_web.load_lock()["contracts"]):
+        for index, entry in enumerate(build_web.load_lock()["contracts"][:5]):
             with self.subTest(family=entry["family"], case="missing"), self.assertRaisesRegex(ValueError, "Missing frozen " + entry["family"]):
                 self.load_with(lambda l: l["contracts"].pop(index))
             with self.subTest(family=entry["family"], case="wrong sha"), self.assertRaisesRegex(ValueError, entry["family"] + " contract does not match"):
@@ -154,16 +155,15 @@ class ArtifactTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "lock version"):
             self.load_with(lambda l: l.update(table_contract_sha256="0" * 64))
 
-    def test_unpinned_extra_contract_must_exist_and_match_root_bytes(self):
-        extra = {"family": "create", "version": "0.6.0", "sha256": "0" * 64}
-        with self.assertRaisesRegex(ValueError, "create contract does not match"):
-            self.load_with(lambda l: l["contracts"].append(extra))
-        real = hashlib.sha256((build_web.ROOT / "contracts/api-v0.6.0.json").read_bytes()).hexdigest()
-        lock = self.load_with(lambda l: l["contracts"].append({**extra, "sha256": real}))
-        self.assertEqual(len(lock["contracts"]), 6)
+    def test_additional_contracts_must_match_root_bytes_and_reach_the_provenance(self):
+        wrong = lambda l: l["contracts"][-1].update(sha256="0" * 64)
+        with self.assertRaisesRegex(ValueError, "overview contract does not match"):
+            self.load_with(wrong)
+        lock = build_web.load_lock()
         source = build_web.manifest_source(lock)
         self.assertEqual(source["schema_version"], 2)
-        self.assertEqual(source["additional_contracts"], [{**extra, "sha256": real}])
+        self.assertEqual([c["version"] for c in source["additional_contracts"]], ["0.6.0", "0.7.0"])
+        self.assertEqual(len(lock["contracts"]), 7)
 
     def test_web_contract_paths_follow_the_vendored_layout(self):
         self.assertEqual(build_web.web_contract_path("0.1.0"), "src/lib/contract/api-v0.1.0.json")
@@ -173,6 +173,79 @@ class ArtifactTests(unittest.TestCase):
     def test_manifest_source_of_the_current_pin_matches_the_committed_manifest(self):
         committed = json.loads(build_web.MANIFEST.read_text())["source"]
         self.assertEqual(build_web.manifest_source(build_web.load_lock()), committed)
+
+    def test_dockerfile_source_label_matches_the_pinned_commit(self):
+        label = 'org.dbmanager.frontend.source="https://github.com/MagicalWig34653/db-manager-web/tree/' + build_web.load_lock()["commit"] + '"'
+        self.assertIn(label, (build_web.ROOT / "Dockerfile").read_text())
+
+
+    COMMIT = "a" * 40
+
+    def make_build(self, root, shell=None, extra=None):
+        link = "https://github.com/MagicalWig34653/db-manager-web/tree/" + self.COMMIT
+        files = {
+            "index.html": '<html><head><script type="module" crossorigin src="/assets/index-abcdefgh.js"></script>'
+                          '<link rel="stylesheet" crossorigin href="/assets/index-abcdefgh.css"></head></html>',
+            "LICENSE.txt": "GNU AFFERO GENERAL PUBLIC LICENSE",
+            "THIRD-PARTY-NOTICES.txt": "shadcn-svelte",
+            "assets/index-abcdefgh.js": 'import("./feature-abcdefgh.js");const l="' + link + '";',
+            "assets/index-abcdefgh.css": "body{}",
+            "assets/feature-abcdefgh.js": "export default 1;",
+        }
+        files.update(extra or {})
+        names = sorted(["index.html", *(build_web.PWA_FILES - {"sw.js"}), *[n for n in files if n.startswith("assets/")]])
+        files["sw.js"] = "SHELL = JSON.parse('" + json.dumps(shell if shell is not None else names) + "')"
+        for pwa in build_web.PWA_FILES - {"sw.js"}:
+            files[pwa] = "x"
+        for name, content in files.items():
+            target = root / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(content)
+        return build_web.inventory(root)
+
+    def verify_with(self, **kwargs):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            files = self.make_build(root, **kwargs)
+            build_web.verify_build(root, files, self.COMMIT)
+
+    def test_consistent_build_structure_is_accepted(self):
+        self.verify_with()
+
+    def test_orphan_chunks_are_rejected(self):
+        with self.assertRaisesRegex(ValueError, "Unreferenced"):
+            self.verify_with(extra={"assets/orphan-abcdefgh.js": "export default 2;"})
+
+    def test_chunk_limit_is_enforced(self):
+        chunks = {f"assets/c{i:02d}-abcdefgh.js": "x" for i in range(build_web.MAX_CHUNKS)}
+        entry = 'import("./feature-abcdefgh.js");const l="https://github.com/MagicalWig34653/db-manager-web/tree/' + self.COMMIT + '";' + "".join(f'import("./c{i:02d}-abcdefgh.js");' for i in range(build_web.MAX_CHUNKS))
+        with self.assertRaisesRegex(ValueError, "Too many"):
+            self.verify_with(extra={**chunks, "assets/index-abcdefgh.js": entry})
+
+    def test_source_link_must_be_in_the_entry_script_for_the_pinned_commit(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            files = self.make_build(root)
+            with self.assertRaisesRegex(ValueError, "source link"):
+                build_web.verify_build(root, files, "b" * 40)
+        with self.assertRaisesRegex(ValueError, "source link"):
+            self.verify_with(extra={"assets/index-abcdefgh.js": 'import("./feature-abcdefgh.js");'})
+
+    def test_entry_files_must_be_unique_and_present(self):
+        extra_script = '<script type="module" src="/assets/index-abcdefgh.js"></script><script type="module" src="/assets/feature-abcdefgh.js"></script>'
+        with self.assertRaisesRegex(ValueError, "exactly one"):
+            self.verify_with(extra={"index.html": extra_script + '<link rel="stylesheet" href="/assets/index-abcdefgh.css">'})
+        with self.assertRaisesRegex(ValueError, "missing"):
+            self.verify_with(extra={"index.html": '<script type="module" src="/assets/gone-abcdefgh.js"></script><link rel="stylesheet" href="/assets/index-abcdefgh.css">'})
+
+    def test_service_worker_shell_list_must_equal_the_inventory(self):
+        full = sorted(["index.html", *(build_web.PWA_FILES - {"sw.js"}), "assets/index-abcdefgh.js", "assets/index-abcdefgh.css", "assets/feature-abcdefgh.js"])
+        for shell in (full[:-1], full + ["assets/extra-abcdefgh.js"], full + [full[0]]):
+            with self.subTest(shell=len(shell)), self.assertRaisesRegex(ValueError, "shell list"):
+                self.verify_with(shell=shell)
+
+    def test_embedded_build_passes_the_structural_checks(self):
+        build_web.verify_build(build_web.DEST, build_web.inventory(build_web.DEST), build_web.load_lock()["commit"])
 
 
 if __name__ == "__main__":

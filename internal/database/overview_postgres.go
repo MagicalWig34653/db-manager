@@ -103,7 +103,12 @@ FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE `+where+` ORDE
 	return result, nil
 }
 
-func postgresDefinition(ctx context.Context, db *sql.DB, ref core.TableRef) (core.DefinitionResult, error) {
+func postgresDefinition(ctx context.Context, db metadataQuerier, ref core.TableRef) (core.DefinitionResult, error) {
+	return postgresDefinitionIdx(ctx, db, ref, false)
+}
+
+// postgresDefinitionIdx optionally emits IF NOT EXISTS for the separate index statements.
+func postgresDefinitionIdx(ctx context.Context, db metadataQuerier, ref core.TableRef, withIfNotExists bool) (core.DefinitionResult, error) {
 	result := core.DefinitionResult{Warnings: []string{}}
 	var oid, ns, name, relkind string
 	err := db.QueryRowContext(ctx, `SELECT c.oid::text, n.nspname, c.relname, c.relkind::text FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
@@ -201,7 +206,11 @@ AND NOT EXISTS (SELECT 1 FROM pg_constraint k WHERE k.conindid=i.indexrelid AND 
 		return result, err
 	}
 	if _, err = scanStrings(rows, 1, 4096, func(v []sql.NullString) error {
-		text += "\n" + v[0].String + ";"
+		index := v[0].String
+		if withIfNotExists {
+			index = indexIfNotExists(index)
+		}
+		text += "\n" + index + ";"
 		return nil
 	}); err != nil {
 		return result, err

@@ -8,7 +8,9 @@ Prüfstand und unabhängige Abnahme: [F5b-Handoff](handoffs/F5b.md).
 ## Quelle, Vertrag und Reproduzierbarkeit
 
 [web-build.lock.json](../web-build.lock.json) pinnt das öffentliche Webrepository auf
-Commit [8ef738d](https://github.com/MagicalWig34653/db-manager-web/tree/8ef738d22a1164291e2c8183d80e72d1f043c0f8).
+Commit [48c2f67](https://github.com/MagicalWig34653/db-manager-web/tree/48c2f67113d8fd0a27e9cf966d20904fd7d0da61)
+(Pin Bündel 2, siehe Abschnitt am Ende). Der folgende Text beschreibt den **historischen** Pin
+[8ef738d](https://github.com/MagicalWig34653/db-manager-web/tree/8ef738d22a1164291e2c8183d80e72d1f043c0f8):
 F5 einschließlich lesender Index-/Constraintmetadaten, F6-Ergebnisexport und bisheriger
 Einzelzeilenaktionen wurde unabhängig
 geprüft; der Commit ist in der Web-main-Historie erreichbar. Vertrag `0.1.0`, API-SHA-256
@@ -131,7 +133,7 @@ und Insertvertrag 0.4.0
 Build und Offlineprüfung vergleichen alle fünf Rootverträge; Neubau vergleicht außerdem
 alle fünf unveränderten Webvertragskopien. Zusätzlich wird der freigegebene lesende Strukturvertrag 0.5.0 mit SHA256
 `b5225339511d80fe4f52f09118fdad2060d8a92f31d44b73dd89fe9f76178c95` gepinnt.
-API0.6 ist im Backend separat vorhanden, wird von dieser Webquelle nicht konsumiert.
+Historisch (Pin 8ef738d): API0.6 war im Backend vorhanden, wurde von dieser Webquelle nicht konsumiert; seit Pin 48c2f67 sind 0.6 und 0.7 gepinnt.
 Die Quellen des eingefrorenen F4-Clients referenzieren Backend72855cf mit beiden
 unabhängig geschlossenen v3-Schutzfixes. Vertragsgleichheit allein belegt keinen
 gepatchten Serverstand. Keine Änderung an freigegebenen Produktbytes nach dem Pin.
@@ -180,7 +182,7 @@ außerdem die Kopie im Webcheckout (`src/lib/contract/api-v0.1.0.json` bzw.
 `src/lib/contract/v<N>/api-v0.<N>.0.json`) bytegleich sein. Unbekannte Lock-Schlüssel und die
 alten flachen Schlüssel (`contract_sha256`, `table_contract_*` usw.) werden abgewiesen.
 
-API 0.6 bleibt bewusst ungepinnt, weil der gepinnte Webstand ihn nicht konsumiert. Ein neuer
+Historisch (Schema-2-Einführung, Pin 8ef738d): API 0.6 blieb ungepinnt, weil der Webstand ihn nicht konsumierte; seit Bündel 2 ist er gepinnt. Ein neuer
 Vertrag wird beim nächsten Pin als weiterer Listeneintrag ergänzt (Familie frei wählbar, z. B.
 `create`); `assets-manifest.json` zeigt solche Einträge unter `source.additional_contracts` und
 wechselt dann `source.schema_version` auf 2. Solange nur die fünf Bestandsverträge gepinnt sind,
@@ -199,3 +201,16 @@ Neubau und unabhängiges Review; die Bytevergleiche der fünf Originalassets ble
 `PWA_FILES`: ein Build enthält alle acht Dateien oder keine (der bisherige Pin `8ef738d` enthält
 keine und bleibt gültig). Der Neubau mit PWA-Dateien erfolgt erst mit dem nächsten Pin im
 gemeinsamen Bündel; Details: [W-P03-Handoff](handoffs/W-P03.md).
+
+## Pin Bündel 2 (24.10.2026, ersetzt Bündel 1)
+
+Das Lock pinnt Web-main `48c2f67113d8fd0a27e9cf966d20904fd7d0da61` (Shell, PWA mit Probe-Body-Fix, Tabelle anlegen,
+Katalog/Übersicht). Neu in der Vertragsliste: `create` 0.6.0 (`b08b6aba...6887`) und `overview` 0.7.0
+(`c6fd8c91...4d17`); die Webkopien (`src/lib/contract/v6/`, `v7/`) sind byte-identisch zu den Rootverträgen. Damit
+erscheint im Manifest `source.schema_version` 2 mit `additional_contracts`. Der Webbuild ist code-gesplittet
+(`assets/feature-*.js/css`); die Neubauprüfung (`verify_build` in `build-web.py`) ersetzt die feste Dateizahl durch drei Prüfungen:
+(1) `index.html` hat genau ein Entry-Modulskript und ein Entry-Stylesheet, der Quelllink des gepinnten Commits steht im
+Entry-Skript; (2) jede Datei unter `assets/` ist transitiv vom Entry referenziert, höchstens `MAX_CHUNKS` (12) Dateien;
+(3) die `SHELL`-Liste in `sw.js` entspricht exakt `index.html` + PWA-Dateien (ohne `sw.js`) + `assets/*`. Der alte Pin
+8ef738d besteht diese Prüfungen unverändert und bleibt bytegleich rekonstruierbar. Das Dockerfile-Label `org.dbmanager.frontend.source` wird bei Pinwechsel von Hand gepflegt;
+`scripts/test-build-web.py` und `verify_image` schlagen bei Abweichung zum Lock fehl. Details: [PIN-BUNDLE-2](handoffs/PIN-BUNDLE-2.md).

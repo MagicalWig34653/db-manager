@@ -1,0 +1,27 @@
+{
+  "driver": "sqlite",
+  "statements": [
+    "ALTER TABLE \"main\".\"col \"\"`' ;DROP TABLE neighbor\" DROP COLUMN \"renamed \"\"`\""
+  ],
+  "warnings": [
+    "Strukturänderungen können die Tabelle sperren. Zeitlimit und DB-Rechte gelten.",
+    "Plan-Hash ist kein Replay-Schutz; nach Abschluss oder unbekanntem Ausgang neu planen und bestätigen.",
+    "Spalte renamed \"`: alle Werte werden gelöscht; Abhängigkeiten können die Änderung verhindern. Kein CASCADE."
+  ],
+  "affected_objects": [
+    "main.col \"`' ;DROP TABLE neighbor",
+    "main.col \"`' ;DROP TABLE neighbor.renamed \"`"
+  ],
+  "plan_sha256": "b4119e6803f4f0f8ec4098f601dc23a3d58dccec1ce133c1e4659dcb20417e10",
+  "table": {
+    "schema": "main",
+    "name": "col \"`' ;DROP TABLE neighbor"
+  },
+  "destructive": true,
+  "target_name": "col \"`' ;DROP TABLE neighbor",
+  "dependencies": [
+    "Trigger und externe Verweise sind nicht vollständig erfasst; die Engine prüft ohne CASCADE.",
+    "sqlite_autoindex_col \"`' ;DROP TABLE neighbor_1"
+  ],
+  "ddl_transactional": true
+}

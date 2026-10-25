@@ -1,0 +1,54 @@
+{
+  "statements": [
+    {
+      "index": 1,
+      "outcome": "completed",
+      "results": [
+        {
+          "columns": [
+            {
+              "name": "id",
+              "database_type": ""
+            },
+            {
+              "name": "parent",
+              "database_type": ""
+            },
+            {
+              "name": "notused",
+              "database_type": ""
+            },
+            {
+              "name": "detail",
+              "database_type": ""
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "integer",
+                "value": "2"
+              },
+              {
+                "kind": "integer",
+                "value": "0"
+              },
+              {
+                "kind": "integer",
+                "value": "33"
+              },
+              {
+                "kind": "text",
+                "value": "SEARCH p15_rows USING INTEGER PRIMARY KEY (rowid=?)"
+              }
+            ]
+          ],
+          "truncated": false
+        }
+      ],
+      "warnings": [],
+      "duration_ms": 0
+    }
+  ],
+  "duration_ms": 1
+}

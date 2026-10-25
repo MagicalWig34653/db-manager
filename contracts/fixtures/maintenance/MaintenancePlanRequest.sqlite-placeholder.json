@@ -1,0 +1,15 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "wartung"
+  },
+  "items": [
+    {
+      "table": {
+        "schema": "main",
+        "name": "beispiel"
+      },
+      "action": "analyze"
+    }
+  ]
+}

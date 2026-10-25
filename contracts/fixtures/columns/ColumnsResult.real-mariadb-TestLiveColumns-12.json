@@ -1,0 +1,50 @@
+{
+  "outcome": "completed",
+  "reason": "completed",
+  "message": "Spaltenänderung ausgeführt; Strukturbeobachtung ist separat ausgewiesen.",
+  "statements_executed": 1,
+  "atomic": false,
+  "observation": "observed",
+  "description": {
+    "table": {
+      "schema": "probe",
+      "name": "col \"`' ;DROP TABLE neighbor"
+    },
+    "kind": "table",
+    "columns": [
+      {
+        "name": "id",
+        "database_type": "bigint(20)",
+        "nullable": false,
+        "pk_position": 1,
+        "generated": "none",
+        "read_only": true
+      },
+      {
+        "name": "old_value",
+        "database_type": "varchar(80)",
+        "nullable": true,
+        "default_value": "NULL",
+        "pk_position": 0,
+        "generated": "none",
+        "read_only": true
+      },
+      {
+        "name": "new \"` value",
+        "database_type": "varchar(40)",
+        "nullable": true,
+        "default_value": "'q''\\\\;DROP TABLE neighbor;--'",
+        "pk_position": 0,
+        "generated": "none",
+        "read_only": true
+      }
+    ],
+    "primary_key": [
+      "id"
+    ],
+    "read_only": true,
+    "stable_order": true,
+    "storage_engine": "InnoDB",
+    "transactional": "yes"
+  }
+}

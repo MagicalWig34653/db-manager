@@ -1,0 +1,18 @@
+{
+  "connection": {
+    "driver": "mysql",
+    "database": "probe",
+    "host": "localhost",
+    "username": "fixture",
+    "tls_mode": "verify-full"
+  },
+  "items": [
+    {
+      "table": {
+        "schema": "probe",
+        "name": "beispiel"
+      },
+      "action": "analyze"
+    }
+  ]
+}

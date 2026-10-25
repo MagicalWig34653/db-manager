@@ -1,0 +1,30 @@
+{
+  "items": [
+    {
+      "table": {
+        "schema": "p10_fixture",
+        "name": "maint_myisam"
+      },
+      "action": "repair",
+      "state": "planned",
+      "reason": "",
+      "plan": {
+        "driver": "mysql",
+        "statements": [
+          "REPAIR TABLE `p10_fixture`.`maint_myisam`"
+        ],
+        "warnings": [
+          "Die Laufzeit ist nicht vorhersagbar; Sperren können andere Sitzungen blockieren. Das Zeitlimit umfasst den gesamten Stapel.",
+          "Ein Abbruch garantiert keinen Rollback. Nach unbekanntem Ausgang nicht automatisch wiederholen.",
+          "Diese Aktion kann Tabellen oder Indizes neu aufbauen und lange exklusive Sperren sowie zusätzlichen Speicher benötigen."
+        ],
+        "affected_objects": [
+          "p10_fixture.maint_myisam"
+        ],
+        "plan_sha256": "b566c340233948fff39a39035268571180f5adc2a0249a9a55b4a4e6404a5cbc"
+      },
+      "typed_confirmation": true,
+      "target_name": "maint_myisam"
+    }
+  ]
+}
