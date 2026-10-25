@@ -1,0 +1,8 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "synthetic_export"
+  },
+  "scope": "query",
+  "format": "json"
+}

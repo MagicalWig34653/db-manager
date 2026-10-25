@@ -1,0 +1,8 @@
+{
+  "outcome": "rejected",
+  "reason": "dependency_blocks",
+  "message": "Die Änderung wurde abgewiesen.",
+  "statements_executed": 0,
+  "atomic": false,
+  "observation": "unavailable"
+}

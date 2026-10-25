@@ -1,0 +1,27 @@
+{
+  "items": [
+    {
+      "table": {
+        "schema": "main",
+        "name": "missing"
+      },
+      "action": "analyze",
+      "outcome": "rejected",
+      "reason": "object_not_found",
+      "checksum": null,
+      "duration_ms": 2
+    },
+    {
+      "table": {
+        "schema": "main",
+        "name": "maint \"`'; SELECT 1--"
+      },
+      "action": "analyze",
+      "outcome": "completed",
+      "reason": "",
+      "checksum": null,
+      "duration_ms": 18
+    }
+  ],
+  "partial": true
+}

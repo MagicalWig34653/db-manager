@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "table": {
+        "schema": "main",
+        "name": "beispiel"
+      },
+      "action": "analyze",
+      "outcome": "completed",
+      "reason": "",
+      "checksum": null,
+      "duration_ms": -1
+    }
+  ],
+  "partial": false
+}

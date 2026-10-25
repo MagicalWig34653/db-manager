@@ -1,0 +1,22 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "columns"
+  },
+  "changes": [
+    {
+      "action": "add",
+      "definition": {
+        "name": "new_value",
+        "type": {
+          "kind": "text",
+          "length": 40
+        },
+        "nullable": true,
+        "default": {
+          "mode": "none"
+        }
+      }
+    }
+  ]
+}

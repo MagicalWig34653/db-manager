@@ -1,0 +1,11 @@
+{
+  "outcome": "rolled_back",
+  "rows_affected": "1",
+  "warnings": [
+    {
+      "code": "simulation_scope",
+      "message": "DML-Versuch in Rollback-Transaktion. Anzahl zählt direkte Änderungen, keine Trigger-/Kaskadenzeilen. Keine allgemeine Garantie für externe Effekte oder andere Engines; Vorschau ist kein späterer Commitplan."
+    }
+  ],
+  "duration_ms": 2
+}

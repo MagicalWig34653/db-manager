@@ -1,0 +1,21 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "columns"
+  },
+  "table": {
+    "name": "fixture"
+  },
+  "changes": [
+    {
+      "action": "rename",
+      "column": "value",
+      "new_name": "renamed"
+    }
+  ],
+  "confirm": {
+    "action": "columns_alter",
+    "target_name": "fixture"
+  },
+  "expected_plan_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+}

@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "table": {
+        "schema": "p10_fixture",
+        "name": "maint \"`'; SELECT 1--"
+      },
+      "action": "vacuum",
+      "outcome": "completed",
+      "reason": "",
+      "checksum": null,
+      "duration_ms": 26
+    }
+  ],
+  "partial": false
+}

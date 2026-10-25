@@ -1,0 +1,6 @@
+{
+  "error": {
+    "code": "invalid_maintenance",
+    "message": "Wartungsanfrage ist ungültig."
+  }
+}
