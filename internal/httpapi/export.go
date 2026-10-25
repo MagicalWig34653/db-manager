@@ -3,6 +3,7 @@ package httpapi
 
 import (
 	"compress/gzip"
+	"context"
 	"errors"
 	"io"
 	"net/http"
@@ -126,6 +127,8 @@ func (a *API) exportDownload(w http.ResponseWriter, r *http.Request) {
 			var p *core.Error
 			if errors.As(err, &p) && p.Code == "invalid_export" {
 				fail(w, 400, p.Code, p.Message)
+			} else if errors.As(err, &p) && p.Code == "export_busy" {
+				fail(w, 503, p.Code, p.Message)
 			} else {
 				engineError(w, err)
 			}
@@ -142,6 +145,8 @@ func (a *API) exportDownload(w http.ResponseWriter, r *http.Request) {
 		var p *core.Error
 		if errors.As(err, &p) {
 			code = p.Code
+		} else if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
+			code = "query_canceled" // time limit or client abort, same code as the other routes
 		}
 	}
 	w.Header().Set("X-Export-Status", status)

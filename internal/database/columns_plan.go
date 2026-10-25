@@ -163,15 +163,26 @@ func buildColumns(ctx context.Context, s *mutationSession, r core.ColumnsRequest
 		switch ch.Action {
 		case "drop":
 			destructive = true
-			warnings = append(warnings, "Spalte "+old.Name+": alle Werte werden gelöscht; Abhängigkeiten können die Änderung verhindern. Kein CASCADE.")
+			warnings = append(warnings, "Spalte "+old.Name+": alle Werte werden gelöscht. Kein CASCADE.")
 			dd, err := columnDependencies(ctx, s, r.Connection, d, old.Name)
 			if err != nil {
 				return empty, err
 			}
 			deps = append(deps, dd...)
+			warnings = append(warnings, columnDependencyWarnings(driver, old.Name, "drop", dd)...)
+			for _, dep := range dd[1:] {
+				affected = append(affected, dep)
+			}
 			clauses = append(clauses, "DROP COLUMN "+qold)
 			statements = append(statements, prefix+"DROP COLUMN "+qold)
 		case "rename":
+			dd, err := columnDependencies(ctx, s, r.Connection, d, old.Name)
+			if err != nil {
+				return empty, err
+			}
+			deps = append(deps, dd...)
+			warnings = append(warnings, "Spalte "+old.Name+": Abfragen, Sichten, Trigger und Programme, die den alten Namen verwenden, funktionieren danach nicht mehr.")
+			warnings = append(warnings, columnDependencyWarnings(driver, old.Name, "rename", dd)...)
 			clauses = append(clauses, "RENAME COLUMN "+qold+" TO "+columnQuote(driver, name))
 			statements = append(statements, prefix+"RENAME COLUMN "+qold+" TO "+columnQuote(driver, name))
 		case "add", "change", "reorder":
@@ -215,13 +226,24 @@ func buildColumns(ctx context.Context, s *mutationSession, r core.ColumnsRequest
 			} else {
 				destructive = true
 				warnings = append(warnings, "Spalte "+old.Name+": Typ-/Attributänderung kann Daten verlieren; vollständige neue Definition ersetzt die Attribute.")
+				if old.DefaultValue != nil {
+					text := "Spalte " + old.Name + ": der bisherige Standardwert " + *old.DefaultValue + " wird durch die neue Definition ersetzt"
+					if def.Default.Mode == "none" {
+						text += " und entfällt"
+					}
+					if strings.Contains(*old.DefaultValue, "nextval(") {
+						text += "; die zugehörige Sequenz bleibt verwaist und neue Zeilen ohne Wert erhalten keinen automatischen Wert mehr"
+					}
+					warnings = append(warnings, text+".")
+				}
 				if !*def.Nullable {
-					var count int64
-					if err := s.QueryRowContext(ctx, "SELECT COUNT(*) FROM "+table+" WHERE "+qold+" IS NULL").Scan(&count); err != nil {
+					// Existence check instead of a counting full scan; stops at the first NULL.
+					var found bool
+					if err := s.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM "+table+" WHERE "+qold+" IS NULL)").Scan(&found); err != nil {
 						return empty, err
 					}
-					if count > 0 {
-						warnings = append(warnings, fmt.Sprintf("Spalte %s enthält %d NULL-Werte; NOT NULL kann scheitern.", old.Name, count))
+					if found {
+						warnings = append(warnings, fmt.Sprintf("Spalte %s enthält NULL-Werte; NOT NULL kann scheitern.", old.Name))
 					}
 				}
 				if ch.Action == "reorder" && def.Name != old.Name {
@@ -337,8 +359,9 @@ func columnDependencies(ctx context.Context, s *mutationSession, c core.Connecti
 		query = `SELECT name FROM main.sqlite_schema WHERE (tbl_name=? AND type IN ('index','trigger')) OR (type IN ('view','table') AND instr(lower(sql),lower(?))>0) ORDER BY name LIMIT 257`
 		args = []any{d.Table.Name, d.Table.Name}
 	case "mysql":
-		query = `SELECT CONCAT('constraint:',CONSTRAINT_SCHEMA,'.',TABLE_NAME,'.',CONSTRAINT_NAME) FROM information_schema.KEY_COLUMN_USAGE WHERE (TABLE_SCHEMA=? AND TABLE_NAME=? AND COLUMN_NAME=?) OR (REFERENCED_TABLE_SCHEMA=? AND REFERENCED_TABLE_NAME=? AND REFERENCED_COLUMN_NAME=?) UNION SELECT CONCAT('index:',INDEX_NAME) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA=? AND TABLE_NAME=? AND COLUMN_NAME=? UNION SELECT CONCAT('view:',TABLE_SCHEMA,'.',TABLE_NAME) FROM information_schema.VIEWS WHERE LOCATE(?,VIEW_DEFINITION)>0 ORDER BY 1 LIMIT 257`
-		args = []any{d.Table.Schema, d.Table.Name, column, d.Table.Schema, d.Table.Name, column, d.Table.Schema, d.Table.Name, column, d.Table.Name}
+		query = `SELECT CONCAT('constraint:',CONSTRAINT_SCHEMA,'.',TABLE_NAME,'.',CONSTRAINT_NAME) FROM information_schema.KEY_COLUMN_USAGE WHERE (TABLE_SCHEMA=? AND TABLE_NAME=? AND COLUMN_NAME=?) OR (REFERENCED_TABLE_SCHEMA=? AND REFERENCED_TABLE_NAME=? AND REFERENCED_COLUMN_NAME=?) UNION SELECT CONCAT('index:',INDEX_NAME) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA=? AND TABLE_NAME=? AND COLUMN_NAME=? UNION SELECT CONCAT('view:',TABLE_SCHEMA,'.',TABLE_NAME) FROM information_schema.VIEWS WHERE LOCATE(?,VIEW_DEFINITION)>0 AND LOCATE(?,VIEW_DEFINITION)>0 ORDER BY 1 LIMIT 257`
+		tableNeedle, _ := dbplan.QualifiedName("mysql", d.Table.Schema, d.Table.Name)
+		args = []any{d.Table.Schema, d.Table.Name, column, d.Table.Schema, d.Table.Name, column, d.Table.Schema, d.Table.Name, column, tableNeedle, columnQuote("mysql", column)}
 	case "postgres":
 		query = `SELECT DISTINCT pg_catalog.pg_describe_object(dep.classid,dep.objid,dep.objsubid) FROM pg_catalog.pg_depend dep JOIN pg_catalog.pg_class c ON c.oid=dep.refobjid JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace JOIN pg_catalog.pg_attribute a ON a.attrelid=c.oid AND a.attnum=dep.refobjsubid WHERE dep.refclassid='pg_catalog.pg_class'::regclass AND n.nspname=$1 AND c.relname=$2 AND a.attname=$3 ORDER BY 1 LIMIT 257`
 		args = []any{d.Table.Schema, d.Table.Name, column}
@@ -359,4 +382,48 @@ func columnDependencies(ctx context.Context, s *mutationSession, c core.Connecti
 		}
 	}
 	return deps, rows.Err()
+}
+
+// columnDependencyWarnings turns the dependency list into driver-specific,
+// honest warnings. The first entry of deps is the generic coverage notice.
+func columnDependencyWarnings(driver, column, action string, deps []string) []string {
+	var out []string
+	for _, dep := range deps {
+		kind, name, _ := strings.Cut(dep, ":")
+		switch driver {
+		case "mysql":
+			switch kind {
+			case "view":
+				out = append(out, "Die Sicht "+name+" verwendet die Spalte "+column+" (anhand des Quelltextes erkannt) und wird danach ungültig; der Server lehnt die Änderung nicht ab.")
+			case "index":
+				if action == "drop" {
+					out = append(out, "Der Index "+name+" entfällt oder wird verkürzt, wenn die Spalte entfernt wird.")
+				}
+			case "constraint":
+				out = append(out, "Der Schlüssel/Constraint "+name+" betrifft die Spalte "+column+"; ein Fremdschlüssel verhindert das Ändern oder Entfernen.")
+			}
+		case "postgres":
+			switch {
+			case strings.HasPrefix(dep, "view "), strings.HasPrefix(dep, "materialized view "), strings.HasPrefix(dep, "rule ") && strings.Contains(dep, " on view "), strings.HasPrefix(dep, "rule ") && strings.Contains(dep, " on materialized view "):
+				if action == "drop" {
+					out = append(out, "Die Sicht ("+dep+") verwendet die Spalte und verhindert das Entfernen (kein CASCADE).")
+				}
+			case strings.HasPrefix(dep, "index "):
+				if action == "drop" {
+					out = append(out, "Der Index ("+dep+") wird mit der Spalte entfernt.")
+				}
+			case strings.HasPrefix(dep, "constraint "):
+				out = append(out, "Constraint betroffen: "+dep+"; Fremdschlüssel verhindern das Entfernen, andere Constraints entfallen mit der Spalte.")
+			}
+		default:
+			// SQLite names are not typed: its engine refuses to drop a column that an index, view, trigger or constraint uses.
+		}
+		if len(out) >= 20 {
+			break
+		}
+	}
+	if driver == "sqlite" && action == "drop" && len(deps) > 1 {
+		out = append(out, "SQLite lehnt das Entfernen ab, wenn Index, Sicht, Trigger oder Einschränkung die Spalte verwenden.")
+	}
+	return out
 }

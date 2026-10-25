@@ -51,6 +51,12 @@ func (e *Engine) Export(ctx context.Context, input core.ExportRequest, out io.Wr
 	if err != nil {
 		return err
 	}
+	select {
+	case e.exports <- struct{}{}:
+		defer func() { <-e.exports }()
+	default:
+		return public("export_busy", "Zu viele gleichzeitige Exporte. Später erneut versuchen.")
+	}
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(r.TimeoutMS)*time.Millisecond)
 	defer cancel()
 	w := &exportWriter{ctx: ctx, out: out, remaining: r.MaxBytes}
@@ -261,7 +267,7 @@ func exportTables(ctx context.Context, conn *sql.Conn, c core.Connection, r core
 			return nil, public("export_schema_changed", "Tabellenstruktur hat sich während der Exportvorbereitung geändert.")
 		}
 		if *r.Structure {
-			t.definition, err = exportDefinition(ctx, conn, c, d)
+			t.definition, err = exportDefinition(ctx, conn, c, d, r.IfNotExists)
 			if err != nil {
 				return nil, err
 			}
@@ -278,7 +284,7 @@ func exportTables(ctx context.Context, conn *sql.Conn, c core.Connection, r core
 	return result, nil
 }
 
-func exportDefinition(ctx context.Context, conn *sql.Conn, c core.Connection, d core.TableDescription) (string, error) {
+func exportDefinition(ctx context.Context, conn *sql.Conn, c core.Connection, d core.TableDescription, ifNotExists bool) (string, error) {
 	if c.Driver == "sqlite" {
 		var def string
 		err := conn.QueryRowContext(ctx, "SELECT sql FROM main.sqlite_schema WHERE name=? AND type='table'", d.Table.Name).Scan(&def)
@@ -299,6 +305,9 @@ func exportDefinition(ctx context.Context, conn *sql.Conn, c core.Connection, d 
 			if err = rows.Scan(&index); err != nil {
 				return "", err
 			}
+			if ifNotExists {
+				index = indexIfNotExists(index)
+			}
 			def = strings.TrimSuffix(def, ";") + ";\n" + index
 			if len(def) > core.OverviewMaxDefinition {
 				return "", public("result_too_large", "Tabellendefinition ist zu groß.")
@@ -313,7 +322,7 @@ func exportDefinition(ctx context.Context, conn *sql.Conn, c core.Connection, d 
 	}
 	// The existing catalog reconstruction preserves constraints and indexes and
 	// explicitly documents the omitted PostgreSQL object classes.
-	def, err := postgresDefinition(ctx, conn, d.Table)
+	def, err := postgresDefinitionIdx(ctx, conn, d.Table, ifNotExists)
 	return def.Definition, err
 }
 
@@ -345,4 +354,15 @@ func sameExportColumns(a, b core.TableDescription) bool {
 		}
 	}
 	return true
+}
+
+// indexIfNotExists inserts IF NOT EXISTS after the leading CREATE [UNIQUE] INDEX
+// of a catalog-provided index statement; the rest of the statement is untouched.
+func indexIfNotExists(statement string) string {
+	for _, prefix := range []string{"CREATE UNIQUE INDEX ", "CREATE INDEX "} {
+		if strings.HasPrefix(statement, prefix) {
+			return prefix + "IF NOT EXISTS " + strings.TrimPrefix(statement, prefix)
+		}
+	}
+	return statement
 }

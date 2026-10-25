@@ -6,7 +6,7 @@
       "results": [],
       "rows_affected": "1",
       "warnings": [],
-      "duration_ms": 2
+      "duration_ms": 1
     },
     {
       "index": 2,
@@ -40,5 +40,5 @@
       "duration_ms": 0
     }
   ],
-  "duration_ms": 14
+  "duration_ms": 12
 }

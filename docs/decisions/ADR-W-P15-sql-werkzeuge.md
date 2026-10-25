@@ -13,7 +13,7 @@ Splitter ist auf dieser Basis noch nicht vorhanden.
 
 ## Vorschlag und Implementierung
 
-Neue additive vorläufige API0.16 mit eigener ausdrücklicher Schreibzustimmung für
+Neue additive API 0.12 (bei der Welle-2-Integration endgültig vergeben) mit eigener ausdrücklicher Schreibzustimmung für
 jede Ausführung. Stapel sind begrenzte Einzelaufrufe auf derselben Verbindung;
 Ergebnisfehler und Abbruch bleiben konservativ unsicher. Eigenständiger getesteter
 Splitter unter `internal/sqlsplit`, bei Integration mit W-P12 abzugleichen.

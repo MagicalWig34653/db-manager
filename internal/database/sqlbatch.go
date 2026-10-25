@@ -70,7 +70,7 @@ func (e *Engine) sqlBatch(ctx context.Context, r core.SQLBatchRequest, explain b
 	// This is an ergonomic restriction, not a sandbox for trusted user SQL.
 	for _, s := range statements {
 		switch sqlsplit.Keyword(s, r.Connection.Driver) {
-		case "", "BEGIN", "START", "COMMIT", "END", "ROLLBACK", "SAVEPOINT", "RELEASE", "SET":
+		case "", "BEGIN", "START", "COMMIT", "END", "ROLLBACK", "ABORT", "SAVEPOINT", "RELEASE", "SET", "LOCK", "UNLOCK":
 			return out, public("sql_not_supported", "Transaktions- und Sitzungskontrolle ist im Stapel nicht freigegeben.")
 		}
 	}
@@ -155,7 +155,7 @@ func sqlBatchStatement(ctx context.Context, conn *sql.Conn, driver, query string
 	// Prepared PostgreSQL statements reject a hidden second command. MySQL's
 	// connection has MultiStatements=false; COM_QUERY also supports routine DDL.
 	keyword := sqlsplit.Keyword(query, driver)
-	returnsRows := keyword == "SELECT" || keyword == "WITH" || keyword == "VALUES" || keyword == "TABLE" || keyword == "SHOW" || keyword == "EXPLAIN" || keyword == "CALL" || sqlsplit.HasKeyword(query, "RETURNING", driver)
+	returnsRows := keyword == "SELECT" || keyword == "WITH" || keyword == "VALUES" || keyword == "TABLE" || keyword == "SHOW" || keyword == "EXPLAIN" || keyword == "CALL" || driver == "mysql" && (keyword == "ANALYZE" || keyword == "OPTIMIZE" || keyword == "CHECK" || keyword == "REPAIR" || keyword == "CHECKSUM") || sqlsplit.HasKeyword(query, "RETURNING", driver)
 	var stmt *sql.Stmt
 	if driver == "postgres" {
 		var err error
@@ -323,6 +323,11 @@ func (e *Engine) SQLSimulate(ctx context.Context, r core.SQLBatchRequest) (core.
 	rollbackErr := tx.Rollback()
 	out.DurationMS = time.Since(start).Milliseconds()
 	out.Warnings = append(out.Warnings, core.SQLWarning{Code: "simulation_scope", Message: "DML-Versuch in Rollback-Transaktion. Anzahl zählt direkte Änderungen, keine Trigger-/Kaskadenzeilen. Keine allgemeine Garantie für externe Effekte oder andere Engines; Vorschau ist kein späterer Commitplan."})
+	// database/sql already rolled the transaction back and discarded the connection when the
+	// context ended (time limit or client abort); SQLite then rolls back its journal on close.
+	if errors.Is(rollbackErr, sql.ErrTxDone) && ctx.Err() != nil {
+		rollbackErr = nil
+	}
 	if rollbackErr != nil {
 		out.Outcome = "outcome_unknown"
 		out.Warnings = append(out.Warnings, core.SQLWarning{Code: "rollback_unknown", Message: "Rollback konnte nicht bestätigt werden; keinen automatischen Wiederholungsversuch ausführen."})

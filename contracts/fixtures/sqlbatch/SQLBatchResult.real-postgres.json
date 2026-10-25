@@ -24,7 +24,7 @@
           "message": "PostgreSQL-Hinweise werden von diesem Adapter nicht erfasst."
         }
       ],
-      "duration_ms": 3
+      "duration_ms": 2
     },
     {
       "index": 3,
@@ -50,5 +50,5 @@
       "duration_ms": 0
     }
   ],
-  "duration_ms": 31
+  "duration_ms": 29
 }

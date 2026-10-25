@@ -320,3 +320,22 @@ func TestSQLiteExportBatchBoundary(t *testing.T) {
 		t.Fatal("batch boundary not exercised", count)
 	}
 }
+
+func TestSQLiteExportIdempotentStructure(t *testing.T) {
+	e := testEngine(t)
+	c := sqliteConnection()
+	ref := exportFixture(t, e, c)
+	var out bytes.Buffer
+	if err := e.Export(context.Background(), core.ExportRequest{Connection: c, Tables: []core.TableRef{ref}, Data: exportBool(false), IfNotExists: true}, &out); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(out.String(), "CREATE INDEX IF NOT EXISTS") {
+		t.Fatalf("index not idempotent: %s", out.String())
+	}
+	target := core.Connection{Driver: "sqlite", Database: "exportidem"}
+	for pass := 0; pass < 2; pass++ {
+		for _, statement := range splitExportTestSQL(out.String()) {
+			execute(t, e, target, statement)
+		}
+	}
+}
