@@ -441,3 +441,18 @@ func columnsDenied(t *testing.T, e *Engine, c core.Connection) {
 		t.Fatal("raw error leaked")
 	}
 }
+
+func TestColumnNamesRejectEdgeWhitespaceAndControl(t *testing.T) {
+	for _, bad := range []string{" lead", "trail ", "tab\tin", "new\nline", "nul\x00"} {
+		if columnName(bad) {
+			t.Fatalf("%q accepted", bad)
+		}
+		r := core.ColumnsRequest{Connection: sqliteConnection(), Table: core.TableRef{Name: "x"}, Changes: []core.ColumnChange{{Action: "rename", Column: "a", NewName: bad}}}
+		if validateColumns(r) == nil {
+			t.Fatalf("rename to %q passed validation", bad)
+		}
+	}
+	if !columnName("we\"ird `na'me") {
+		t.Fatal("legitimate special name rejected")
+	}
+}

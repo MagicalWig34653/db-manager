@@ -72,3 +72,10 @@ Konflikte: nur `internal/httpapi/features.go` (eine Zeile je Paket, Reihenfolge 
 - `contracts/README.md` (Vertragsindex), STATUS/ARBEITSPLAN/PARITAET nicht aktualisiert (Lead).
 - Weiterhin nicht getestet: echte Sperrkonflikte/Verbindungsabbrüche gegen die Netzwerkengines (nur Fault-Injection), W-P15-Simulation für
   MySQL/MariaDB/PostgreSQL (bewusst nicht unterstützt).
+
+## Nachbesserung nach Review W-P08/W-P10 (`review/wave2-a`)
+
+Behoben und mit Tests belegt (Details in den Paket-Handoffs): W-P08 M1, M2, L1 bis L4; W-P10 L1; W-P10 L2/L3 als Entscheidung dokumentiert.
+Die Review-Tests (`wave2a_review_test.go`, `types_review_test.go`) sind übernommen, die Logfälle zu M1/M2 und L1 sind Assertions. Echte
+Spalten-Fixtures neu erzeugt (Warntexte). Prüfstand: gofmt, vet, `go test -race -count=1 ./...`, alle elf Wächter, `test-columns.py`,
+`test-maintenance.py` (alle vier Systeme nacheinander) und `check-docs.py` siehe Abschlussbericht dieses Commits.

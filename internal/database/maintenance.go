@@ -52,6 +52,11 @@ func maintenancePreview(ctx context.Context, db *sql.DB, c core.Connection, item
 		return p
 	}
 	p.Table = d.Table
+	// Defense in depth: check the schema as the catalog resolved it, too.
+	if resolved := strings.ToLower(d.Table.Schema); resolved == "information_schema" || resolved == "mysql" || resolved == "performance_schema" || resolved == "sys" || strings.HasPrefix(resolved, "pg_") || strings.HasPrefix(strings.ToLower(d.Table.Name), "sqlite_") {
+		p.Reason = "system_table"
+		return p
+	}
 	if d.Kind != "table" {
 		p.Reason = "unsupported_table"
 		return p
