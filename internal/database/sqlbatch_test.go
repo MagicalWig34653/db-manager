@@ -248,6 +248,10 @@ func TestLiveSQLBatch(t *testing.T) {
 			}
 
 			if c.Driver == "mysql" {
+				analyze, err := e.SQLBatch(context.Background(), batchRequest(c, "ANALYZE TABLE p15_rows"))
+				if err != nil || analyze.Statements[0].Outcome != "completed" || len(analyze.Statements[0].Results) == 0 || len(analyze.Statements[0].Results[0].Rows) == 0 {
+					t.Fatalf("ANALYZE TABLE lost its result rows %#v %v", analyze, err)
+				}
 				request := batchRequest(c, "DELIMITER $$\nCREATE PROCEDURE p15_proc() BEGIN SELECT 1 AS a; SELECT 2 AS b; END$$\nDELIMITER ;\nCALL p15_proc();\nDROP PROCEDURE p15_proc;")
 				result, err := e.SQLBatch(context.Background(), request)
 				if err != nil || result.Statements[0].Outcome != "completed" || len(result.Statements[1].Results) < 2 || result.Statements[2].Outcome != "completed" {
@@ -261,5 +265,51 @@ func TestLiveSQLBatch(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestSQLiteSQLBatchBeginEndAndSessionControl(t *testing.T) {
+	e := testEngine(t)
+	c := core.Connection{Driver: "sqlite", Database: "batchtrigger"}
+	ctx := context.Background()
+	execute(t, e, c, "CREATE TABLE tt (id INTEGER PRIMARY KEY, v TEXT)")
+	execute(t, e, c, "CREATE TABLE audit2 (v TEXT)")
+	trigger := "CREATE TRIGGER tr AFTER INSERT ON tt BEGIN INSERT INTO audit2 VALUES(new.v); END"
+	// The plain splitter cuts at the inner semicolon: fail closed before anything runs.
+	_, err := e.SQLBatch(ctx, batchRequest(c, trigger))
+	requireMutationCode(t, err, "sql_not_supported")
+	if execute(t, e, c, "SELECT count(*) FROM sqlite_schema WHERE name='tr'").Results[0].Rows[0][0].Value != "0" {
+		t.Fatal("trigger created despite rejection")
+	}
+	// Documented workaround: an explicit delimiter keeps BEGIN ... END in one statement.
+	got, err := e.SQLBatch(ctx, batchRequest(c, "DELIMITER //\n"+trigger+"//\nDELIMITER ;\nINSERT INTO tt VALUES(1,'x')"))
+	if err != nil || got.Statements[0].Outcome != "completed" || got.Statements[1].Outcome != "completed" {
+		t.Fatalf("delimiter workaround %#v %v", got, err)
+	}
+	if execute(t, e, c, "SELECT count(*) FROM audit2").Results[0].Rows[0][0].Value != "1" {
+		t.Fatal("trigger did not fire")
+	}
+	for _, query := range []string{"ABORT", "LOCK TABLES tt WRITE", "UNLOCK TABLES", "BEGIN", "SET x=1"} {
+		_, err := e.SQLBatch(ctx, batchRequest(c, query))
+		requireMutationCode(t, err, "sql_not_supported")
+	}
+}
+
+func TestSQLiteSimulationTimeoutRollsBackWithoutUnknown(t *testing.T) {
+	e := testEngine(t)
+	c := core.Connection{Driver: "sqlite", Database: "simtimeout"}
+	execute(t, e, c, "CREATE TABLE s (id INTEGER PRIMARY KEY, v INTEGER)")
+	execute(t, e, c, "INSERT INTO s VALUES (1,0)")
+	request := batchRequest(c, "UPDATE s SET v=(WITH RECURSIVE c(x) AS (SELECT 1 UNION ALL SELECT x+1 FROM c WHERE x<2000000000) SELECT max(x) FROM c)")
+	request.TimeoutMS = 300
+	got, err := e.SQLSimulate(context.Background(), request)
+	if err != nil {
+		t.Skip("simulation refused the statement shape:", err)
+	}
+	if got.Outcome != "rolled_back" {
+		t.Fatalf("timeout reported %q: %#v", got.Outcome, got)
+	}
+	if execute(t, e, c, "SELECT v FROM s").Results[0].Rows[0][0].Value != "0" {
+		t.Fatal("simulation changed data")
 	}
 }

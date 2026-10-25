@@ -52,7 +52,7 @@ Zeilen werden niemals als vollständige Tabelle gesammelt. Alle Formate haben ei
 positiven Abschluss; Limits oder Fehler dürfen keinen gültigen Abschluss erzeugen.
 CSV-Stream hat deshalb eine Kontrollspalte/Endzeile. Alte lokale F6-Profile bleiben
 unverändert; gemeinsamer Vertrag beschreibt beide Profile getrennt. Schema-/Dateiversion
-und API-Version bleiben getrennt. API 0.11 ist vorläufig und nicht im Weblock gepinnt.
+und API-Version bleiben getrennt. API 0.11 ist endgültig vergeben (Integration Welle 2) und nicht im Weblock gepinnt.
 
 Nur derselbe SQL-Dialekt, UTF-8, reguläre Tabellen und dokumentierte Typteilmenge.
 Views/Routinen/Trigger/Events und weitere Kodierungen sind nicht implementierte
@@ -136,7 +136,7 @@ Branch `feat/w-p11-backend`. SHA256 der abzugebenden Vertragsdateien:
 
 | Datei | SHA256 |
 | --- | --- |
-| `contracts/api-v0.11.0.json` | `5855e97408029bba128ec47659e58758d622e24aedd7b6001eb294aa91ba02fe` |
+| `contracts/api-v0.11.0.json` | `b3bcc38b44b020335151aead207e281f9c54bdc7463d6fb1ddd7a6cc22396620` |
 | `contracts/export-format-v1.schema.json` | `f21a9e7d97237b91a4d191b4ac9926677c9565c4073ca00f54964eb21d57267b` |
 
 Abschließend `gofmt -l .` ohne Ausgabe, `go vet ./...` bestanden, alle sieben
@@ -158,3 +158,16 @@ Nächster konkreter Schritt für den Lead: gesamten uncommitteten W-P11-Diff ein
 aller neuen Dateien übernehmen und unabhängig reviewen; die oben ausdrücklich offenen
 Live-/Listener-/Browsergates nachholen. Keine Aussage über erfolgreichen unabhängigen
 Review, tatsächliche CI oder umfassende Matrixabnahme aus diesem Workercheckpoint ableiten.
+
+## Nachtrag Integration Welle 2 und Review ([W-P11-backend-review](W-P11-backend-review.md))
+
+Stand: Livetests wurden ausgeführt (`scripts/test-export.py --live`, SQLite, MySQL 8.4, MariaDB 12.3, PostgreSQL 18.6 nacheinander); die Aussagen
+"nicht ausgeführt" weiter oben sind überholt, der Vertrag-SHA oben ist der Integrationsstand. Review: Freigabe. Umgesetzt:
+1. Client-Konvention (verbindlich, im Vertragstext `EXPORT-API.md`): Abbruch nach Streambeginn nur über HTTP-Trailer und fehlende Schlussmarke,
+   die Antwort bleibt 200; Browser lesen keine Trailer, der Web-Client MUSS die Schlussmarke prüfen.
+2. MySQL/MariaDB-Dumpkopf entfernt `NO_BACKSLASH_ESCAPES` für die Dauer des Restores und stellt `sql_mode` am Ende wieder her (Test: Restore unter
+   `NO_BACKSLASH_ESCAPES` mit Backslashes in Default und Kommentar).
+3. `if_not_exists` gilt auch für die angehängten `CREATE INDEX` (SQLite, PostgreSQL); MySQL legt Indizes in `CREATE TABLE` an (Test: zweimaliger Restore).
+4. Zeitüberschreitung meldet `X-Export-Error: query_canceled`.
+5. Gleichzeitige Exporte sind auf 2 je Prozess begrenzt (`MaxConcurrentExports`); weitere Anfragen erhalten 503 `export_busy`. Exporte teilen sich außerdem die
+   allgemeinen vier Verbindungsplätze.

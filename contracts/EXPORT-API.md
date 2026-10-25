@@ -98,3 +98,14 @@ Views/Routinen/Trigger/Events, zusätzliche Kompressionen und Cross-Dialektüber
 keine implementierte Objektklassen-Parität; W-P19/W-P28 bleiben zuständig. Insbesondere
 PMA-DUMP-001 und PMA-NEU-DUMP-001 sind damit nur teilweise abgedeckt. Vollständige
 phpMyAdmin-Parität und universelle Wiederherstellbarkeit werden nicht behauptet.
+
+## Client-Konventionen und Betriebsgrenzen (verbindlich)
+
+* **Schlussmarke prüfen:** Bricht ein Export nach dem Beginn des Streams ab (Zeit-, Byte- oder Zeilenlimit, Datenbankfehler, Clientabbruch), bleibt die
+  HTTP-Antwort `200`; nur die HTTP-Trailer `X-Export-Status: incomplete` und `X-Export-Error` und das Fehlen der Schlussmarke zeigen es an. Browser
+  (`fetch`, Download) lesen keine Trailer. Clients MÜSSEN deshalb die Schlussmarke prüfen (SQL: letzte Zeile `-- DBMANAGER EXPORT COMPLETE`, JSON:
+  `"complete":true`, CSV: Kontrollzeile `complete`) und sonst "unvollständig" melden, nie "fertig".
+* **Fehlercodes:** `X-Export-Error` nennt `query_canceled` bei Zeitlimit oder Abbruch, sonst die Codes der Limits oder `export_failed`.
+* **MySQL/MariaDB-Restore:** Der Dumpkopf setzt `sql_mode` ohne `NO_BACKSLASH_ESCAPES` und stellt den Wert am Ende wieder her.
+* **Idempotenz:** `if_not_exists` macht `CREATE TABLE` und die angehängten `CREATE INDEX` (SQLite, PostgreSQL) idempotent; Daten-INSERTs bleiben es nicht.
+* **Gleichzeitigkeit:** höchstens 2 Exporte gleichzeitig je Prozess (503 `export_busy`, vor dem Streambeginn).

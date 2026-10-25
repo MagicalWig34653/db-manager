@@ -51,7 +51,8 @@ func (f *exportFormat) start() error {
 			s += "-- Catalog reconstruction: omits sequences, triggers, rules, partitions, ownership and storage.\nSET standard_conforming_strings=on;\nSET TIME ZONE 'UTC';\n"
 		}
 		if f.r.Connection.Driver == "mysql" {
-			s += "SET NAMES utf8mb4;\nSET time_zone='+00:00';\n"
+			// NO_BACKSLASH_ESCAPES on the restoring server would misread backslashes in SHOW CREATE literals.
+			s += "SET NAMES utf8mb4;\nSET time_zone='+00:00';\nSET @dbm_export_old_sql_mode=@@SQL_MODE;\nSET SESSION sql_mode=TRIM(BOTH ',' FROM REPLACE(CONCAT(',',@@SQL_MODE,','),',NO_BACKSLASH_ESCAPES,',','));\n"
 		}
 		if f.r.DisableFK {
 			if f.r.Connection.Driver == "sqlite" {
@@ -264,6 +265,9 @@ func (f *exportFormat) finish() error {
 			} else {
 				s += "SET FOREIGN_KEY_CHECKS=@dbm_export_old_fk;\n"
 			}
+		}
+		if f.r.Connection.Driver == "mysql" {
+			s += "SET SESSION sql_mode=@dbm_export_old_sql_mode;\n"
 		}
 		return f.write(s + "-- DBMANAGER EXPORT COMPLETE\n")
 	}

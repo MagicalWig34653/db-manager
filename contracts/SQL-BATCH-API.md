@@ -128,3 +128,16 @@ FDWs/externe Funktionen oder nicht rücknehmbare Sequenz-/Auto-ID-Effekte berüh
 Auch Rollback ist keine universelle Rücknahme externer Effekte. Eine künftig eng
 metadatengeprüfte Simulation ist eine separate Vertragserweiterung; kein stiller
 Fallback auf tatsächliche ungesicherte Ausführung.
+
+## Hinweise und Grenzen (Review Welle 2)
+
+* **Zustimmung:** `confirm` gilt global für die Anfrage; es gibt keinen Lesemodus und keine Klassifikation je Anweisung. Der Stapel führt jede Anweisung
+  mit den echten Rechten der Verbindung aus, auch `EXPLAIN ANALYZE <DML>` (PostgreSQL führt das `DELETE` aus). Das Capability-Feld `explain_analyze=false`
+  gilt nur für die Route `explain`, die `ANALYZE`, `FORMAT`, Klammerformen und `/*!` ablehnt und nie Nebenwirkungen hat. Clients zeigen die Schreibwarnung
+  unabhängig vom Anweisungstyp.
+* **`BEGIN ... END`:** Der Splitter trennt an jedem `;`. SQLite-Trigger und PostgreSQL `BEGIN ATOMIC` mit inneren Semikolons werden deshalb vor jeder Ausführung
+  mit 422 `sql_not_supported` abgelehnt (fail-closed). Abhilfe: `DELIMITER //` ... `//` ... `DELIMITER ;` (auch für SQLite und PostgreSQL).
+* **Sitzungskontrolle:** `BEGIN`, `START`, `COMMIT`, `END`, `ROLLBACK`, `ABORT`, `SAVEPOINT`, `RELEASE`, `SET`, `LOCK`, `UNLOCK` werden abgelehnt (jede Anfrage hat eine eigene Verbindung im Autocommit).
+* **MySQL/MariaDB:** `ANALYZE`, `OPTIMIZE`, `CHECK`, `REPAIR` und `CHECKSUM TABLE` liefern ihre Ergebniszeilen.
+* **Simulation:** Läuft die Simulation in das Zeitlimit, ist die Transaktion zurückgerollt (`rolled_back`); `outcome_unknown` mit `rollback_unknown`
+  bleibt für einen tatsächlich nicht bestätigten Rollback.

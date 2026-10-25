@@ -21,11 +21,15 @@ const MaxCellBytes = 1 << 20
 const MaxResponseBytes = 8 << 20
 const MaxConcurrentRequests = 4
 
+// MaxConcurrentExports bounds simultaneous exports; each holds a connection and a snapshot for up to 300 s.
+const MaxConcurrentExports = 2
+
 // Engine retains administrative policy, never request credentials or connections.
 type Engine struct {
 	dataDir string
 	hosts   map[string]bool
 	slots   chan struct{}
+	exports chan struct{} // bounds long-running exports (MaxConcurrentExports)
 	roots   *x509.CertPool
 }
 
@@ -56,7 +60,7 @@ func New(dataDir string, allowedHosts []string, options ...Option) (*Engine, err
 		}
 		hosts[host] = true
 	}
-	engine := &Engine{dataDir: abs, hosts: hosts, slots: make(chan struct{}, MaxConcurrentRequests)}
+	engine := &Engine{dataDir: abs, hosts: hosts, slots: make(chan struct{}, MaxConcurrentRequests), exports: make(chan struct{}, MaxConcurrentExports)}
 	for _, option := range options {
 		if err := option(engine); err != nil {
 			return nil, err
