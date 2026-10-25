@@ -1,0 +1,30 @@
+{
+  "items": [
+    {
+      "table": {
+        "schema": "p10_fixture",
+        "name": "maint \"`'; SELECT 1--"
+      },
+      "action": "optimize",
+      "state": "planned",
+      "reason": "",
+      "plan": {
+        "driver": "mysql",
+        "statements": [
+          "OPTIMIZE TABLE `p10_fixture`.`maint \"``'; SELECT 1--`"
+        ],
+        "warnings": [
+          "Die Laufzeit ist nicht vorhersagbar; Sperren können andere Sitzungen blockieren. Das Zeitlimit umfasst den gesamten Stapel.",
+          "Ein Abbruch garantiert keinen Rollback. Nach unbekanntem Ausgang nicht automatisch wiederholen.",
+          "Diese Aktion kann Tabellen oder Indizes neu aufbauen und lange exklusive Sperren sowie zusätzlichen Speicher benötigen."
+        ],
+        "affected_objects": [
+          "p10_fixture.maint \"`'; SELECT 1--"
+        ],
+        "plan_sha256": "cc1ce1fb9ac903a20633020c20d6712f5825cf07294c8f78b6de71a966516bb3"
+      },
+      "typed_confirmation": true,
+      "target_name": "maint \"`'; SELECT 1--"
+    }
+  ]
+}

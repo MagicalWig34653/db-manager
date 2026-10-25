@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "table": {
+        "schema": "p10_fixture",
+        "name": "maint_myisam"
+      },
+      "action": "repair",
+      "outcome": "completed",
+      "reason": "",
+      "checksum": null,
+      "duration_ms": 29
+    }
+  ],
+  "partial": false
+}

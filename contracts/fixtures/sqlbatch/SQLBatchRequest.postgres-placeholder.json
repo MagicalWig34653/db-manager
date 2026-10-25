@@ -1,0 +1,8 @@
+{
+  "connection": {
+    "driver": "postgres",
+    "host": "HOST_PLACEHOLDER"
+  },
+  "sql": "SELECT $tag$a;b$tag$; SELECT 2;",
+  "confirm": true
+}

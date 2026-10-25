@@ -1,0 +1,23 @@
+{
+  "driver": "postgres",
+  "statements": [
+    "ALTER TABLE \"public\".\"col \"\"`' ;DROP TABLE neighbor\" ADD COLUMN \"new \"\"` value\" VARCHAR(40) NULL DEFAULT 'q''\\;DROP TABLE neighbor;--'"
+  ],
+  "warnings": [
+    "Strukturänderungen können die Tabelle sperren. Zeitlimit und DB-Rechte gelten.",
+    "Plan-Hash ist kein Replay-Schutz; nach Abschluss oder unbekanntem Ausgang neu planen und bestätigen."
+  ],
+  "affected_objects": [
+    "public.col \"`' ;DROP TABLE neighbor",
+    "public.col \"`' ;DROP TABLE neighbor.new \"` value"
+  ],
+  "plan_sha256": "3eaf54dbe67649e693df85a1c1f2398542c04664a5517e638eff5d2827f27544",
+  "table": {
+    "schema": "public",
+    "name": "col \"`' ;DROP TABLE neighbor"
+  },
+  "destructive": false,
+  "target_name": "col \"`' ;DROP TABLE neighbor",
+  "dependencies": [],
+  "ddl_transactional": true
+}

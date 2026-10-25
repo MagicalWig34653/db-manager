@@ -1,0 +1,30 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "columns"
+  },
+  "table": {
+    "name": "fixture"
+  },
+  "changes": [
+    {
+      "action": "add",
+      "definition": {
+        "name": "new_value",
+        "type": {
+          "kind": "text",
+          "length": 40
+        },
+        "nullable": true,
+        "default": {
+          "mode": "none"
+        }
+      }
+    }
+  ],
+  "confirm": {
+    "action": "columns_alter",
+    "target_name": "fixture"
+  },
+  "expected_plan_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+}

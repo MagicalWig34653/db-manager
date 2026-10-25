@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "table": {
+        "schema": "p10_fixture",
+        "name": "maint \"`'; SELECT 1--"
+      },
+      "action": "vacuum",
+      "state": "rejected",
+      "reason": "unsupported_action",
+      "plan": null,
+      "typed_confirmation": false,
+      "target_name": ""
+    }
+  ]
+}

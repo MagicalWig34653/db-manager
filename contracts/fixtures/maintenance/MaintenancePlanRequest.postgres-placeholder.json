@@ -1,0 +1,18 @@
+{
+  "connection": {
+    "driver": "postgres",
+    "database": "probe",
+    "host": "localhost",
+    "username": "fixture",
+    "tls_mode": "verify-full"
+  },
+  "items": [
+    {
+      "table": {
+        "schema": "public",
+        "name": "beispiel"
+      },
+      "action": "analyze"
+    }
+  ]
+}

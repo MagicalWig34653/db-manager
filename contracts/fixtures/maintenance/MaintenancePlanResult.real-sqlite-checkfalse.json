@@ -1,0 +1,29 @@
+{
+  "items": [
+    {
+      "table": {
+        "schema": "main",
+        "name": "maint \"`'; SELECT 1--"
+      },
+      "action": "check",
+      "state": "planned",
+      "reason": "",
+      "plan": {
+        "driver": "sqlite",
+        "statements": [
+          "PRAGMA main.integrity_check(\"maint \"\"`'; SELECT 1--\")"
+        ],
+        "warnings": [
+          "Die Laufzeit ist nicht vorhersagbar; Sperren können andere Sitzungen blockieren. Das Zeitlimit umfasst den gesamten Stapel.",
+          "Ein Abbruch garantiert keinen Rollback. Nach unbekanntem Ausgang nicht automatisch wiederholen."
+        ],
+        "affected_objects": [
+          "main.maint \"`'; SELECT 1--"
+        ],
+        "plan_sha256": "9c37fec78066130d8bb4e71d34667de2e7bee0262897b98df16db0940308b884"
+      },
+      "typed_confirmation": false,
+      "target_name": "maint \"`'; SELECT 1--"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "connection": {
+    "driver": "mysql",
+    "host": "HOST_PLACEHOLDER",
+    "database": "DB_PLACEHOLDER",
+    "username": "USER_PLACEHOLDER",
+    "password": "PASSWORD_PLACEHOLDER"
+  },
+  "sql": "DELIMITER $$\nCREATE PROCEDURE p() BEGIN SELECT 1; SELECT 2; END$$\nDELIMITER ;\nCALL p();",
+  "confirm": true,
+  "mode": "continue"
+}

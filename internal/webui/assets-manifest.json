@@ -11,25 +11,97 @@
       "size": 92896
     },
     {
-      "path": "assets/index-Ay2aZLYy.js",
-      "sha256": "c5c9343ca4cc21facd2420b397db398a992c60abd9b04a42f5effa41650950b0",
-      "size": 958092
+      "path": "apple-touch-icon.png",
+      "sha256": "16d0cdb88277d760d947ea00749dd912057995e2c50db8bc5bc985408892081d",
+      "size": 3664
     },
     {
-      "path": "assets/index-Br26lo6r.css",
-      "sha256": "11e4d1ad3f8b2d045b9349cf71cb8c01327358d41be6fe5ec6e6b55699f8aae5",
-      "size": 45599
+      "path": "assets/feature-BPqPrbnZ.css",
+      "sha256": "79fd88e5e2782cdaf5677b7f56d593244e7499ec5d3783e78e0b984e027bc9a3",
+      "size": 2053
+    },
+    {
+      "path": "assets/feature-BbAEuRYR.js",
+      "sha256": "c9315d6ad6e046b84062bd16ab78d4150763f6d98bb6938d054c1fe0ef6ae27c",
+      "size": 474054
+    },
+    {
+      "path": "assets/feature-C2xS-vVO.js",
+      "sha256": "f569a58658ce59dfa686399024f9604831af28be35cba352143613eda2cfdca1",
+      "size": 311642
+    },
+    {
+      "path": "assets/feature-D2nHilXW.css",
+      "sha256": "3677b26565ec5cb5acc15900cc1a260afa2194ef2a61277cca9f2017d6ef160a",
+      "size": 1917
+    },
+    {
+      "path": "assets/index-CY5VlWzu.css",
+      "sha256": "e8cfb814af629e7596b9540b1b09ef4dcaa2e74d173b445bd64010386368005a",
+      "size": 47970
+    },
+    {
+      "path": "assets/index-CnOlEE_p.js",
+      "sha256": "43ff5b2a8e18adbbe643b8ad0e58ad7bc8f675516aefe5af4cb1572dad8a0d1b",
+      "size": 999405
+    },
+    {
+      "path": "favicon-32.png",
+      "sha256": "7b45cb31c1b94f78b7d9b6745c33a544f5426d87df779197eb64cc38a198b001",
+      "size": 1196
+    },
+    {
+      "path": "icon-192.png",
+      "sha256": "530e8598c7367a2ee3999250cd00962651cd995e536c3e1520e461ec2e0d650b",
+      "size": 6990
+    },
+    {
+      "path": "icon-512.png",
+      "sha256": "9f1074d82139629dc9350ba12c0fb21f79ea78295a5c85bc0466a44c72b4ba76",
+      "size": 19251
+    },
+    {
+      "path": "icon-maskable-512.png",
+      "sha256": "e1fd5502743b542a488dd22d3d4fb3144d9e6814bf20c5eaeb20224f94790bba",
+      "size": 9612
+    },
+    {
+      "path": "icon.svg",
+      "sha256": "d3dce0051a47d063a496849024190072fb3e2868c8d025a949760945456786b1",
+      "size": 269
     },
     {
       "path": "index.html",
-      "sha256": "bd6b06cf3ae1a04a20070f689d466be00f48a1b346d49f0236c103f4334dbc42",
-      "size": 424
+      "sha256": "2aad309a5248c2d36b275f1ca481b6a32bce22605b5ea4b4940eb00c3b174393",
+      "size": 666
+    },
+    {
+      "path": "manifest.webmanifest",
+      "sha256": "7949f25cca67f0956a0d81e9561d1d5d1888765b56c12eb90943613fea2d122b",
+      "size": 796
+    },
+    {
+      "path": "sw.js",
+      "sha256": "0f1abaa6dc78958aaf69e40a999e53682a3257ad45f8c8db7bbc791b60d510c2",
+      "size": 3380
     }
   ],
   "schema_version": 1,
   "source": {
+    "additional_contracts": [
+      {
+        "family": "create",
+        "sha256": "b08b6aba858f72a3bad1fce2933e487eed017f5e35b4690cfd9fae3a590a6887",
+        "version": "0.6.0"
+      },
+      {
+        "family": "overview",
+        "sha256": "c6fd8c91315e25185d949d309397c7c0d80cc67fcab87ae521e38068e7004d17",
+        "version": "0.7.0"
+      }
+    ],
     "build_mode": "production",
-    "commit": "8ef738d22a1164291e2c8183d80e72d1f043c0f8",
+    "commit": "48c2f67113d8fd0a27e9cf966d20904fd7d0da61",
     "contract_sha256": "4b598dc69a1904685e67a717997412654440ac10f47c17f7a025ccd114e294be",
     "contract_version": "0.1.0",
     "insert_contract_sha256": "4763ebf8632a9ef977cf7d3a6037299fc4dafde0a581fe10cb34d844f8356fbf",
@@ -38,7 +110,7 @@
     "mutation_contract_version": "0.3.0",
     "npm_lock_sha256": "bac4b32ba0548428186f20b1d6382f3554b1a477c0fb89957b123820495b15c6",
     "repository": "https://github.com/MagicalWig34653/db-manager-web.git",
-    "schema_version": 1,
+    "schema_version": 2,
     "structure_contract_sha256": "b5225339511d80fe4f52f09118fdad2060d8a92f31d44b73dd89fe9f76178c95",
     "structure_contract_version": "0.5.0",
     "table_contract_sha256": "c15a848f01bb779429fd68a2b6eb6bba1575d3e07a4c68e6796cf7840a661838",

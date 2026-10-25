@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "table": {
+        "schema": "main",
+        "name": "beispiel"
+      },
+      "action": "analyze",
+      "state": "planned",
+      "reason": "",
+      "plan": null,
+      "typed_confirmation": false,
+      "target_name": "beispiel"
+    }
+  ]
+}

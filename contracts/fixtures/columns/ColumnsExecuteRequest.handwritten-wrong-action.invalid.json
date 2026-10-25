@@ -1,0 +1,36 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "columns"
+  },
+  "table": {
+    "name": "fixture"
+  },
+  "changes": [
+    {
+      "action": "change",
+      "column": "value",
+      "definition": {
+        "name": "value",
+        "type": {
+          "kind": "decimal",
+          "precision": 9,
+          "scale": 2
+        },
+        "nullable": false,
+        "default": {
+          "mode": "value",
+          "value": {
+            "kind": "decimal",
+            "value": "1.25"
+          }
+        }
+      }
+    }
+  ],
+  "confirm": {
+    "action": "drop",
+    "target_name": "fixture"
+  },
+  "expected_plan_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+}

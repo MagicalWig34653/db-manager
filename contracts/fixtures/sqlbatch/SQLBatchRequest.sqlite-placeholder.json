@@ -1,0 +1,8 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "FIXTURE_DB_PLACEHOLDER"
+  },
+  "sql": "SELECT ';'; SELECT 2;",
+  "confirm": true
+}

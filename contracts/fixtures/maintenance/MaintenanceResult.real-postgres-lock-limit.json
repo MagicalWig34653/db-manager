@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "table": {
+        "schema": "p10_fixture",
+        "name": "maint_sentinel"
+      },
+      "action": "vacuum",
+      "outcome": "outcome_unknown",
+      "reason": "execution_unconfirmed",
+      "checksum": null,
+      "duration_ms": 102
+    }
+  ],
+  "partial": false
+}
