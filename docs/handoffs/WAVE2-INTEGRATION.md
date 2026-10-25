@@ -10,7 +10,7 @@ Backendpakete wurden nacheinander integriert, mit echten Engine-Fixtures und Liv
 | 0 | W-P07 Datenbank-/Tabellenoperationen (main) | 0.8 | main | `74aa39ed06311f2c45afc274a2412a0ac30912e3a5683ec96b812fd473a28264` |
 | 1 | W-P08 Spalten (`4b66dfd`) | 0.9 (unverändert) | `7ccdcc7` | `508b9951d102ec44bf4cafc9fe444f7266b31f898d9e91c887f4bef39735e3f8` |
 | 2 | W-P10 Tabellenwartung (`276171b`) | 0.11 -> **0.10** | `a56c9f5` | `077a0e0222963b112bd6ea528ef5668d2ff7fbe2b2d3555669487c4beaf55cc5` |
-| 3 | W-P11 Export/SQL-Dump (`9c1310c`) | 0.12 -> **0.11** | `0ceeb59` | `b3bcc38b44b02033…` (`shasum -a 256 contracts/api-v0.11.0.json`) |
+| 3 | W-P11 Export/SQL-Dump (`9c1310c`) | 0.12 -> **0.11** | `0ceeb59` | `b3bcc38b44b020335151aead207e281f9c54bdc7463d6fb1ddd7a6cc22396620` |
 | 4 | W-P15 SQL-Stapel/EXPLAIN/Simulation (`e5425c1`) | 0.16 -> **0.12** | `c562a61` | `7f0446edccdc368a202e4eaae5689d4b44d641e34bdf77ec8314de9f3e3f2dcd` |
 
 Nummern sind lückenlos und unabhängig von den Vorschlägen in PWA-PLAN.md (dort ergänzt). W-P09 (Indizes, Schlüssel) erhält die
