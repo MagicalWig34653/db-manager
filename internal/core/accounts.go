@@ -6,7 +6,7 @@ import (
 	"github.com/MagicalWig34653/db-manager/internal/dbplan"
 )
 
-const AccountsContractVersion = "0.18.0"
+const AccountsContractVersion = "0.16.0"
 const AccountsMaxItems = 500
 
 var AccountActions = []string{"create", "rename", "drop", "password", "grant", "revoke", "lock", "unlock", "role_grant", "role_revoke", "copy", "flush"}

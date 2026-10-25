@@ -1,15 +1,15 @@
-# Datenbankkonten und Rechte (API 0.18, vorläufig)
+# Datenbankkonten und Rechte (API 0.16)
 
-Additiver [OpenAPI-Vertrag](api-v0.18.0.json) zu API 0.8; bisherige Vertragsbytes bleiben
-unverändert. Die Nummer ist vorläufig. Kein Web-Lock-Pin, keine Produktkonten oder
+Additiver [OpenAPI-Vertrag](api-v0.16.0.json) zu API 0.12; bisherige Vertragsbytes bleiben
+unverändert. Die Nummer 0.16 ist festgelegt. Kein Web-Lock-Pin, keine Produktkonten oder
 Änderung des Bearer-Token-Modells (E2). E9 erlaubt bestätigte Datenbankadministration.
 Alle Routen sind authentifiziert; JSON-Anfragen höchstens 1 MiB, keine Nullwerte,
 unbekannten oder aktionsfremden Felder. Dokumentierter Umfang ist Backend; keine Webintegration.
 
 ## Routen und Eingaben
 
-`GET /api/v18/capabilities` liefert die statischen Treibergrenzen. Alle weiteren Routen
-liegen unter `POST /api/v18/accounts/` und tragen `connection` sowie optional
+`GET /api/v16/capabilities` liefert die statischen Treibergrenzen. Alle weiteren Routen
+liegen unter `POST /api/v16/accounts/` und tragen `connection` sowie optional
 `timeout_ms` (Standard 30000, höchstens 60000).
 
 | Route | Zusätzliche Eingaben | Ergebnis |
@@ -23,7 +23,7 @@ liegen unter `POST /api/v18/accounts/` und tragen `connection` sowie optional
 `account`, `new_account`, `role`: `{name, host?}`. MySQL-/MariaDB-Konten verlangen
 expliziten Host; PostgreSQL hat keinen Hostteil. Neue Namen sind höchstens 32 Byte
 (MySQL/MariaDB, konservativ) oder 63 Byte (PostgreSQL), Host höchstens 255 Byte,
-keine NUL-/Zeilenumbruchzeichen. MariaDB-Rollen haben den leeren Host.
+keine NUL-/Zeilenumbruchzeichen. MariaDB-Rollen haben den leeren Host; `inspect` prüft dafür zusätzlich `is_role` im Katalog. Benutzeränderungen verlangen weiterhin einen Host.
 Bestehende Ziele werden exakt aus dem Katalog aufgelöst und dann gequotet;
 neue Namen werden validiert, auf Kollision geprüft und gequotet.
 
@@ -75,6 +75,10 @@ eindeutig. Tabellen einschließlich materialisierter Sichten kommen aus `pg_clas
 MySQL/MariaDB-Datenbanknamen mit `_`, `%` oder Backslash werden für Datenbankrechte
 abgewiesen: GRANT interpretiert sie als Muster und könnte fremde Datenbanken treffen.
 Tabellen-/Spaltenrechte für diese Datenbanken bleiben möglich.
+Die MySQL-/MariaDB-GRANTEE-Anzeige wird binär und als gebundener Rohwert verglichen.
+Erzeugen mehrere Konten denselben mehrdeutigen Anzeigetext (eingebettete Quote-/@-Folgen),
+werden Details und Kopie sicher abgewiesen; Konten werden nicht zusammengeführt.
+Dynamische Rechte aus mehreren Katalogquellen werden dedupliziert. Globale MariaDB-Rollenrechte werden aus kataloggeprüften Privilegspalten von `mysql.user` ergänzt, da `USER_PRIVILEGES` Rollen auslässt. Enthält eine Rolle moderne oder unbekannte globale Rechte außerhalb der dort dargestellten Bits 0 bis 29, wird `inspect` sicher als nicht unterstützt abgewiesen; der reine Rechtebitmap wird dafür ohne Authentifizierungsdaten geprüft.
 
 `revoke` mit `grant_option=true` entzieht die Weitergabeberechtigung: PostgreSQL
 für das Einzelrecht; MySQL/MariaDB für den gesamten gewählten Geltungsbereich,

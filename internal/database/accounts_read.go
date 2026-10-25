@@ -99,6 +99,18 @@ func resolveAccount(ctx context.Context, env *opEnv, a core.AccountRef) (core.Ac
 	if len(out.Accounts) != 1 || out.Accounts[0].Account != a {
 		return core.AccountInfo{}, opNotFound()
 	}
+	if env.c.Driver == "mysql" && a.Host == "" {
+		if !env.maria {
+			return core.AccountInfo{}, accountInvalid()
+		}
+		var isRole string
+		if err := env.sess.QueryRowContext(ctx, "SELECT is_role FROM mysql.user WHERE BINARY User=BINARY ? AND BINARY Host=BINARY ?", a.Name, a.Host).Scan(&isRole); err != nil {
+			return core.AccountInfo{}, err
+		}
+		if isRole != "Y" {
+			return core.AccountInfo{}, accountInvalid()
+		}
+	}
 	info := out.Accounts[0]
 	// Conservatively protect the requested login too (proxy/session identities may differ).
 	info.Current = info.Current || info.Account.Name == env.c.Username
@@ -158,13 +170,27 @@ func readAccountDetails(ctx context.Context, env *opEnv, a core.AccountRef) (out
 }
 
 func readMySQLAccountGrants(ctx context.Context, env *opEnv, a core.AccountRef, out *core.AccountDetails) error {
-	grantee := accountLiteral(a.Name) + "@" + accountLiteral(a.Host)
+	// GRANTEE is a bound metadata value, not an SQL literal. The catalog
+	// wraps raw account parts in quotes without SQL-escaping embedded quotes.
+	grantee := "'" + a.Name + "'@'" + a.Host + "'"
+	// Embedded quote/@ sequences can make the catalog's raw display identity
+	// ambiguous. Refuse a collision rather than copying another account's grants.
+	var identities int
+	if err := env.sess.QueryRowContext(ctx, `SELECT COUNT(*) FROM mysql.user WHERE BINARY CONCAT(CHAR(39),User,CHAR(39,64,39),Host,CHAR(39))=BINARY ?`, grantee).Scan(&identities); err != nil {
+		return err
+	}
+	if identities == 0 {
+		return opNotFound()
+	}
+	if identities != 1 {
+		return accountUnsupported()
+	}
 	queries := []struct{ scope, query string }{
-		{"global", `SELECT '', '', '', '', PRIVILEGE_TYPE, IS_GRANTABLE FROM information_schema.USER_PRIVILEGES WHERE GRANTEE=?`},
-		{"database", `SELECT TABLE_SCHEMA, '', '', '', PRIVILEGE_TYPE, IS_GRANTABLE FROM information_schema.SCHEMA_PRIVILEGES WHERE GRANTEE=?`},
-		{"table", `SELECT TABLE_SCHEMA, TABLE_NAME, '', '', PRIVILEGE_TYPE, IS_GRANTABLE FROM information_schema.TABLE_PRIVILEGES WHERE GRANTEE=?`},
-		{"column", `SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, '', PRIVILEGE_TYPE, IS_GRANTABLE FROM information_schema.COLUMN_PRIVILEGES WHERE GRANTEE=?`},
-		{"routine", `SELECT ROUTINE_SCHEMA, ROUTINE_NAME, '', ROUTINE_TYPE, PRIVILEGE_TYPE, IS_GRANTABLE FROM information_schema.ROUTINE_PRIVILEGES WHERE GRANTEE=?`},
+		{"global", `SELECT '', '', '', '', PRIVILEGE_TYPE, IS_GRANTABLE FROM information_schema.USER_PRIVILEGES WHERE BINARY GRANTEE=BINARY ?`},
+		{"database", `SELECT TABLE_SCHEMA, '', '', '', PRIVILEGE_TYPE, IS_GRANTABLE FROM information_schema.SCHEMA_PRIVILEGES WHERE BINARY GRANTEE=BINARY ?`},
+		{"table", `SELECT TABLE_SCHEMA, TABLE_NAME, '', '', PRIVILEGE_TYPE, IS_GRANTABLE FROM information_schema.TABLE_PRIVILEGES WHERE BINARY GRANTEE=BINARY ?`},
+		{"column", `SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, '', PRIVILEGE_TYPE, IS_GRANTABLE FROM information_schema.COLUMN_PRIVILEGES WHERE BINARY GRANTEE=BINARY ?`},
+		{"routine", `SELECT ROUTINE_SCHEMA, ROUTINE_NAME, '', ROUTINE_TYPE, PRIVILEGE_TYPE, IS_GRANTABLE FROM information_schema.ROUTINE_PRIVILEGES WHERE BINARY GRANTEE=BINARY ?`},
 	}
 	// MySQL has no ROUTINE_PRIVILEGES view; use mysql.procs_priv with a fixed privilege expansion.
 	queries[4].query = `SELECT Db, Routine_name, '', Routine_type, p.privilege_name, IF(FIND_IN_SET('Grant',Proc_priv)>0,'YES','NO') FROM mysql.procs_priv CROSS JOIN (SELECT 'EXECUTE' AS privilege_name, 'Execute' AS set_name UNION ALL SELECT 'ALTER ROUTINE','Alter Routine') p WHERE BINARY User=BINARY ? AND BINARY Host=BINARY ? AND FIND_IN_SET(p.set_name,Proc_priv)>0`
@@ -198,6 +224,9 @@ func readMySQLAccountGrants(ctx context.Context, env *opEnv, a core.AccountRef, 
 			return err
 		}
 	}
+	if env.maria && a.Host == "" {
+		return readMariaRoleGlobalGrants(ctx, env, a, out)
+	}
 	if !env.maria {
 		roles, _, err := accountVersion(ctx, env)
 		if err != nil {
@@ -209,6 +238,12 @@ func readMySQLAccountGrants(ctx context.Context, env *opEnv, a core.AccountRef, 
 				return err
 			}
 			defer rows.Close()
+			// Recent MySQL versions also expose dynamic grants in USER_PRIVILEGES.
+			// Keep the explicit catalog read for compatibility, without duplicates.
+			seen := make(map[core.AccountGrant]bool, len(out.Grants))
+			for _, grant := range out.Grants {
+				seen[grant] = true
+			}
 			for rows.Next() {
 				g := core.AccountGrant{Scope: "global"}
 				var option string
@@ -216,6 +251,10 @@ func readMySQLAccountGrants(ctx context.Context, env *opEnv, a core.AccountRef, 
 					return err
 				}
 				g.GrantOption = option == "Y"
+				if seen[g] {
+					continue
+				}
+				seen[g] = true
 				out.Grants = append(out.Grants, g)
 				if len(out.Grants) > core.AccountsMaxItems {
 					return public("result_too_large", "Zu viele direkte Rechte.")
@@ -251,4 +290,94 @@ func readPostgresAccountGrants(ctx context.Context, env *opEnv, a core.AccountRe
 		}
 	}
 	return rows.Err()
+}
+
+// MariaDB keeps roles outside acl_users, so USER_PRIVILEGES omits their global
+// grants. Read only catalog-verified privilege flags, never authentication data.
+func readMariaRoleGlobalGrants(ctx context.Context, env *opEnv, a core.AccountRef, out *core.AccountDetails) error {
+	var modernCatalog int
+	if err := env.sess.QueryRowContext(ctx, "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='mysql' AND TABLE_NAME='global_priv'").Scan(&modernCatalog); err != nil {
+		return err
+	}
+	if modernCatalog != 0 {
+		var rawAccess string
+		// Select only the public privilege bitmap, never the authentication JSON.
+		if err := env.sess.QueryRowContext(ctx, "SELECT COALESCE(JSON_VALUE(Priv,'$.access'),'0') FROM mysql.global_priv WHERE BINARY User=BINARY ? AND BINARY Host=BINARY ?", a.Name, a.Host).Scan(&rawAccess); err != nil {
+			return err
+		}
+		access, err := strconv.ParseUint(rawAccess, 10, 64)
+		// mysql.user exposes only the legacy bits 0..29. Do not silently omit
+		// modern or future global privileges from a supposedly complete result.
+		if err != nil || access>>30 != 0 {
+			return accountUnsupported()
+		}
+	}
+	rows, err := env.sess.QueryContext(ctx, "SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='mysql' AND TABLE_NAME='user' AND RIGHT(LOWER(COLUMN_NAME),5)='_priv' ORDER BY ORDINAL_POSITION")
+	if err != nil {
+		return err
+	}
+	columns := []string{}
+	privileges := []string{}
+	special := map[string]string{"grant": "GRANT OPTION", "show_db": "SHOW DATABASES", "create_tmp_table": "CREATE TEMPORARY TABLES", "repl_slave": "REPLICATION SLAVE", "repl_client": "REPLICATION CLIENT", "delete_history": "DELETE HISTORY"}
+	for rows.Next() {
+		var column string
+		if err = rows.Scan(&column); err != nil {
+			break
+		}
+		key := strings.TrimSuffix(strings.ToLower(column), "_priv")
+		privilege := strings.ToUpper(strings.ReplaceAll(key, "_", " "))
+		if mapped, ok := special[key]; ok {
+			privilege = mapped
+		}
+		if !accountPrivileges["global"][privilege] && privilege != "GRANT OPTION" && privilege != "DELETE HISTORY" {
+			err = accountUnsupported()
+			break
+		}
+		columns = append(columns, quoteIdentifier("mysql", column))
+		privileges = append(privileges, privilege)
+		if len(columns) > 128 {
+			err = accountUnsupported()
+			break
+		}
+	}
+	if err == nil {
+		err = rows.Err()
+	}
+	rows.Close()
+	if err != nil {
+		return err
+	}
+	if len(columns) == 0 {
+		return accountUnsupported()
+	}
+	values := make([]string, len(columns))
+	args := make([]any, len(columns))
+	for i := range values {
+		args[i] = &values[i]
+	}
+	if err = env.sess.QueryRowContext(ctx, "SELECT "+strings.Join(columns, ",")+" FROM mysql.user WHERE BINARY User=BINARY ? AND BINARY Host=BINARY ?", a.Name, a.Host).Scan(args...); err != nil {
+		return err
+	}
+	grantOption := false
+	for i, privilege := range privileges {
+		grantOption = grantOption || privilege == "GRANT OPTION" && values[i] == "Y"
+	}
+	seen := map[core.AccountGrant]bool{}
+	for _, grant := range out.Grants {
+		seen[grant] = true
+	}
+	for i, privilege := range privileges {
+		if values[i] != "Y" || privilege == "GRANT OPTION" {
+			continue
+		}
+		g := core.AccountGrant{Scope: "global", Privilege: privilege, GrantOption: grantOption}
+		if !seen[g] {
+			out.Grants = append(out.Grants, g)
+			seen[g] = true
+		}
+	}
+	if len(out.Grants) > core.AccountsMaxItems {
+		return public("result_too_large", "Zu viele direkte Rechte.")
+	}
+	return nil
 }

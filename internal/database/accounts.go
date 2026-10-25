@@ -76,7 +76,7 @@ func validateAccountRequest(r core.AccountRequest, action string) error {
 	} else if r.Account == nil || !accountName(r.Connection.Driver, *r.Account) {
 		return accountInvalid()
 	}
-	if r.Connection.Driver == "mysql" && r.Account != nil && r.Account.Host == "" {
+	if r.Connection.Driver == "mysql" && r.Account != nil && r.Account.Host == "" && action != "inspect" {
 		return accountInvalid()
 	}
 	if (action == "rename" || action == "copy") != (r.NewAccount != nil) {
@@ -104,7 +104,7 @@ func validateAccountRequest(r core.AccountRequest, action string) error {
 // The create route has only a new account; all other actions resolve an existing account.
 func validateAccounts(r core.AccountRequest, action string) error {
 	if action == "create" {
-		if r.Account != nil || r.NewAccount == nil {
+		if r.Account != nil || r.NewAccount == nil || r.Connection.Driver == "mysql" && r.NewAccount.Host == "" {
 			return accountInvalid()
 		}
 		check := r

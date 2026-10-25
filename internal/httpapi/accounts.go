@@ -10,10 +10,10 @@ import (
 )
 
 func (a *API) registerAccounts(mux *http.ServeMux) {
-	mux.Handle("GET /api/v18/capabilities", a.auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("GET /api/v16/capabilities", a.auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, 200, core.AccountsCapabilities{ContractVersion: core.AccountsContractVersion, Drivers: core.AccountCapabilities()})
 	})))
-	mux.Handle("POST /api/v18/accounts/access", a.auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("POST /api/v16/accounts/access", a.auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var input core.AccountRequest
 		input.Connection.TLSMode = "verify-full"
 		if !decodeAccounts(w, r, "access", false, &input) || !validConnection(w, input.Connection) {
@@ -32,11 +32,11 @@ func (a *API) registerAccounts(mux *http.ServeMux) {
 		writeJSON(w, 200, result)
 	})))
 	for _, kind := range []string{"list", "inspect"} {
-		mux.Handle("POST /api/v18/accounts/"+kind, a.auth(a.accountsRead(kind)))
+		mux.Handle("POST /api/v16/accounts/"+kind, a.auth(a.accountsRead(kind)))
 	}
 	for _, action := range core.AccountActions {
-		mux.Handle("POST /api/v18/accounts/"+action+"/plan", a.auth(a.accountsWrite(action, false)))
-		mux.Handle("POST /api/v18/accounts/"+action, a.auth(a.accountsWrite(action, true)))
+		mux.Handle("POST /api/v16/accounts/"+action+"/plan", a.auth(a.accountsWrite(action, false)))
+		mux.Handle("POST /api/v16/accounts/"+action, a.auth(a.accountsWrite(action, true)))
 	}
 }
 func (a *API) accountsEngine(w http.ResponseWriter) (core.AccountsEngine, bool) {

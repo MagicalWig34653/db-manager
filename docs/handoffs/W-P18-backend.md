@@ -1,150 +1,164 @@
 # Handoff W-P18 Backend: Datenbankbenutzer und Rechte
 
-Stand: 24.10.2026. Implementiert im vorhandenen Worktree `.worktrees/w-p18-backend`,
-Branch `feat/w-p18-backend`, unveränderte Basis/HEAD
-`b74d10e6ff50ed49dccb0484ee3f8d2f0ca5b656`. Ausschließlich Dateien geschrieben;
-keine Git-Schreibbefehle, kein Commit, keine Integration oder Veröffentlichung.
-Lead übernimmt Commit und Push. API **0.18 ist vorläufig**, kein Web-Lock-Pin und
-keine Änderung des zentralen Vertragsindex oder der Status-/Planungsdateien.
+Stand: 25.10.2026. Backend implementiert, lokale Prüfungen unten; echte
+Netzwerkdatenbanken und CI bleiben ungeprüft. Keine Integrationsfreigabe daraus.
+Worktree `.worktrees/w-p18-backend`, Branch `feat/w-p18-backend`, HEAD
+`cd02988` (main `c331c64` eingemergt, WIP `8a350f1` enthalten).
+Die Fortsetzung hat ausschließlich Dateien geschrieben, keine Git-Schreibbefehle,
+keinen Commit, keine Integration und keine Veröffentlichung ausgeführt.
+Der Lead übernimmt Commit und Integration. Zentrale Status-/Planungsdateien,
+Vertragsindex und Web-Lock sind unverändert.
 
-## Ergebnis und Dateibesitz
+## Vertrag und Dateibesitz
 
-- `internal/core/accounts.go`: Eingabe-/Antworttypen, konservative statische
-  Treiberfähigkeiten und optionale Engine-Schnittstellen.
+API **0.16.0**, endgültige Paketnummer, 28 authentifizierte Routen unter
+`/api/v16/`. [JSON-Vertrag](../../contracts/api-v0.16.0.json) additiv über v12;
+v1 bis v12 bleiben byteidentisch. V13 bis v15 werden nicht vorausgesetzt oder
+erfunden. Der bisherige Paketentwurf `api-v0.18.0.json` ist durch v16 ersetzt.
+SHA-256 des v16-Vertrags:
+`40d1631ca5e2e38c430cc2230dc5d91a1034e24a7e2d9304ed918d71e68e3752`.
+
+Paketdateien einschließlich des vorhandenen WIP:
+
+- `internal/core/accounts.go`: Datentypen, Treiberfähigkeiten, optionale Engines.
 - `internal/database/accounts.go`, `accounts_read.go`, `accounts_plan.go`:
-  eigene kompatible Sitzungsvorbereitung, Katalogauflösung, Benutzerliste,
-  direkte globale/Datenbank-/Tabellen-/Spalten-/Routinenrechte, direkte Rollen,
-  Ressourcenlimits, primäre Auth-Plugin-/SSL-Anzeige. Neue Konten, Umbenennen,
-  Löschen, Passwort, GRANT/REVOKE einschließlich Weitergabeberechtigung,
-  versionierte Sperren, Rollenzuweisung/-entzug, Kontenvorlage und Rechte-Neuladen.
-- `internal/httpapi/accounts.go`: 28 authentifizierte Routen unter `/api/v18/`,
-  aktionsspezifische Feld-/Präsenzprüfung auch bei verbotenen Nullwerten und
-  numerischen Nullwerten, sichere Fehler. `access` ist eine konservative,
-  verbindungsbezogene Anzeigehilfe; der Datenbankserver entscheidet über Rechte.
+  Sitzungsvorbereitung, Katalogauflösung, Lesen, Planbau und bestätigte Ausführung.
+- `internal/httpapi/accounts.go`: Registrierung, Authentifizierung, strikte
+  aktionsbezogene Eingaben und sichere Fehler. `features.go` registriert das Paket;
+  `features_test.go` berücksichtigt insgesamt 13 Features nach dem Main-Merge.
 - `internal/database/accounts_test.go`, `accounts_safety_test.go`,
-  `accounts_live_test.go`, `internal/httpapi/accounts_test.go`: Validierung,
-  Quoting, Versionen, SQLite-Nichtunterstützung, Geheimnis-/Fehlerhygiene,
-  Ergebniszustände, Plan-/Bestätigungsschutz, Authentifizierung und strikte Felder.
-  Lokale Protokollfixture testet echten Planbau und Ausführungslogik ohne Socket.
-- `contracts/api-v0.18.0.json`, [Verhalten](../../contracts/ACCOUNTS-API.md),
-  `contracts/fixtures/accounts/`: 16 ausdrücklich synthetische gültige/ungültige
-  Platzhalterfixtures plus README. SHA-256 des JSON-Vertrags:
-  `07abe7a0541c01b5033e9a9df73796cc164187f0bdab202d48cfd5018be8fe1e`.
-  Additiv zum vorhandenen v8; v1 bis v8 byteidentisch. Keine API 0.9–0.17 erfunden.
-- `scripts/check-accounts-contract.py`: alte Bytes, Additivität, Auth,
-  strikte Schemata, geschützte Eingabefelder, Fixtures und Integerwerte von
-  Ressourcenlimit-Maps. `scripts/test-accounts.py`: sequenzielle eigene
-  dbfix-Fixtures MySQL 8.4, MariaDB 12.3, PostgreSQL 18.6, echte Antwortvalidierung.
-- `.github/workflows/accounts.yml`: eigener CI-Prüfjob einschließlich Livetests.
-- [ADR W-P18](../decisions/ADR-W-P18-kontoplaene.md): geschützte Passwortwerte,
-  eindeutige Kontenkennung, konservative Zweitbestätigung, Grenzen der Kontenvorlage.
-- Konfliktstellen minimal: `internal/httpapi/features.go` genau ein neuer Eintrag;
-  `features_test.go` ausschließlich Zählung 8 auf 9. Alle v18-Routentests separat.
+  `accounts_live_test.go`, `internal/httpapi/accounts_test.go`: lokale Regressionen
+  und dbfix-gestützte Live-Abnahmefälle.
+- `contracts/api-v0.16.0.json`, [Verhalten](../../contracts/ACCOUNTS-API.md),
+  `contracts/fixtures/accounts/`: 16 ausdrücklich synthetische Platzhalterfixtures
+  mit README; keine angeblichen Live-Aufzeichnungen.
+- `scripts/check-accounts-contract.py`: pinnt v1 bis v12, prüft Additivität über
+  v12, exakte Routen/Methoden/Auth, lokale Referenzen, strikte Schemas und Fixtures.
+  `scripts/test-accounts.py`: eigene dbfix-Fixtures sequenziell für MySQL 8.4,
+  MariaDB 12.3 und PostgreSQL 18.6; validiert temporäre echte Antworten gegen v16.
+- `.github/workflows/accounts.yml`: eigener CI-Job für Race, Vet, Wächter und Live.
+- [ADR W-P18](../decisions/ADR-W-P18-kontoplaene.md): Passwortplatzhalter,
+  eindeutige Kontenkennung, Zweitbestätigung und Grenzen der Kontenvorlage.
 
-Keine neuen Abhängigkeiten, keine Datenmigration und kein persistenter
-Produktzustand. Eigener Code AGPL-3.0-only mit SPDX, keine Attribution-Zeilen.
+Keine neuen Abhängigkeiten oder Datenmigrationen. Eigener Code mit SPDX
+AGPL-3.0-only, keine Attribution-Zeilen. Dokumentation Deutsch, Code/Tests Englisch.
 
-## Sicherheitsverhalten und Abgrenzung
+## Verhalten und Sicherheitsgrenzen
 
-Datenbankkonten, keine Produktkonten (E2). Rechteänderungen sind nach E9 bestätigt.
-Alle Ausführungen berechnen den Plan auf einer gepinnten Sitzung neu und verlangen
-Hash und passende Aktion; destruktive Aktionen zusätzlich die exakte getippte
-Kontenkennung aus der Vorschau. Löschen und Rechte-/Rollenentzug verlangen immer
-zusätzliche Bestätigung, um indirekte Selbstaussperrung vorsorglich zu schützen.
-Eigene Sperren/Umbenennungen/Passwortänderungen sind ebenfalls zweitbestätigt.
+Datenbankkonten, keine Produktkonten (E2); bestätigte Administration nach E9.
+Lesend: Konten, direkte globale/Datenbank-/Tabellen-/Spalten-/Routinenrechte,
+direkte Rollen, Ressourcenlimits, primäres Auth-Plugin und SSL-Typ. MariaDB-Rollen
+mit leerem Host sind nach Prüfung von `is_role` inspizierbar; globale Rollenrechte
+werden aus kataloggeprüften Privilegspalten ergänzt. Moderne globale Rollenrechte außerhalb der Legacybits 0 bis 29 führen sicher zu `unsupported_action`, statt still in der Ansicht zu fehlen; nur der Rechtebitmap wird aus `global_priv` gelesen. Anmelde- und Ressourcenoptionen
+sind nur lesend. PostgreSQL-Auth/TLS ist unbekannt (`null`, pg_hba.conf).
 
-Passwort nur `secret` der Ausführung, nie Plananfrage, Vorschautext, Plan-Hash,
-Antwort oder Protokoll. Der feste Platzhalter geht in den Hash ein; das Passwort
-wird erst nach Bestätigung für die Ausführung gequotet. Keine Server-Passworthashes
-lesen. MySQL-Treiberlogger ist im bestehenden Verbindungsbau unterdrückt;
-keine eigenen Request-/SQL-Logs. Rohe Treiberfehler werden nie weitergegeben.
+Schreibend mit Plan und Bestätigung: Anlegen, Umbenennen, Löschen, Passwort,
+GRANT/REVOKE, versionsabhängige Kontosperren, Rollenzuweisung/-entzug, begrenzte
+Kontenkopie und explizites MySQL/MariaDB-FLUSH. SQLite ist nicht unterstützt.
+Jede Ausführung baut den Plan auf gepinnter Sitzung neu und prüft Plan-Hash und
+Aktion mit `dbplan.Check`; destruktive Aktionen verlangen die getippte Kennung.
+Eigene destruktive Änderungen verlangen Zweitbestätigung; vorsorglich auch jeder
+Rechte-/Rollenentzug, jede Löschung und FLUSH wegen indirekter Selbstaussperrung.
 
-Namen bestehender Konten/Objekte aus exakten Katalogtreffern; neue Namen validiert
-und gequotet. Festes Rechtevokabular, kein SQL vom Client. PostgreSQL-Routinen werden
-per OID und vom Server formatierter Argumentsignatur identifiziert. MySQL-DB-GRANT
-auf Namen mit Mustersymbolen wird sicher abgewiesen statt fremde DBs zu erfassen.
+Passwort ausschließlich als `secret` bei Ausführung; niemals in Antworten,
+Protokollen, Vorschautext oder Plan-Hash. Der Hash enthält den festen Platzhalter.
+Erst nach vollständiger Bestätigung wird die dafür bestimmte Position ersetzt.
+Keine Serverpassworthashes lesen. Keine rohen Treiberfehler oder ausgeführtes SQL
+in Ergebnis-/Fehlerantworten. Bestehende Namen aus exakten Katalogtreffern, neue
+Namen validiert; alles treiberspezifisch gequotet. Kein freies SQL vom Client.
 
-SQLite unsupported; globale PostgreSQL-Rollenattribute, Plugin-/TLS-/Limitänderungen
-nur lesend. PostgreSQL-Objektrechte aus der verbundenen Datenbank; direkte Rechte
-sind kein vollständiges Modell effektiver/geerbter/PUBLIC-/Besitz-/Defaultrechte.
-Keine Schema-/Sequenzrechte. MariaDB primäres Plugin statt vollständiger
-Mehrfachauthentifizierung. Die Kopie übernimmt direkte angebotene Rechte und
-Rollen ohne ADMIN OPTION, keine Anmelde-/Ressourcenparameter oder Besitzrechte;
-nicht unterstützte direkte Rechte verhindern die ganze Vorschau.
-MySQL/MariaDB-GRANT-OPTION-Entzug wirkt auf den gesamten Scope und wird ausdrücklich
-in der Vorschau gewarnt. Vollständige phpMyAdmin-Parität wird nicht behauptet.
+MySQL/MariaDB-GRANTEE ist ein binär verglichener gebundener Metadatenwert, kein
+SQL-Literal. Kollisionen seines rohen Anzeigeformats werden vor Rechteanzeige/Kopie
+sicher abgewiesen. Dynamische Rechte werden dedupliziert. MySQL-Datenbank-GRANT auf
+Mustersymbole wird abgewiesen; Routinenidentität bei PostgreSQL über OID und
+serverformatierte Argumentsignatur. Vollständige effektive/geerbte/PUBLIC-/Besitz-/
+Defaultrechte, Schema-/Sequenzrechte und vollständige MariaDB-Mehrfachauthentifizierung
+werden nicht behauptet. Die Kopie umfasst direkte angebotene Rechte und Rollen,
+keine ADMIN OPTION, Anmelde-/Ressourcenparameter oder PostgreSQL-Rollenattribute.
 
 MySQL/MariaDB-Schrittfolgen sind nicht atomar; nach Teilwirkung oder unsicherer
-Verbindung `outcome_unknown`. PostgreSQL nutzt Transaktion, unsicherer Commit
-bleibt unbekannt. Kein automatischer Retry. Nach Ausführung separat neu lesen;
-keine Behauptung eines atomaren Nachher-Snapshots. Bestehende Sitzungen werden
-nicht beendet. Namensbasierte Pläne haben dasselbe dokumentierte Zeitfenster und
-dieselbe Client-Sperrkonvention gegen Replay wie API 0.8.
+Verbindung `outcome_unknown`. PostgreSQL nutzt Transaktion; unsicherer Commit
+bleibt unbekannt. Kein automatischer Retry, kein atomarer Nachher-Snapshot.
+Bestehende Sitzungen werden nicht beendet. Namensbasiertes Zeitfenster und
+Client-Sperrkonvention gegen Replay wie API 0.8, im Verhaltenstext beschrieben.
 
-## Tatsächlich ausgeführte Prüfungen
+## Tatsächlicher Prüfstand dieser Fortsetzung
 
-Alle Befehle im Paket-Worktree am 24.10.2026. Für Go ist
-`GOCACHE="$PWD/.build/w-p18-go-cache"` gesetzt; der globale Buildcache war zunächst
-mit `operation not permitted` gesperrt. Der lokale Cache ist ignoriert, kein
-Produktartefakt. Kein Netzdownload war für die erfolgreichen Go-Prüfungen nötig.
+Befehle am 25.10.2026 im Paket-Worktree. Go mit
+`GOCACHE="$PWD/.build/w-p18-go-cache" GOPROXY=off`; keine Netzwerkdownloads.
+Der lokale Buildcache ist ignoriert und kein Produktartefakt.
 
-| Befehl | Tatsächlicher Ausgang |
+| Befehl | Ergebnis |
 | --- | --- |
 | `gofmt -l .` | bestanden, keine Ausgabe |
-| `go vet ./...` mit lokalem GOCACHE | bestanden, keine Ausgabe |
-| `go test -race -count=1 ./...` mit lokalem GOCACHE | nicht vollständig grün: bestehender `TestMySQLPerConnectionLoggerSuppressesServerInput` kann `127.0.0.1:0` nicht binden (`operation not permitted`); zusätzlich in diesem ersten Lauf bestehender `TestCrashRecovery` mit `child timeout`; übrige Pakete ok |
-| `go test -race -count=1 ./... -skip '^TestMySQLPerConnectionLoggerSuppressesServerInput$'` mit lokalem GOCACHE | alle Pakete bestanden, einschließlich SQLite-Crash-Recovery und neuer Accounts-Tests; ein bekannter Sockettest ausdrücklich ausgeschlossen |
-| `go test -race -count=1 ./internal/database ./internal/httpapi -run Accounts` mit lokalem GOCACHE | bestanden; Live-Untertests ohne Fixtureports übersprungen, keine Live-Abnahme daraus |
-| `python3 scripts/check-accounts-contract.py` | bestanden: v1–v8 eingefroren, v18 additiv, strikte Schemata, 16 Platzhalterfixtures, negativer Map-Typtest |
-| übrige sieben `scripts/check-*-contract.py` (table, mutation, insert, structure, create, overview, object-ops) | alle bestanden; bestehende v7-/v8-Fixtures unverändert gültig |
+| `go vet ./...` | bestanden, keine Ausgabe |
+| `go test -race -count=1 ./...` | versucht, scheitert ausschließlich an bestehendem `TestMySQLPerConnectionLoggerSuppressesServerInput`: Sandbox verbietet `listen tcp 127.0.0.1:0`; übrige Pakete bestanden |
+| `go test -race -count=1 ./... -skip '^TestMySQLPerConnectionLoggerSuppressesServerInput$'` | bestanden; genau dieser bestehende Sockettest ausdrücklich ausgeschlossen |
+| `go test -race -count=1 ./internal/database ./internal/httpapi -run Accounts` | bestanden; drei Live-Untertests ohne Fixtureports übersprungen |
+| alle zwölf `scripts/check-*-contract.py` | bestanden; Accounts: v1–v12 eingefroren, v16 additiv, 16 Platzhalterfixtures |
 | `python3 -m py_compile scripts/check-accounts-contract.py scripts/test-accounts.py` | bestanden |
-| `git diff --check` | bestanden |
-| `python3 scripts/test-accounts.py` mit lokalem GOCACHE | versucht; vor Containeranlage abgebrochen: Docker-Socketzugriff `permission denied`; keine Live-DB gestartet |
-| `python3 scripts/check-docs.py` | abschließender Ausgang wird unten ergänzt |
+| `git diff --check` | bestanden, rein lesend |
+| `python3 scripts/check-docs.py` | bestanden; abschließende Dateizahl siehe Prüfnachtrag |
+| `python3 scripts/test-accounts.py` | versucht, Docker-Vorabprüfung scheitert mit Socketzugriff `permission denied`, vor jeder Containeranlage |
 
-## Geschriebene, aber nicht ausgeführte Live-Abnahme
+Die vollständige Suite ist wegen der Sandboxgrenze ausdrücklich **nicht** als
+uneingeschränkt grün behauptet. Keine Tests geändert, um diese Grenze zu verstecken.
 
-`TestLiveAccounts/{mysql,maria,postgres}` enthält: anlegen und unabhängig im Katalog
-nachlesen; alte/neue Passwortanmeldung; falscher Hash/Name/Aktion; unveränderter
-Passwortplan-Hash nach Passwortwechsel; alle angebotenen Rechteebenen einschließlich
-Routine und Rollen; inhaltliche unabhängige SHOW-GRANTS-/PG-ACL-Prüfung;
-Kontenkopie und Vergleich direkter Rechte/Rollen; Lock-/Unlock-Anmeldung;
-eingeschränkte Verbindung mit ausgeblendeten Schreibaktionen und Serverablehnung;
-eigene Sperre ohne Zweitbestätigung; Umbenennen und Löschen bei weiter bestehender
-Sitzung; neue Anmeldung nach Löschen abgewiesen; unbeteiligte Tabelle bleibt erhalten.
-SQLite-Nichtunterstützung wird lokal getestet. Echte temporäre Antworten würden
-anschließend mit dem v18-Vertrag validiert und gelöscht.
+## Geschriebene Live-Abnahme, noch nicht ausgeführt
 
-**Nicht belegt:** Live-Verhalten dieser neuen Suite auf MySQL/MariaDB/PostgreSQL,
-echte TLS-/Plugin-/Ressourcenanzeigen, produktionsnahe Fehlerszenarien, ältere
-Serverversionen (nur lokale Versionsgrenzen-Tests), CI, Web-/Browserintegration,
-Compose-/Swarm-/Deploymentprüfung. Keine vorhandenen Live-Handoffs als Nachweis
-für diese neue Funktion umgedeutet. Docker-Vorabprüfung scheiterte vor jeder
-Ressourcenanlage. Prozessliste (`ps`) ist ebenfalls gesperrt; alle eigenen
-Tool-Testprozesse werden anhand ihrer zurückgegebenen Sitzungen beendet abgewartet.
+`TestLiveAccounts/{mysql,maria,postgres}` prüft Anlegen und unabhängiges Nachlesen,
+alte/neue Passwortanmeldung, unveränderten Passwortplan-Hash, falsche Aktion/Hash/
+getippten Namen, globale und alle angebotenen Objektrechte, Rechteanzeige vor/nach
+Entzug, SHOW-GRANTS-/PostgreSQL-ACL-Vergleich, Rollen, exakte Rechte-/Rollenidentität
+der Kopie, Sperren/Entsperren und Anmeldung, eingeschränkte Verbindung, Eigenkonto-
+Zweitbestätigung, Umbenennen/Löschen bei aktiver Sitzung sowie unbeteiligte Tabelle.
+Zusätzlich: MySQL/MariaDB-Plugin-/SSL-/Ressourcenanzeige nach Direktänderung,
+PostgreSQL-Verbindungslimit, Konten mit Quote/Sonderzeichen und unterschiedlicher
+Groß-/Kleinschreibung, MariaDB-Rolleninspektion mit Tabellen- und globalem Recht.
+Temporäre Antworten werden anschließend gegen v16 geprüft und gelöscht.
 
-## Unabhängige Reviews und Befunde
+Nicht ausgeführt/belegt: diese Live-Abnahme auf den drei Netzwerkengines,
+ältere Serverversionen außer lokalen Versionsgrenzentests, produktionsnahe
+Verbindungsabbrüche/Sperrkonflikte, CI, Web-/Browserintegration, Compose, Swarm
+oder Deployment. Vorhandene andere Live-Handoffs sind kein Beleg für W-P18.
 
-Zwei getrennte Reviewer ausschließlich lesend, keine parallelen Schreibzugriffe,
-keine eigenen Builds oder Gitaktionen:
+## Unabhängiges statisches Review
 
-1. Sicherheitsreview: MySQL/MariaDB-Syntax und Wirkung von GRANT-OPTION-Entzug
-   korrigiert, Warnung ergänzt; PostgreSQL-Katalogauflösung für materialisierte
-   Sichten korrigiert. Nachreview geschlossen. Keine bestätigte SQL-Injektion,
-   Passwortausgabe oder Bestätigungsumgehung im statischen Review.
-2. Funktions-/Vertragsreview: aktionsspezifische verbotene Nullwertfelder und
-   erforderliches `grant_option` strikt geprüft; eigene Sessionvorbereitung ohne
-   MySQL-8-Statistikvariable für ältere Server. Nachreview geschlossen. Zusätzliche
-   inhaltliche SHOW-GRANTS-/ACL-Assertions und Map-Schema-Validierung ergänzt;
-   gezielte Nachprüfung angefordert.
+Ein gesonderter Reviewer prüfte in dieser Fortsetzung ausschließlich lesend und
+startete keine Jobs. Befunde und lokale Regressionen:
 
-Die statischen Reviews ersetzen weder Live-Abnahme noch zentrale Integrationsfreigabe.
+- GRANTEE-SQL-Escaping war für Metadaten falsch; Rohformat korrigiert.
+- Nichtbinäre Kontenvergleiche konnten Rechte verschiedener Schreibweisen mischen;
+  binäre Vergleiche ergänzt.
+- Dynamische MySQL-Rechte konnten doppelt erscheinen; Deduplizierung ergänzt.
+- Mehrdeutige rohe GRANTEE-Kennungen: Kollisionserkennung ergänzt.
+- MariaDB-Rollen mit leerem Host: sichere lesende Katalogauflösung ergänzt.
+- Globale MariaDB-Rollenrechte fehlen in USER_PRIVILEGES: separate lesende Quelle
+  und lokale/live Regression ergänzt; moderne nicht darstellbare Rechte werden
+  nach Bitmapprüfung sicher abgewiesen.
+
+Dialektbelege: [MySQL 8.4](https://raw.githubusercontent.com/mysql/mysql-server/8.4/sql/auth/sql_authorization.cc)
+und [MariaDB 12.3](https://raw.githubusercontent.com/MariaDB/server/12.3/sql/sql_acl.cc).
+Eine vermutete Nullwertlücke wurde nach Prüfung des gemeinsamen Token-Decoders
+zurückgezogen; zusätzliche Regressionen sichern erlaubte Nullwertfelder ab.
+Schlussnachreview: alle bestätigten Befunde geschlossen, kein weiterer statischer
+Blocker. Die Bitmapgrenze und Legacyquelle wurden ebenfalls nachgeprüft.
+Statisches Review ersetzt keine Live-Abnahme oder Leadfreigabe.
 
 ## Fortsetzung für den Lead
 
-Keine eigenen Jobs oder Container verbleiben; keine unintegrierten Fremdänderungen
-verworfen. Alle Paketänderungen liegen uncommittet im zugewiesenen Branch-Worktree.
-Nächster konkreter Schritt: auf einem erlaubten Host `scripts/test-accounts.py`
-mit dbfix ausführen, vollständiges `go test -race -count=1 ./...` ohne Ausschluss,
-CI und Livebefunde unabhängig abnehmen; anschließend durch den Lead committen,
-API-Nummer und Vertragsindex freigeben. Web-Lock erst nach separater Webabnahme pinnen.
+Alle Änderungen dieser Fortsetzung liegen uncommittet im genannten Worktree;
+keine Fremdänderungen verworfen. Keine eigenen Container angelegt.
+Keine eigenen Prüfprozesse nach Abschluss übrig. Nächster konkreter Schritt:
+auf freigegebenem Host `python3 scripts/test-accounts.py` und vollständiges
+`go test -race -count=1 ./...` ohne Ausschluss ausführen, echte Ergebnisse/CI
+unabhängig abnehmen; anschließend durch den Lead committen und integrieren.
+Vertragsindex und Web-Lock bleiben separate Lead-/Web-Gates.
+
+## Prüfnachtrag
+
+Abschließende Dokumentationsprüfung: 883 Dateien, 0 Fehler. Go-Vet,
+Formatierung, alle zwölf Vertragswächter, Python-Kompilierung und Diffprüfung
+bestanden. Vertrags-SHA direkt gegen die geschriebene v16-Datei geprüft.
+Die öffentlichen Metadaten des unveränderten HEAD verwenden weiterhin die
+bestehende Noreply-Autoradresse; keine Identität geändert und kein Commit erzeugt.

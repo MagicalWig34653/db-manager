@@ -1,6 +1,6 @@
 # ADR W-P18: Geschützte Passwortwerte in Kontoplänen
 
-Status: paketbezogene Implementierungsentscheidung zu W-P18; API-Nummer vorläufig,
+Status: paketbezogene Implementierungsentscheidung zu W-P18; API-Nummer 0.16 festgelegt,
 keine zentrale Produkt- oder Vertragsfreigabe. Datum: 24.10.2026.
 
 ## Anlass

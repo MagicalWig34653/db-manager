@@ -20,6 +20,8 @@ import (
 type accountsTestDriver struct{}
 type accountsTestConn struct {
 	denied     bool
+	ambiguous  bool
+	modernRole bool
 	executions int
 }
 type accountsTestRows struct{ values [][]driver.Value }
@@ -27,7 +29,7 @@ type accountsTestRows struct{ values [][]driver.Value }
 var registerAccountsTest sync.Once
 
 func (accountsTestDriver) Open(name string) (driver.Conn, error) {
-	return &accountsTestConn{denied: name == "denied"}, nil
+	return &accountsTestConn{denied: name == "denied", ambiguous: name == "ambiguous", modernRole: name == "modern_role"}, nil
 }
 func (*accountsTestConn) Prepare(string) (driver.Stmt, error) { return nil, errors.New("not used") }
 func (*accountsTestConn) Close() error                        { return nil }
@@ -57,6 +59,33 @@ func (c *accountsTestConn) QueryContext(_ context.Context, query string, args []
 		return &accountsTestRows{[][]driver.Value{{"8.4.0"}}}, nil
 	case query == "SELECT CURRENT_USER()":
 		return &accountsTestRows{[][]driver.Value{{"fixture@%"}}}, nil
+	case strings.Contains(query, "SELECT COUNT(*) FROM information_schema.TABLES"):
+		return &accountsTestRows{[][]driver.Value{{int64(1)}}}, nil
+	case strings.HasPrefix(query, "SELECT COALESCE(JSON_VALUE(Priv,'$.access')"):
+		access := "0"
+		if c.modernRole {
+			access = "1073741824"
+		}
+		return &accountsTestRows{[][]driver.Value{{access}}}, nil
+	case strings.Contains(query, "SELECT COLUMN_NAME FROM information_schema.COLUMNS"):
+		return &accountsTestRows{[][]driver.Value{{"Process_priv"}, {"Grant_priv"}}}, nil
+	case strings.HasPrefix(query, "SELECT `Process_priv`,`Grant_priv` FROM mysql.user"):
+		return &accountsTestRows{[][]driver.Value{{"Y", "Y"}}}, nil
+	case strings.Contains(query, "FROM mysql.user WHERE BINARY CONCAT"):
+		count := int64(1)
+		if c.ambiguous {
+			count = 2
+		}
+		return &accountsTestRows{[][]driver.Value{{count}}}, nil
+	case strings.Contains(query, "FROM information_schema.USER_PRIVILEGES"):
+		if !strings.Contains(query, "WHERE BINARY GRANTEE=BINARY ?") || len(args) != 1 || args[0].Value != "'odd'name'@'%'" {
+			return nil, errors.New("unexpected GRANTEE metadata value")
+		}
+		return &accountsTestRows{[][]driver.Value{{"", "", "", "", "SELECT", "NO"}, {"", "", "", "", "BACKUP_ADMIN", "YES"}}}, nil
+	case strings.Contains(query, "FROM mysql.global_grants"):
+		return &accountsTestRows{[][]driver.Value{{"BACKUP_ADMIN", "Y"}}}, nil
+	case strings.Contains(query, "FROM information_schema.") || strings.Contains(query, "FROM mysql.procs_priv"):
+		return &accountsTestRows{}, nil
 	case strings.Contains(query, "FROM mysql.user u"):
 		if c.denied {
 			return nil, &mysql.MySQLError{Number: 1142, Message: "fixture server error that must remain private"}
@@ -140,5 +169,42 @@ func TestAccountsExecutionSanitizesAndClassifies(t *testing.T) {
 	cancel()
 	if result := executeAccounts(canceled, accountTestEnv(t, "catalog"), []string{"ALTER USER fixture"}); result.Outcome != "rejected" || result.Reason != "canceled" {
 		t.Fatal(result)
+	}
+}
+
+func TestAccountsQuotedGranteeAndDynamicDeduplication(t *testing.T) {
+	out := core.AccountDetails{Grants: []core.AccountGrant{}}
+	err := readMySQLAccountGrants(context.Background(), accountTestEnv(t, "catalog"), core.AccountRef{Name: "odd'name", Host: "%"}, &out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(out.Grants) != 2 || out.Grants[0].Privilege != "SELECT" || out.Grants[1].Privilege != "BACKUP_ADMIN" || !out.Grants[1].GrantOption {
+		t.Fatalf("missing or duplicated catalog grants: %#v", out.Grants)
+	}
+}
+
+func TestAccountsAmbiguousCatalogGranteeRejected(t *testing.T) {
+	out := core.AccountDetails{Grants: []core.AccountGrant{}}
+	err := readMySQLAccountGrants(context.Background(), accountTestEnv(t, "ambiguous"), core.AccountRef{Name: "a'@'b", Host: "c"}, &out)
+	var publicErr *core.Error
+	if !errors.As(err, &publicErr) || publicErr.Code != "unsupported_action" || len(out.Grants) != 0 {
+		t.Fatalf("ambiguous metadata identity accepted: %v", err)
+	}
+}
+
+func TestAccountsMariaRoleGlobalPrivileges(t *testing.T) {
+	out := core.AccountDetails{Grants: []core.AccountGrant{}}
+	err := readMariaRoleGlobalGrants(context.Background(), accountTestEnv(t, "catalog"), core.AccountRef{Name: "fixture_role"}, &out)
+	if err != nil || len(out.Grants) != 1 || out.Grants[0] != (core.AccountGrant{Scope: "global", Privilege: "PROCESS", GrantOption: true}) {
+		t.Fatalf("global role privileges missing: %#v, %v", out.Grants, err)
+	}
+}
+
+func TestAccountsMariaRoleModernPrivilegesFailClosed(t *testing.T) {
+	out := core.AccountDetails{Grants: []core.AccountGrant{}}
+	err := readMariaRoleGlobalGrants(context.Background(), accountTestEnv(t, "modern_role"), core.AccountRef{Name: "fixture_role"}, &out)
+	var publicErr *core.Error
+	if !errors.As(err, &publicErr) || publicErr.Code != "unsupported_action" {
+		t.Fatalf("unrepresented role privileges silently omitted: %v", err)
 	}
 }

@@ -1,4 +1,4 @@
-name: Datenbankkonten und Rechte (API 0.18, vorläufig)
+name: Datenbankkonten und Rechte (API 0.16)
 on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read

@@ -121,6 +121,23 @@ func TestLiveAccounts(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
+			if c.Driver == "mysql" {
+				direct("ALTER USER " + accountQuote(c.Driver, account) + " REQUIRE SSL WITH MAX_USER_CONNECTIONS 3 MAX_QUERIES_PER_HOUR 123")
+				observed, err := e.AccountDetails(ctx, request(&account))
+				if err != nil || observed.Info.AuthPlugin == nil || *observed.Info.AuthPlugin == "" || observed.Info.SSLType == nil || *observed.Info.SSLType != "ANY" || observed.Info.Limits["user_connections"] != 3 || observed.Info.Limits["queries_per_hour"] != 123 {
+					t.Fatal("authentication/TLS/resource metadata mismatch", err)
+				}
+				dumpAccount(t, "AccountInfo", observed.Info)
+				direct("ALTER USER " + accountQuote(c.Driver, account) + " REQUIRE NONE WITH MAX_USER_CONNECTIONS 0 MAX_QUERIES_PER_HOUR 0")
+			} else {
+				direct("ALTER ROLE " + accountQuote(c.Driver, account) + " CONNECTION LIMIT 3")
+				observed, err := e.AccountDetails(ctx, request(&account))
+				if err != nil || observed.Info.Limits["connections"] != 3 || observed.Info.AuthPlugin != nil || observed.Info.SSLType != nil {
+					t.Fatal("role resource/authentication metadata mismatch", err)
+				}
+				dumpAccount(t, "AccountInfo", observed.Info)
+				direct("ALTER ROLE " + accountQuote(c.Driver, account) + " CONNECTION LIMIT -1")
+			}
 			dumpAccount(t, "AccountDetails", details)
 			accounts, err := e.Accounts(ctx, request(nil))
 			if err != nil || len(accounts.Accounts) < 2 {
@@ -183,14 +200,54 @@ func TestLiveAccounts(t *testing.T) {
 				rr := request(&account)
 				rr.Grant = &g
 				run("grant", rr)
+				observed, err := e.AccountDetails(ctx, request(&account))
+				if err != nil {
+					t.Fatal(err)
+				}
+				found := false
+				for _, actual := range observed.Grants {
+					found = found || actual == g
+				}
+				if !found {
+					t.Fatalf("missing direct %s grant", g.Scope)
+				}
 				run("revoke", rr)
+				observed, err = e.AccountDetails(ctx, request(&account))
+				if err != nil {
+					t.Fatal(err)
+				}
+				for _, actual := range observed.Grants {
+					if actual == g {
+						t.Fatalf("direct %s grant survived revoke", g.Scope)
+					}
+				}
 			}
 			if c.Driver == "mysql" {
 				g := core.AccountGrant{Scope: "global", Privilege: "PROCESS"}
 				rr := request(&account)
 				rr.Grant = &g
 				run("grant", rr)
+				observed, err := e.AccountDetails(ctx, request(&account))
+				if err != nil {
+					t.Fatal(err)
+				}
+				found := false
+				for _, actual := range observed.Grants {
+					found = found || actual == g
+				}
+				if !found {
+					t.Fatalf("missing direct %s grant", g.Scope)
+				}
 				run("revoke", rr)
+				observed, err = e.AccountDetails(ctx, request(&account))
+				if err != nil {
+					t.Fatal(err)
+				}
+				for _, actual := range observed.Grants {
+					if actual == g {
+						t.Fatalf("direct %s grant survived revoke", g.Scope)
+					}
+				}
 			}
 			grant := grants[1]
 			grant.GrantOption = true
@@ -203,6 +260,27 @@ func TestLiveAccounts(t *testing.T) {
 				roleSQL = quoteIdentifier(c.Driver, role.Name)
 			}
 			direct("CREATE ROLE " + roleSQL)
+			if fixture.name == "maria" {
+				direct("GRANT SELECT ON " + qualified + " TO " + roleSQL)
+				roleDetails, err := e.AccountDetails(ctx, request(&role))
+				if err != nil || len(roleDetails.Grants) != 1 || roleDetails.Grants[0].Privilege != "SELECT" || roleDetails.Grants[0].Scope != "table" {
+					t.Fatal("MariaDB role inspection failed", err)
+				}
+				direct("REVOKE SELECT ON " + qualified + " FROM " + roleSQL)
+				direct("GRANT PROCESS ON *.* TO " + roleSQL)
+				roleDetails, err = e.AccountDetails(ctx, request(&role))
+				if err != nil || len(roleDetails.Grants) != 1 || roleDetails.Grants[0].Privilege != "PROCESS" || roleDetails.Grants[0].Scope != "global" {
+					t.Fatal("MariaDB global role privileges missing", err)
+				}
+				direct("REVOKE PROCESS ON *.* FROM " + roleSQL)
+				direct("GRANT BINLOG ADMIN ON *.* TO " + roleSQL)
+				_, err = e.AccountDetails(ctx, request(&role))
+				var unsupported *core.Error
+				if !errors.As(err, &unsupported) || unsupported.Code != "unsupported_action" {
+					t.Fatal("modern MariaDB role privileges silently omitted", err)
+				}
+				direct("REVOKE BINLOG ADMIN ON *.* FROM " + roleSQL)
+			}
 			roleRequest := request(&account)
 			roleRequest.Role = &role
 			run("role_grant", roleRequest)
@@ -243,12 +321,46 @@ func TestLiveAccounts(t *testing.T) {
 					t.Fatal("independent PostgreSQL ACL check failed")
 				}
 			}
+			if c.Driver == "mysql" {
+				other := core.AccountRef{Name: strings.ToUpper(account.Name), Host: account.Host}
+				defer cleanup(other)
+				createOther := request(nil)
+				createOther.NewAccount = &other
+				run("create", createOther)
+				otherRequest := request(&other)
+				otherGrant := grants[2]
+				otherRequest.Grant = &otherGrant
+				run("grant", otherRequest)
+				observed, err := e.AccountDetails(ctx, request(&account))
+				if err != nil {
+					t.Fatal(err)
+				}
+				for _, actual := range observed.Grants {
+					if actual == otherGrant {
+						t.Fatal("case-differing account leaked column privileges")
+					}
+				}
+				run("revoke", otherRequest)
+				run("drop", request(&other))
+			}
 			copyRequest := request(&account)
 			copyRequest.NewAccount = &copyAccount
 			run("copy", copyRequest)
 			copied, err := e.AccountDetails(ctx, request(&copyAccount))
 			if err != nil || len(copied.Grants) != len(details.Grants) || len(copied.Roles) != 1 {
 				t.Fatal(copied, err)
+			}
+			for _, expected := range details.Grants {
+				found := false
+				for _, actual := range copied.Grants {
+					found = found || expected == actual
+				}
+				if !found {
+					t.Fatal("copy lost a direct grant")
+				}
+			}
+			if copied.Roles[0] != details.Roles[0] {
+				t.Fatal("copy changed role identity")
 			}
 			run("role_revoke", roleRequest)
 			run("revoke", rr)

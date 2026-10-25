@@ -35,6 +35,16 @@ func TestAccountsValidation(t *testing.T) {
 			t.Errorf("accepted %s %#v", tc.action, tc.r)
 		}
 	}
+	role := core.AccountRequest{Connection: core.Connection{Driver: "mysql"}, Account: &core.AccountRef{Name: "fixture_role"}}
+	if err := validateAccounts(role, "inspect"); err != nil {
+		t.Fatal("role inspection rejected before metadata lookup", err)
+	}
+	if err := validateAccounts(role, "drop"); err == nil {
+		t.Fatal("empty-host user mutation accepted")
+	}
+	if err := validateAccounts(core.AccountRequest{Connection: role.Connection, NewAccount: role.Account}, "create"); err == nil {
+		t.Fatal("empty-host user creation accepted")
+	}
 	for _, action := range append([]string{"list", "inspect"}, core.AccountActions...) {
 		c := core.AccountRequest{Connection: core.Connection{Driver: "sqlite"}}
 		if action == "create" {

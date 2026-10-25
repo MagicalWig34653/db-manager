@@ -181,7 +181,7 @@ func buildAccountPlan(ctx context.Context, env *opEnv, action string, r core.Acc
 		warnings = append(warnings, "Umbenennen kann einen alten MD5-Passwortprüfwert ungültig machen; ggf. Passwort anschließend neu setzen.")
 	}
 	if needsSecret {
-		warnings = append(warnings, "<protected-secret> ist ein geschützter Eingabewert der Ausführung, kein SQL-Literal und kein Bestandteil des Plan-Hashes.")
+		warnings = append(warnings, "<protected-secret> ist ein fester Platzhalter im Plan-Hash, kein SQL-Literal. Der Passwortwert wird nur bei der Ausführung eingesetzt und ist niemals Bestandteil des Plan-Hashes.")
 	}
 	bytes := 0
 	for _, statement := range statements {
