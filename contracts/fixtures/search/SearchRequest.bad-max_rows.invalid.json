@@ -1,0 +1,19 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "synthetic_p15"
+  },
+  "targets": [
+    {
+      "table": {
+        "name": "synthetic_table"
+      },
+      "columns": [
+        "value"
+      ]
+    }
+  ],
+  "term": "fox",
+  "mode": "substring",
+  "max_rows": 1001
+}

@@ -1,0 +1,18 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "synthetic_p15"
+  },
+  "table": {
+    "name": "synthetic_table"
+  },
+  "column": "value",
+  "term": "fox",
+  "replacement": "cat",
+  "mode": "substring",
+  "confirm": {
+    "action": "replace",
+    "target_name": "synthetic_table"
+  },
+  "expected_plan_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+}

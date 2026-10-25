@@ -1,0 +1,10 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "synthetic_p15"
+  },
+  "column": "value",
+  "term": "fox",
+  "replacement": "cat",
+  "mode": "substring"
+}

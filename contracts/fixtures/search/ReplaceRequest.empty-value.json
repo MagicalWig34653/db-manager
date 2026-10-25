@@ -1,0 +1,13 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "synthetic_p15"
+  },
+  "table": {
+    "name": "synthetic_table"
+  },
+  "column": "",
+  "term": "fox",
+  "replacement": "",
+  "mode": "substring"
+}
