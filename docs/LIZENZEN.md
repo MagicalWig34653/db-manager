@@ -63,7 +63,7 @@ für beliebige alte Datenbankversionen.
 ## Eingebettete Weboberfläche F2a/F2b/F3b
 
 Der unveränderte Webbuild stammt aus dem unabhängig geprüften öffentlichen Commit
-[48c2f67](https://github.com/MagicalWig34653/db-manager-web/tree/48c2f67113d8fd0a27e9cf966d20904fd7d0da61).
+[c14271e](https://github.com/MagicalWig34653/db-manager-web/tree/c14271ec12bfb7940253787c2f84aeb65cc4252e).
 Eigener Webcode ist AGPL-3.0-only; die originalen Drittanbieterhinweise bleiben unter
 [THIRD-PARTY-NOTICES.txt](../internal/webui/static/THIRD-PARTY-NOTICES.txt) vollständig
 erhalten und werden als `/THIRD-PARTY-NOTICES.txt` ausgeliefert. Der originale

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "repository": "https://github.com/MagicalWig34653/db-manager-web.git",
-  "commit": "48c2f67113d8fd0a27e9cf966d20904fd7d0da61",
+  "commit": "c14271ec12bfb7940253787c2f84aeb65cc4252e",
   "npm_lock_sha256": "bac4b32ba0548428186f20b1d6382f3554b1a477c0fb89957b123820495b15c6",
   "toolchain": {
     "node": "26.5.0",
@@ -43,6 +43,21 @@
       "family": "overview",
       "version": "0.7.0",
       "sha256": "c6fd8c91315e25185d949d309397c7c0d80cc67fcab87ae521e38068e7004d17"
+    },
+    {
+      "family": "object-ops",
+      "version": "0.8.0",
+      "sha256": "74aa39ed06311f2c45afc274a2412a0ac30912e3a5683ec96b812fd473a28264"
+    },
+    {
+      "family": "columns",
+      "version": "0.9.0",
+      "sha256": "508b9951d102ec44bf4cafc9fe444f7266b31f898d9e91c887f4bef39735e3f8"
+    },
+    {
+      "family": "export",
+      "version": "0.11.0",
+      "sha256": "b3bcc38b44b020335151aead207e281f9c54bdc7463d6fb1ddd7a6cc22396620"
     }
   ]
 }
