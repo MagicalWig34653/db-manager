@@ -91,3 +91,9 @@ Beide Reviews: Freigabe ohne Blocker. Umgesetzt (Details in den Paket-Handoffs u
   meldet nach Zeitlimit `rolled_back`; Handoff/ADR auf API 0.12 und SHA `7f0446ed...` korrigiert; `sqlite_differential_test.go` übernommen.
 - Vertrags-JSON v11 und v12 unverändert (SHAs wie oben); echte Export- und SQL-Stapel-Fixtures neu erzeugt.
 - Prüfstand: gofmt, vet, `go test -race -count=1 ./...`, alle elf Wächter, `test-export.py --live`, `test-sqlbatch.py` (je ein Container nach dem anderen), `check-docs.py`.
+
+## Letzte Auflagen (Nachreviews `review/wave2-a` 4280f23, `review/wave2-b` a14d3e9)
+
+Beide Nachreviews: Freigabe. Erledigt: W-P08 N1, N2, H1 (H2 im Handoff genannt); W-P11 Schreibfrist plus 5 s Kulanz, Abschlusschunk-Konvention im Vertragstext,
+bekannte Grenzen im Handoff. Tests: `TestExistingEdgeSpaceColumnNameStaysChangeable`, Review-Rig (keine Falschwarnung auf MariaDB). Branch merge-reif nach den unten
+genannten Läufen (Endstand siehe `git log`).

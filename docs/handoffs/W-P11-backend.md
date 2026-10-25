@@ -171,3 +171,7 @@ Stand: Livetests wurden ausgeführt (`scripts/test-export.py --live`, SQLite, My
 4. Zeitüberschreitung meldet `X-Export-Error: query_canceled`.
 5. Gleichzeitige Exporte sind auf 2 je Prozess begrenzt (`MaxConcurrentExports`); weitere Anfragen erhalten 503 `export_busy`. Exporte teilen sich außerdem die
    allgemeinen vier Verbindungsplätze.
+
+Bekannte Grenzen (Nachreview): (1) Ein stehender Client, der nicht liest, hält einen der zwei Exportplätze bis `timeout_ms` (höchstens 300 s); andere Routen
+bleiben nutzbar. (2) Schreibfrist = `timeout_ms` + 5 s Kulanz, damit der Trailer ankommt. (3) Bricht ein Restore in einer dauerhaften MySQL-Sitzung beim ersten
+Fehler ab, bleibt `sql_mode` ohne `NO_BACKSLASH_ESCAPES` für diese Sitzung gesetzt.

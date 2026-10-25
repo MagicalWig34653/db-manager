@@ -76,7 +76,7 @@ func validateColumns(r core.ColumnsRequest) error {
 			}
 		}
 		if d := ch.Definition; d != nil {
-			if !columnName(d.Name) || d.Nullable == nil || d.Default == nil {
+			if !createName(d.Name) || (ch.Action == "add" || d.Name != ch.Column) && !columnName(d.Name) || d.Nullable == nil || d.Default == nil {
 				return invalidColumns()
 			}
 			if _, err := dbplan.TypeSQL(r.Connection.Driver, d.Type); err != nil {

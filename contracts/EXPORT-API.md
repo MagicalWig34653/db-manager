@@ -109,3 +109,5 @@ phpMyAdmin-Parität und universelle Wiederherstellbarkeit werden nicht behauptet
 * **MySQL/MariaDB-Restore:** Der Dumpkopf setzt `sql_mode` ohne `NO_BACKSLASH_ESCAPES` und stellt den Wert am Ende wieder her.
 * **Idempotenz:** `if_not_exists` macht `CREATE TABLE` und die angehängten `CREATE INDEX` (SQLite, PostgreSQL) idempotent; Daten-INSERTs bleiben es nicht.
 * **Gleichzeitigkeit:** höchstens 2 Exporte gleichzeitig je Prozess (503 `export_busy`, vor dem Streambeginn).
+* **Abschlusschunk:** Ein fehlender Abschlusschunk des HTTP-Chunk-Stroms (abgebrochene Verbindung) ist ein Fehler und kein vollständiger Export. Die Schreibfrist
+  des Servers beträgt `timeout_ms` plus 5 Sekunden Kulanz, damit der Fehlertrailer auch bei einem Zeitlimit während des Streamens ankommt.

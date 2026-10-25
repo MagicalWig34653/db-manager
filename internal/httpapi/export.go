@@ -12,6 +12,9 @@ import (
 	"github.com/MagicalWig34653/db-manager/internal/core"
 )
 
+// exportWriteGrace lets the failure trailer reach the client after the export time limit ended the stream.
+const exportWriteGrace = 5 * time.Second
+
 func (a *API) registerExport(mux *http.ServeMux) {
 	mux.Handle("GET /api/v11/capabilities", a.auth(http.HandlerFunc(a.exportCapabilities)))
 	mux.Handle("POST /api/v11/export", a.auth(WithRouteClass(ClassStandard, http.HandlerFunc(a.exportDownload))))
@@ -112,7 +115,7 @@ func (a *API) exportDownload(w http.ResponseWriter, r *http.Request) {
 	}
 	controller := http.NewResponseController(w)
 	// Export has a separate duration budget, beyond the standard server timeout.
-	_ = controller.SetWriteDeadline(time.Now().Add(time.Duration(request.TimeoutMS) * time.Millisecond))
+	_ = controller.SetWriteDeadline(time.Now().Add(time.Duration(request.TimeoutMS)*time.Millisecond + exportWriteGrace))
 	defer controller.SetWriteDeadline(time.Time{})
 	stream := &downloadWriter{response: w, request: request}
 	err = engine.Export(r.Context(), request, stream)

@@ -456,3 +456,18 @@ func TestColumnNamesRejectEdgeWhitespaceAndControl(t *testing.T) {
 		t.Fatal("legitimate special name rejected")
 	}
 }
+
+func TestExistingEdgeSpaceColumnNameStaysChangeable(t *testing.T) {
+	def := func(name string) *core.ColumnDefinition {
+		nullable := true
+		return &core.ColumnDefinition{Name: name, Type: dbplan.ColumnType{Kind: "int64"}, Nullable: &nullable, Default: &core.CreateDefault{Mode: "none"}}
+	}
+	change := core.ColumnChange{Action: "change", Column: "edge ", Definition: def("edge ")}
+	if err := validateColumns(core.ColumnsRequest{Connection: core.Connection{Driver: "postgres", Host: "h", Database: "d"}, Table: core.TableRef{Name: "x"}, Changes: []core.ColumnChange{change}}); err != nil {
+		t.Fatalf("existing name rejected: %v", err)
+	}
+	add := core.ColumnChange{Action: "add", Definition: def("edge ")}
+	if err := validateColumns(core.ColumnsRequest{Connection: core.Connection{Driver: "postgres", Host: "h", Database: "d"}, Table: core.TableRef{Name: "x"}, Changes: []core.ColumnChange{add}}); err == nil {
+		t.Fatal("new edge-space name accepted")
+	}
+}

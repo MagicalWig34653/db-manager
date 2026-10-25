@@ -181,7 +181,11 @@ func buildColumns(ctx context.Context, s *mutationSession, r core.ColumnsRequest
 				return empty, err
 			}
 			deps = append(deps, dd...)
-			warnings = append(warnings, "Spalte "+old.Name+": Abfragen, Sichten, Trigger und Programme, die den alten Namen verwenden, funktionieren danach nicht mehr.")
+			if driver == "postgres" {
+				warnings = append(warnings, "Spalte "+old.Name+": Abfragen und Programme, die den alten Namen verwenden, funktionieren danach nicht mehr (Sichten und Constraints passt PostgreSQL an).")
+			} else {
+				warnings = append(warnings, "Spalte "+old.Name+": Abfragen, Sichten, Trigger und Programme, die den alten Namen verwenden, funktionieren danach nicht mehr.")
+			}
 			warnings = append(warnings, columnDependencyWarnings(driver, old.Name, "rename", dd)...)
 			clauses = append(clauses, "RENAME COLUMN "+qold+" TO "+columnQuote(driver, name))
 			statements = append(statements, prefix+"RENAME COLUMN "+qold+" TO "+columnQuote(driver, name))
@@ -226,7 +230,7 @@ func buildColumns(ctx context.Context, s *mutationSession, r core.ColumnsRequest
 			} else {
 				destructive = true
 				warnings = append(warnings, "Spalte "+old.Name+": Typ-/Attributänderung kann Daten verlieren; vollständige neue Definition ersetzt die Attribute.")
-				if old.DefaultValue != nil {
+				if old.DefaultValue != nil && !(old.Nullable && strings.EqualFold(*old.DefaultValue, "NULL")) {
 					text := "Spalte " + old.Name + ": der bisherige Standardwert " + *old.DefaultValue + " wird durch die neue Definition ersetzt"
 					if def.Default.Mode == "none" {
 						text += " und entfällt"
@@ -400,6 +404,9 @@ func columnDependencyWarnings(driver, column, action string, deps []string) []st
 					out = append(out, "Der Index "+name+" entfällt oder wird verkürzt, wenn die Spalte entfernt wird.")
 				}
 			case "constraint":
+				if action == "rename" {
+					break // InnoDB adjusts foreign keys on RENAME COLUMN
+				}
 				out = append(out, "Der Schlüssel/Constraint "+name+" betrifft die Spalte "+column+"; ein Fremdschlüssel verhindert das Ändern oder Entfernen.")
 			}
 		case "postgres":
@@ -413,6 +420,9 @@ func columnDependencyWarnings(driver, column, action string, deps []string) []st
 					out = append(out, "Der Index ("+dep+") wird mit der Spalte entfernt.")
 				}
 			case strings.HasPrefix(dep, "constraint "):
+				if action == "rename" {
+					break // PostgreSQL adjusts constraints on RENAME COLUMN
+				}
 				out = append(out, "Constraint betroffen: "+dep+"; Fremdschlüssel verhindern das Entfernen, andere Constraints entfallen mit der Spalte.")
 			}
 		default:

@@ -272,6 +272,21 @@ func rvColumnsData(t *testing.T, r rvRig) {
 		t.Fatalf("rename plan misses the view: %v", rn.Warnings)
 	}
 	conf := dbplan.Confirmation{Action: "columns_alter", TargetName: "rv_dat"}
+	// A nullable column without default (MariaDB reports the text 'NULL') raises no default warning.
+	if r.c.Driver != "sqlite" {
+		nodef := core.ColumnChange{Action: "change", Column: "u", Definition: rvDef("u", rvText(20), true, nil)}
+		if r.c.Driver == "mysql" {
+			cm, col := "", "utf8mb4_bin"
+			nodef.Definition.Comment, nodef.Definition.Collation = &cm, &col
+		}
+		np, err := r.plan("rv_dat", nodef)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if strings.Contains(strings.Join(np.Warnings, "\n"), "Standardwert") {
+			t.Fatalf("false default warning: %v", np.Warnings)
+		}
+	}
 	// Shrinking text and impossible casts must fail without changing data.
 	if r.c.Driver != "sqlite" {
 		shrink := core.ColumnChange{Action: "change", Column: "t", Definition: rvDef("t", rvText(3), true, nil)}

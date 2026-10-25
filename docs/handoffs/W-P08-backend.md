@@ -143,3 +143,7 @@ Review: Freigabe mit Auflagen, behoben:
 - L1: `rename` prüft Abhängigkeiten und warnt. L2: NOT-NULL-Planung nutzt `EXISTS` statt Zählung (Warnung ohne Zahl).
 - L3: neue Spaltennamen ohne Rand-Leerzeichen und Steuerzeichen (`columnName`). Tests: `wave2a_review_test.go`, `types_review_test.go`,
   `TestColumnNamesRejectEdgeWhitespaceAndControl`.
+
+Nachreview (N1, N2, H1, H2): keine Standardwert-Warnung bei nullbarer Spalte mit Wert NULL/'NULL' (MariaDB); die Namensprüfung gilt nur für neue Namen, bestehende
+Spalten mit Rand-Leerzeichen bleiben änderbar; Rename-Warnungen für PostgreSQL-Sichten/-Constraints und MySQL-Fremdschlüssel präzisiert. H2 bleibt: die
+SQLite-Abhängigkeitssuche ist tabellenweit, die bedingte Warnung beim Entfernen kann für Spalten ohne Abhängigkeit ein weicher Falschalarm sein.
