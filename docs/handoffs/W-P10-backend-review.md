@@ -42,3 +42,13 @@ Beleg: Diese Aktionen scannen oder sperren Tabellen kurz, verlangen aber nur Akt
 5. Fehlermeldungen: Ergebnis trägt feste Gründe; Serverdiagnosen von CHECK/REPAIR werden nie weitergegeben (`error`/`warning` ergibt `outcome_unknown`).
 6. Verträge: SHA stimmt; v1 bis v9 byteidentisch, v10 additiv. Mutationstest: `outcome` auf ungültigen Wert, zusätzliches Feld (`raw_error`, `raw_sql`) in echten Fixtures, angehängtes Byte an v8 und entfernte Strikt-Eigenschaften in v9/v10 lassen den Wächter fehlschlagen. Auth: alle drei v10-Routen hinter Bearer (HTTP-Test 401), POST/GET wie im Vertrag, Body 1 MiB.
 7. Doku: Handoff und Integrationshandoff stimmen mit dem Verhalten überein (Abbruch ohne Rollback-Garantie, Teilausführung, SQLite-Grenzen).
+
+## Nachreview (Integrationsstand 675adcc, Fixes in 75c0d3b)
+
+Review-Branch enthält den Integrationsbranch; eigene Zusatztests unverändert (`wave2a_review_test.go` jetzt in der Autorenfassung mit Assertions).
+
+Urteil: Freigabe (accept), keine neuen Befunde.
+
+- L1 behoben: `maintenancePreview` prüft nach `describe` zusätzlich das aufgelöste Schema (`information_schema`, `mysql`, `performance_schema`, `sys`, `pg_*`) und `sqlite_`-Namen (`internal/database/maintenance.go`). Die Livetests für alle Systemschema-Schreibweisen (MySQL, MariaDB, PostgreSQL, SQLite) bestehen weiterhin; es gibt keine Schreibweise, die vorher oder nachher einen Plan erzeugt.
+- Kein neuer Bestätigungs- oder Hash-Bypass: typed-Bestätigung (Name, Aktion, Hash) und untyped (Aktion, Hash) bestehen unverändert; Wächter v10 bestanden, SHA `077a0e02...` unverändert, Fixtures neu erzeugt und im Mutationstest wirksam (Zusatzfeld in einer MaintenanceResult-Fixture und ungültiges `outcome` schlagen an).
+- `scripts/test-maintenance.py` bestanden (echte Antworten SQLite/MySQL/MariaDB/PostgreSQL, keine eigenen Container übrig); `go test -race` und check-docs sauber.
