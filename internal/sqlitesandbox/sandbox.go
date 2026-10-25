@@ -24,6 +24,16 @@ var nextVFS atomic.Uint64
 // Open limits SQL to a single database and rollback journal under root.
 // The experimental VFS requires exclusive ownership of the database volume.
 func Open(rootPath, id string) (*sql.DB, func(), error) {
+	return open(rootPath, id, false)
+}
+
+// OpenMaintenance permits integrity_check only on a connection dedicated to
+// generated maintenance SQL. Ordinary query connections retain their allowlist.
+func OpenMaintenance(rootPath, id string) (*sql.DB, func(), error) {
+	return open(rootPath, id, true)
+}
+
+func open(rootPath, id string, integrityCheck bool) (*sql.DB, func(), error) {
 	if !validID.MatchString(id) {
 		return nil, nil, fs.ErrPermission
 	}
@@ -35,7 +45,7 @@ func Open(rootPath, id string) (*sql.DB, func(), error) {
 	restricted := &rootVFS{root: root, database: id + ".sqlite"}
 	vfs.Register(name, restricted)
 	cleanup := func() { vfs.Unregister(name); root.Close() }
-	db, err := driver.Open("file:"+id+".sqlite?vfs="+name, configure)
+	db, err := driver.Open("file:"+id+".sqlite?vfs="+name, func(conn *sqlite.Conn) error { return configureMode(conn, integrityCheck) })
 	if err != nil {
 		cleanup()
 		return nil, nil, err
@@ -45,7 +55,9 @@ func Open(rootPath, id string) (*sql.DB, func(), error) {
 	return db, cleanup, nil
 }
 
-func configure(conn *sqlite.Conn) error {
+func configure(conn *sqlite.Conn) error { return configureMode(conn, false) }
+
+func configureMode(conn *sqlite.Conn, integrityCheck bool) error {
 	if err := conn.Exec("PRAGMA temp_store=MEMORY; PRAGMA journal_mode=DELETE;"); err != nil {
 		return err
 	}
@@ -59,6 +71,11 @@ func configure(conn *sqlite.Conn) error {
 			return sqlite.AUTH_DENY
 		case sqlite.AUTH_PRAGMA:
 			switch strings.ToLower(first) {
+			case "integrity_check":
+				if integrityCheck && second != "" {
+					return sqlite.AUTH_OK
+				}
+				return sqlite.AUTH_DENY
 			case "query_only", "table_info", "table_xinfo", "index_list", "index_info", "index_xinfo", "foreign_key_list", "database_list":
 				return sqlite.AUTH_OK
 			default:

@@ -86,6 +86,10 @@ func safe(ctx context.Context, err error) error {
 	return public("database_error", "Datenbankoperation fehlgeschlagen. Verbindung und SQL prüfen.")
 }
 func (e *Engine) open(ctx context.Context, c core.Connection) (*sql.DB, func(), error) {
+	return e.openMode(ctx, c, false)
+}
+
+func (e *Engine) openMode(ctx context.Context, c core.Connection, maintenance bool) (*sql.DB, func(), error) {
 	if strings.ContainsRune(c.Username, 0) || strings.ContainsRune(c.Password, 0) || strings.ContainsRune(c.Database, 0) {
 		return nil, nil, public("invalid_connection", "Verbindungsparameter sind ungültig.")
 	}
@@ -103,7 +107,11 @@ func (e *Engine) open(ctx context.Context, c core.Connection) (*sql.DB, func(), 
 	var err error
 	switch c.Driver {
 	case "sqlite":
-		db, cleanup, err = sqlitesandbox.Open(e.dataDir, c.Database)
+		if maintenance {
+			db, cleanup, err = sqlitesandbox.OpenMaintenance(e.dataDir, c.Database)
+		} else {
+			db, cleanup, err = sqlitesandbox.Open(e.dataDir, c.Database)
+		}
 	case "mysql", "postgres":
 		db, err = e.network(ctx, c)
 	default:

@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "table": {
+        "schema": "p10_fixture",
+        "name": "maint_sentinel"
+      },
+      "action": "analyze",
+      "state": "rejected",
+      "reason": "permission_denied",
+      "plan": null,
+      "typed_confirmation": false,
+      "target_name": ""
+    }
+  ]
+}

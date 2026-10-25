@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "table": {
+        "schema": "main",
+        "name": "maint \"`'; SELECT 1--"
+      },
+      "action": "check",
+      "outcome": "completed",
+      "reason": "",
+      "checksum": null,
+      "duration_ms": 5
+    }
+  ],
+  "partial": false
+}
