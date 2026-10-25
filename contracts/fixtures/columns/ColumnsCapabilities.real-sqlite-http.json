@@ -1,0 +1,120 @@
+{
+  "contract_version": "0.9.0",
+  "drivers": {
+    "mysql": {
+      "add": {
+        "support": "limited",
+        "reason": "Feste Typen; Sperren und Datenverlust möglich. Tatsächliche DB-Rechte gelten."
+      },
+      "change": {
+        "support": "limited",
+        "reason": "Feste Typen; Sperren und Datenverlust möglich. Tatsächliche DB-Rechte gelten."
+      },
+      "drop": {
+        "support": "limited",
+        "reason": "Feste Typen; Sperren und Datenverlust möglich. Tatsächliche DB-Rechte gelten."
+      },
+      "generated": {
+        "support": "unsupported",
+        "reason": "Generierte Ausdrücke sind nach E5 nicht freigegeben."
+      },
+      "rename": {
+        "support": "limited",
+        "reason": "Feste Typen; Sperren und Datenverlust möglich. Tatsächliche DB-Rechte gelten."
+      },
+      "reorder": {
+        "support": "limited",
+        "reason": "Feste Typen; Sperren und Datenverlust möglich. Tatsächliche DB-Rechte gelten."
+      }
+    },
+    "postgres": {
+      "add": {
+        "support": "limited",
+        "reason": "Feste Typen; Sperren und Datenverlust möglich. Tatsächliche DB-Rechte gelten."
+      },
+      "change": {
+        "support": "limited",
+        "reason": "Feste Typen; Sperren und Datenverlust möglich. Tatsächliche DB-Rechte gelten."
+      },
+      "drop": {
+        "support": "limited",
+        "reason": "Feste Typen; Sperren und Datenverlust möglich. Tatsächliche DB-Rechte gelten."
+      },
+      "generated": {
+        "support": "unsupported",
+        "reason": "Generierte Ausdrücke sind nach E5 nicht freigegeben."
+      },
+      "rename": {
+        "support": "limited",
+        "reason": "Feste Typen; Sperren und Datenverlust möglich. Tatsächliche DB-Rechte gelten."
+      },
+      "reorder": {
+        "support": "unsupported",
+        "reason": "Kein Tabellenneuaufbau; diese ALTER-Operation ist nicht verfügbar."
+      }
+    },
+    "sqlite": {
+      "add": {
+        "support": "limited",
+        "reason": "Feste Typen; Sperren und Datenverlust möglich. Tatsächliche DB-Rechte gelten."
+      },
+      "change": {
+        "support": "unsupported",
+        "reason": "Kein Tabellenneuaufbau; diese ALTER-Operation ist nicht verfügbar."
+      },
+      "drop": {
+        "support": "limited",
+        "reason": "Feste Typen; Sperren und Datenverlust möglich. Tatsächliche DB-Rechte gelten."
+      },
+      "generated": {
+        "support": "unsupported",
+        "reason": "Generierte Ausdrücke sind nach E5 nicht freigegeben."
+      },
+      "rename": {
+        "support": "limited",
+        "reason": "Feste Typen; Sperren und Datenverlust möglich. Tatsächliche DB-Rechte gelten."
+      },
+      "reorder": {
+        "support": "unsupported",
+        "reason": "Kein Tabellenneuaufbau; diese ALTER-Operation ist nicht verfügbar."
+      }
+    }
+  },
+  "features": [
+    "columns_alter"
+  ],
+  "max_changes": 16,
+  "max_request_bytes": 1048576,
+  "max_timeout_ms": 60000,
+  "types": {
+    "mysql": [
+      "int64",
+      "text",
+      "binary",
+      "decimal",
+      "boolean",
+      "date",
+      "timestamp",
+      "enum",
+      "set"
+    ],
+    "postgres": [
+      "int64",
+      "text",
+      "binary",
+      "decimal",
+      "boolean",
+      "date",
+      "timestamp"
+    ],
+    "sqlite": [
+      "int64",
+      "text",
+      "binary",
+      "decimal",
+      "boolean",
+      "date",
+      "timestamp"
+    ]
+  }
+}

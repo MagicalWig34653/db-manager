@@ -1,0 +1,26 @@
+{
+  "driver": "postgres",
+  "statements": [
+    "ALTER TABLE \"public\".\"col \"\"`' ;DROP TABLE neighbor\" DROP COLUMN \"renamed \"\"`\""
+  ],
+  "warnings": [
+    "Strukturänderungen können die Tabelle sperren. Zeitlimit und DB-Rechte gelten.",
+    "Plan-Hash ist kein Replay-Schutz; nach Abschluss oder unbekanntem Ausgang neu planen und bestätigen.",
+    "Spalte renamed \"`: alle Werte werden gelöscht; Abhängigkeiten können die Änderung verhindern. Kein CASCADE."
+  ],
+  "affected_objects": [
+    "public.col \"`' ;DROP TABLE neighbor",
+    "public.col \"`' ;DROP TABLE neighbor.renamed \"`"
+  ],
+  "plan_sha256": "9a9f674893293761e64ece1dec9ce8d5dfebd8dd827d81efe3b0471367440fe6",
+  "table": {
+    "schema": "public",
+    "name": "col \"`' ;DROP TABLE neighbor"
+  },
+  "destructive": true,
+  "target_name": "col \"`' ;DROP TABLE neighbor",
+  "dependencies": [
+    "Trigger und externe Verweise sind nicht vollständig erfasst; die Engine prüft ohne CASCADE."
+  ],
+  "ddl_transactional": true
+}
