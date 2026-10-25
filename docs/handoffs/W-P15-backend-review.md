@@ -35,3 +35,18 @@ aufgeweicht. Hinweise unten (niedrig) betreffen Nutzbarkeit und Dokumentation.
 
 `gofmt -l .` leer; `go vet ./...` ok; `go test -race -count=1 ./...` alle Pakete ok (inkl. `sqlsplit`, `sqlitesandbox`); elf Wächter ok; `check-docs.py` 0 Fehler;
 `python3 scripts/test-sqlbatch.py` Exit 0 (SQLite, MySQL, MariaDB, PostgreSQL, 10 echte Antworten gegen v12 validiert); eigene SQLite-HTTP-Proben und Live-Proben (PostgreSQL 18.6, MySQL 8.4) wie oben.
+
+## Nachreview (Autorenstand 675adcc, in `review/wave2-b` gemergt, 25.10.2026)
+
+Geprüft: `git diff 60592de..origin/integration/wave2-backend` für W-P15; Vertrag unverändert (SHA `7f0446ed…`).
+
+**Urteil: Freigabe.** Befunde 1 bis 6 sind behoben bzw. dokumentiert, keine neuen Befunde.
+
+| Prüfung | Ergebnis |
+| --- | --- |
+| (e) `DELIMITER //` für `BEGIN…END` | SQLite live: `CREATE TRIGGER … BEGIN …; END//` mit Direktive läuft (Trigger feuert); ohne Direktive weiter 422 (fail-closed, im Vertrag dokumentiert). |
+| `ABORT`, `LOCK`, `UNLOCK` | SQLite, PostgreSQL und MySQL: 422 `sql_not_supported` vor jeder Ausführung. |
+| MySQL `ANALYZE/OPTIMIZE/CHECK/REPAIR/CHECKSUM TABLE` | Live MySQL 8.4: Ergebniszeilen werden geliefert (Msg_type/Msg_text bzw. Prüfsumme). Die Zustimmung bleibt unberührt: ohne `confirm` und mit `confirm:false` 400; nur die Wahl Query statt Exec ändert sich. |
+| Simulation | SQLite: normale Simulation `rolled_back` (`rows_affected` 2, Trigger-Tabelle danach unverändert); Simulation mit Zeitlimit `rolled_back` mit Warnung `query_canceled`; Daten danach unverändert. `rollback_unknown` bleibt für einen tatsächlich nicht bestätigten Rollback. |
+| Splitter-Differenztest | `go test -race ./internal/sqlsplit` grün (inkl. `TestSplitMatchesSQLiteTokenizer`). |
+| Läufe | `gofmt` leer, `go vet`, `go test -race -count=1 ./...` ok, elf Wächter ok, `check-docs` 0 Fehler, `test-sqlbatch.py` Exit 0 (vier Systeme). |
