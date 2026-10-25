@@ -1,0 +1,8 @@
+{
+  "outcome": "rejected",
+  "reason": "database_error",
+  "message": "Die Änderung wurde abgewiesen.",
+  "statements_executed": 0,
+  "atomic": false,
+  "observation": "unavailable"
+}

@@ -88,6 +88,8 @@ def browser(directory, settings, install_dependencies):
     run([*install,'chromium'],cwd=workspace,env=environment)
     output=run(['npm','test','--','--reporter=line'],cwd=workspace,env=environment)
     print(redact(output),flush=True)
+    pwa=run(['node',str(ROOT/'scripts/check-pwa-embedded.mjs'),settings['baseURL']],cwd=workspace,env={**environment,'PLAYWRIGHT_CORE':str(workspace/'node_modules/playwright-core/index.mjs')})
+    print(redact(pwa),flush=True)
 
 
 def main():

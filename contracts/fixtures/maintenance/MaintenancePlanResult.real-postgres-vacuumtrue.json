@@ -1,0 +1,30 @@
+{
+  "items": [
+    {
+      "table": {
+        "schema": "p10_fixture",
+        "name": "maint_sentinel"
+      },
+      "action": "vacuum",
+      "state": "planned",
+      "reason": "",
+      "plan": {
+        "driver": "postgres",
+        "statements": [
+          "VACUUM (FULL) \"p10_fixture\".\"maint_sentinel\""
+        ],
+        "warnings": [
+          "Die Laufzeit ist nicht vorhersagbar; Sperren können andere Sitzungen blockieren. Das Zeitlimit umfasst den gesamten Stapel.",
+          "Ein Abbruch garantiert keinen Rollback. Nach unbekanntem Ausgang nicht automatisch wiederholen.",
+          "Diese Aktion kann Tabellen oder Indizes neu aufbauen und lange exklusive Sperren sowie zusätzlichen Speicher benötigen."
+        ],
+        "affected_objects": [
+          "p10_fixture.maint_sentinel"
+        ],
+        "plan_sha256": "7a64541fc5fe651c3dcab70f0bd11eb2f6c021efb0a8fb33f5d726371627f9c8"
+      },
+      "typed_confirmation": true,
+      "target_name": "maint_sentinel"
+    }
+  ]
+}

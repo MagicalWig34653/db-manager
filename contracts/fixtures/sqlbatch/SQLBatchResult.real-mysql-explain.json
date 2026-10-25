@@ -1,0 +1,121 @@
+{
+  "statements": [
+    {
+      "index": 1,
+      "outcome": "completed",
+      "results": [
+        {
+          "columns": [
+            {
+              "name": "id",
+              "database_type": "UNSIGNED BIGINT"
+            },
+            {
+              "name": "select_type",
+              "database_type": "VARCHAR"
+            },
+            {
+              "name": "table",
+              "database_type": "VARCHAR"
+            },
+            {
+              "name": "partitions",
+              "database_type": "MEDIUMTEXT"
+            },
+            {
+              "name": "type",
+              "database_type": "VARCHAR"
+            },
+            {
+              "name": "possible_keys",
+              "database_type": "VARCHAR"
+            },
+            {
+              "name": "key",
+              "database_type": "VARCHAR"
+            },
+            {
+              "name": "key_len",
+              "database_type": "VARCHAR"
+            },
+            {
+              "name": "ref",
+              "database_type": "VARCHAR"
+            },
+            {
+              "name": "rows",
+              "database_type": "UNSIGNED BIGINT"
+            },
+            {
+              "name": "filtered",
+              "database_type": "DOUBLE"
+            },
+            {
+              "name": "Extra",
+              "database_type": "VARCHAR"
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "integer",
+                "value": "1"
+              },
+              {
+                "kind": "text",
+                "value": "SIMPLE"
+              },
+              {
+                "kind": "text",
+                "value": "p15_rows"
+              },
+              {
+                "kind": "null"
+              },
+              {
+                "kind": "text",
+                "value": "const"
+              },
+              {
+                "kind": "text",
+                "value": "PRIMARY"
+              },
+              {
+                "kind": "text",
+                "value": "PRIMARY"
+              },
+              {
+                "kind": "text",
+                "value": "4"
+              },
+              {
+                "kind": "text",
+                "value": "const"
+              },
+              {
+                "kind": "integer",
+                "value": "1"
+              },
+              {
+                "kind": "float",
+                "value": "100"
+              },
+              {
+                "kind": "null"
+              }
+            ]
+          ],
+          "truncated": false
+        }
+      ],
+      "warnings": [
+        {
+          "code": "1003",
+          "message": "Serverwarnung; Rohtext wird aus Datenschutzgründen nicht ausgegeben."
+        }
+      ],
+      "duration_ms": 0
+    }
+  ],
+  "duration_ms": 8
+}

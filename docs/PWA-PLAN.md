@@ -179,6 +179,12 @@ PG PostgreSQL.
 | 5 | Komfort und Spezialfunktionen | W-P20 Konfigurationsspeicher (v20), W-P21 Designer/Beziehungen/QBE, W-P22 Transformationen, W-P23 Tracking/Zentralspalten/Normalisierung, W-P24 Diagramme, W-P25 Geodaten, W-P26 Einstellungen/Themen/Sprachen/Tastatur, W-P27 Monitor/Advisor/Replikation/Binlog, W-P28 Erweiterte Import-/Exportformate und Dump-Details, W-P29 Partitionen und Präfix-Stapel, W-P30 Anmeldeverfahren/Teams/Gruppen, W-P31 Produktinfo, Setup-Ersatz, Fehlerberichte |
 | 6 | Abschluss | W-P32 Paritätsaudit, Lücken-Nacharbeit, Release |
 
+**Endgültige API-Nummern (Integration Welle 2, 25.10.2026):** Die Nummern in diesem Plan sind Vorschläge. Vergeben wurde in
+Integrationsreihenfolge ohne Lücken: 0.8 Datenbank-/Tabellenoperationen (W-P07), 0.9 Spalten (W-P08), 0.10 Tabellenwartung (W-P10),
+0.11 Export und SQL-Dump (W-P11), 0.12 SQL-Stapel/EXPLAIN/Simulation (W-P15). Spätere Pakete (zum Beispiel W-P09 Indizes) erhalten die
+nächste freie Nummer bei ihrer Integration; Pfade `/api/vN/`, Vertragsdatei und Wächter folgen dieser Nummer. Siehe
+[WAVE2-INTEGRATION](handoffs/WAVE2-INTEGRATION.md).
+
 Reihenfolge innerhalb einer Welle ist Vorschlag; Abhängigkeiten stehen je Paket. Wellen sind keine Gates: ein Paket
 startet, sobald seine Abhängigkeiten abgenommen sind (Abschnitt 4.3).
 

@@ -167,6 +167,44 @@ def run(command: list[str], cwd: Path, env: dict[str, str], capture: bool = Fals
     return result.stdout.strip() if capture else ""
 
 
+MAX_CHUNKS = 12
+ENTRY_SCRIPT = re.compile(r'<script\b[^>]*\btype="module"[^>]*\bsrc="/(assets/[^"]+\.js)"')
+ENTRY_STYLE = re.compile(r'<link\b[^>]*\brel="stylesheet"[^>]*\bhref="/(assets/[^"]+\.css)"')
+SHELL_LIST = re.compile(r"JSON\.parse\('(\[[^']*\])'\)")
+
+
+def verify_build(output: Path, files: list[dict], commit: str) -> None:
+    """Structural checks of a fresh build: entry files, reachability, chunk limit and service-worker shell list."""
+    names = {file["path"] for file in files}
+    html = (output / "index.html").read_text()
+    scripts, styles = ENTRY_SCRIPT.findall(html), ENTRY_STYLE.findall(html)
+    if len(scripts) != 1 or len(styles) != 1:
+        raise ValueError("index.html must reference exactly one entry module script and one entry stylesheet")
+    entry_js, entry_css = scripts[0], styles[0]
+    if entry_js not in names or entry_css not in names:
+        raise ValueError("The entry script or stylesheet referenced by index.html is missing")
+    source_link = f"https://github.com/MagicalWig34653/db-manager-web/tree/{commit}".encode()
+    if source_link not in (output / entry_js).read_bytes():
+        raise ValueError("The exact built source link is missing from the entry script")
+    assets = {name for name in names if name.startswith("assets/")}
+    if len(assets) > MAX_CHUNKS:
+        raise ValueError(f"Too many asset chunks: {len(assets)} > {MAX_CHUNKS}")
+    reached, queue = {entry_js, entry_css}, [entry_js, entry_css]
+    while queue:
+        text = (output / queue.pop()).read_text(errors="replace")
+        for name in assets - reached:
+            if name.removeprefix("assets/") in text:
+                reached.add(name)
+                queue.append(name)
+    if assets - reached:
+        raise ValueError("Unreferenced asset chunks: " + ", ".join(sorted(assets - reached)))
+    if "sw.js" in names:
+        match = SHELL_LIST.search((output / "sw.js").read_text())
+        expected = {"index.html"} | (PWA_FILES - {"sw.js"}) | assets
+        if not match or sorted(json.loads(match.group(1))) != sorted(expected) or len(json.loads(match.group(1))) != len(expected):
+            raise ValueError("The service worker shell list differs from the build inventory")
+
+
 def rebuild(lock: dict) -> None:
     with tempfile.TemporaryDirectory(prefix="db-manager-web-build-") as temporary:
         scratch = Path(temporary)
@@ -203,8 +241,7 @@ def rebuild(lock: dict) -> None:
         output = checkout / "dist"
         files = inventory(output)
         source_link = f"https://github.com/MagicalWig34653/db-manager-web/tree/{lock['commit']}".encode()
-        if len([f for f in files if f['path'] not in PWA_FILES]) != 5 or not any(source_link in path.read_bytes() for path in (output / "assets").glob("*.js")):
-            raise ValueError("Expected five original artifacts and the exact built source link")
+        verify_build(output, files, lock['commit'])
         if "GNU AFFERO GENERAL PUBLIC LICENSE" not in (output / "LICENSE.txt").read_text():
             raise ValueError("The frontend AGPL license is missing")
         if "shadcn-svelte" not in (output / "THIRD-PARTY-NOTICES.txt").read_text():

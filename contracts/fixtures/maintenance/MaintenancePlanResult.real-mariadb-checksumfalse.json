@@ -1,0 +1,29 @@
+{
+  "items": [
+    {
+      "table": {
+        "schema": "p10_fixture",
+        "name": "maint \"`'; SELECT 1--"
+      },
+      "action": "checksum",
+      "state": "planned",
+      "reason": "",
+      "plan": {
+        "driver": "mysql",
+        "statements": [
+          "CHECKSUM TABLE `p10_fixture`.`maint \"``'; SELECT 1--`"
+        ],
+        "warnings": [
+          "Die Laufzeit ist nicht vorhersagbar; Sperren können andere Sitzungen blockieren. Das Zeitlimit umfasst den gesamten Stapel.",
+          "Ein Abbruch garantiert keinen Rollback. Nach unbekanntem Ausgang nicht automatisch wiederholen."
+        ],
+        "affected_objects": [
+          "p10_fixture.maint \"`'; SELECT 1--"
+        ],
+        "plan_sha256": "c3dc4c9bd51b673f2da6f2df35bbecffb63880d94dbbd1c0b986a6c6ed39bf2b"
+      },
+      "typed_confirmation": false,
+      "target_name": "maint \"`'; SELECT 1--"
+    }
+  ]
+}
