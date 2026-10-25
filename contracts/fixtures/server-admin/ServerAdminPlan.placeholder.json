@@ -1,0 +1,15 @@
+{
+  "driver": "mysql",
+  "statements": [
+    "SET SESSION tmp_table_size = 16384 /* synthetischer Platzhalter */"
+  ],
+  "warnings": [
+    "Synthetischer Platzhalter, kein Livebeleg."
+  ],
+  "affected_objects": [
+    "SESSION:tmp_table_size"
+  ],
+  "plan_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "action": "set_variable",
+  "target_name": "SESSION:tmp_table_size"
+}

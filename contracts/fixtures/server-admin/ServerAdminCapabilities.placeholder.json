@@ -1,0 +1,96 @@
+{
+  "contract_version": "0.17.0",
+  "features": [
+    "status",
+    "variables",
+    "processes",
+    "kill",
+    "set_variable"
+  ],
+  "drivers": {
+    "sqlite": {
+      "status": {
+        "support": "limited",
+        "reason": "Synthetischer Platzhalter, kein Livebeleg."
+      },
+      "variables": {
+        "support": "unsupported",
+        "reason": "Synthetischer Platzhalter, kein Livebeleg."
+      },
+      "processes": {
+        "support": "unsupported",
+        "reason": "Synthetischer Platzhalter, kein Livebeleg."
+      },
+      "kill": {
+        "support": "unsupported",
+        "reason": "Synthetischer Platzhalter, kein Livebeleg."
+      },
+      "set_variable": {
+        "support": "unsupported",
+        "reason": "Synthetischer Platzhalter, kein Livebeleg."
+      },
+      "flush": {
+        "support": "unsupported",
+        "reason": "Synthetischer Platzhalter, kein Livebeleg."
+      }
+    },
+    "mysql": {
+      "status": {
+        "support": "limited",
+        "reason": "Synthetischer Platzhalter, kein Livebeleg."
+      },
+      "variables": {
+        "support": "limited",
+        "reason": "Synthetischer Platzhalter, kein Livebeleg."
+      },
+      "processes": {
+        "support": "limited",
+        "reason": "Synthetischer Platzhalter, kein Livebeleg."
+      },
+      "kill": {
+        "support": "limited",
+        "reason": "Synthetischer Platzhalter, kein Livebeleg."
+      },
+      "set_variable": {
+        "support": "limited",
+        "reason": "Synthetischer Platzhalter, kein Livebeleg."
+      },
+      "flush": {
+        "support": "unsupported",
+        "reason": "Synthetischer Platzhalter, kein Livebeleg."
+      }
+    },
+    "postgres": {
+      "status": {
+        "support": "limited",
+        "reason": "Synthetischer Platzhalter, kein Livebeleg."
+      },
+      "variables": {
+        "support": "limited",
+        "reason": "Synthetischer Platzhalter, kein Livebeleg."
+      },
+      "processes": {
+        "support": "limited",
+        "reason": "Synthetischer Platzhalter, kein Livebeleg."
+      },
+      "kill": {
+        "support": "limited",
+        "reason": "Synthetischer Platzhalter, kein Livebeleg."
+      },
+      "set_variable": {
+        "support": "limited",
+        "reason": "Synthetischer Platzhalter, kein Livebeleg."
+      },
+      "flush": {
+        "support": "unsupported",
+        "reason": "Synthetischer Platzhalter, kein Livebeleg."
+      }
+    }
+  },
+  "max_limit": 200,
+  "default_limit": 100,
+  "max_offset": 10000,
+  "max_timeout_ms": 10000,
+  "default_timeout_ms": 5000,
+  "max_request_bytes": 1048576
+}
