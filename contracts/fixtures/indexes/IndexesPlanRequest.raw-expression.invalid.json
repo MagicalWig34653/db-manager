@@ -1,0 +1,20 @@
+{
+  "connection": {
+    "driver": "postgres",
+    "database": "probe"
+  },
+  "table": {
+    "name": "fixture"
+  },
+  "action": "index_create",
+  "index": {
+    "name": "idx",
+    "kind": "index",
+    "terms": [
+      {
+        "column": "id",
+        "expression": "lower(id);DROP TABLE fixture"
+      }
+    ]
+  }
+}

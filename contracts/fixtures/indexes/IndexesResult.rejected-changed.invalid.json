@@ -1,0 +1,8 @@
+{
+  "outcome": "rejected",
+  "reason": "database_error",
+  "message": "Ungültiger Platzhalter",
+  "statements_executed": 1,
+  "atomic": false,
+  "observation": "unavailable"
+}

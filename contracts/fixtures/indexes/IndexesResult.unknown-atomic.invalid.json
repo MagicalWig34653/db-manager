@@ -1,0 +1,8 @@
+{
+  "outcome": "outcome_unknown",
+  "reason": "commit_unknown",
+  "message": "Ungültiger Platzhalter",
+  "statements_executed": 1,
+  "atomic": true,
+  "observation": "unavailable"
+}
