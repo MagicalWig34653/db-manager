@@ -1,0 +1,10 @@
+{
+  "outcome": "outcome_unknown",
+  "warnings": [
+    {
+      "code": "rollback_unknown",
+      "message": "PLATZHALTER: Rollback nicht bestätigt."
+    }
+  ],
+  "duration_ms": 0
+}

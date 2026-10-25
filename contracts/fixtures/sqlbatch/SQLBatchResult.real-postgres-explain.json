@@ -1,0 +1,41 @@
+{
+  "statements": [
+    {
+      "index": 1,
+      "outcome": "completed",
+      "results": [
+        {
+          "columns": [
+            {
+              "name": "QUERY PLAN",
+              "database_type": "TEXT"
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "text",
+                "value": "Index Scan using p15_rows_pkey on p15_rows  (cost=0.15..8.17 rows=1 width=82)"
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "value": "  Index Cond: (id = 1)"
+              }
+            ]
+          ],
+          "truncated": false
+        }
+      ],
+      "warnings": [
+        {
+          "code": "notices_unavailable",
+          "message": "PostgreSQL-Hinweise werden von diesem Adapter nicht erfasst."
+        }
+      ],
+      "duration_ms": 7
+    }
+  ],
+  "duration_ms": 23
+}

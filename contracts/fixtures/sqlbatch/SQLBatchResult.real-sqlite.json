@@ -1,0 +1,56 @@
+{
+  "statements": [
+    {
+      "index": 1,
+      "outcome": "completed",
+      "results": [
+        {
+          "columns": [],
+          "rows": [],
+          "truncated": false
+        }
+      ],
+      "rows_affected": "1",
+      "warnings": [],
+      "duration_ms": 27
+    },
+    {
+      "index": 2,
+      "outcome": "completed",
+      "results": [
+        {
+          "columns": [],
+          "rows": [],
+          "truncated": false
+        }
+      ],
+      "rows_affected": "1",
+      "warnings": [],
+      "duration_ms": 19
+    },
+    {
+      "index": 3,
+      "outcome": "outcome_unknown",
+      "results": [],
+      "warnings": [],
+      "duration_ms": 0,
+      "error_code": "database_error",
+      "server_code": "19"
+    },
+    {
+      "index": 4,
+      "outcome": "not_executed",
+      "results": [],
+      "warnings": [],
+      "duration_ms": 0
+    },
+    {
+      "index": 5,
+      "outcome": "not_executed",
+      "results": [],
+      "warnings": [],
+      "duration_ms": 0
+    }
+  ],
+  "duration_ms": 50
+}
