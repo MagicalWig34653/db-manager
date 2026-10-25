@@ -37,3 +37,22 @@ Web-Gate (Befund 1), sonst niedrige Befunde.
 `gofmt -l .` leer; `go vet ./...` ok; `go test -race -count=1 ./...` alle Pakete ok; alle elf Wächter `check-*-contract.py` ok;
 `check-docs.py` 0 Fehler; `python3 scripts/test-export.py --live` Exit 0 (SQLite, MySQL, MariaDB, PostgreSQL, Schema- und CSV-Prüfung);
 eigene Proben und Docker-Läufe wie oben (Skripte im Scratchpad, nicht eingecheckt).
+
+## Nachreview (Autorenstand 675adcc, in `review/wave2-b` gemergt, 25.10.2026)
+
+Geprüft: `git diff 60592de..origin/integration/wave2-backend` für W-P11. Vertrags-JSONs unverändert (SHA `b3bcc38b…`, `7f0446ed…`).
+
+**Urteil: Freigabe.** Befunde 1 bis 5 sind behoben bzw. dokumentiert; zwei neue niedrige Hinweise.
+
+| Prüfung | Ergebnis |
+| --- | --- |
+| (a) MySQL-Dumpkopf (`NO_BACKSLASH_ESCAPES` entfernt, `sql_mode` am Ende wiederhergestellt) | Live MySQL 8.4 und MariaDB 12.3, Restore per Client mit Zielserver im Standardmodus **und** mit `NO_BACKSLASH_ESCAPES`: Restore fehlerfrei, Daten identisch (inkl. ENUM mit Backslash, Default/Comment mit `\\`/`''`), `victim`-Tabelle unversehrt, feindliche Namen (`` ` ``, `"`, Newline, `;DROP TABLE victim;--`) wirkungslos. Zielmodus danach wieder mit `NO_BACKSLASH_ESCAPES`, auch nach einem fehlschlagenden Statement mit `--force`. Ohne `--force` endet die Sitzung beim Fehler vor der Rückstellung (Info 8). |
+| (b) `if_not_exists` für Indizes | SQLite: `CREATE [UNIQUE] INDEX IF NOT EXISTS`, zweiter Restore fehlerfrei. PostgreSQL 18.6: zweiter Restore in dieselbe DB nur `NOTICE … already exists, skipping`, Exit 0. MySQL: Indizes stehen im `CREATE TABLE`, daher idempotent; Vertrag nennt die Grenze (INSERTs bleiben nicht idempotent). |
+| (c) Export-Semaphore (2, 503 `export_busy`) | Dritter Export bei zwei gestoppten Clients: 503 vor Streambeginn. 30 hintereinander abgebrochene Exporte (`curl --limit-rate`, killed): danach drei Exporte 200, kein Slotleck; Fehlanfragen (422) belegen keinen Slot; Freigabe per `defer` (deckt auch Panic). Stehende Clients geben den Slot erst nach `timeout_ms` frei (8 s gesetzt: frei nach 7,1 s). Andere Routen blockiert ein Export nicht: Abfrage auf anderer SQLite-DB sofort 200 (zwei Exporte halten höchstens 2 der 4 allgemeinen Verbindungsplätze). |
+| (d) Timeout-Code | `X-Export-Error: query_canceled` bei 50 und 300 ms. |
+| Läufe | `gofmt -l .` leer, `go vet`, `go test -race -count=1 ./...` ok, elf Wächter ok, `check-docs` 0 Fehler, `test-export.py --live` Exit 0 (alle vier Systeme). |
+
+Neue Hinweise (niedrig):
+- **Stehende Clients halten Exportplätze (Info/Niedrig):** Ein authentifizierter Client, der nicht liest, blockiert beide Exportplätze bis `timeout_ms` (Standard 60 s, höchstens 300 s). Begrenzt und nur für Exporte, andere Routen bleiben nutzbar.
+- **Schreibfrist gleich Exportzeit (Niedrig):** Trifft das Zeitlimit während des Streamens (Probe: 3 Mio. Zeilen, `timeout_ms:1000`), kappt die Schreibfrist die Verbindung mitten in einer Zeile, ohne Trailer; der Client sieht einen abgebrochenen Chunk-Strom, nicht `query_canceled`. Bei kurzem Limit (50/300 ms) kommt der Trailer. Fix: Schreibfrist = Zeitlimit + Kulanz (einige Sekunden); Client-Konvention „fehlender Abschlusschunk ist ein Fehler“ im Vertrag ergänzen.
+- **Info:** Bricht ein Restore in einer dauerhaften MySQL-Sitzung beim ersten Fehler ab, bleibt `sql_mode` ohne `NO_BACKSLASH_ESCAPES` für diese Sitzung gesetzt.
