@@ -1,0 +1,22 @@
+{
+  "driver": "mysql",
+  "statements": [
+    "ALTER USER 'FIXTURE_ACCOUNT_PLACEHOLDER'@'%' IDENTIFIED BY <protected-secret>"
+  ],
+  "warnings": [
+    "PLATZHALTER: kein Live-Nachweis."
+  ],
+  "affected_objects": [
+    "PLATZHALTER"
+  ],
+  "plan_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "action": "password",
+  "confirmation": {
+    "action": "password",
+    "target_name": "PLATZHALTER",
+    "acknowledge_self": true
+  },
+  "destructive": true,
+  "self": true,
+  "requires_secret": true
+}

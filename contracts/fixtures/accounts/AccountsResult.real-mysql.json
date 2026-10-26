@@ -1,0 +1,113 @@
+{
+  "accounts": [
+    {
+      "account": {
+        "name": "mysql.infoschema",
+        "host": "localhost"
+      },
+      "current": false,
+      "login": null,
+      "locked": true,
+      "auth_plugin": "caching_sha2_password",
+      "ssl_type": "",
+      "limits": {
+        "connections_per_hour": 0,
+        "queries_per_hour": 0,
+        "updates_per_hour": 0,
+        "user_connections": 0
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "mysql.session",
+        "host": "localhost"
+      },
+      "current": false,
+      "login": null,
+      "locked": true,
+      "auth_plugin": "caching_sha2_password",
+      "ssl_type": "",
+      "limits": {
+        "connections_per_hour": 0,
+        "queries_per_hour": 0,
+        "updates_per_hour": 0,
+        "user_connections": 0
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "mysql.sys",
+        "host": "localhost"
+      },
+      "current": false,
+      "login": null,
+      "locked": true,
+      "auth_plugin": "caching_sha2_password",
+      "ssl_type": "",
+      "limits": {
+        "connections_per_hour": 0,
+        "queries_per_hour": 0,
+        "updates_per_hour": 0,
+        "user_connections": 0
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "p18 odd'`\"; x",
+        "host": "%"
+      },
+      "current": false,
+      "login": null,
+      "locked": false,
+      "auth_plugin": "caching_sha2_password",
+      "ssl_type": "",
+      "limits": {
+        "connections_per_hour": 0,
+        "queries_per_hour": 0,
+        "updates_per_hour": 0,
+        "user_connections": 0
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "root",
+        "host": "%"
+      },
+      "current": true,
+      "login": null,
+      "locked": false,
+      "auth_plugin": "caching_sha2_password",
+      "ssl_type": "",
+      "limits": {
+        "connections_per_hour": 0,
+        "queries_per_hour": 0,
+        "updates_per_hour": 0,
+        "user_connections": 0
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "root",
+        "host": "localhost"
+      },
+      "current": false,
+      "login": null,
+      "locked": false,
+      "auth_plugin": "caching_sha2_password",
+      "ssl_type": "",
+      "limits": {
+        "connections_per_hour": 0,
+        "queries_per_hour": 0,
+        "updates_per_hour": 0,
+        "user_connections": 0
+      },
+      "attributes": []
+    }
+  ],
+  "truncated": false
+}

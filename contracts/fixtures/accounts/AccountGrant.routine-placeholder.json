@@ -1,0 +1,10 @@
+{
+  "scope": "routine",
+  "database": "FIXTURE_DB_PLACEHOLDER",
+  "schema": "public",
+  "object": "FIXTURE_FUNCTION_PLACEHOLDER",
+  "routine_id": "12345",
+  "routine_kind": "function",
+  "privilege": "EXECUTE",
+  "grant_option": false
+}

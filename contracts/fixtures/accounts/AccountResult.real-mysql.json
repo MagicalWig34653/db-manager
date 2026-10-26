@@ -1,0 +1,6 @@
+{
+  "outcome": "completed",
+  "message": "Ausgeführt. Konten und Rechte anschließend neu lesen; bestehende Sitzungen bleiben möglicherweise aktiv.",
+  "statements_executed": 1,
+  "atomic": false
+}

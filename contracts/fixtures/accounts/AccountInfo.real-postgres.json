@@ -1,0 +1,14 @@
+{
+  "account": {
+    "name": "p18 odd'`\"; x"
+  },
+  "current": false,
+  "login": true,
+  "locked": false,
+  "auth_plugin": null,
+  "ssl_type": null,
+  "limits": {
+    "connections": 3
+  },
+  "attributes": []
+}

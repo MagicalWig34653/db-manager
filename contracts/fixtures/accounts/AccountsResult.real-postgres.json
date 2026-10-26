@@ -1,0 +1,263 @@
+{
+  "accounts": [
+    {
+      "account": {
+        "name": "p18 odd'`\"; x"
+      },
+      "current": false,
+      "login": true,
+      "locked": false,
+      "auth_plugin": null,
+      "ssl_type": null,
+      "limits": {
+        "connections": -1
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "pg_checkpoint"
+      },
+      "current": false,
+      "login": false,
+      "locked": true,
+      "auth_plugin": null,
+      "ssl_type": null,
+      "limits": {
+        "connections": -1
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "pg_create_subscription"
+      },
+      "current": false,
+      "login": false,
+      "locked": true,
+      "auth_plugin": null,
+      "ssl_type": null,
+      "limits": {
+        "connections": -1
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "pg_database_owner"
+      },
+      "current": false,
+      "login": false,
+      "locked": true,
+      "auth_plugin": null,
+      "ssl_type": null,
+      "limits": {
+        "connections": -1
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "pg_execute_server_program"
+      },
+      "current": false,
+      "login": false,
+      "locked": true,
+      "auth_plugin": null,
+      "ssl_type": null,
+      "limits": {
+        "connections": -1
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "pg_maintain"
+      },
+      "current": false,
+      "login": false,
+      "locked": true,
+      "auth_plugin": null,
+      "ssl_type": null,
+      "limits": {
+        "connections": -1
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "pg_monitor"
+      },
+      "current": false,
+      "login": false,
+      "locked": true,
+      "auth_plugin": null,
+      "ssl_type": null,
+      "limits": {
+        "connections": -1
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "pg_read_all_data"
+      },
+      "current": false,
+      "login": false,
+      "locked": true,
+      "auth_plugin": null,
+      "ssl_type": null,
+      "limits": {
+        "connections": -1
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "pg_read_all_settings"
+      },
+      "current": false,
+      "login": false,
+      "locked": true,
+      "auth_plugin": null,
+      "ssl_type": null,
+      "limits": {
+        "connections": -1
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "pg_read_all_stats"
+      },
+      "current": false,
+      "login": false,
+      "locked": true,
+      "auth_plugin": null,
+      "ssl_type": null,
+      "limits": {
+        "connections": -1
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "pg_read_server_files"
+      },
+      "current": false,
+      "login": false,
+      "locked": true,
+      "auth_plugin": null,
+      "ssl_type": null,
+      "limits": {
+        "connections": -1
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "pg_signal_autovacuum_worker"
+      },
+      "current": false,
+      "login": false,
+      "locked": true,
+      "auth_plugin": null,
+      "ssl_type": null,
+      "limits": {
+        "connections": -1
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "pg_signal_backend"
+      },
+      "current": false,
+      "login": false,
+      "locked": true,
+      "auth_plugin": null,
+      "ssl_type": null,
+      "limits": {
+        "connections": -1
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "pg_stat_scan_tables"
+      },
+      "current": false,
+      "login": false,
+      "locked": true,
+      "auth_plugin": null,
+      "ssl_type": null,
+      "limits": {
+        "connections": -1
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "pg_use_reserved_connections"
+      },
+      "current": false,
+      "login": false,
+      "locked": true,
+      "auth_plugin": null,
+      "ssl_type": null,
+      "limits": {
+        "connections": -1
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "pg_write_all_data"
+      },
+      "current": false,
+      "login": false,
+      "locked": true,
+      "auth_plugin": null,
+      "ssl_type": null,
+      "limits": {
+        "connections": -1
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "pg_write_server_files"
+      },
+      "current": false,
+      "login": false,
+      "locked": true,
+      "auth_plugin": null,
+      "ssl_type": null,
+      "limits": {
+        "connections": -1
+      },
+      "attributes": []
+    },
+    {
+      "account": {
+        "name": "postgres"
+      },
+      "current": true,
+      "login": true,
+      "locked": false,
+      "auth_plugin": null,
+      "ssl_type": null,
+      "limits": {
+        "connections": -1
+      },
+      "attributes": [
+        "SUPERUSER",
+        "CREATEDB",
+        "CREATEROLE",
+        "REPLICATION",
+        "BYPASSRLS"
+      ]
+    }
+  ],
+  "truncated": false
+}

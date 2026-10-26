@@ -1,0 +1,15 @@
+{
+  "account": {
+    "name": "FIXTURE_ACCOUNT_PLACEHOLDER",
+    "host": "%"
+  },
+  "current": false,
+  "login": null,
+  "locked": false,
+  "auth_plugin": "caching_sha2_password",
+  "ssl_type": "ANY",
+  "limits": {
+    "user_connections": 0
+  },
+  "attributes": []
+}
