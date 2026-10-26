@@ -111,3 +111,10 @@ phpMyAdmin-Parität und universelle Wiederherstellbarkeit werden nicht behauptet
 * **Gleichzeitigkeit:** höchstens 2 Exporte gleichzeitig je Prozess (503 `export_busy`, vor dem Streambeginn).
 * **Abschlusschunk:** Ein fehlender Abschlusschunk des HTTP-Chunk-Stroms (abgebrochene Verbindung) ist ein Fehler und kein vollständiger Export. Die Schreibfrist
   des Servers beträgt `timeout_ms` plus 5 Sekunden Kulanz, damit der Fehlertrailer auch bei einem Zeitlimit während des Streamens ankommt.
+
+## Additive Erweiterung API 0.21
+
+W-P28 ergänzt eigene v21-Routen für weitere Textformate und begrenzte Dump-Details.
+Der bisherige v11-Optionsumfang und seine Vertragsbytes bleiben erhalten. Abschluss,
+Escaping, Fähigkeiten und ausdrücklich offene Objektklassen beschreibt der separate
+[Verhaltensvertrag API 0.21](EXTENDED-EXPORT-API.md).

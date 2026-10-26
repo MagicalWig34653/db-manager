@@ -6,6 +6,7 @@ import (
 	"io"
 	"regexp"
 	"strings"
+	"unicode/utf8"
 )
 
 const ExportContractVersion = "0.11.0"
@@ -18,30 +19,42 @@ const ExportDefaultTimeoutMS = 60000
 const ExportMaxTables = 100
 
 // ExportRequest contains download options, never a server-side destination.
+type ExportAlias struct {
+	Source TableRef `json:"source"`
+	Target TableRef `json:"target"`
+}
+
 type ExportRequest struct {
-	Connection        Connection `json:"connection"`
-	Format            string     `json:"format,omitempty"`
-	Scope             string     `json:"scope,omitempty"`
-	Tables            []TableRef `json:"tables,omitempty"`
-	Databases         []string   `json:"databases,omitempty"`
-	SQL               string     `json:"sql,omitempty"`
-	Structure         *bool      `json:"structure,omitempty"`
-	Data              *bool      `json:"data,omitempty"`
-	Drop              bool       `json:"drop,omitempty"`
-	IfNotExists       bool       `json:"if_not_exists,omitempty"`
-	Extended          bool       `json:"extended,omitempty"`
-	Dialect           string     `json:"dialect,omitempty"`
-	Charset           string     `json:"charset,omitempty"`
-	Filename          string     `json:"filename,omitempty"`
-	Gzip              bool       `json:"gzip,omitempty"`
-	Transaction       bool       `json:"transaction,omitempty"`
-	DisableFK         bool       `json:"disable_fk,omitempty"`
-	Delimiter         string     `json:"delimiter,omitempty"`
-	CRLF              bool       `json:"crlf,omitempty"`
-	MaxStatementBytes int        `json:"max_statement_bytes,omitempty"`
-	MaxRows           int64      `json:"max_rows,omitempty"`
-	MaxBytes          int64      `json:"max_bytes,omitempty"`
-	TimeoutMS         int        `json:"timeout_ms,omitempty"`
+	extendedOptionsPresent bool
+	ViewsAsTables          bool          `json:"views_as_tables,omitempty"`
+	Definer                string        `json:"definer,omitempty"`
+	Compatibility          string        `json:"compatibility,omitempty"`
+	Comments               bool          `json:"comments,omitempty"`
+	Aliases                []ExportAlias `json:"aliases,omitempty"`
+	DataStatement          string        `json:"data_statement,omitempty"`
+	Connection             Connection    `json:"connection"`
+	Format                 string        `json:"format,omitempty"`
+	Scope                  string        `json:"scope,omitempty"`
+	Tables                 []TableRef    `json:"tables,omitempty"`
+	Databases              []string      `json:"databases,omitempty"`
+	SQL                    string        `json:"sql,omitempty"`
+	Structure              *bool         `json:"structure,omitempty"`
+	Data                   *bool         `json:"data,omitempty"`
+	Drop                   bool          `json:"drop,omitempty"`
+	IfNotExists            bool          `json:"if_not_exists,omitempty"`
+	Extended               bool          `json:"extended,omitempty"`
+	Dialect                string        `json:"dialect,omitempty"`
+	Charset                string        `json:"charset,omitempty"`
+	Filename               string        `json:"filename,omitempty"`
+	Gzip                   bool          `json:"gzip,omitempty"`
+	Transaction            bool          `json:"transaction,omitempty"`
+	DisableFK              bool          `json:"disable_fk,omitempty"`
+	Delimiter              string        `json:"delimiter,omitempty"`
+	CRLF                   bool          `json:"crlf,omitempty"`
+	MaxStatementBytes      int           `json:"max_statement_bytes,omitempty"`
+	MaxRows                int64         `json:"max_rows,omitempty"`
+	MaxBytes               int64         `json:"max_bytes,omitempty"`
+	TimeoutMS              int           `json:"timeout_ms,omitempty"`
 }
 
 type ExportEngine interface {
@@ -56,6 +69,13 @@ func invalidExportOptions() error {
 
 // NormalizeExport applies bounded defaults before any I/O, also used by HTTP.
 func NormalizeExport(r ExportRequest) (ExportRequest, error) {
+	if HasExtendedExportOptions(r) {
+		return r, invalidExportOptions()
+	}
+	return NormalizeExtendedExport(r)
+}
+
+func NormalizeExtendedExport(r ExportRequest) (ExportRequest, error) {
 	if r.Format == "" {
 		r.Format = "sql"
 	}
@@ -86,7 +106,7 @@ func NormalizeExport(r ExportRequest) (ExportRequest, error) {
 	if r.MaxBytes < 1 || r.MaxBytes > ExportMaxBytes || r.MaxRows < 1 || r.MaxRows > ExportMaxRows || r.TimeoutMS < 1 || r.TimeoutMS > ExportMaxTimeoutMS {
 		return r, invalidExportOptions()
 	}
-	if r.Format != "sql" && r.Format != "csv" && r.Format != "excel-csv" && r.Format != "json" {
+	if !IsExportFormat(r.Format) {
 		return r, invalidExportOptions()
 	}
 	if r.Scope != "tables" && r.Scope != "database" && r.Scope != "server" && r.Scope != "query" {
@@ -113,6 +133,9 @@ func NormalizeExport(r ExportRequest) (ExportRequest, error) {
 	if r.Format == "excel-csv" {
 		r.CRLF = true
 		r.Charset = "utf-8-bom"
+	}
+	if err := normalizeExportDetails(&r); err != nil {
+		return r, err
 	}
 	if r.Structure == nil {
 		v := r.Format == "sql"
@@ -157,7 +180,7 @@ func NormalizeExport(r ExportRequest) (ExportRequest, error) {
 	}
 	seenDatabases := map[string]bool{}
 	for _, name := range r.Databases {
-		if strings.TrimSpace(name) == "" || len(name) > 1024 || strings.ContainsRune(name, 0) || seenDatabases[name] {
+		if strings.TrimSpace(name) == "" || len(name) > 1024 || strings.ContainsRune(name, 0) || !utf8.ValidString(name) || seenDatabases[name] {
 			return r, invalidExportOptions()
 		}
 		seenDatabases[name] = true
@@ -166,7 +189,7 @@ func NormalizeExport(r ExportRequest) (ExportRequest, error) {
 		return r, invalidExportOptions()
 	}
 	for _, ref := range r.Tables {
-		if ref.Name == "" || len(ref.Name) > 1024 || len(ref.Schema) > 1024 || strings.ContainsRune(ref.Name, 0) || strings.ContainsRune(ref.Schema, 0) {
+		if ref.Name == "" || len(ref.Name) > 1024 || len(ref.Schema) > 1024 || strings.ContainsRune(ref.Name, 0) || strings.ContainsRune(ref.Schema, 0) || !utf8.ValidString(ref.Name) || !utf8.ValidString(ref.Schema) {
 			return r, invalidExportOptions()
 		}
 	}

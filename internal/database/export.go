@@ -9,8 +9,10 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/MagicalWig34653/db-manager/internal/core"
+	"github.com/MagicalWig34653/db-manager/internal/dbplan"
 )
 
 var exportNumber = regexp.MustCompile(`^[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$`)
@@ -47,7 +49,7 @@ type exportTable struct {
 }
 
 func (e *Engine) Export(ctx context.Context, input core.ExportRequest, out io.Writer) error {
-	r, err := core.NormalizeExport(input)
+	r, err := core.NormalizeExtendedExport(input)
 	if err != nil {
 		return err
 	}
@@ -187,11 +189,23 @@ func exportTables(ctx context.Context, conn *sql.Conn, c core.Connection, r core
 		var query string
 		switch c.Driver {
 		case "sqlite":
-			query = "SELECT 'main',name FROM main.sqlite_schema WHERE type='table' AND name NOT GLOB 'sqlite_*' ORDER BY name"
+			kind := "type='table'"
+			if r.ViewsAsTables {
+				kind = "type IN ('table','view')"
+			}
+			query = "SELECT 'main',name FROM main.sqlite_schema WHERE " + kind + " AND name NOT GLOB 'sqlite_*' ORDER BY name"
 		case "mysql":
-			query = "SELECT TABLE_SCHEMA,TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME"
+			kind := "TABLE_TYPE='BASE TABLE'"
+			if r.ViewsAsTables {
+				kind = "TABLE_TYPE IN ('BASE TABLE','VIEW')"
+			}
+			query = "SELECT TABLE_SCHEMA,TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND " + kind + " ORDER BY TABLE_NAME"
 		case "postgres":
-			query = "SELECT n.nspname,c.relname FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE c.relkind IN ('r','p') AND " + pgVisible + " ORDER BY n.nspname,c.relname"
+			kind := "c.relkind IN ('r','p')"
+			if r.ViewsAsTables {
+				kind = "c.relkind IN ('r','p','v','m')"
+			}
+			query = "SELECT n.nspname,c.relname FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE " + kind + " AND " + pgVisible + " ORDER BY n.nspname,c.relname"
 		}
 		rows, err := conn.QueryContext(ctx, query)
 		if err != nil {
@@ -218,16 +232,27 @@ func exportTables(ctx context.Context, conn *sql.Conn, c core.Connection, r core
 	result := make([]exportTable, 0, len(refs))
 	seen := map[core.TableRef]bool{}
 	size := 0
+	usedAliases := make([]bool, len(r.Aliases))
+	targets := map[core.TableRef]bool{}
 	for _, ref := range refs {
 		d, err := describe(ctx, conn, c, ref)
 		if err != nil {
 			return nil, err
 		}
-		if d.Kind != "table" || (c.Driver == "mysql" && d.Transactional != "yes") {
+		isView := d.Kind == "view" && r.ViewsAsTables
+		if !utf8.ValidString(d.Table.Name) || !utf8.ValidString(d.Table.Schema) {
+			return nil, invalidExport()
+		}
+		for _, col := range d.Columns {
+			if !utf8.ValidString(col.Name) || !utf8.ValidString(col.DatabaseType) {
+				return nil, invalidExport()
+			}
+		}
+		if (d.Kind != "table" && !isView) || (c.Driver == "mysql" && d.Transactional != "yes" && !isView) {
 			return nil, public("unsupported_export", "Nur reguläre transaktionale Tabellen werden exportiert.")
 		}
 
-		if c.Driver == "postgres" {
+		if c.Driver == "postgres" && !isView {
 			var regular bool
 			if err = conn.QueryRowContext(ctx, `SELECT c.relkind='r' AND NOT c.relispartition AND NOT EXISTS(SELECT 1 FROM pg_inherits i WHERE i.inhrelid=c.oid OR i.inhparent=c.oid) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname=$1 AND c.relname=$2`, d.Table.Schema, d.Table.Name).Scan(&regular); err != nil {
 				return nil, err
@@ -243,13 +268,21 @@ func exportTables(ctx context.Context, conn *sql.Conn, c core.Connection, r core
 		cols := []string{}
 		for _, col := range d.Columns {
 			if (r.Format != "sql" && col.Generated != "hidden") || col.Generated == "none" || col.Generated == "identity" {
-				cols = append(cols, quoteIdentifier(c.Driver, col.Name))
+				quoted, quoteErr := dbplan.QuoteIdentifier(c.Driver, col.Name)
+				if quoteErr != nil {
+					return nil, invalidExport()
+				}
+				cols = append(cols, quoted)
 			}
 		}
 		if len(cols) == 0 {
 			return nil, invalidExport()
 		}
-		t := exportTable{description: d, query: "SELECT " + strings.Join(cols, ",") + " FROM " + qualifiedTable(c.Driver, d.Table)}
+		sourceName, quoteErr := dbplan.QualifiedName(c.Driver, d.Table.Schema, d.Table.Name)
+		if quoteErr != nil {
+			return nil, invalidExport()
+		}
+		t := exportTable{description: d, query: "SELECT " + strings.Join(cols, ",") + " FROM " + sourceName}
 
 		if c.Driver == "mysql" && r.Format == "sql" && d.Table.Schema != c.Database {
 			return nil, invalidExport()
@@ -267,7 +300,11 @@ func exportTables(ctx context.Context, conn *sql.Conn, c core.Connection, r core
 			return nil, public("export_schema_changed", "Tabellenstruktur hat sich während der Exportvorbereitung geändert.")
 		}
 		if *r.Structure {
-			t.definition, err = exportDefinition(ctx, conn, c, d, r.IfNotExists)
+			if isView {
+				t.definition, err = materializedExportDefinition(c, d)
+			} else {
+				t.definition, err = exportDefinition(ctx, conn, c, d, r.IfNotExists)
+			}
 			if err != nil {
 				return nil, err
 			}
@@ -275,11 +312,44 @@ func exportTables(ctx context.Context, conn *sql.Conn, c core.Connection, r core
 				return nil, public("result_too_large", "Tabellendefinition ist zu groß.")
 			}
 		}
+		aliasMatched := false
+		for i, alias := range r.Aliases {
+			if alias.Source.Name == d.Table.Name && (alias.Source.Schema == "" || alias.Source.Schema == d.Table.Schema) {
+				if aliasMatched {
+					return nil, invalidExport()
+				}
+				aliasMatched = true
+				target, aliasErr := describe(ctx, conn, c, alias.Target)
+				if aliasErr != nil {
+					return nil, aliasErr
+				}
+				if target.Kind != "table" || len(target.Columns) != len(d.Columns) || (c.Driver == "mysql" && target.Table.Schema != c.Database) {
+					return nil, invalidExport()
+				}
+				for j, col := range d.Columns {
+					other := target.Columns[j]
+					if col.Name != other.Name || col.DatabaseType != other.DatabaseType || col.Generated != other.Generated {
+						return nil, invalidExport()
+					}
+				}
+				t.description.Table = target.Table
+				usedAliases[i] = true
+			}
+		}
+		if targets[t.description.Table] {
+			return nil, invalidExport()
+		}
+		targets[t.description.Table] = true
 		size += len(t.definition) + len(t.query)
 		if size > MaxResponseBytes {
 			return nil, public("result_too_large", "Exportmetadaten sind zu groß.")
 		}
 		result = append(result, t)
+	}
+	for _, used := range usedAliases {
+		if !used {
+			return nil, invalidExport()
+		}
 	}
 	return result, nil
 }
