@@ -5,8 +5,8 @@
 // stores a response in the cache other than during installation.
 'use strict';
 
-const BUILD_ID = 'c14271ec12bfb7940253787c2f84aeb65cc4252e';
-const SHELL = /** @type {string[]} */ (JSON.parse('["index.html","manifest.webmanifest","icon.svg","icon-192.png","icon-512.png","icon-maskable-512.png","apple-touch-icon.png","favicon-32.png","assets/PlanPreview-DIdf5lVd.css","assets/PlanPreview-DUiKGtiA.js","assets/circle-check-CDGqhoW1.js","assets/feature-BPqPrbnZ.css","assets/feature-BR5z3Dr0.js","assets/feature-BcixFSIF.css","assets/feature-Cc4YJa3q.css","assets/feature-CzdzV0ta.css","assets/feature-D2nHilXW.css","assets/feature-DY8XpTED.js","assets/feature-DZ6C2MWM.js","assets/feature-DzT_VAM5.js","assets/feature-QvgXdtKz.js","assets/index-BnxbHZ7e.js","assets/index-Dp8BW1VF.css"]'));
+const BUILD_ID = '9545f752e56149ede6a07eea52f808691682b908';
+const SHELL = /** @type {string[]} */ (JSON.parse('["index.html","manifest.webmanifest","icon.svg","icon-192.png","icon-512.png","icon-maskable-512.png","apple-touch-icon.png","favicon-32.png","assets/ConfirmDestructiveDialog-CSv6taNs.js","assets/PlanPreview-CXTuyKb9.js","assets/PlanPreview-DIdf5lVd.css","assets/circle-check-D0HqYeNO.js","assets/client-LSdyyzKw.js","assets/feature-7Lq1Bwpj.js","assets/feature-ADYQo2EN.css","assets/feature-B87oFnCN.js","assets/feature-BPqPrbnZ.css","assets/feature-BWF60C02.js","assets/feature-BXrbnqoD.css","assets/feature-Bb6ZvVSj.css","assets/feature-BcixFSIF.css","assets/feature-Bi78JpLS.js","assets/feature-BzsSHduT.css","assets/feature-C3VbvhN6.js","assets/feature-Cc6hvP7B.js","assets/feature-CcT1h_AV.js","assets/feature-CzdzV0ta.css","assets/feature-D2dwx9Kw.js","assets/feature-N75mQuD4.js","assets/feature-S9VUcT0E.js","assets/feature-TAIK-rSh.css","assets/feature-h-4sSlrU.css","assets/feature-pIB27gao.js","assets/feature-waj8jLyE.css","assets/feature-xHmDGcod.js","assets/feature-xM-9dNS5.css","assets/i18n-Kc9hv7_9.js","assets/index-D6brZ7xF.js","assets/index-DDp0P-Oi.css"]'));
 const CACHE_PREFIX = 'db-manager-shell-';
 const CACHE_NAME = CACHE_PREFIX + BUILD_ID;
 const sw = /** @type {ServiceWorkerGlobalScope} */ (/** @type {unknown} */ (self));

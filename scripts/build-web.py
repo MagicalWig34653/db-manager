@@ -167,8 +167,12 @@ def run(command: list[str], cwd: Path, env: dict[str, str], capture: bool = Fals
     return result.stdout.strip() if capture else ""
 
 
-# Lazy feature chunks (JS + CSS each) grow with the PWA waves: 6 at 48c2f67, 15 at c14271e. The orphan check stays the real guard.
-MAX_CHUNKS = 24
+# Plausibility ceiling only. Lazy feature chunks (JS + CSS each) grow with every wave (6 at 48c2f67, 15 at c14271e); the real
+# guards are entry+source link, transitive reachability of every file under assets/ and SHELL == inventory. 64 keeps a runaway
+# build (or a smuggled file) visible while leaving room for the remaining features (PIN-BUNDLE-3 review finding 2).
+MAX_CHUNKS = 64
+# The service worker precaches every shell file at install (one-time per release): 16.2 MB at 9545f75. Ceiling 32 MiB.
+MAX_PRECACHE_BYTES = 32 * 1024 * 1024
 ENTRY_SCRIPT = re.compile(r'<script\b[^>]*\btype="module"[^>]*\bsrc="/(assets/[^"]+\.js)"')
 ENTRY_STYLE = re.compile(r'<link\b[^>]*\brel="stylesheet"[^>]*\bhref="/(assets/[^"]+\.css)"')
 SHELL_LIST = re.compile(r"JSON\.parse\('(\[[^']*\])'\)")
@@ -190,6 +194,9 @@ def verify_build(output: Path, files: list[dict], commit: str) -> None:
     assets = {name for name in names if name.startswith("assets/")}
     if len(assets) > MAX_CHUNKS:
         raise ValueError(f"Too many asset chunks: {len(assets)} > {MAX_CHUNKS}")
+    precache = sum(file["size"] for file in files if file["path"] != "sw.js")
+    if precache > MAX_PRECACHE_BYTES:
+        raise ValueError(f"Service worker precache too large: {precache} > {MAX_PRECACHE_BYTES} bytes")
     reached, queue = {entry_js, entry_css}, [entry_js, entry_css]
     while queue:
         text = (output / queue.pop()).read_text(errors="replace")

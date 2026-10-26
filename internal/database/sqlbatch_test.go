@@ -176,6 +176,8 @@ func TestSQLiteSQLBatchLimitsAndCancellation(t *testing.T) {
 	}
 	// Aggregate limit: each result fits individually, combined results do not.
 	request = batchRequest(c, strings.Repeat("SELECT hex(zeroblob(400000));", 12))
+	// Use the maximum time budget so that a loaded machine hits the size limit, never the deadline first.
+	request.TimeoutMS = 60000
 	got, err = e.SQLBatch(ctx, request)
 	if err != nil {
 		t.Fatal(err)
@@ -188,6 +190,9 @@ func TestSQLiteSQLBatchLimitsAndCancellation(t *testing.T) {
 	for _, s := range got.Statements {
 		if s.ErrorCode == "result_too_large" {
 			found = true
+		}
+		if s.ErrorCode == "query_canceled" {
+			t.Fatal("time budget exhausted before the aggregate limit; the test must not depend on speed")
 		}
 	}
 	if !found {

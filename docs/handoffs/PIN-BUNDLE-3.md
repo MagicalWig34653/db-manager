@@ -75,7 +75,7 @@ PostgreSQL 18.6 TLS verify-full, Playwright `playwright.real.config.ts`:
 | `test-real-tables.py` (ältere Specs `tests/real`) | **Exit 1**: 6 bestanden, 4 fehlgeschlagen: `export.spec.ts` (Button "Ergebnis herunterladen" nicht gefunden) und `structure.spec.ts` (Warten auf `/api/v5/tables/structure`) je SQLite/PostgreSQL |
 
 Zur letzten Zeile: die älteren Specs prüfen das Vor-Shell-Layout; ihre Locatoren passen offenbar nicht mehr zur neuen Shell
-(Export-Assistent ersetzt den Button). Ob sie auch gegen Vite-Preview auf Web-main scheitern, habe ich nicht geprüft (nicht
+(Export-Assistent ersetzt den Button). **Korrigiert (PIN-BUNDLE-3-review, PIN-BUNDLE-4):** falsch, die Ursache war das alte Quellbackend im Skript. Ob sie auch gegen Vite-Preview auf Web-main scheitern, habe ich nicht geprüft (nicht
 Ursache-belegt). Gleichwertige Abdeckung für Export und Struktur liefern `tests/web-runtime` (export/structure, 13/13 grün) und
 `test-real-export.py`. Das ist ein offener Punkt für die Web-Seite.
 

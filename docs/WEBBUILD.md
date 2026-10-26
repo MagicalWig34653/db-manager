@@ -8,8 +8,8 @@ Prüfstand und unabhängige Abnahme: [F5b-Handoff](handoffs/F5b.md).
 ## Quelle, Vertrag und Reproduzierbarkeit
 
 [web-build.lock.json](../web-build.lock.json) pinnt das öffentliche Webrepository auf
-Commit [c14271e](https://github.com/MagicalWig34653/db-manager-web/tree/c14271ec12bfb7940253787c2f84aeb65cc4252e)
-(Pin Bündel 3, siehe Abschnitt am Ende). Der folgende Text beschreibt den **historischen** Pin
+Commit [9545f75](https://github.com/MagicalWig34653/db-manager-web/tree/9545f752e56149ede6a07eea52f808691682b908)
+(Pin Bündel 4, siehe Abschnitt am Ende). Der folgende Text beschreibt den **historischen** Pin
 [8ef738d](https://github.com/MagicalWig34653/db-manager-web/tree/8ef738d22a1164291e2c8183d80e72d1f043c0f8):
 F5 einschließlich lesender Index-/Constraintmetadaten, F6-Ergebnisexport und bisheriger
 Einzelzeilenaktionen wurde unabhängig
@@ -210,7 +210,7 @@ Katalog/Übersicht). Neu in der Vertragsliste: `create` 0.6.0 (`b08b6aba...6887`
 erscheint im Manifest `source.schema_version` 2 mit `additional_contracts`. Der Webbuild ist code-gesplittet
 (`assets/feature-*.js/css`); die Neubauprüfung (`verify_build` in `build-web.py`) ersetzt die feste Dateizahl durch drei Prüfungen:
 (1) `index.html` hat genau ein Entry-Modulskript und ein Entry-Stylesheet, der Quelllink des gepinnten Commits steht im
-Entry-Skript; (2) jede Datei unter `assets/` ist transitiv vom Entry referenziert, höchstens `MAX_CHUNKS` (24; bei Bündel 3 von 12 begründet angehoben, siehe PIN-BUNDLE-3) Dateien;
+Entry-Skript; (2) jede Datei unter `assets/` ist transitiv vom Entry referenziert, höchstens `MAX_CHUNKS` (64; Plausibilitätsgrenze, seit Bündel 4, vorher 12 bzw. 24) Dateien;
 (3) die `SHELL`-Liste in `sw.js` entspricht exakt `index.html` + PWA-Dateien (ohne `sw.js`) + `assets/*`. Der alte Pin
 8ef738d besteht diese Prüfungen unverändert und bleibt bytegleich rekonstruierbar. Das Dockerfile-Label `org.dbmanager.frontend.source` wird bei Pinwechsel von Hand gepflegt;
 `scripts/test-build-web.py` und `verify_image` schlagen bei Abweichung zum Lock fehl. Details: [PIN-BUNDLE-2](handoffs/PIN-BUNDLE-2.md).
@@ -221,3 +221,18 @@ Das Lock pinnt Web-main `c14271ec12bfb7940253787c2f84aeb65cc4252e` (zusätzlich 
 Navigationssperre). Neue Vertragseinträge: `object-ops` 0.8.0 (`74aa39ed...8264`), `columns` 0.9.0 (`508b9951...e3f8`),
 `export` 0.11.0 (`b3bcc38b...6620`), Webkopien v8, v9, v11 byte-identisch zu den Rootverträgen. 0.10 (maintenance) und 0.12
 (sqlbatch) liegen nur im Root, das Web enthält keine Kopie: **nicht gepinnt**. Details: [PIN-BUNDLE-3](handoffs/PIN-BUNDLE-3.md).
+
+## Pin Bündel 4 (26.10.2026)
+
+Das Lock pinnt Web-Branch `release/pin-bundle4` auf `9545f752e56149ede6a07eea52f808691682b908` (Web-Wellenstand
+`integration/web-wave-fixes` plus Konten auf Vertrag 0.23). Das Lock führt nun 17 Verträge; neu gegenüber Bündel 3:
+`maintenance` 0.10, `sqlbatch` 0.12, `indexes` 0.13, `search` 0.14, `accounts` 0.15, `programs` 0.16, `reasons` 0.23
+(alle Webkopien byte-identisch zu den Rootverträgen). 0.17 bis 0.22 haben im Web noch keine Oberfläche und sind nicht
+kopiert und nicht gepinnt. Die Kontenrouten bleiben `/api/v15/...`; 0.23 ergänzt nur `AccountResult.reason`
+`grant_without_effect`.
+
+- **MAX_CHUNKS** ist auf 64 gesetzt (vorher 24, Review-Befund 2 zu Bündel 3): reine Plausibilitätsgrenze. Die eigentlichen Garantien
+  bleiben Entry mit Quelllink, transitive Erreichbarkeit jeder Datei unter `assets/` und `SHELL` = Inventar.
+- **Precache-Größe:** Der Service Worker legt beim Install die gesamte Shell an (alle Dateien außer `sw.js`): **ca. 16,2 MB**
+  (16 226 019 Bytes, davon 16,06 MB unter `assets/`, 31 Dateien), einmalig je Release (Bündel 3: ca. 4,8 MB). Der Build bricht
+  oberhalb `MAX_PRECACHE_BYTES` (32 MiB) ab. Das Wachstum ist die offene Frage für Lazy-Precaching, siehe PIN-BUNDLE-4.

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "repository": "https://github.com/MagicalWig34653/db-manager-web.git",
-  "commit": "c14271ec12bfb7940253787c2f84aeb65cc4252e",
+  "commit": "9545f752e56149ede6a07eea52f808691682b908",
   "npm_lock_sha256": "bac4b32ba0548428186f20b1d6382f3554b1a477c0fb89957b123820495b15c6",
   "toolchain": {
     "node": "26.5.0",
@@ -55,9 +55,44 @@
       "sha256": "508b9951d102ec44bf4cafc9fe444f7266b31f898d9e91c887f4bef39735e3f8"
     },
     {
+      "family": "maintenance",
+      "version": "0.10.0",
+      "sha256": "077a0e0222963b112bd6ea528ef5668d2ff7fbe2b2d3555669487c4beaf55cc5"
+    },
+    {
       "family": "export",
       "version": "0.11.0",
       "sha256": "b3bcc38b44b020335151aead207e281f9c54bdc7463d6fb1ddd7a6cc22396620"
+    },
+    {
+      "family": "sqlbatch",
+      "version": "0.12.0",
+      "sha256": "7f0446edccdc368a202e4eaae5689d4b44d641e34bdf77ec8314de9f3e3f2dcd"
+    },
+    {
+      "family": "indexes",
+      "version": "0.13.0",
+      "sha256": "e05a2402a8e6ec6a1901afeac03969e34d4fa1821e50a5c8675a6e20f5c1d3d7"
+    },
+    {
+      "family": "search",
+      "version": "0.14.0",
+      "sha256": "b57c3e5dcf403c3e16d8564c68d0220453625b25f6f206fdc128d2e249656c1e"
+    },
+    {
+      "family": "accounts",
+      "version": "0.15.0",
+      "sha256": "cd4681a200045c2fdd5ddf9f1bdc2a356c998b30e640495121925ca8a609dad1"
+    },
+    {
+      "family": "programs",
+      "version": "0.16.0",
+      "sha256": "d90ac3fda8295a4b8a7095c72eb459c6433fce90f729d7a6b247760d86de7bf3"
+    },
+    {
+      "family": "reasons",
+      "version": "0.23.0",
+      "sha256": "7450a7fc994126beb25799e99dae07d6763e43f3e9ef002b20068cb38e313bd7"
     }
   ]
 }
