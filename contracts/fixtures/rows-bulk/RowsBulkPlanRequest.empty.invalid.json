@@ -1,0 +1,11 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "placeholder"
+  },
+  "table": {
+    "name": "beispiel"
+  },
+  "action": "delete",
+  "rows": []
+}
