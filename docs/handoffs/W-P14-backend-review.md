@@ -14,7 +14,7 @@ Freigabe mit Auflagen (accept with changes). Keine Injektion, keine Bestätigung
 | `gofmt -l .`, `go vet ./...` | ohne Ausgabe |
 | `go test -race -count=1 ./...` | alle Pakete ok |
 | alle `check-*-contract.py` (inkl. `check-search-contract.py`), `check-docs.py` | bestanden (v1 bis v13 gepinnt, v14 additiv, 0 Docs-Fehler) |
-| SHA-256 `contracts/api-v0.14.0.json` | `b57c3e5d...e1e`, stimmt mit WAVE3-INTEGRATION; das Paket-Handoff nennt noch `fda8077a...` (siehe L4) |
+| SHA-256 `contracts/api-v0.14.0.json` | `b57c3e5d...56c1e`, stimmt mit WAVE3-INTEGRATION; das Paket-Handoff nennt noch `fda8077a...` (siehe L4) |
 | `scripts/test-search.py` (SQLite, MySQL 8.4, MariaDB 12.3, PostgreSQL 18.6) | exit 0, native Antworten gegen v14 validiert, keine Container übrig |
 | eigene Tests `wave3b_review_test.go` (`TestReviewW3BSearch*`, `Replace*`, `Cancel*`, `ScanCancel*`) SQLite + drei Engines, eigene Wegwerf-Container nacheinander | bestanden bis auf Messungen M1 |
 | Mutationstest Wächter | wirksam (siehe unten) |

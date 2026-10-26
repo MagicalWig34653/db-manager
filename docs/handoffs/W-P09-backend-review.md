@@ -15,7 +15,7 @@ Der PostgreSQL-Ausdrucksindex ist kein Freitext: nur Whitelist `lower`/`upper` a
 | `gofmt -l .`, `go vet ./...` | ohne Ausgabe |
 | `go test -race -count=1 ./...` | alle Pakete ok (Last 50 bis 200) |
 | alle `check-*-contract.py`, `check-docs.py` | bestanden (indexes: v1 bis v12 byteidentisch, v13 additiv, 60 Fixtures; 0 Docs-Fehler) |
-| SHA-256 `contracts/api-v0.13.0.json` | `e05a2402...c3d7`, stimmt mit Handoff und WAVE3-INTEGRATION |
+| SHA-256 `contracts/api-v0.13.0.json` | `e05a2402...1d3d7`, stimmt mit Handoff und WAVE3-INTEGRATION |
 | `scripts/test-indexes.py` (SQLite, MySQL 8.4, MariaDB 12.3, PostgreSQL 18.6) | exit 0, keine Container übrig |
 | eigene Tests `internal/database/wave3b_review_test.go` (`TestReviewW3BIndexes*`) auf SQLite und allen drei Netzwerkengines (eigene Wegwerf-Container nacheinander) | bestanden, Beobachtungen unten |
 | Mutationstest Wächter | wirksam (siehe 6) |
