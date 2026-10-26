@@ -23,6 +23,7 @@ func TestAllKnownRoutesRegisteredAndAuthenticated(t *testing.T) {
 		"GET /api/v4/capabilities", "POST /api/v4/tables/insert-eligibility", "POST /api/v4/rows/insert",
 		"GET /api/v5/capabilities", "POST /api/v5/tables/structure",
 		"GET /api/v6/capabilities", "POST /api/v6/tables/create",
+		"GET /api/v17/capabilities", "GET /api/v18/capabilities", "POST /api/v18/imports/plan", "GET /api/v19/capabilities", "POST /api/v19/rows/plan", "GET /api/v21/capabilities", "POST /api/v21/export", "GET /api/v22/capabilities", "POST /api/v22/tables/partitions/list",
 		"GET /api/v20/capabilities", "POST /api/v20/monitor/sample", "POST /api/v20/monitor/analysis", "POST /api/v20/monitor/advisor", "POST /api/v20/monitor/replication", "POST /api/v20/monitor/binary-logs", "POST /api/v20/monitor/binary-events", "POST /api/v20/monitor/profiling", "POST /api/v20/monitor/engines",
 		"GET /api/v7/capabilities", "POST /api/v7/databases", "POST /api/v7/objects", "POST /api/v7/definition", "POST /api/v7/server-info",
 	}
@@ -34,7 +35,7 @@ func TestAllKnownRoutesRegisteredAndAuthenticated(t *testing.T) {
 			t.Errorf("%s: want 401 without token, got %d", route, response.Code)
 		}
 	}
-	for _, route := range []string{"GET /api/v18/capabilities", "POST /api/v1/other"} {
+	for _, route := range []string{"GET /api/v99/capabilities", "POST /api/v1/other"} {
 		parts := strings.SplitN(route, " ", 2)
 		response := httptest.NewRecorder()
 		api.ServeHTTP(response, httptest.NewRequest(parts[0], parts[1], nil))

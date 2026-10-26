@@ -77,7 +77,7 @@ func TestAccountsCapabilitiesVersion(t *testing.T) {
 	if w.Code != 200 || !strings.Contains(w.Body.String(), `"contract_version":"0.15.0"`) {
 		t.Fatal(w.Code, w.Body.String())
 	}
-	for _, version := range []string{"18"} {
+	for _, version := range []string{"99"} {
 		w := httptest.NewRecorder()
 		api.ServeHTTP(w, httptest.NewRequest("GET", "/api/v"+version+"/capabilities", nil))
 		if w.Code != 404 {
