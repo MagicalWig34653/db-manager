@@ -1,0 +1,12 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "placeholder"
+  },
+  "tables": [
+    {
+      "name": "placeholder"
+    }
+  ],
+  "format": "latex-longtable"
+}
