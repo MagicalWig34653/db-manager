@@ -1,0 +1,9 @@
+{
+  "connection": {
+    "driver": "mysql",
+    "host": "localhost",
+    "database": "placeholder"
+  },
+  "prefix": "x",
+  "action": "raw_sql"
+}

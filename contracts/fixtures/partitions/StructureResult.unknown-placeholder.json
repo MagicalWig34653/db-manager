@@ -1,0 +1,9 @@
+{
+  "action": "partition_drop",
+  "outcome": "outcome_unknown",
+  "message": "Platzhalter: Zustand pr\u00fcfen.",
+  "statements_total": 1,
+  "statements_executed": 0,
+  "atomic": false,
+  "observation": null
+}

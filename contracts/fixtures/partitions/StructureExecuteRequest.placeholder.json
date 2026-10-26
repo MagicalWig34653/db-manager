@@ -1,0 +1,29 @@
+{
+  "connection": {
+    "driver": "mysql",
+    "host": "localhost",
+    "database": "placeholder"
+  },
+  "table": {
+    "schema": "placeholder",
+    "name": "placeholder_table"
+  },
+  "action": "define",
+  "method": "RANGE",
+  "column": "id",
+  "definitions": [
+    {
+      "name": "p0",
+      "less_than": "10"
+    },
+    {
+      "name": "p1",
+      "less_than": "MAXVALUE"
+    }
+  ],
+  "confirm": {
+    "action": "partition_define",
+    "target_name": "placeholder_table"
+  },
+  "expected_plan_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+}
