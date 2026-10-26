@@ -1,7 +1,7 @@
 # Handoff W-P27 Backend: lesender Monitor (API 0.20)
 
-Stand: 25.10.2026. Branch `feat/w-p27-backend`, Basis `main c331c64`.
-Nur Dateien geschrieben; kein Git-Schreibbefehl, kein Commit, keine Integration.
+Stand: 26.10.2026. Branch `feat/w-p27-backend`, Basis `main 3a7e1f1`.
+Committed und gepusht auf feat/w-p27-backend; keine Integration nach main.
 Unabhängiger Review und Leadcommit offen. Zentrale Status-/Planungsdateien bleiben
 beim Lead. Alle Änderungen sind auf dieses Paket begrenzt.
 
@@ -14,7 +14,7 @@ beim Lead. Alle Änderungen sind auf dieses Paket begrenzt.
 - `internal/httpapi/monitor*.go`: authentifizierte `/api/v20/monitor/`-Routen,
   Fähigkeiten, sichere Fehler und HTTP-Tests. Registry: eine zusätzliche Zeile,
   Featurezahl im Test 13. W-P17 wird nicht dupliziert.
-- `contracts/api-v0.20.0.json`: additiv zu v12, vorhandene Verträge unverändert;
+- `contracts/api-v0.20.0.json`: additiv zu v16, vorhandene Verträge unverändert;
   `contracts/MONITOR-API.md`, `contracts/fixtures/monitor/`,
   `scripts/check-monitor-contract.py`, `scripts/test-monitor.py` und eigener
   CI-Workflow `.github/workflows/monitor.yml`.
