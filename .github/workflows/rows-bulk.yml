@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+name: Mehrzeilen und Dateiwerte (API 0.19)
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  native-linux-amd64:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Öffentlichen Quellstand abrufen
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Go einrichten
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version: '1.27.1'
+          cache: false
+      - name: Backend und Vertrag prüfen
+        run: |
+          test -z "$(gofmt -l internal/core/rows_bulk.go internal/database/rows_bulk*.go internal/httpapi/rows_bulk*.go)"
+          go vet ./...
+          go test -race -count=1 ./...
+          python3 scripts/check-rows-bulk-contract.py
+          python3 scripts/check-docs.py
+      - name: Echte vier Datenbanksysteme prüfen
+        run: python3 scripts/test-rows-bulk.py

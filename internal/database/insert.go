@@ -160,6 +160,18 @@ func (e *Engine) Insert(ctx context.Context, r core.InsertRequest) (core.InsertR
 		return empty, safe(ctx, err)
 	}
 	defer session.rollback()
+	result, err := rowsBulkInsert(ctx, session, r)
+	if err != nil {
+		return empty, err
+	}
+	if err = session.commit(ctx); err != nil {
+		return empty, public("outcome_unknown", "Commit-Ergebnis ist unbekannt. Zustand neu laden; nicht blind wiederholen.")
+	}
+	return result, nil
+}
+
+func rowsBulkInsert(ctx context.Context, session *mutationSession, r core.InsertRequest) (core.InsertResult, error) {
+	empty := core.InsertResult{}
 	d, err := describe(ctx, session, r.Connection, r.Table)
 	if err != nil {
 		return empty, safe(ctx, err)
@@ -338,15 +350,13 @@ func (e *Engine) Insert(ctx context.Context, r core.InsertRequest) (core.InsertR
 		return empty, rowConflict()
 	}
 	result := core.InsertResult{Outcome: "committed", Row: core.RowSnapshot{Columns: columns, Values: after.Rows[0]}}
-	encoded, err = json.Marshal(result)
+	encoded, err := json.Marshal(result)
 	if err != nil || len(encoded)+1 > MaxResponseBytes {
 		return empty, public("result_too_large", "Einfügeergebnis ist zu groß.")
 	}
-	if err = session.commit(ctx); err != nil {
-		return empty, public("outcome_unknown", "Commit-Ergebnis ist unbekannt. Zustand neu laden; nicht blind wiederholen.")
-	}
 	return result, nil
 }
+
 func insertIdentityError() error {
 	return public("insert_identity_unknown", "Eindeutige eingefügte Zeile konnte nicht bestätigt werden; Transaktion wird zurückgerollt.")
 }
