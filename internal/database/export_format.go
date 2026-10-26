@@ -43,6 +43,9 @@ func (f *exportFormat) start() error {
 			return err
 		}
 	}
+	if isTextExport(f.r.Format) {
+		return f.textStart()
+	}
 	switch f.r.Format {
 	case "sql":
 		// Fixed header: credentials, hosts, timestamps and filesystem paths never enter it.
@@ -67,7 +70,7 @@ func (f *exportFormat) start() error {
 		return f.write(s)
 	case "json":
 		snapshot := "per_database"
-		if f.r.Scope == "query" {
+		if f.r.Scope == "query" || f.r.ViewsAsTables {
 			snapshot = "read_only_best_effort"
 		}
 		return f.write(`{"format":"dbmanager-export","version":1,"snapshot":"` + snapshot + `","tables":[`)
@@ -82,6 +85,9 @@ func (f *exportFormat) structure(c core.Connection, t exportTable) error {
 		q = quoteIdentifier(c.Driver, t.description.Table.Name)
 	}
 	s := ""
+	if f.r.Comments {
+		s += "-- Catalog table: " + safeExportComment(t.description.Table.Schema+"."+t.description.Table.Name) + "\n"
+	}
 	if f.r.Drop {
 		s += "DROP TABLE IF EXISTS " + q + ";\n"
 	}
@@ -99,9 +105,14 @@ func (f *exportFormat) structure(c core.Connection, t exportTable) error {
 	return f.write(s)
 }
 func (f *exportFormat) table(c core.Connection, d core.TableDescription) error {
-	f.tableName = qualifiedTable(c.Driver, d.Table)
+	if isTextExport(f.r.Format) {
+		return f.textTable(c, d)
+	}
+	target := d.Table
+
+	f.tableName = qualifiedTable(c.Driver, target)
 	if c.Driver == "mysql" {
-		f.tableName = quoteIdentifier(c.Driver, d.Table.Name)
+		f.tableName = quoteIdentifier(c.Driver, target.Name)
 	}
 	f.columns = nil
 	f.firstRow = true
@@ -150,6 +161,9 @@ func (f *exportFormat) table(c core.Connection, d core.TableDescription) error {
 	return nil
 }
 func (f *exportFormat) row(driver string, row []core.Cell) error {
+	if isTextExport(f.r.Format) {
+		return f.textRow(row)
+	}
 	if f.r.Format == "json" {
 		if !f.firstRow {
 			if err := f.write(","); err != nil {
@@ -205,7 +219,18 @@ func (f *exportFormat) row(driver string, row []core.Cell) error {
 	return f.write(f.insertPrefix(driver) + tuple + ";\n")
 }
 func (f *exportFormat) insertPrefix(driver string) string {
-	s := "INSERT INTO " + f.tableName + " (" + strings.Join(f.columns, ",") + ")"
+	verb := "INSERT INTO "
+	if f.r.DataStatement == "replace" {
+		verb = "REPLACE INTO "
+	}
+	if f.r.DataStatement == "insert-ignore" {
+		if driver == "mysql" {
+			verb = "INSERT IGNORE INTO "
+		} else {
+			verb = "INSERT OR IGNORE INTO "
+		}
+	}
+	s := verb + f.tableName + " (" + strings.Join(f.columns, ",") + ")"
 	if driver == "postgres" {
 		s += " OVERRIDING SYSTEM VALUE"
 	}
@@ -220,6 +245,9 @@ func (f *exportFormat) flushBatch() error {
 	return err
 }
 func (f *exportFormat) endTable() error {
+	if isTextExport(f.r.Format) {
+		return f.textEndTable()
+	}
 	if f.r.Format == "json" {
 		return f.write("]}")
 	}
@@ -251,6 +279,9 @@ func (f *exportFormat) csvValue(s string) string {
 	return "'" + s
 }
 func (f *exportFormat) finish() error {
+	if isTextExport(f.r.Format) {
+		return f.textFinish()
+	}
 	switch f.r.Format {
 	case "json":
 		return f.write(`],"complete":true}` + "\n")

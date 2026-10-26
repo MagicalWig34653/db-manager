@@ -176,6 +176,18 @@ func (e *Engine) mutate(ctx context.Context, r core.MutationRequest, deleting bo
 		return empty, safe(ctx, err)
 	}
 	defer session.rollback()
+	result, err := rowsBulkMutate(ctx, session, r, deleting)
+	if err != nil {
+		return empty, err
+	}
+	if err = session.commit(ctx); err != nil {
+		return empty, public("outcome_unknown", "Commit-Ergebnis ist unbekannt. Zustand neu laden; nicht blind wiederholen.")
+	}
+	return result, nil
+}
+
+func rowsBulkMutate(ctx context.Context, session *mutationSession, r core.MutationRequest, deleting bool) (core.MutationResult, error) {
+	empty := core.MutationResult{}
 	d, err := describe(ctx, session, r.Connection, r.Table)
 	if err != nil {
 		return empty, safe(ctx, err)
@@ -333,16 +345,13 @@ func (e *Engine) mutate(ctx context.Context, r core.MutationRequest, deleting bo
 		result.Row = &core.RowSnapshot{Columns: r.Expected.Columns, Values: after.Rows[0]}
 		result.Changed = !reflect.DeepEqual(current.Rows[0], after.Rows[0])
 	}
-	encoded, err = json.Marshal(result)
+	encoded, err := json.Marshal(result)
 	if err != nil || len(encoded)+1 > MaxResponseBytes {
 		return empty, public("result_too_large", "Änderungsergebnis ist zu groß.")
 	}
-	// Any error after attempting COMMIT is indeterminate; never retry blindly.
-	if err := session.commit(ctx); err != nil {
-		return empty, public("outcome_unknown", "Commit-Ergebnis ist unbekannt. Zustand neu laden; nicht blind wiederholen.")
-	}
 	return result, nil
 }
+
 func rowConflict() error {
 	return public("row_conflict", "Zeile fehlt oder wurde geändert. Zustand neu laden.")
 }

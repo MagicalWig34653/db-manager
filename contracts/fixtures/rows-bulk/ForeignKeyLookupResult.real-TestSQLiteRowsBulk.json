@@ -1,0 +1,1 @@
+{"table":{"schema":"main","name":"p13_parent"},"value_column":"id","display_column":"label","choices":[{"value":{"kind":"integer","value":"1"},"display":{"kind":"text","value":"100% literal"}}],"has_more":true}

@@ -137,3 +137,11 @@ Fehler vor Ausführung: 400 `invalid_request`/`invalid_account_request`/
 sichere Datenbankfehler, 408 Abbruch, 413 Anfragegröße, 415 Medientyp.
 
 Prüfstand und offene Live-Gates: [W-P18-Backend](../docs/handoffs/W-P18-backend.md).
+
+## Ergänzung API 0.23 (nur Vertragsdatei)
+
+`api-v0.23.0.json` erweitert `AccountResult.reason` um `grant_without_effect` (GRANT vom Server nur als
+Warnung beantwortet, Recht nicht wirksam, nichts geändert); v15 bleibt unverändert gepinnt. Das Backend
+sendet diesen Wert seit 0.15; die neueste Vertragsversion ist maßgeblich für Clients-Validatoren.
+`TestEmittedReasonsAreInLatestContract` prüft, dass jeder im Code erzeugte `reason` im Enum der neuesten
+Version steht.

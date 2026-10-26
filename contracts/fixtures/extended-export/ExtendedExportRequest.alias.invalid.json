@@ -1,0 +1,21 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "placeholder"
+  },
+  "tables": [
+    {
+      "name": "placeholder"
+    }
+  ],
+  "aliases": [
+    {
+      "source": {
+        "name": "placeholder"
+      },
+      "target": {
+        "name": "placeholder_target"
+      }
+    }
+  ]
+}

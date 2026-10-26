@@ -1,0 +1,22 @@
+{
+  "driver": "mysql",
+  "statements": [
+    "ALTER TABLE `probe`.`p29_partitioned` ADD PARTITION (PARTITION `p29_p1` VALUES IN (3))"
+  ],
+  "warnings": [
+    "Partitionierungs-DDL kann lange sperren. Abhängigkeiten und Serverrechte bleiben wirksam.",
+    "DDL bestätigt implizit; ein Fehler nach Teiländerungen kann nicht automatisch zurückgenommen werden."
+  ],
+  "affected_objects": [
+    "table:probe.p29_partitioned",
+    "partition:p29_p1"
+  ],
+  "plan_sha256": "38bd22d6809154ec877d3a8f127c6a6e6483824843a00e20a84c6795685005b5",
+  "action": "partition_add",
+  "confirmation": {
+    "action": "partition_add",
+    "destructive": true,
+    "target_name": "p29_partitioned",
+    "current_database": false
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "monitor_fixture"
+  },
+  "limit": 50
+}

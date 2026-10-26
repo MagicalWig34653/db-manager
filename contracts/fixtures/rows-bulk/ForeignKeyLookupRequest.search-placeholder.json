@@ -1,0 +1,13 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "placeholder"
+  },
+  "table": {
+    "name": "beispiel"
+  },
+  "column": "parent_id",
+  "display_column": "name",
+  "search": "100%",
+  "page_size": 1
+}

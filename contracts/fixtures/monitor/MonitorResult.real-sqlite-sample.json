@@ -1,0 +1,19 @@
+{
+  "driver": "sqlite",
+  "action": "sample",
+  "state": "available",
+  "reason": "Nur grundlegende SQLite-Informationen; keine Serverzähler oder Dateipfade.",
+  "source": "sqlite_version",
+  "sampled_at": "2026-10-25T20:41:32.84939Z",
+  "duration_ms": 1,
+  "records": [
+    {
+      "version": "3.53.4"
+    }
+  ],
+  "hints": [],
+  "limit": 50,
+  "offset": 0,
+  "has_more": false,
+  "truncated": false
+}

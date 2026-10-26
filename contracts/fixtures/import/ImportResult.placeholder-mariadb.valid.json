@@ -1,0 +1,12 @@
+{
+  "outcome": "completed",
+  "processed": 2,
+  "inserted": 2,
+  "skipped": 0,
+  "statements": [],
+  "errors": [],
+  "errors_truncated": false,
+  "warnings": [
+    "Synthetischer Platzhalter; kein Laufnachweis."
+  ]
+}

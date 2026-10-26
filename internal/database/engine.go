@@ -31,6 +31,7 @@ type Engine struct {
 	slots   chan struct{}
 	exports chan struct{} // bounds long-running exports (MaxConcurrentExports)
 	roots   *x509.CertPool
+	plans   planLedger // single-use ledger for confirmed import/bulk plans
 }
 
 func New(dataDir string, allowedHosts []string, options ...Option) (*Engine, error) {

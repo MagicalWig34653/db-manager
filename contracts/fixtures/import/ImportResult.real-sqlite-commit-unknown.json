@@ -1,0 +1,13 @@
+{
+  "outcome": "outcome_unknown",
+  "processed": 1,
+  "inserted": 1,
+  "skipped": 0,
+  "statements": [],
+  "errors": [],
+  "errors_truncated": false,
+  "warnings": [
+    "Nur direkte Zeilen; Trigger, Sequenzen und externe Effekte sind nicht allgemein rücknehmbar. Typprüfung ist konservativ; Constraints werden erst beim Schreiben geprüft."
+  ],
+  "reason": "commit_unknown"
+}

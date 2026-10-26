@@ -1,0 +1,17 @@
+{
+  "driver": "sqlite",
+  "kind": "status",
+  "scope": "",
+  "sampled_at": "2026-10-26T01:17:03.515818Z",
+  "values": [
+    {
+      "name": "sqlite_version",
+      "value": "3.53.4",
+      "masked": false
+    }
+  ],
+  "processes": [],
+  "limit": 100,
+  "offset": 0,
+  "has_more": false
+}

@@ -1,0 +1,30 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "placeholder"
+  },
+  "table": {
+    "name": "beispiel"
+  },
+  "action": "delete",
+  "rows": [
+    {
+      "expected": {
+        "columns": [
+          "id",
+          "name"
+        ],
+        "values": [
+          {
+            "kind": "integer",
+            "value": "1"
+          },
+          {
+            "kind": "text",
+            "value": "Beispiel"
+          }
+        ]
+      }
+    }
+  ]
+}

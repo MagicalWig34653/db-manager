@@ -1,0 +1,29 @@
+{
+  "action": "prefix_drop",
+  "outcome": "outcome_unknown",
+  "message": "Ergebnis unbekannt. Zustand prüfen; nicht automatisch wiederholen. Teilzustand: Der Stapel wurde nicht vollständig ausgeführt, siehe Ergebnis je Tabelle.",
+  "statements_total": 2,
+  "statements_executed": 1,
+  "atomic": false,
+  "observation": null,
+  "tables": [
+    {
+      "table": {
+        "schema": "probe",
+        "name": "pp_a"
+      },
+      "status": "applied",
+      "statements_total": 1,
+      "statements_executed": 1
+    },
+    {
+      "table": {
+        "schema": "probe",
+        "name": "pp_b"
+      },
+      "status": "unknown",
+      "statements_total": 1,
+      "statements_executed": 0
+    }
+  ]
+}

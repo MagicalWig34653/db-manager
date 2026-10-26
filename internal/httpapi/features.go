@@ -17,8 +17,7 @@ type RouteClass string
 const (
 	// ClassStandard is the default class for all JSON routes (1 MiB).
 	ClassStandard RouteClass = "standard"
-	// ClassUpload is reserved for later import routes. It keeps the standard
-	// limit until an import package raises it explicitly.
+	// ClassUpload permits bounded multipart imports including metadata.
 	ClassUpload RouteClass = "upload"
 )
 
@@ -26,7 +25,7 @@ const (
 // Import packages raise ClassUpload here (one reviewed line), never per route.
 var classBodyLimits = map[RouteClass]int64{
 	ClassStandard: MaxRequestBytes,
-	ClassUpload:   MaxRequestBytes,
+	ClassUpload:   ImportUploadLimit,
 }
 
 // BodyLimit returns the request-body limit of a route class. Unknown classes
@@ -75,6 +74,12 @@ var featureList = []Feature{
 	func(mux *http.ServeMux, a *API) { a.registerSearch(mux) },
 	func(mux *http.ServeMux, a *API) { a.registerAccounts(mux) },
 	func(mux *http.ServeMux, a *API) { a.registerPrograms(mux) },
+	func(mux *http.ServeMux, a *API) { a.registerServerAdmin(mux) },
+	func(mux *http.ServeMux, a *API) { a.registerImport(mux) },
+	func(mux *http.ServeMux, a *API) { a.registerRowsBulk(mux) },
+	func(mux *http.ServeMux, a *API) { a.registerMonitor(mux) },
+	func(mux *http.ServeMux, a *API) { a.registerExtendedExport(mux) },
+	func(mux *http.ServeMux, a *API) { a.registerPartitions(mux) },
 }
 
 func (a *API) registerFeatures(mux *http.ServeMux) {

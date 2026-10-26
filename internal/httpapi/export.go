@@ -51,6 +51,16 @@ func (w *downloadWriter) Write(p []byte) (int, error) {
 		w.started = true
 		media, extension := "application/sql; charset=utf-8", "sql"
 		switch w.request.Format {
+		case "xml":
+			media, extension = "application/xml; charset=utf-8", "xml"
+		case "yaml":
+			media, extension = "application/yaml; charset=utf-8", "yaml"
+		case "latex", "latex-longtable":
+			media, extension = "text/plain; charset=utf-8", "tex"
+		case "mediawiki", "texy", "codegen":
+			media, extension = "text/plain; charset=utf-8", "txt"
+		case "php-array":
+			media, extension = "text/plain; charset=utf-8", "php"
 		case "json":
 			media, extension = "application/json; charset=utf-8", "json"
 		case "csv", "excel-csv":
@@ -68,7 +78,7 @@ func (w *downloadWriter) Write(p []byte) (int, error) {
 		w.response.Header().Set("Content-Type", media)
 		w.response.Header().Set("Content-Disposition", `attachment; filename="`+filename+`"`)
 		snapshot := "per-database"
-		if w.request.Scope == "query" {
+		if w.request.Scope == "query" || w.request.ViewsAsTables {
 			snapshot = "read-only-best-effort"
 		}
 		w.response.Header().Set("X-Export-Snapshot", snapshot)
@@ -103,7 +113,11 @@ func (a *API) exportDownload(w http.ResponseWriter, r *http.Request) {
 	if !decode(w, r, &request) || !validConnection(w, request.Connection) {
 		return
 	}
-	request, err := core.NormalizeExport(request)
+	if r.URL.Path == "/api/v11/export" && core.HasExtendedExportOptions(request) {
+		fail(w, 400, "invalid_export", "Erweiterte Exportoptionen benötigen API 0.21.")
+		return
+	}
+	request, err := core.NormalizeExtendedExport(request)
 	if err != nil {
 		fail(w, 400, "invalid_export", "Exportoptionen sind ungültig oder nicht unterstützt.")
 		return

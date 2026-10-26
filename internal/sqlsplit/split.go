@@ -3,6 +3,7 @@
 package sqlsplit
 
 import (
+	"context"
 	"errors"
 	"strings"
 	"unicode/utf8"
@@ -17,7 +18,17 @@ var ErrSyntax = errors.New("SQL-Trennung ist ungültig oder überschreitet die G
 // directives. A custom delimiter must be punctuation, at most 16 bytes long.
 // Returned statements retain comments; delimiter directives are never sent.
 func Split(input, delimiter, dialect string) ([]string, error) {
-	if len(input) > MaxBytes || !utf8.ValidString(input) || strings.ContainsRune(input, 0) {
+	return SplitLimited(input, delimiter, dialect, MaxBytes, MaxStatements)
+}
+
+// SplitLimited uses the same lexer for bounded uploaded SQL files.
+func SplitLimited(input, delimiter, dialect string, maxBytes, maxStatements int) ([]string, error) {
+	return SplitLimitedContext(context.Background(), input, delimiter, dialect, maxBytes, maxStatements)
+}
+
+// SplitLimitedContext also bounds CPU work after an import cancellation.
+func SplitLimitedContext(ctx context.Context, input, delimiter, dialect string, maxBytes, maxStatements int) ([]string, error) {
+	if maxBytes <= 0 || maxStatements <= 0 || len(input) > maxBytes || !utf8.ValidString(input) || strings.ContainsRune(input, 0) {
 		return nil, ErrSyntax
 	}
 	if dialect != "sqlite" && dialect != "mysql" && dialect != "postgres" {
@@ -35,7 +46,7 @@ func Split(input, delimiter, dialect string) ([]string, error) {
 	lineStart := true
 	emit := func() error {
 		if hasCode && strings.TrimSpace(b.String()) != "" {
-			if len(result) == MaxStatements {
+			if len(result) == maxStatements {
 				return ErrSyntax
 			}
 			result = append(result, strings.TrimSpace(b.String()))
@@ -45,6 +56,9 @@ func Split(input, delimiter, dialect string) ([]string, error) {
 		return nil
 	}
 	for i := 0; i < len(input); {
+		if i%4096 == 0 && ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
 		if lineStart {
 			end := strings.IndexByte(input[i:], '\n')
 			if end < 0 {
@@ -95,6 +109,9 @@ func Split(input, delimiter, dialect string) ([]string, error) {
 				hasCode = true
 			}
 			for i < len(input) && depth > 0 {
+				if i%4096 == 0 && ctx.Err() != nil {
+					return nil, ctx.Err()
+				}
 				if dialect == "postgres" && strings.HasPrefix(input[i:], "/*") {
 					depth++
 					i += 2
@@ -133,6 +150,9 @@ func Split(input, delimiter, dialect string) ([]string, error) {
 			closed := false
 			escape := dialect == "mysql" || (dialect == "postgres" && quote == '\'' && start > 0 && (input[start-1] == 'e' || input[start-1] == 'E') && (start == 1 || !word(input[start-2])))
 			for i < len(input) {
+				if i%4096 == 0 && ctx.Err() != nil {
+					return nil, ctx.Err()
+				}
 				if escape && input[i] == '\\' {
 					i += 2
 					continue
@@ -170,6 +190,9 @@ func Split(input, delimiter, dialect string) ([]string, error) {
 		}
 		b.WriteByte(c)
 		i++
+	}
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
 	}
 	if err := emit(); err != nil {
 		return nil, err

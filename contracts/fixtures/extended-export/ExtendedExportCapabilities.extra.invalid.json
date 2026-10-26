@@ -1,0 +1,78 @@
+{
+  "contract_version": "0.21.0",
+  "max_bytes": 1073741824,
+  "max_rows": 10000000,
+  "max_timeout_ms": 300000,
+  "max_tables": 100,
+  "max_request_bytes": 1048576,
+  "available": true,
+  "formats": [
+    "sql",
+    "csv",
+    "excel-csv",
+    "json",
+    "xml",
+    "latex",
+    "latex-longtable",
+    "mediawiki",
+    "yaml",
+    "php-array",
+    "texy",
+    "codegen"
+  ],
+  "drivers": [
+    {
+      "driver": "sqlite",
+      "state": "limited",
+      "views_as_tables": true,
+      "definer": [
+        "omit"
+      ],
+      "compatibility": [
+        "native",
+        "data-only"
+      ],
+      "data_statements": [
+        "insert",
+        "insert-ignore",
+        "replace"
+      ],
+      "reason": "Synthetischer Platzhalter; kein Live-Nachweis."
+    },
+    {
+      "driver": "mysql",
+      "state": "limited",
+      "views_as_tables": true,
+      "definer": [
+        "omit"
+      ],
+      "compatibility": [
+        "native",
+        "data-only"
+      ],
+      "data_statements": [
+        "insert",
+        "insert-ignore",
+        "replace"
+      ],
+      "reason": "Synthetischer Platzhalter; kein Live-Nachweis."
+    },
+    {
+      "driver": "postgres",
+      "state": "limited",
+      "views_as_tables": true,
+      "definer": [
+        "omit"
+      ],
+      "compatibility": [
+        "native",
+        "data-only"
+      ],
+      "data_statements": [
+        "insert"
+      ],
+      "reason": "Synthetischer Platzhalter; kein Live-Nachweis."
+    }
+  ],
+  "unknown": false
+}

@@ -1,0 +1,9 @@
+{
+  "id": "../bad",
+  "state": "running",
+  "cancel_requested": false,
+  "progress": {
+    "processed": 0,
+    "total": 0
+  }
+}

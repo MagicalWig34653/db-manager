@@ -1,0 +1,44 @@
+{
+  "outcome": "outcome_unknown",
+  "processed": 3,
+  "inserted": 0,
+  "skipped": 0,
+  "statements": [
+    {
+      "index": 1,
+      "outcome": "completed",
+      "results": [],
+      "warnings": [],
+      "duration_ms": 17
+    },
+    {
+      "index": 2,
+      "outcome": "completed",
+      "results": [],
+      "rows_affected": "1",
+      "warnings": [],
+      "duration_ms": 13
+    },
+    {
+      "index": 3,
+      "outcome": "outcome_unknown",
+      "results": [],
+      "warnings": [],
+      "duration_ms": 0,
+      "error_code": "database_error"
+    },
+    {
+      "index": 4,
+      "outcome": "not_executed",
+      "results": [],
+      "warnings": [],
+      "duration_ms": 0
+    }
+  ],
+  "errors": [],
+  "errors_truncated": false,
+  "warnings": [
+    "Anweisungsabschluss bestätigt keine universelle Transaktion. Abbruch, Trigger und externe Effekte können Teiländerungen hinterlassen. Kein automatischer Retry."
+  ],
+  "reason": "partial_or_unknown"
+}
