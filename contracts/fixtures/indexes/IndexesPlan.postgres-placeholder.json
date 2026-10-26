@@ -1,0 +1,22 @@
+{
+  "driver": "postgres",
+  "statements": [
+    "CREATE INDEX \"fixture_idx\" ON \"public\".\"fixture\" (\"id\")"
+  ],
+  "warnings": [
+    "Handgeschriebener Vertragsplatzhalter; kein Engine-Nachweis."
+  ],
+  "affected_objects": [
+    "public.fixture"
+  ],
+  "plan_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "table": {
+    "schema": "public",
+    "name": "fixture"
+  },
+  "destructive": false,
+  "target_name": "fixture",
+  "dependencies": [],
+  "ddl_transactional": true,
+  "contains_null": false
+}
