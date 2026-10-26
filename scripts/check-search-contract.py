@@ -69,7 +69,7 @@ def main():
     plan = spec['components']['schemas']['ReplaceRequest']
     execute = spec['components']['schemas']['ReplaceExecuteRequest']
     assert set(execute['required']) == set(plan['required']) | {'confirm', 'expected_plan_sha256'}
-    print('Pinned v1-v12; v13 ' + ('present and additive' if predecessor.exists() else 'absent (optional; lead reconciliation pending)'))
+    print('Pinned v1-v13 strictly; v14 additive on v13')
     print('Additive v14 routes, strict schemas, references and search fixtures passed.')
     print('SHA256 ' + hashlib.sha256((ROOT / 'contracts/api-v0.14.0.json').read_bytes()).hexdigest())
 

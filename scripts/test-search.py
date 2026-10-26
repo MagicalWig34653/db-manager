@@ -14,6 +14,7 @@ from dbfix import Fixtures, ROOT
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--sqlite-only', action='store_true')
+    parser.add_argument('--keep', type=Path)
     args = parser.parse_args()
     spec = importlib.util.spec_from_file_location('check_search', ROOT / 'scripts/check-search-contract.py')
     check = importlib.util.module_from_spec(spec)
@@ -23,6 +24,9 @@ def main():
         subprocess.run(['docker', 'ps', '--format', '{{.Names}} {{.Status}}'], check=True)
     # Run one owned network fixture at a time to keep the shared host bounded.
     with tempfile.TemporaryDirectory(prefix='dbmanager-w-p14-results-') as scratch:
+        if args.keep:
+            scratch = str(args.keep.resolve())
+            Path(scratch).mkdir(parents=True, exist_ok=True)
         for system in systems or (None,):
             with Fixtures('w-p14', systems=(system,) if system else ()) as fx:
                 env = fx.environment()
