@@ -112,7 +112,7 @@ class ArtifactTests(unittest.TestCase):
         lock = build_web.load_lock()
         self.assertEqual(lock["schema_version"], 2)
         self.assertEqual([(c["family"], c["version"]) for c in lock["contracts"]][:5], list(build_web.LEGACY_CONTRACTS))
-        self.assertEqual([(c["family"], c["version"]) for c in lock["contracts"]][5:], [("create", "0.6.0"), ("overview", "0.7.0")])
+        self.assertEqual([(c["family"], c["version"]) for c in lock["contracts"]][5:], [("create", "0.6.0"), ("overview", "0.7.0"), ("object-ops", "0.8.0"), ("columns", "0.9.0"), ("export", "0.11.0")])
 
     def test_missing_or_empty_contract_list_is_rejected(self):
         for mutate in [lambda l: l.pop("contracts"), lambda l: l.update(contracts=[]), lambda l: l.update(contracts={})]:
@@ -157,13 +157,13 @@ class ArtifactTests(unittest.TestCase):
 
     def test_additional_contracts_must_match_root_bytes_and_reach_the_provenance(self):
         wrong = lambda l: l["contracts"][-1].update(sha256="0" * 64)
-        with self.assertRaisesRegex(ValueError, "overview contract does not match"):
+        with self.assertRaisesRegex(ValueError, "export contract does not match"):
             self.load_with(wrong)
         lock = build_web.load_lock()
         source = build_web.manifest_source(lock)
         self.assertEqual(source["schema_version"], 2)
-        self.assertEqual([c["version"] for c in source["additional_contracts"]], ["0.6.0", "0.7.0"])
-        self.assertEqual(len(lock["contracts"]), 7)
+        self.assertEqual([c["version"] for c in source["additional_contracts"]], ["0.6.0", "0.7.0", "0.8.0", "0.9.0", "0.11.0"])
+        self.assertEqual(len(lock["contracts"]), 10)
 
     def test_web_contract_paths_follow_the_vendored_layout(self):
         self.assertEqual(build_web.web_contract_path("0.1.0"), "src/lib/contract/api-v0.1.0.json")

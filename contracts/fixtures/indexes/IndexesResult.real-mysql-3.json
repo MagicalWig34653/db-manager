@@ -1,0 +1,8 @@
+{
+  "outcome": "rejected",
+  "reason": "invalid_value",
+  "message": "Vorhandene Duplikate oder NULL-Werte verhindern den Schlüssel.",
+  "statements_executed": 0,
+  "atomic": false,
+  "observation": "unavailable"
+}

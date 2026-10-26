@@ -1,0 +1,8 @@
+{
+  "outcome": "rejected",
+  "reason": "raw driver SQL error",
+  "message": "Platzhalter",
+  "statements_executed": 0,
+  "atomic": false,
+  "observation": "unavailable"
+}

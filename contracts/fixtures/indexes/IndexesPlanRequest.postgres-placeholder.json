@@ -1,0 +1,23 @@
+{
+  "connection": {
+    "driver": "postgres",
+    "database": "probe",
+    "host": "localhost",
+    "username": "fixture",
+    "tls_mode": "verify-full"
+  },
+  "table": {
+    "name": "fixture"
+  },
+  "action": "index_create",
+  "index": {
+    "name": "fixture_idx",
+    "kind": "index",
+    "terms": [
+      {
+        "column": "id",
+        "direction": "desc"
+      }
+    ]
+  }
+}

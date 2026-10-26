@@ -1,0 +1,196 @@
+{
+  "contract_version": "0.13.0",
+  "drivers": {
+    "mysql": {
+      "direction": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "expression": {
+        "support": "unsupported",
+        "reason": "Für diesen Treiber nicht unterstützt; SQLite ohne Tabellenneuaufbau nur CREATE/DROP INDEX."
+      },
+      "foreign_key_alter": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "foreign_key_create": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "foreign_key_drop": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "fulltext": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "index_alter": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "index_create": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "index_drop": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "index_rename": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "partial": {
+        "support": "unsupported",
+        "reason": "Für diesen Treiber nicht unterstützt; SQLite ohne Tabellenneuaufbau nur CREATE/DROP INDEX."
+      },
+      "prefix": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "primary_drop": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "primary_set": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "spatial": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      }
+    },
+    "postgres": {
+      "direction": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "expression": {
+        "support": "limited",
+        "reason": "Nur pg_catalog.lower/upper für Textspalten; kein freies SQL."
+      },
+      "foreign_key_alter": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "foreign_key_create": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "foreign_key_drop": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "fulltext": {
+        "support": "unsupported",
+        "reason": "Für diesen Treiber nicht unterstützt; SQLite ohne Tabellenneuaufbau nur CREATE/DROP INDEX."
+      },
+      "index_alter": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "index_create": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "index_drop": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "index_rename": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "partial": {
+        "support": "limited",
+        "reason": "Nur strukturierte IS NULL/IS NOT NULL-Bedingungen."
+      },
+      "prefix": {
+        "support": "unsupported",
+        "reason": "Für diesen Treiber nicht unterstützt; SQLite ohne Tabellenneuaufbau nur CREATE/DROP INDEX."
+      },
+      "primary_drop": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "primary_set": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "spatial": {
+        "support": "unsupported",
+        "reason": "Für diesen Treiber nicht unterstützt; SQLite ohne Tabellenneuaufbau nur CREATE/DROP INDEX."
+      }
+    },
+    "sqlite": {
+      "direction": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "expression": {
+        "support": "unsupported",
+        "reason": "Für diesen Treiber nicht unterstützt; SQLite ohne Tabellenneuaufbau nur CREATE/DROP INDEX."
+      },
+      "foreign_key_alter": {
+        "support": "unsupported",
+        "reason": "Für diesen Treiber nicht unterstützt; SQLite ohne Tabellenneuaufbau nur CREATE/DROP INDEX."
+      },
+      "foreign_key_create": {
+        "support": "unsupported",
+        "reason": "Für diesen Treiber nicht unterstützt; SQLite ohne Tabellenneuaufbau nur CREATE/DROP INDEX."
+      },
+      "foreign_key_drop": {
+        "support": "unsupported",
+        "reason": "Für diesen Treiber nicht unterstützt; SQLite ohne Tabellenneuaufbau nur CREATE/DROP INDEX."
+      },
+      "fulltext": {
+        "support": "unsupported",
+        "reason": "Für diesen Treiber nicht unterstützt; SQLite ohne Tabellenneuaufbau nur CREATE/DROP INDEX."
+      },
+      "index_alter": {
+        "support": "unsupported",
+        "reason": "Für diesen Treiber nicht unterstützt; SQLite ohne Tabellenneuaufbau nur CREATE/DROP INDEX."
+      },
+      "index_create": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "index_drop": {
+        "support": "limited",
+        "reason": "DB-Rechte gelten; Sperren und lange Laufzeiten möglich. Kein CASCADE, kein automatischer Retry."
+      },
+      "index_rename": {
+        "support": "unsupported",
+        "reason": "Für diesen Treiber nicht unterstützt; SQLite ohne Tabellenneuaufbau nur CREATE/DROP INDEX."
+      },
+      "partial": {
+        "support": "unsupported",
+        "reason": "Für diesen Treiber nicht unterstützt; SQLite ohne Tabellenneuaufbau nur CREATE/DROP INDEX."
+      },
+      "prefix": {
+        "support": "unsupported",
+        "reason": "Für diesen Treiber nicht unterstützt; SQLite ohne Tabellenneuaufbau nur CREATE/DROP INDEX."
+      },
+      "primary_drop": {
+        "support": "unsupported",
+        "reason": "Für diesen Treiber nicht unterstützt; SQLite ohne Tabellenneuaufbau nur CREATE/DROP INDEX."
+      },
+      "primary_set": {
+        "support": "unsupported",
+        "reason": "Für diesen Treiber nicht unterstützt; SQLite ohne Tabellenneuaufbau nur CREATE/DROP INDEX."
+      },
+      "spatial": {
+        "support": "unsupported",
+        "reason": "Für diesen Treiber nicht unterstützt; SQLite ohne Tabellenneuaufbau nur CREATE/DROP INDEX."
+      }
+    }
+  },
+  "features": [
+    "indexes_alter"
+  ],
+  "max_request_bytes": 1048576,
+  "max_timeout_ms": 60000
+}

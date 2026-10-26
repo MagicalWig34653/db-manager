@@ -1,0 +1,25 @@
+{
+  "driver": "mysql",
+  "statements": [
+    "ALTER TABLE `probe`.`keys \"`` ;DROP TABLE neighbor` ADD INDEX `idx \"`` test` (`value` DESC)"
+  ],
+  "warnings": [
+    "Schlüsseländerungen können die Tabelle sperren und lange dauern; vollständige Scans und Indexaufbau benötigen Zeit und Speicher.",
+    "Entfernen oder Ersetzen verliert Indexstrukturen und Integritätsregeln, keine Tabellenzeilen; neue Eindeutigkeit kann an vorhandenen Daten scheitern.",
+    "Kein CASCADE. Trigger, externe Verweise und gleichnamig ersetzte Objekte sind nicht vollständig erfasst; Plan-Hash ist kein Replay- oder ABA-Schutz. Nach Abschluss oder unbekanntem Ausgang neu planen und bestätigen."
+  ],
+  "affected_objects": [
+    "probe.keys \"` ;DROP TABLE neighbor",
+    "idx \"` test"
+  ],
+  "plan_sha256": "d9db8cec6e2c757d698d2e274f16400bfb7255b6274338468235012d8772793b",
+  "table": {
+    "schema": "probe",
+    "name": "keys \"` ;DROP TABLE neighbor"
+  },
+  "destructive": false,
+  "target_name": "keys \"` ;DROP TABLE neighbor",
+  "dependencies": [],
+  "ddl_transactional": false,
+  "contains_null": false
+}

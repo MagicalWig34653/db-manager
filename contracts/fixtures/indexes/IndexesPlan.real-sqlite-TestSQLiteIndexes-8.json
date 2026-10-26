@@ -1,0 +1,27 @@
+{
+  "driver": "sqlite",
+  "statements": [
+    "CREATE UNIQUE INDEX \"main\".\"unique_id\" ON \"keys \"\"` ;DROP TABLE neighbor\" (\"id\")"
+  ],
+  "warnings": [
+    "Schlüsseländerungen können die Tabelle sperren und lange dauern; vollständige Scans und Indexaufbau benötigen Zeit und Speicher.",
+    "Entfernen oder Ersetzen verliert Indexstrukturen und Integritätsregeln, keine Tabellenzeilen; neue Eindeutigkeit kann an vorhandenen Daten scheitern.",
+    "Kein CASCADE. Trigger, externe Verweise und gleichnamig ersetzte Objekte sind nicht vollständig erfasst; Plan-Hash ist kein Replay- oder ABA-Schutz. Nach Abschluss oder unbekanntem Ausgang neu planen und bestätigen.",
+    "Vorprüfung: 0 Gruppen mit doppelten Schlüsselwerten; NULL-Werte bei UNIQUE ausgenommen. Konkurrenz bleibt möglich."
+  ],
+  "affected_objects": [
+    "main.keys \"` ;DROP TABLE neighbor",
+    "unique_id"
+  ],
+  "plan_sha256": "6789e03ff2686bf96a6778184433faca201190408796c1cf199cf6eb0abdcff5",
+  "table": {
+    "schema": "main",
+    "name": "keys \"` ;DROP TABLE neighbor"
+  },
+  "destructive": false,
+  "target_name": "keys \"` ;DROP TABLE neighbor",
+  "dependencies": [],
+  "ddl_transactional": true,
+  "duplicate_groups": 0,
+  "contains_null": false
+}

@@ -1,0 +1,25 @@
+{
+  "connection": {
+    "driver": "mysql",
+    "database": "placeholder_db",
+    "username": "placeholder_user",
+    "password": "placeholder_not_a_secret",
+    "host": "localhost",
+    "tls_mode": "verify-full"
+  },
+  "action": "create",
+  "object": {
+    "kind": "event",
+    "name": "placeholder_event"
+  },
+  "input": {
+    "body": "BEGIN SELECT 1; END",
+    "schedule": {
+      "every": 1,
+      "unit": "day",
+      "starts": "2030-01-01 00:00:00",
+      "preserve": true
+    },
+    "status": "disabled"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "outcome": "completed",
+  "reason": "completed",
+  "message": "Schlüsseländerung ausgeführt; Strukturbeobachtung ist separat ausgewiesen.",
+  "statements_executed": 1,
+  "atomic": false,
+  "observation": "observed",
+  "description": {
+    "table": {
+      "schema": "probe",
+      "name": "keys \"` ;DROP TABLE neighbor"
+    },
+    "kind": "table",
+    "columns": [
+      {
+        "name": "id",
+        "database_type": "bigint(20)",
+        "nullable": false,
+        "pk_position": 0,
+        "generated": "none",
+        "read_only": true
+      },
+      {
+        "name": "value",
+        "database_type": "varchar(40)",
+        "nullable": true,
+        "default_value": "NULL",
+        "pk_position": 0,
+        "generated": "none",
+        "read_only": true
+      },
+      {
+        "name": "other",
+        "database_type": "bigint(20)",
+        "nullable": true,
+        "default_value": "NULL",
+        "pk_position": 0,
+        "generated": "none",
+        "read_only": true
+      }
+    ],
+    "primary_key": [],
+    "read_only": true,
+    "stable_order": false,
+    "storage_engine": "InnoDB",
+    "transactional": "yes"
+  }
+}

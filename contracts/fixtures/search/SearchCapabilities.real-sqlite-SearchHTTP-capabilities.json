@@ -1,0 +1,56 @@
+{
+  "contract_version": "0.14.0",
+  "default_timeout_ms": 10000,
+  "drivers": {
+    "mysql": {
+      "search_modes": [
+        "substring",
+        "all_words",
+        "exact",
+        "regex"
+      ],
+      "replace_modes": [
+        "substring",
+        "exact",
+        "regex"
+      ],
+      "reason": "MariaDB über mysql; native REGEXP/REGEXP_REPLACE-Semantik; Ersetzen nur InnoDB mit stabilem Primärschlüssel und vollständig begrenztem Tabellenbestand."
+    },
+    "postgres": {
+      "search_modes": [
+        "substring",
+        "all_words",
+        "exact",
+        "regex"
+      ],
+      "replace_modes": [
+        "substring",
+        "exact",
+        "regex"
+      ],
+      "reason": "Native POSIX-Regex; Ersetzen nur Basistabellen ohne Vererbung, Partitionen oder Rewrite-Regeln mit stabilem Primärschlüssel."
+    },
+    "sqlite": {
+      "search_modes": [
+        "substring",
+        "all_words",
+        "exact"
+      ],
+      "replace_modes": [
+        "substring",
+        "exact"
+      ],
+      "reason": "Nur Textspalten; keine Regex-Erweiterung geladen; Ersetzen nur mit stabilem Primärschlüssel und vollständig begrenztem Tabellenbestand."
+    }
+  },
+  "features": [
+    "search",
+    "browse",
+    "replace"
+  ],
+  "max_preview_rows": 20,
+  "max_rows": 1000,
+  "max_tables": 20,
+  "max_timeout_ms": 60000,
+  "max_value_bytes": 4096
+}

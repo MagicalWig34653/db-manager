@@ -1,0 +1,37 @@
+{
+  "driver": "mysql",
+  "statements": [
+    "DROP VIEW `probe`.`p19 odd``view\".;DROP TABLE p19_neighbor--`"
+  ],
+  "warnings": [
+    "Keine automatische Wiederholung. Ein bestätigter Plan ist keine einmalige Freigabe; nach Abschluss oder unbekanntem Ausgang ist eine neue Vorschau erforderlich.",
+    "Zwischen Katalogprüfung und Ausführung können andere Sitzungen Objekte ändern. Abhängigkeiten sind auf sichtbare Katalogobjekte begrenzt; dynamisches SQL, String-Körper und externe Verweise sind nicht vollständig erkennbar.",
+    "DDL bestätigt implizit. Ersetzen kann aus DROP und CREATE bestehen; bei Teilfehlern ist das Ziel möglicherweise entfernt. Definer und Rechte nach dem Ersetzen prüfen."
+  ],
+  "affected_objects": [
+    "view:probe.p19 odd`view\".;DROP TABLE p19_neighbor--",
+    "outgoing:table:probe.p19_source"
+  ],
+  "plan_sha256": "8b48a4642d1cdc32e1b5e60c169258b0382b820b1222609952fa1586405a8f21",
+  "action": "drop",
+  "object": {
+    "kind": "view",
+    "schema": "probe",
+    "name": "p19 odd`view\".;DROP TABLE p19_neighbor--"
+  },
+  "user_sql": false,
+  "destructive": true,
+  "transactional": false,
+  "dependencies": [
+    {
+      "object": {
+        "kind": "table",
+        "schema": "probe",
+        "name": "p19_source"
+      },
+      "direction": "outgoing",
+      "certainty": "textual"
+    }
+  ],
+  "dependencies_truncated": false
+}
