@@ -1,0 +1,133 @@
+{
+  "contract_version": "0.16.0",
+  "default_timeout_ms": 30000,
+  "drivers": {
+    "mysql": {
+      "event": {
+        "support": "limited",
+        "reason": "Nutzer-SQL nur mit Plan und Bestätigung; tatsächliche Datenbankrechte gelten. Abhängigkeiten können unvollständig sein."
+      },
+      "event_errors": {
+        "support": "unsupported",
+        "reason": "Nicht Bestandteil dieses Pakets; keine Ausführung, Scheduleränderung, Tabellen-Neuaufbau oder portabel verfügbare Eventfehlerliste."
+      },
+      "function": {
+        "support": "limited",
+        "reason": "Nutzer-SQL nur mit Plan und Bestätigung; tatsächliche Datenbankrechte gelten. Abhängigkeiten können unvollständig sein."
+      },
+      "procedure": {
+        "support": "limited",
+        "reason": "Nutzer-SQL nur mit Plan und Bestätigung; tatsächliche Datenbankrechte gelten. Abhängigkeiten können unvollständig sein."
+      },
+      "routine_execute": {
+        "support": "unsupported",
+        "reason": "Nicht Bestandteil dieses Pakets; keine Ausführung, Scheduleränderung, Tabellen-Neuaufbau oder portabel verfügbare Eventfehlerliste."
+      },
+      "scheduler_write": {
+        "support": "unsupported",
+        "reason": "Nicht Bestandteil dieses Pakets; keine Ausführung, Scheduleränderung, Tabellen-Neuaufbau oder portabel verfügbare Eventfehlerliste."
+      },
+      "sqlite_rebuild": {
+        "support": "unsupported",
+        "reason": "Nicht Bestandteil dieses Pakets; keine Ausführung, Scheduleränderung, Tabellen-Neuaufbau oder portabel verfügbare Eventfehlerliste."
+      },
+      "trigger": {
+        "support": "limited",
+        "reason": "Nutzer-SQL nur mit Plan und Bestätigung; tatsächliche Datenbankrechte gelten. Abhängigkeiten können unvollständig sein."
+      },
+      "view": {
+        "support": "limited",
+        "reason": "Nutzer-SQL nur mit Plan und Bestätigung; tatsächliche Datenbankrechte gelten. Abhängigkeiten können unvollständig sein."
+      }
+    },
+    "postgres": {
+      "event": {
+        "support": "unsupported",
+        "reason": "Dieser Treiber unterstützt diese Objektart nicht."
+      },
+      "event_errors": {
+        "support": "unsupported",
+        "reason": "Nicht Bestandteil dieses Pakets; keine Ausführung, Scheduleränderung, Tabellen-Neuaufbau oder portabel verfügbare Eventfehlerliste."
+      },
+      "function": {
+        "support": "limited",
+        "reason": "Nutzer-SQL nur mit Plan und Bestätigung; tatsächliche Datenbankrechte gelten. Abhängigkeiten können unvollständig sein."
+      },
+      "procedure": {
+        "support": "limited",
+        "reason": "Nutzer-SQL nur mit Plan und Bestätigung; tatsächliche Datenbankrechte gelten. Abhängigkeiten können unvollständig sein."
+      },
+      "routine_execute": {
+        "support": "unsupported",
+        "reason": "Nicht Bestandteil dieses Pakets; keine Ausführung, Scheduleränderung, Tabellen-Neuaufbau oder portabel verfügbare Eventfehlerliste."
+      },
+      "scheduler_write": {
+        "support": "unsupported",
+        "reason": "Nicht Bestandteil dieses Pakets; keine Ausführung, Scheduleränderung, Tabellen-Neuaufbau oder portabel verfügbare Eventfehlerliste."
+      },
+      "sqlite_rebuild": {
+        "support": "unsupported",
+        "reason": "Nicht Bestandteil dieses Pakets; keine Ausführung, Scheduleränderung, Tabellen-Neuaufbau oder portabel verfügbare Eventfehlerliste."
+      },
+      "trigger": {
+        "support": "limited",
+        "reason": "Nutzer-SQL nur mit Plan und Bestätigung; tatsächliche Datenbankrechte gelten. Abhängigkeiten können unvollständig sein."
+      },
+      "view": {
+        "support": "limited",
+        "reason": "Nutzer-SQL nur mit Plan und Bestätigung; tatsächliche Datenbankrechte gelten. Abhängigkeiten können unvollständig sein."
+      }
+    },
+    "sqlite": {
+      "event": {
+        "support": "unsupported",
+        "reason": "Dieser Treiber unterstützt diese Objektart nicht."
+      },
+      "event_errors": {
+        "support": "unsupported",
+        "reason": "Nicht Bestandteil dieses Pakets; keine Ausführung, Scheduleränderung, Tabellen-Neuaufbau oder portabel verfügbare Eventfehlerliste."
+      },
+      "function": {
+        "support": "unsupported",
+        "reason": "Dieser Treiber unterstützt diese Objektart nicht."
+      },
+      "procedure": {
+        "support": "unsupported",
+        "reason": "Dieser Treiber unterstützt diese Objektart nicht."
+      },
+      "routine_execute": {
+        "support": "unsupported",
+        "reason": "Nicht Bestandteil dieses Pakets; keine Ausführung, Scheduleränderung, Tabellen-Neuaufbau oder portabel verfügbare Eventfehlerliste."
+      },
+      "scheduler_write": {
+        "support": "unsupported",
+        "reason": "Nicht Bestandteil dieses Pakets; keine Ausführung, Scheduleränderung, Tabellen-Neuaufbau oder portabel verfügbare Eventfehlerliste."
+      },
+      "sqlite_rebuild": {
+        "support": "unsupported",
+        "reason": "Nicht Bestandteil dieses Pakets; keine Ausführung, Scheduleränderung, Tabellen-Neuaufbau oder portabel verfügbare Eventfehlerliste."
+      },
+      "trigger": {
+        "support": "limited",
+        "reason": "Nutzer-SQL nur mit Plan und Bestätigung; tatsächliche Datenbankrechte gelten. Abhängigkeiten können unvollständig sein."
+      },
+      "view": {
+        "support": "limited",
+        "reason": "Nutzer-SQL nur mit Plan und Bestätigung; tatsächliche Datenbankrechte gelten. Abhängigkeiten können unvollständig sein."
+      }
+    }
+  },
+  "features": [
+    "list",
+    "describe",
+    "dependencies",
+    "plan",
+    "execute"
+  ],
+  "max_body_bytes": 262144,
+  "max_objects": 200,
+  "max_request_bytes": 1048576,
+  "max_timeout_ms": 60000,
+  "routine_execution": false,
+  "scheduler_write": false
+}

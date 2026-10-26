@@ -2,11 +2,10 @@
 
 # Handoff W-P17 Backend: lesende Serververwaltung
 
-Stand: 26.10.2026. Branch `feat/w-p17-backend`, HEAD `d55b567` mit integriertem
-main `c331c64`; WIP `b5eeed6` wird durch die folgenden uncommitteten Änderungen
-auf die ausdrücklich beauftragte lesende Stufe begrenzt. Keine Git-Schreibbefehle;
-Commit, unabhängiger Review und Integration durch den Lead. API-Nummer endgültig
-**0.15**, Vertragsfreeze noch offen. Keine Veröffentlichung oder Vollparität.
+Stand: 26.10.2026. Branch `feat/w-p17-backend`, main `3a7e1f1` (Wave 3, API 0.13-0.16) integriert; WIP `b5eeed6` wird durch die folgenden uncommitteten Änderungen
+auf die ausdrücklich beauftragte lesende Stufe begrenzt. Commit und Push durch Claude-Lauf;
+unabhängiger Review und Integration durch den Lead. API-Nummer endgültig
+**0.17**, Vertragsfreeze durch Lead. Keine Veröffentlichung oder Vollparität.
 
 ## Ergebnis, Dateibesitz und Abnahme
 
@@ -19,28 +18,28 @@ Commit, unabhängiger Review und Integration durch den Lead. API-Nummer endgült
   pg_settings (SESSION) und pg_stat_activity; SQLite nur Version ohne Pfade.
   Scanbudget zusätzlich auf insgesamt 8 MiB begrenzt, Zahlenformate validiert.
 - `internal/httpapi/serveradmin.go`: genau vier authentifizierte Routen unter
-  `/api/v15/`: capabilities, status, variables, processes. Schreib-Routen und
-  v17-Registrierung entfernt. Featureanzahl bleibt 13; Registrierungsdateien unverändert.
+  `/api/v17/`: capabilities, status, variables, processes. Schreib-Routen und
+  v17-Registrierung entfernt. Feature-Liste nach Merge mit main: 17 (registerServerAdmin zuletzt).
 - `internal/database/serveradmin_test.go`, `serveradmin_live_test.go`,
   `internal/httpapi/serveradmin_test.go`: SQLite, Grenzen/Timeout beim Warten auf
   Engine-Slot, Maskierung, Zahlvalidierung, deterministische Metadatenabfragen,
   Filter/Paging/Sortierung, Zeilen-/Zell-/Gesamtbytegrenzen, sichere Fehler,
   Authentifizierung, no-store und nicht vorhandene Schreib-/v17-Routen.
-- [API0.15-Vertrag](../../contracts/api-v0.15.0.json) additiv über v12;
+- [API0.17-Vertrag](../../contracts/api-v0.17.0.json) additiv über v16 (Basis v16; frühere v0.15-Nummer kollidierte mit Accounts);
   `contracts/api-v0.17.0.json` und Schreib-Fixtures entfernt.
   [Verhalten](../../contracts/SERVER-ADMIN-API.md),
   [Fixtures und Herkunft](../../contracts/fixtures/server-admin/README.md),
   [ADR](../decisions/ADR-W-P17-lesende-serververwaltung.md).
-- `scripts/check-server-admin-contract.py`: pinnt v1..v12, prüft Additivität gegen
-  v12, lokale Referenzen, strikte neue Schemata, ausschließlich Lesefähigkeiten und
+- `scripts/check-server-admin-contract.py`: pinnt v1..v16 (verkettet Programs-Wächter), prüft Additivität gegen
+  v16, lokale Referenzen, strikte neue Schemata, ausschließlich Lesefähigkeiten und
   Fixtures. v13/v14/v16+ sind optionale Nachbarpakete, keine Dateivoraussetzungen.
 - `scripts/test-server-admin.py`: `scripts/dbfix.py`, drei eigene kurzlebige
-  Netzwerkfixtures nacheinander, echte Antwortdumps werden gegen v15 validiert.
-  `.github/workflows/server-admin.yml`: Version/Titel auf lesende API0.15 angepasst.
+  Netzwerkfixtures nacheinander, echte Antwortdumps werden gegen v17 validiert.
+  `.github/workflows/server-admin.yml`: Version/Titel auf lesende API0.17 angepasst.
 - Keine Abhängigkeiten oder Lizenzinventare geändert, eigener Code AGPL-3.0-only.
   Zentrale Status-/Plan-/Vertragsindexdateien, Web-Lock und Assets unverändert.
 
-Abnahmekriterien dieses Pakets: lesende API0.15 ohne SET/KILL-Implementierung,
+Abnahmekriterien dieses Pakets: lesende API0.17 ohne SET/KILL-Implementierung,
 Maskierung und sichere Fehler, begrenzte Listen/Abfragen, echte lokale SQLiteprobe,
 Livetests für die Netzwerkengines geschrieben, erreichbare Prüfungen ausgeführt und
 übrige Gates ausdrücklich offen. Vollständige Netzwerkabnahme ist hier nicht belegt.
@@ -60,44 +59,25 @@ Matrixerfüllung. Kein Web-, Monitor-, Advisor- oder Replikationsumfang.
 
 ## Tatsächliche Prüfungen
 
-Lokales macOS arm64, ohne Netzwerkdownloads:
-`GOCACHE=/private/tmp/dbmanager-w-p17-gocache GOPROXY=off GOSUMDB=off` vor allen
-Go-Befehlen bzw. dem Live-Skript. Standardmodulcache nur gelesen. Die erste
-Zwischenprüfung offenbarte einen Schema-Namensfehler und eine falsche Wächterbasis;
-beide vor den erfolgreichen Wächterläufen korrigiert.
+macOS arm64, Docker; Fixtures nur eigene Wegwerf-Container über `scripts/dbfix.py`
+(MySQL 8.4, MariaDB 12.3, PostgreSQL 18.6, nacheinander, danach entfernt).
 
-| Befehl | Tatsächlicher Ausgang |
+| Befehl | Ausgang |
 | --- | --- |
-| `gofmt -l .` | Keine Ausgabe. |
-| `go vet ./...` | Bestanden. |
-| `go test -race -count=1 ./internal/database ./internal/httpapi -run 'TestSQLiteServerAdmin\|TestServerAdmin\|TestLiveServerAdmin' -v` | Lokale Zieltests bestanden; mysql/maria/postgres ausdrücklich SKIP mangels Fixturevariablen. |
-| `go test -race -count=1 ./...` | Läuft noch; Endstand wird nachgetragen. |
-| Alle zwölf `scripts/check-*-contract.py` einzeln über Python ausgeführt | Bestanden, einschließlich eingefrorener v1..v12 und additiver v15. |
-| Python-`ast.parse` für beide W-P17-Skripte | Bestanden. |
-| `python3 -B scripts/test-server-admin.py` | Noch ausstehend. |
-| `python3 -B scripts/check-docs.py` | Abschließender Lauf ausstehend. |
-| `git diff --check` | Bestanden; nur lesender Git-Befehl. |
+| `git merge main` (3a7e1f1) | Konflikte in features.go/features_test.go (beide Seiten behalten, Zähler 17) und api-v0.15.0.json (main-Version übernommen, eigener Vertrag nach v0.17.0 verschoben, auf v16 rebased). |
+| `gofmt -l .`, `go vet ./...` | sauber / bestanden |
+| `go test -race -count=1 ./...` | alle Pakete bestanden |
+| alle `scripts/check-*-contract.py`, `check-docs.py` | bestanden (Server-Admin-Wächter pinnt v1..v16) |
+| `python3 -B scripts/test-server-admin.py` | bestanden: TestLiveServerAdmin mysql/maria/postgres ohne SKIP; 12/12/11 echte Antworten gegen API 0.17 validiert; SQLite über Unit-Tests mit echter Datei |
 
-## Geschriebene Livefälle und offene Prüfungen
+Sicherheitsbewertung: Prozessliste liefert weder SQL-Text noch Host (nur ID, Benutzer,
+Datenbank, Sekunden, self); Variablen/Status nur für bekannte numerische Werte offen,
+alles andere maskiert; Fehler laufen durch `safe()`, Passwort-Echo-Test vorhanden.
+Schreibpfade (SET/KILL/FLUSH) sind nicht implementiert, Routen liefern 404.
 
-`TestLiveServerAdmin/{mysql,maria,postgres}` prüft Status/Messzeitpunkt,
-MySQL-Com_select-Zuwachs durch synthetische SELECT-Last (Metrik explizit gefiltert),
-Variablenfilter/Sortierung/Seiten ohne Überschneidung, sensible Werte, GLOBAL-Lesen
-bei MySQL/MariaDB und GLOBAL-Ablehnung bei PostgreSQL, sichtbare Kontrollverbindung,
-Prozesspaging/Filter, eingeschränktes Konto und falsches Passwort ohne Echo.
-CREATE/GRANT/DROP dienen ausschließlich der Einrichtung eines Wegwerfkontos im
-Fixturecontainer. Es gibt keine SET-/KILL-Aktionen oder entsprechende Tests.
+## Offene Punkte
 
-Offen: tatsächliche Livefälle auf MySQL 8.4, MariaDB 12.3, PostgreSQL 18.6 samt
-TLS-/Rechtesichtbarkeit und Schemaprüfung echter Antworten, CI-Ausführung, Linux-
-Abnahme und unabhängiger Review. Keine Compose-/Swarm-/Browser-/Webbuildprüfungen
-für dieses begrenzte Backendpaket durchgeführt. Hostweite Prozessansicht mittels
-`ps` ist in der Sandbox verweigert. Keine eigenen Container angelegt.
-
-## Fortsetzung
-
-Unintegrierte Arbeit sind ausschließlich die beschriebenen Dateien im zugewiesenen
-Worktree. Kein Index/Ref/Commit verändert. Laufender Job: vollständige Go-Racesuite;
-Endstand wird vor Abschluss erfasst. Nächster Schritt: Lead prüft Dateidiff, erstellt
-den Commit und veranlasst unabhängigen Review sowie `scripts/test-server-admin.py`
-auf einem Host mit Dockerzugriff; anschließend Integrationsentscheidung.
+- Unabhängiger Review und Vertragsfreeze durch den Lead; Zentraldateien (STATUS/Plan) unverändert.
+- Keine Web-Oberfläche (W-P17 Web), kein Monitor/Advisor/Replikation, keine Engines-/Zeichensatzlisten
+  als eigene Routen (nur Status, Variablen, Prozesse).
+- `information_schema.PROCESSLIST` ist in MySQL 8.4 als veraltet markiert, funktioniert aber.

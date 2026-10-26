@@ -7,7 +7,7 @@ import (
 	"github.com/MagicalWig34653/db-manager/internal/dbplan"
 )
 
-const ServerAdminContractVersion = "0.15.0"
+const ServerAdminContractVersion = "0.17.0"
 const ServerAdminMaxLimit = 200
 const ServerAdminMaxTimeoutMS = 10000
 

@@ -1,0 +1,98 @@
+{
+  "description": {
+    "table": {
+      "schema": "probe",
+      "name": "p14 odd'`\" --"
+    },
+    "kind": "table",
+    "columns": [
+      {
+        "name": "id",
+        "database_type": "int(11)",
+        "nullable": false,
+        "pk_position": 1,
+        "generated": "none",
+        "read_only": true
+      },
+      {
+        "name": "value'`\"",
+        "database_type": "text",
+        "nullable": true,
+        "default_value": "NULL",
+        "pk_position": 0,
+        "generated": "none",
+        "read_only": true
+      },
+      {
+        "name": "other",
+        "database_type": "text",
+        "nullable": true,
+        "default_value": "NULL",
+        "pk_position": 0,
+        "generated": "none",
+        "read_only": true
+      },
+      {
+        "name": "raw",
+        "database_type": "blob",
+        "nullable": true,
+        "default_value": "NULL",
+        "pk_position": 0,
+        "generated": "none",
+        "read_only": true
+      }
+    ],
+    "primary_key": [
+      "id"
+    ],
+    "read_only": true,
+    "stable_order": true,
+    "storage_engine": "InnoDB",
+    "transactional": "yes"
+  },
+  "result": {
+    "columns": [
+      {
+        "name": "id",
+        "database_type": "INT"
+      },
+      {
+        "name": "value'`\"",
+        "database_type": "TEXT"
+      },
+      {
+        "name": "other",
+        "database_type": "TEXT"
+      },
+      {
+        "name": "raw",
+        "database_type": "BLOB"
+      }
+    ],
+    "rows": [
+      [
+        {
+          "kind": "integer",
+          "value": "2"
+        },
+        {
+          "kind": "text",
+          "value": "lynx lynx"
+        },
+        {
+          "kind": "text",
+          "value": "blue"
+        },
+        {
+          "kind": "null"
+        }
+      ]
+    ],
+    "truncated": false
+  },
+  "offset": 0,
+  "page_size": 1,
+  "has_more": true,
+  "stable_order": true,
+  "duration_ms": 0
+}

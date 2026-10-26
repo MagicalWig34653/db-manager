@@ -1,0 +1,25 @@
+{
+  "driver": "postgres",
+  "statements": [
+    "DROP INDEX \"public\".\"idx \"\"` test\""
+  ],
+  "warnings": [
+    "Schlüsseländerungen können die Tabelle sperren und lange dauern; vollständige Scans und Indexaufbau benötigen Zeit und Speicher.",
+    "Entfernen oder Ersetzen verliert Indexstrukturen und Integritätsregeln, keine Tabellenzeilen; neue Eindeutigkeit kann an vorhandenen Daten scheitern.",
+    "Kein CASCADE. Trigger, externe Verweise und gleichnamig ersetzte Objekte sind nicht vollständig erfasst; Plan-Hash ist kein Replay- oder ABA-Schutz. Nach Abschluss oder unbekanntem Ausgang neu planen und bestätigen."
+  ],
+  "affected_objects": [
+    "public.keys \"` ;DROP TABLE neighbor",
+    "idx \"` test"
+  ],
+  "plan_sha256": "f63558694621d9da35e0c67fd0926b60acb7bb7e488f18fb14e41351508396dd",
+  "table": {
+    "schema": "public",
+    "name": "keys \"` ;DROP TABLE neighbor"
+  },
+  "destructive": true,
+  "target_name": "keys \"` ;DROP TABLE neighbor",
+  "dependencies": [],
+  "ddl_transactional": true,
+  "contains_null": false
+}

@@ -1,0 +1,35 @@
+{
+  "driver": "sqlite",
+  "table": {
+    "schema": "main",
+    "name": "sample"
+  },
+  "column": "value",
+  "affected_rows": 1,
+  "examples": [
+    {
+      "key": [
+        {
+          "kind": "integer",
+          "value": "1"
+        }
+      ],
+      "before": {
+        "kind": "text",
+        "value": "fox"
+      },
+      "after": {
+        "kind": "text",
+        "value": "cat"
+      }
+    }
+  ],
+  "statements": [
+    "UPDATE OR ABORT \"main\".\"sample\" SET \"value\" = ? WHERE \"id\" COLLATE BINARY = ?"
+  ],
+  "warnings": [
+    "Vollständiger begrenzter Tabellenbestand und berechnete Werte werden geprüft. Kollation und native Ersetzungsfunktion bestimmen die Semantik.",
+    "Trigger und Kaskaden können zusätzliche oder externe Wirkungen haben. Kein automatischer Retry; ABA bleibt unerkennbar."
+  ],
+  "plan_sha256": "3943771f818c896b6fc83beb3d4d0b74d7570098c6b0845c138d78e06fa73c1b"
+}

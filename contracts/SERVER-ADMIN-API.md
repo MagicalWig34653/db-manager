@@ -1,16 +1,16 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-only -->
 
-# Serververwaltung: lesende Stufe (API 0.15.0)
+# Serververwaltung: lesende Stufe (API 0.17.0)
 
-Additiv zu API 0.12: [Schema](api-v0.15.0.json). V1 bis v12 bleiben byteidentisch;
-benachbarte Pakete v13/v14/v16+ sind keine Voraussetzung. Nummer 0.15 ist zugewiesen,
+Additiv zu API 0.12: [Schema](api-v0.17.0.json). V1 bis v12 bleiben byteidentisch;
+benachbarte Pakete v13/v14/v16+ sind keine Voraussetzung. Nummer 0.17 ist zugewiesen,
 unabhängiger Review und Vertragsfreeze bleiben offen. Kein Web-Lock-Pin.
 Alle Routen benötigen Bearer-Authentifizierung, Antworten verwenden `no-store`.
 Unbekannte JSON-Felder werden abgewiesen; Verbindung und Passwort sind ausschließlich
 flüchtige Anfragewerte. Fehler enthalten feste deutsche Meldungen ohne SQL,
 Treibertexte, Passwörter oder Dateipfade.
 
-| Route unter `/api/v15/` | Wirkung |
+| Route unter `/api/v17/` | Wirkung |
 | --- | --- |
 | `GET capabilities` | Lesefähigkeiten je Treiber und Limits |
 | `POST status` | Statuszähler mit UTC-Messzeitpunkt |

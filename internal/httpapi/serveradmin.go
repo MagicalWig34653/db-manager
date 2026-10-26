@@ -9,7 +9,7 @@ import (
 )
 
 func (a *API) registerServerAdmin(mux *http.ServeMux) {
-	mux.Handle("GET /api/v15/capabilities", a.auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("GET /api/v17/capabilities", a.auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		features := []string{}
 		if _, ok := a.engine.(core.ServerAdminEngine); ok {
 			features = []string{"status", "variables", "processes"}
@@ -17,7 +17,7 @@ func (a *API) registerServerAdmin(mux *http.ServeMux) {
 		writeJSON(w, 200, map[string]any{"contract_version": core.ServerAdminContractVersion, "features": features, "drivers": core.ServerAdminCapabilities(), "max_limit": 200, "default_limit": 100, "max_offset": 10000, "max_timeout_ms": 10000, "default_timeout_ms": 5000, "max_request_bytes": MaxRequestBytes})
 	})))
 	for _, kind := range []string{"status", "variables", "processes"} {
-		mux.Handle("POST /api/v15/"+kind, a.auth(a.serverAdminRead(kind)))
+		mux.Handle("POST /api/v17/"+kind, a.auth(a.serverAdminRead(kind)))
 	}
 }
 func (a *API) serverAdminEngine(w http.ResponseWriter) (core.ServerAdminEngine, bool) {

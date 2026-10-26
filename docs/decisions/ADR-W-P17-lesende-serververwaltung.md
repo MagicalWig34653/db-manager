@@ -8,7 +8,7 @@ nicht als vollständig umgesetzt ausgewiesen.
 
 ## Entscheidung
 
-API 0.15 baut additiv auf v12 auf und bietet ausschließlich Status, Variablenlesen
+API 0.17 baut additiv auf v12 auf und bietet ausschließlich Status, Variablenlesen
 und Prozessliste. SET/KILL samt Vorschau, Ausführung, Bestätigungstypen und
 Identitätstoken werden aus dem WIP entfernt. Stufe 2 benötigt einen neuen Auftrag
 und eigenen Vertrag. Weder FLUSH noch Monitor-/Replikationsfunktionen gehören dazu.

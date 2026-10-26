@@ -1,0 +1,15 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "probe"
+  },
+  "table": {
+    "name": "fixture"
+  },
+  "action": "index_create",
+  "index": {
+    "name": "idx",
+    "kind": "index",
+    "terms": []
+  }
+}

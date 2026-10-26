@@ -1,0 +1,55 @@
+{
+  "driver": "mysql",
+  "objects": [
+    {
+      "object": {
+        "kind": "event",
+        "schema": "probe",
+        "name": "p19_event"
+      },
+      "definition": "CREATE DEFINER=`root`@`%` EVENT `p19_event` ON SCHEDULE EVERY 1 DAY STARTS '2030-01-01 00:00:00' ON COMPLETION PRESERVE DISABLE DO BEGIN INSERT INTO p19_audit VALUES(99); END",
+      "body": "BEGIN INSERT INTO p19_audit VALUES(99); END",
+      "parameters": [],
+      "properties": {
+        "ends": "",
+        "event_type": "RECURRING",
+        "execute_at": "",
+        "interval_unit": "DAY",
+        "interval_value": "1",
+        "last_executed": "",
+        "on_completion": "PRESERVE",
+        "sql_mode": "ONLY_FULL_GROUP_BY,NO_BACKSLASH_ESCAPES,STRICT_TRANS_TABLES,STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION",
+        "starts": "2030-01-01 00:00:00",
+        "status": "DISABLED",
+        "time_zone": "SYSTEM"
+      },
+      "definer": {
+        "name": "root",
+        "host": "%"
+      },
+      "security": null,
+      "dependencies": [
+        {
+          "object": {
+            "kind": "table",
+            "schema": "probe",
+            "name": "p19_audit"
+          },
+          "direction": "outgoing",
+          "certainty": "textual"
+        }
+      ],
+      "dependencies_truncated": false,
+      "warnings": [
+        "Vollständige Definition ist nicht verfügbar; fehlende Sichtbarkeit oder Kataloggrenze.",
+        "Abhängigkeiten sind textuelle Hinweise innerhalb des Schemas (maximal 1000 Kandidaten, 100 Treffer), keine vollständige Analyse. Fehlende Katalogrechte und dynamisches SQL können Verweise verbergen."
+      ]
+    }
+  ],
+  "has_more": false,
+  "scheduler": "ON",
+  "event_errors_state": "unavailable",
+  "warnings": [
+    "Eventfehlerprotokolle sind über diese API nicht verfügbar. Abhängigkeiten aus dynamischem SQL sind nicht vollständig erkennbar."
+  ]
+}

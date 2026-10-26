@@ -1,0 +1,22 @@
+{
+  "info": {
+    "account": {
+      "name": "p18 odd'`\"; x"
+    },
+    "current": false,
+    "login": true,
+    "locked": false,
+    "auth_plugin": null,
+    "ssl_type": null,
+    "limits": {
+      "connections": -1
+    },
+    "attributes": []
+  },
+  "grants": [],
+  "roles": [],
+  "notes": [
+    "Direkte Rechte und direkte Rollenmitgliedschaften; geerbte und öffentliche Rechte werden nicht als direkte Rechte ausgegeben. Ressourcen- und Authentifizierungseinstellungen sind nur lesend.",
+    "Objektrechte stammen nur aus der verbundenen Datenbank. Authentifizierungsverfahren und TLS-Regeln werden durch pg_hba.conf bestimmt und sind hier unbekannt. Rollenattribute stehen gesondert unter attributes; Besitzrechte und PUBLIC-Rechte sind nicht kopierbar."
+  ]
+}

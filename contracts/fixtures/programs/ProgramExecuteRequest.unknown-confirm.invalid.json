@@ -1,0 +1,19 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "placeholder_programs"
+  },
+  "action": "create",
+  "object": {
+    "kind": "view",
+    "name": "placeholder_view"
+  },
+  "input": {
+    "body": "SELECT 42 AS placeholder_value"
+  },
+  "confirm": {
+    "action": "create",
+    "sql": "placeholder"
+  },
+  "expected_plan_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+}

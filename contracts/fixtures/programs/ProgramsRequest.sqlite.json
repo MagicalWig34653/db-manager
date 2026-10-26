@@ -1,0 +1,8 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "placeholder_programs"
+  },
+  "kind": "view",
+  "limit": 1
+}

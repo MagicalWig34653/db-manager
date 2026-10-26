@@ -1,0 +1,70 @@
+{
+  "driver": "sqlite",
+  "objects": [
+    {
+      "object": {
+        "kind": "trigger",
+        "schema": "main",
+        "name": "t odd\"`.;DROP TABLE neighbor--",
+        "table": {
+          "schema": "main",
+          "name": "source"
+        }
+      },
+      "definition": "CREATE TRIGGER \"t odd\"\"`.;DROP TABLE neighbor--\" AFTER INSERT ON \"source\" FOR EACH ROW BEGIN INSERT INTO audit VALUES(100); END",
+      "body": null,
+      "parameters": [],
+      "properties": {},
+      "definer": null,
+      "security": null,
+      "dependencies": [
+        {
+          "object": {
+            "kind": "table",
+            "schema": "main",
+            "name": "source"
+          },
+          "direction": "outgoing",
+          "certainty": "exact"
+        },
+        {
+          "object": {
+            "kind": "table",
+            "schema": "main",
+            "name": "audit"
+          },
+          "direction": "outgoing",
+          "certainty": "textual"
+        },
+        {
+          "object": {
+            "kind": "table",
+            "schema": "main",
+            "name": "neighbor"
+          },
+          "direction": "outgoing",
+          "certainty": "textual"
+        },
+        {
+          "object": {
+            "kind": "table",
+            "schema": "main",
+            "name": "source"
+          },
+          "direction": "outgoing",
+          "certainty": "textual"
+        }
+      ],
+      "dependencies_truncated": false,
+      "warnings": [
+        "Abhängigkeiten sind textuelle Hinweise innerhalb des Schemas (maximal 1000 Kandidaten, 100 Treffer), keine vollständige Analyse. Fehlende Katalogrechte und dynamisches SQL können Verweise verbergen."
+      ]
+    }
+  ],
+  "has_more": false,
+  "scheduler": null,
+  "event_errors_state": "unavailable",
+  "warnings": [
+    "Eventfehlerprotokolle sind über diese API nicht verfügbar. Abhängigkeiten aus dynamischem SQL sind nicht vollständig erkennbar."
+  ]
+}

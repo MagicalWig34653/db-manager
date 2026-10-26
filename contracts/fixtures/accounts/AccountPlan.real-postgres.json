@@ -1,0 +1,22 @@
+{
+  "driver": "postgres",
+  "statements": [
+    "CREATE ROLE \"p18 odd'`\"\"; x\" LOGIN PASSWORD <protected-secret>"
+  ],
+  "warnings": [
+    "Serverrechte werden bei der Ausführung geprüft. Bestehende Sitzungen werden nicht beendet. Kein automatischer Retry; nach der Ausführung Konten und Rechte neu lesen.",
+    "<protected-secret> ist ein fester Platzhalter im Plan-Hash, kein SQL-Literal. Der Passwortwert wird nur bei der Ausführung eingesetzt und ist niemals Bestandteil des Plan-Hashes."
+  ],
+  "affected_objects": [
+    "13:p18 odd'`\"; x@"
+  ],
+  "plan_sha256": "ccc5bf32c374152ce6a246c463bba3c6c2a781ec93ef3bcda257de57af43b2f1",
+  "action": "create",
+  "confirmation": {
+    "action": "create",
+    "target_name": "13:p18 odd'`\"; x@"
+  },
+  "destructive": false,
+  "self": false,
+  "requires_secret": true
+}

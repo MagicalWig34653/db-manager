@@ -28,7 +28,7 @@ def main():
             for path in paths:
                 problems = guard.validate(path.name.split('.')[0], json.loads(path.read_text()))
                 assert not problems, (system, path.name, problems)
-            print(f'{system}: {len(paths)} actual responses validated against API 0.15')
+            print(f'{system}: {len(paths)} actual responses validated against API 0.17')
 
 if __name__ == '__main__':
     main()
