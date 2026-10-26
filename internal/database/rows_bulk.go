@@ -22,7 +22,12 @@ func bulkDigest(v any) string {
 	h := sha256.Sum256(append([]byte("dbmanager/rows-bulk/v19\x00"), b...))
 	return hex.EncodeToString(h[:])
 }
-func bulkValidate(r core.RowsBulkRequest) error {
+func bulkValidate(r core.RowsBulkRequest) error { return bulkValidateLimit(r, 1<<20) }
+
+// bulkValidateLimit bounds the canonical request size. Single file replacements carry the
+// old snapshot plus the new value (both base64), so they get a budget that covers a full
+// MaxFileValueBytes value on top of the standard 1 MiB.
+func bulkValidateLimit(r core.RowsBulkRequest, limit int) error {
 	if !validTableRef(r.Table) || len(r.Rows) < 1 || len(r.Rows) > core.MaxBulkRows || r.TimeoutMS < 0 || r.TimeoutMS > 60000 {
 		return bulkInvalid()
 	}
@@ -53,7 +58,7 @@ func bulkValidate(r core.RowsBulkRequest) error {
 		}
 	}
 	b, err := json.Marshal(r)
-	if err != nil || len(b) > 1<<20 {
+	if err != nil || len(b) > limit {
 		return bulkInvalid()
 	}
 	return nil
@@ -169,10 +174,15 @@ func (e *Engine) bulkSession(ctx context.Context, r core.RowsBulkRequest, execut
 		Rows        []core.BulkPlannedRow
 	}{canonical, d, plan.Rows})
 	if !execute {
+		e.plans.arm("bulk:" + plan.PlanSHA256)
 		return plan, result, nil
 	}
 	if r.ExpectedPlanSHA256 != plan.PlanSHA256 {
 		return plan, result, public("plan_conflict", "Plan wurde geändert. Neue Vorschau erforderlich.")
+	}
+	// Single use: consumed before the first write, also when the outcome stays unknown.
+	if !e.plans.consume("bulk:" + plan.PlanSHA256) {
+		return plan, result, public("plan_conflict", "Plan wurde bereits ausgeführt. Neue Vorschau erforderlich.")
 	}
 	for i, row := range r.Rows {
 		entry := core.BulkRowResult{Index: i, Outcome: "rejected"}

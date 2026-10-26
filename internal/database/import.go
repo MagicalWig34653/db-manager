@@ -6,6 +6,7 @@ import (
 	"compress/gzip"
 	"context"
 	"crypto/sha256"
+	"database/sql"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -14,6 +15,7 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
+	"unsafe"
 
 	"github.com/MagicalWig34653/db-manager/internal/core"
 	"github.com/MagicalWig34653/db-manager/internal/dbplan"
@@ -99,7 +101,9 @@ func normalizeImport(ctx context.Context, r *core.ImportRequest, data []byte) (s
 	if !utf8.Valid(data) || bytes.IndexByte(data, 0) >= 0 {
 		return "", invalidImport()
 	}
-	return strings.TrimPrefix(string(data), "\ufeff"), nil
+	// data is never modified after this point; share it instead of copying up to 64 MiB again.
+	text := unsafe.String(unsafe.SliceData(data), len(data))
+	return strings.TrimPrefix(text, "\ufeff"), nil
 }
 func emptyImportResult() core.ImportResult {
 	return core.ImportResult{Outcome: "rejected", Statements: []core.SQLStatementResult{}, Errors: []core.ImportIssue{}, Warnings: []string{}}
@@ -265,6 +269,9 @@ func (e *Engine) PlanImport(ctx context.Context, r core.ImportRequest, data []by
 	}
 	defer closeDB()
 	p, _, err := makeImportPlan(ctx, db, r, text)
+	if err == nil {
+		e.plans.arm("import:" + p.SHA256)
+	}
 	return p, err
 }
 func (e *Engine) ExecuteImport(ctx context.Context, r core.ImportRequest, data []byte, progress func(core.ImportProgress)) (core.ImportResult, error) {
@@ -343,6 +350,10 @@ func (e *Engine) ExecuteImport(ctx context.Context, r core.ImportRequest, data [
 		out.ErrorsTruncated = p.ErrorsTruncated
 		out.Reason = "validation_failed"
 		return out, nil
+	}
+	// Single use: consumed before the first write, also when the outcome stays unknown.
+	if !e.plans.consume("import:" + p.SHA256) {
+		return out, public("plan_mismatch", "Importplan wurde bereits ausgeführt. Neue Vorschau erforderlich.")
 	}
 	// Recheck metadata while holding the write lock. PostgreSQL holds its relation
 	// lock from the first INSERT; savepoints preserve the transaction after conflicts.
@@ -444,7 +455,12 @@ func rollbackImport(s *mutationSession) error {
 	if s.tx != nil {
 		// ErrTxDone can race the automatic rollback after cancellation. Without
 		// its driver acknowledgement we keep the outcome conservative.
-		return s.tx.Rollback()
+		// After cancellation database/sql has already rolled the transaction back and
+		// reports ErrTxDone; no COMMIT was sent, so nothing can be persistent.
+		if err := s.tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) {
+			return err
+		}
+		return nil
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()

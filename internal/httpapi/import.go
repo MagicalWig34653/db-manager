@@ -92,7 +92,13 @@ func readImportUpload(w http.ResponseWriter, r *http.Request) (core.ImportReques
 		if name == "metadata" {
 			limit = MaxRequestBytes
 		}
-		b, err := io.ReadAll(io.LimitReader(part, limit+1))
+		// Pre-size from Content-Length so a large file is read once without doubling garbage.
+		var buf bytes.Buffer
+		if name == "file" && r.ContentLength > 0 {
+			buf.Grow(int(min(r.ContentLength, limit+1)))
+		}
+		_, err = buf.ReadFrom(io.LimitReader(part, limit+1))
+		b := buf.Bytes()
 		if err != nil {
 			part.Close()
 			importUploadError(w, err)

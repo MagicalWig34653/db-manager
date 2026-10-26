@@ -23608,7 +23608,8 @@
               "type": "string",
               "maxLength": 4096
             },
-            "maxItems": 10
+            "maxItems": 10,
+            "description": "SQL-Import f\u00fchrt beliebiges SQL ohne Plan aus; erste Warnung z\u00e4hlt Anweisungsklassen (DDL, DROP/TRUNCATE, DELETE, UPDATE, INSERT, sonstige)."
           },
           "reason": {
             "type": "string",
@@ -23822,8 +23823,10 @@
             "enum": [
               "completed",
               "outcome_unknown",
-              "not_executed"
-            ]
+              "not_executed",
+              "rolled_back"
+            ],
+            "description": "rolled_back: Anweisung war erfolgreich, wurde aber durch ein abschlie\u00dfendes ROLLBACK (SQLite/PostgreSQL, transaktionales DDL) zur\u00fcckgenommen."
           },
           "results": {
             "type": "array",

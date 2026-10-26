@@ -426,3 +426,18 @@ func TestReviewA_ImportJobStoreBounded(t *testing.T) {
 		t.Errorf("expected 4 refusals after 16 stored results, got %d", refused)
 	}
 }
+
+// Test gap: file part before metadata is refused before any write.
+func TestReviewA_FileUploadFileBeforeMetadata(t *testing.T) {
+	api, c := reviewAPI(t)
+	meta, _ := json.Marshal(core.FileValueRequest{Connection: c, Table: core.TableRef{Name: "rv"}, Column: "value", Confirm: true})
+	rec := rawMultipart(t, api, "/api/v19/values/upload", func(w *multipart.Writer) {
+		f, _ := w.CreateFormField("file")
+		_, _ = f.Write([]byte("abc"))
+		m, _ := w.CreateFormField("metadata")
+		_, _ = m.Write(meta)
+	})
+	if rec.Code != 400 {
+		t.Fatalf("file before metadata -> %d %s", rec.Code, rec.Body.String())
+	}
+}

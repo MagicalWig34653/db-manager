@@ -36,6 +36,13 @@ Maximal 16 aktive/abgeschlossene Jobs; abgeschlossene Ergebnisse verfallen nach 
 Danach oder nach Neustart 404 `import_not_found`. Keine Wiederaufnahme, automatische
 Wiederholung, Exactly-once- oder Mehrinstanz-Jobgarantie; Status benötigt dieselbe Instanz.
 
+**Einmalige Pläne (CSV).** Ein bestätigter Plan (`plan_sha256`) wird beim Start der Ausführung
+serverseitig (im Speicher, 1 h) als verbraucht markiert, auch wenn das Ergebnis `outcome_unknown`
+bleibt. Dieselbe Ausführungsanfrage ein zweites Mal liefert `plan_mismatch` ("bereits ausgeführt");
+ein neuer Plan-Aufruf mit gleichem Inhalt macht den Hash wieder nutzbar (bewusster zweiter Import).
+Nach Serverneustart ist der Schutz zurückgesetzt. Zu geringe Speichergrenze: Ein 64-MiB-Import hält
+ca. Datei + dekodierte Kopie im Speicher; zwei Slots bleiben dadurch unter etwa 300 MiB Spitze.
+
 ## Metadaten und Grenzen
 
 | Feld | Bedeutung |
@@ -78,7 +85,15 @@ W-P11-Header für UTF-8/UTC/SQL-Modus. Kein Einschleusen beliebiger Sitzungskont
 Verbindung wird ausschließlich für diesen Import verwendet und anschließend geschlossen.
 
 Die Ausführung liefert je Statement Index ab 1, direkte Änderungszahl soweit verfügbar,
-Dauer, feste Fehlercodes und `completed`, `outcome_unknown` oder `not_executed`.
+Dauer, feste Fehlercodes und `completed`, `outcome_unknown`, `not_executed` oder `rolled_back`
+(erfolgreich ausgeführt, aber durch ein abschließendes ROLLBACK auf SQLite/PostgreSQL mit
+transaktionalem DDL wieder zurückgenommen).
+
+**SQL-Import führt beliebiges SQL aus.** Es gibt bewusst keinen Plan, keinen Hash und keinen getippten
+Namen; die Bestätigung `import_sql` genügt. Die erste Warnung der Antwort sagt das ausdrücklich und
+zählt die Anweisungsklassen der validierten Datei (DDL, DROP/TRUNCATE, DELETE, UPDATE, INSERT,
+sonstige). Entscheidung: SQL-Dateien (Dumps) sind nicht sinnvoll planbar; die UI muss die Warnung
+vor der Ausführung anzeigen und die Datei benennen lassen.
 SQL-/Treiberrohtexte, Ergebniszellen und Serverpfade erscheinen nicht im Bericht.
 `stop` lässt den Rest unangetastet, `continue` versucht weitere Anweisungen bis zum Limit
 oder Abbruch. Innerhalb eines fehlgeschlagenen PostgreSQL-Transaktionsrahmens bleiben
@@ -136,7 +151,8 @@ direkten Zieländerungen zurück. `skip` überspringt Typ-/Constraint-/Eindeutig
 und committet nur die übrigen Zeilen. Keine REPLACE-/UPSERT-Löschung, SQLite explizit
 INSERT OR ABORT. `completed` nach bestätigtem Commit, `rejected` nach bestätigter Ablehnung/
 Rollback, `outcome_unknown` bei unbestätigtem Commit/Rollback. `inserted` ist bei Unknown
-nur der Versuchszähler, keine Zusage persistierter Zeilen. Keine automatische Wiederholung.
+nur der Versuchszähler, keine Zusage persistierter Zeilen. Abbruch/Fehler vor dem COMMIT (auch
+auf PostgreSQL nach Kontextabbruch) ergibt auf allen Engines `rejected` mit `inserted=0`. Keine automatische Wiederholung.
 Externe Trigger-/Sequenzeffekte sind auch nach Rollback nicht allgemein rücknehmbar.
 
 CSV aus W-P11 besitzt zusätzlich `_record` und eine `complete`-Kontrollzeile sowie

@@ -33,6 +33,11 @@ Ein Konflikt oder eine Constraintverletzung weist den gesamten Batch zurück.
 Die Ergebnisse enthalten je Auswahlindex `completed`, `rejected` oder
 `outcome_unknown`; es gibt keinen als Erfolg ausgegebenen Teilcommit.
 
+**Einmaliger Plan.** Ein bestätigter `plan_sha256` wird bei der Ausführung vor der ersten Änderung
+verbraucht (im Speicher, 1 h, auch bei `outcome_unknown`); Wiederholung der Anfrage liefert
+`plan_conflict` ("bereits ausgeführt"). Ein neuer Plan-Aufruf schaltet den Hash wieder frei.
+So duplizieren Netzwerk-Retries kein Kopieren mit Auto-Schlüssel.
+
 Kopieren dupliziert Zeilen in derselben Tabelle. `copy_values` je Zeile überschreibt
 gezielt die aus dem Snapshot übernommenen Werte. Ein expliziter neuer Wert jeder
 PK-Spalte ist erforderlich, außer bei dem nach v4 belegten einzelnen Auto-PK
@@ -78,9 +83,9 @@ bereits durch Einzelzeilenabbild und Bestätigung geschützten Schreibpfad.
 
 Unterstützt werden beschreibbare BLOB/BINARY/VARBINARY/BYTEA-Spalten außerhalb des PK.
 TEXT-Dateiupload ist in diesem Paket nicht freigegeben. Maximal 512 KiB Binärinhalt,
-einschließlich leerem BLOB; NULL bleibt davon verschieden. Der Body bleibt insgesamt
-auf 1 MiB begrenzt. Alte große Abbildwerte und neue Dateiwerte können gemeinsam die
-Grenze erreichen, selbst wenn die Datei allein unter dem Maximum liegt.
+einschließlich leerem BLOB; NULL bleibt davon verschieden. Der JSON-Anteil (Metadaten mit Abbild) bleibt auf 1 MiB begrenzt, der Uploadbody
+zusätzlich um die Dateigröße plus Multipart-Rahmen; Ersetzen eines 400-KiB-Werts durch 400 KiB ist
+zulässig. Zu große Dateien: `file_too_large`. Übersteigt die Anfrage dennoch die Grenzen (sehr großer alter Abbildwert), antwortet der Server `invalid_bulk`.
 
 `POST values/download`: JSON mit derselben Zeilenidentität, `column` und optional
 `preview:true`. Die aktuelle Zeile muss mit `expected` übereinstimmen. Download

@@ -161,7 +161,8 @@ func (a *API) fileValueUpload(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	r.Body = http.MaxBytesReader(w, r.Body, MaxRequestBytes)
+	// Metadata (<= standard limit, may carry the old value snapshot) plus the file value and multipart framing.
+	r.Body = http.MaxBytesReader(w, r.Body, MaxRequestBytes+core.MaxFileValueBytes+(64<<10))
 	reader, err := r.MultipartReader()
 	if err != nil {
 		fail(w, 415, "unsupported_media_type", "Multipart mit metadata und file ist erforderlich.")

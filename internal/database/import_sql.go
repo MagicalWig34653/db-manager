@@ -3,6 +3,7 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -85,7 +86,7 @@ func (e *Engine) importSQL(ctx context.Context, r core.ImportRequest, text strin
 		return out, safe(ctx, err)
 	}
 	defer conn.Close()
-	out.Warnings = []string{"Anweisungsabschluss bestätigt keine universelle Transaktion. Abbruch, Trigger und externe Effekte können Teiländerungen hinterlassen. Kein automatischer Retry."}
+	out.Warnings = []string{importSQLClassWarning(statements, r.Connection.Driver), "Anweisungsabschluss bestätigt keine universelle Transaktion. Abbruch, Trigger und externe Effekte können Teiländerungen hinterlassen. Kein automatischer Retry."}
 	if r.Connection.Driver == "mysql" {
 		out.Warnings = append(out.Warnings, "MySQL/MariaDB: DDL kann implizit committen; auch BEGIN/COMMIT garantieren keine atomare Datei und nichttransaktionale Tabellen keinen Rollback.")
 	}
@@ -93,6 +94,18 @@ func (e *Engine) importSQL(ctx context.Context, r core.ImportRequest, text strin
 		progress(core.ImportProgress{Total: len(statements)})
 	}
 	stopped, failed := false, false
+	// Track the explicit transaction: statements that were rolled back later must not
+	// stay "completed" on engines with transactional DDL (SQLite, PostgreSQL).
+	transactional := r.Connection.Driver == "sqlite" || r.Connection.Driver == "postgres"
+	inTx, txFailed, txStart := false, false, 0
+	markRolledBack := func(from, to int) {
+		for j := from; j <= to && j < len(out.Statements); j++ {
+			if out.Statements[j].Outcome == "completed" {
+				out.Statements[j].Outcome = "rolled_back"
+				out.Statements[j].RowsAffected = nil
+			}
+		}
+	}
 	for i, s := range statements {
 		item := core.SQLStatementResult{Index: i + 1, Outcome: "not_executed", Results: []core.ResultSet{}, Warnings: []core.SQLWarning{}}
 		if !stopped && ctx.Err() == nil {
@@ -115,6 +128,9 @@ func (e *Engine) importSQL(ctx context.Context, r core.ImportRequest, text strin
 				item.ErrorCode = sqlBatchErrorCode(ctx, execErr)
 				failed = true
 				stopped = r.Mode == "stop" || ctx.Err() != nil || item.ErrorCode == "result_too_large"
+				if inTx {
+					txFailed = true
+				}
 			} else if r.Connection.Driver == "mysql" {
 				warnings := sqlBatchWarnings(ctx, conn)
 				if len(warnings) > 0 {
@@ -126,6 +142,18 @@ func (e *Engine) importSQL(ctx context.Context, r core.ImportRequest, text strin
 			failed = true
 		}
 		out.Statements = append(out.Statements, item)
+		if item.Outcome == "completed" && transactional {
+			switch sqlsplit.Keyword(s, r.Connection.Driver) {
+			case "BEGIN":
+				inTx, txFailed, txStart = true, false, len(out.Statements)
+			case "COMMIT":
+				if inTx && txFailed && r.Connection.Driver == "postgres" {
+					// COMMIT of an aborted PostgreSQL transaction is a ROLLBACK.
+					markRolledBack(txStart, len(out.Statements)-1)
+				}
+				inTx, txFailed = false, false
+			}
+		}
 		if progress != nil {
 			progress(core.ImportProgress{Processed: out.Processed, Total: len(statements)})
 		}
@@ -134,11 +162,38 @@ func (e *Engine) importSQL(ctx context.Context, r core.ImportRequest, text strin
 	// earlier commits and MySQL implicit commits remain visible in the result.
 	cleanup, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	_, _ = conn.ExecContext(cleanup, "ROLLBACK")
+	_, rollbackErr := conn.ExecContext(cleanup, "ROLLBACK")
+	if inTx && rollbackErr == nil {
+		markRolledBack(txStart, len(out.Statements)-1)
+	}
 	out.Outcome = "completed"
 	if failed {
 		out.Outcome = "outcome_unknown"
 		out.Reason = "partial_or_unknown"
 	}
 	return out, nil
+}
+
+// importSQLClassWarning states plainly that a SQL import runs arbitrary SQL without a
+// plan and counts the statement classes that were executed (the file is fully
+// validated and counted before the first statement runs).
+func importSQLClassWarning(statements []string, driver string) string {
+	var ddl, drop, del, upd, ins, other int
+	for _, s := range statements {
+		switch sqlsplit.Keyword(s, driver) {
+		case "CREATE", "ALTER", "RENAME", "COMMENT", "GRANT", "REVOKE", "ANALYZE", "REINDEX", "VACUUM":
+			ddl++
+		case "DROP", "TRUNCATE":
+			drop++
+		case "DELETE":
+			del++
+		case "UPDATE":
+			upd++
+		case "INSERT", "REPLACE":
+			ins++
+		default:
+			other++
+		}
+	}
+	return fmt.Sprintf("SQL-Import führt beliebiges SQL ohne Plan mit den Rechten der Verbindung aus. Anweisungen: DDL %d, DROP/TRUNCATE %d, DELETE %d, UPDATE %d, INSERT %d, sonstige %d.", ddl, drop, del, upd, ins, other)
 }

@@ -96,8 +96,7 @@ func dropIf(t *testing.T, s reviewSystem, names ...string) {
 
 // Replay: a confirmed CSV import request can be executed again and inserts the
 // file a second time (no single-use plan, no idempotency key).
-func TestReviewA_FindingCSVImportReplay(t *testing.T) {
-	findingGate(t)
+func TestReviewA_CSVImportReplayRefused(t *testing.T) {
 	eachReviewSystem(t, func(t *testing.T, s reviewSystem) {
 		dropIf(t, s, "rva_replay")
 		execute(t, s.e, s.c, "CREATE TABLE rva_replay (id INTEGER, value VARCHAR(20))")
@@ -109,10 +108,11 @@ func TestReviewA_FindingCSVImportReplay(t *testing.T) {
 			t.Fatal(err)
 		}
 		c := importConfirm(r, p)
-		for i := 0; i < 2; i++ {
-			if got, err := s.e.ExecuteImport(context.Background(), c, file, nil); err != nil || got.Outcome != "completed" {
-				t.Fatalf("run %d: %#v %v", i, got, err)
-			}
+		if got, err := s.e.ExecuteImport(context.Background(), c, file, nil); err != nil || got.Outcome != "completed" {
+			t.Fatalf("first run: %#v %v", got, err)
+		}
+		if _, err := s.e.ExecuteImport(context.Background(), c, file, nil); err == nil || !strings.Contains(err.Error(), "bereits ausgeführt") {
+			t.Fatalf("replay must be refused as consumed plan, got %v", err)
 		}
 		if n := scalar(t, s, "SELECT COUNT(*) FROM rva_replay"); n != "2" {
 			t.Fatalf("replayed confirmed import inserted %s rows instead of being rejected", n)
@@ -121,8 +121,7 @@ func TestReviewA_FindingCSVImportReplay(t *testing.T) {
 }
 
 // Replay of a bulk copy with an auto key duplicates the copy.
-func TestReviewA_FindingBulkCopyReplay(t *testing.T) {
-	findingGate(t)
+func TestReviewA_BulkCopyReplayRefused(t *testing.T) {
 	eachReviewSystem(t, func(t *testing.T, s reviewSystem) {
 		dropIf(t, s, "rva_copy")
 		execute(t, s.e, s.c, autoPKDDL(s, "rva_copy"))
@@ -132,10 +131,11 @@ func TestReviewA_FindingBulkCopyReplay(t *testing.T) {
 		rows := bulkSnapshots(t, s.e, s.c, ref)
 		req := core.RowsBulkRequest{Connection: s.c, Table: ref, Action: "copy", Rows: rows}
 		req = confirmBulk(t, s.e, req)
-		for i := 0; i < 2; i++ {
-			if _, err := s.e.RowsBulkExecute(context.Background(), req); err != nil {
-				t.Logf("run %d rejected: %v", i, err)
-			}
+		if _, err := s.e.RowsBulkExecute(context.Background(), req); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := s.e.RowsBulkExecute(context.Background(), req); err == nil || !strings.Contains(err.Error(), "bereits ausgeführt") {
+			t.Fatalf("replay must be refused as consumed plan, got %v", err)
 		}
 		if n := scalar(t, s, "SELECT COUNT(*) FROM rva_copy"); n != "2" {
 			t.Fatalf("replay created %s rows (want 2 = original + one copy)", n)
@@ -384,7 +384,6 @@ func TestReviewA_NoSecretsInErrors(t *testing.T) {
 
 // Partial state honesty for SQL import with DDL inside BEGIN/COMMIT.
 func TestReviewA_SQLImportPartialStateHonesty(t *testing.T) {
-	findingGate(t)
 	eachReviewSystem(t, func(t *testing.T, s reviewSystem) {
 		dropIf(t, s, "rva_p1", "rva_p2")
 		defer dropIf(t, s, "rva_p1", "rva_p2")
@@ -405,6 +404,9 @@ func TestReviewA_SQLImportPartialStateHonesty(t *testing.T) {
 		// A statement reported "completed" must not have been undone silently.
 		if rows == "0" && got.Statements[2].Outcome == "completed" {
 			t.Errorf("statement 3 reported completed but its row was rolled back")
+		}
+		if rows == "0" && got.Statements[2].Outcome != "rolled_back" {
+			t.Errorf("rolled back statement must be reported rolled_back, got %s", got.Statements[2].Outcome)
 		}
 	})
 }
@@ -779,8 +781,7 @@ func TestReviewA_ForeignKeyLookupInjection(t *testing.T) {
 
 // Replacing an existing file value near the documented 512 KiB limit fails because
 // the old snapshot plus the new bytes share the 1 MiB request budget.
-func TestReviewA_FindingFileReplaceNearLimit(t *testing.T) {
-	findingGate(t)
+func TestReviewA_FileReplaceNearLimit(t *testing.T) {
 	eachReviewSystem(t, func(t *testing.T, s reviewSystem) {
 		dropIf(t, s, "rva_fr")
 		execute(t, s.e, s.c, fileTableDDL(s, "rva_fr"))
@@ -876,15 +877,55 @@ func TestReviewA_ForeignKeyLookupComposite(t *testing.T) {
 
 // SQL import runs destructive statements after a bare confirm action (documented,
 // but without plan hash or typed target name).
-func TestReviewA_FindingSQLImportDestructiveWithoutTypedName(t *testing.T) {
-	findingGate(t)
+// F2 decision: SQL import stays plan-less by contract, but the result must say so and count classes.
+func TestReviewA_SQLImportStatesArbitrarySQLAndClasses(t *testing.T) {
 	e := testEngine(t)
 	c := sqliteConnection()
 	execute(t, e, c, "CREATE TABLE rva_d (id INTEGER)")
 	execute(t, e, c, "INSERT INTO rva_d VALUES (1),(2)")
 	r := core.ImportRequest{Connection: c, Format: "sql", Confirm: &dbplan.Confirmation{Action: "import_sql"}}
-	got, err := e.ExecuteImport(context.Background(), r, []byte("DELETE FROM rva_d;DROP TABLE rva_d"), nil)
-	if err == nil && got.Outcome == "completed" {
-		t.Error("DELETE without WHERE and DROP TABLE executed with only confirm.action=import_sql (no plan hash, no typed table name)")
+	got, err := e.ExecuteImport(context.Background(), r, []byte("DELETE FROM rva_d;UPDATE rva_d SET id=1;DROP TABLE rva_d;CREATE TABLE rva_e(x INTEGER)"), nil)
+	if err != nil || len(got.Warnings) == 0 {
+		t.Fatalf("%v %#v", err, got)
+	}
+	w := got.Warnings[0]
+	for _, want := range []string{"beliebiges SQL ohne Plan", "DDL 1", "DROP/TRUNCATE 1", "DELETE 1", "UPDATE 1"} {
+		if !strings.Contains(w, want) {
+			t.Errorf("warning %q lacks %q", w, want)
+		}
+	}
+}
+
+// Test gap: a plan request that already carries confirm or a hash is refused.
+func TestReviewA_PlanRefusesConfirmAndHash(t *testing.T) {
+	e := testEngine(t)
+	c := sqliteConnection()
+	execute(t, e, c, "CREATE TABLE rva_pc (id INTEGER)")
+	base := core.ImportRequest{Connection: c, Format: "csv", Table: core.TableRef{Name: "rva_pc"}, CSV: core.CSVImportOptions{Columns: []string{"id"}}}
+	withConfirm := base
+	withConfirm.Confirm = &dbplan.Confirmation{Action: "import_csv"}
+	withHash := base
+	withHash.ExpectedPlanSHA256 = strings.Repeat("a", 64)
+	for _, r := range []core.ImportRequest{withConfirm, withHash} {
+		if _, err := e.PlanImport(context.Background(), r, []byte("1\n")); err == nil {
+			t.Fatal("plan with confirm/hash must be refused")
+		}
+	}
+}
+
+// F1: a fresh preview re-arms the digest, so a deliberate second import stays possible.
+func TestReviewA_NewPreviewRearmsPlan(t *testing.T) {
+	e := testEngine(t)
+	c := sqliteConnection()
+	execute(t, e, c, "CREATE TABLE rva_ra (id INTEGER)")
+	r := core.ImportRequest{Connection: c, Format: "csv", Table: core.TableRef{Name: "rva_ra"}, CSV: core.CSVImportOptions{Columns: []string{"id"}}}
+	for i := 0; i < 2; i++ {
+		p, err := e.PlanImport(context.Background(), r, []byte("1\n"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got, err := e.ExecuteImport(context.Background(), importConfirm(r, p), []byte("1\n"), nil); err != nil || got.Outcome != "completed" {
+			t.Fatalf("run %d: %#v %v", i, got, err)
+		}
 	}
 }

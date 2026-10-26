@@ -51,7 +51,7 @@ func (e *Engine) FileValueUpload(ctx context.Context, r core.FileValueRequest, s
 		return core.MutationResult{}, public("file_too_large", "Dateiwert überschreitet das Größenlimit.")
 	}
 	request := core.MutationRequest{Connection: r.Connection, Table: r.Table, Expected: r.Expected, Changes: []core.RowChange{{Column: r.Column, Value: core.Cell{Kind: "binary", Value: base64.StdEncoding.EncodeToString(data)}}}, Confirm: true, TimeoutMS: timeout}
-	if err = bulkValidate(core.RowsBulkRequest{Connection: r.Connection, Table: r.Table, Action: "update", Rows: []core.BulkRow{{Expected: r.Expected}}, Changes: request.Changes}); err != nil {
+	if err = bulkValidateLimit(core.RowsBulkRequest{Connection: r.Connection, Table: r.Table, Action: "update", Rows: []core.BulkRow{{Expected: r.Expected}}, Changes: request.Changes}, 1<<20+base64.StdEncoding.EncodedLen(core.MaxFileValueBytes)); err != nil {
 		return core.MutationResult{}, err
 	}
 	db, cleanup, err := e.open(ctx, r.Connection)
