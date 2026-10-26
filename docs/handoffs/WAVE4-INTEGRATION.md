@@ -35,3 +35,23 @@ gofmt, `go vet ./...`, `go test -race -count=1 ./...` (alle Pakete grün), alle 
 
 ## Offen
 Unabhängige Reviews der sechs Pakete; Vertragsindex/STATUS/PARITAET beim Lead; Wächter älterer Pakete (v1-v16) pinnen die neuen Versionen nicht (nur ihre Vorgänger); `.github/workflows` je Paket unverändert übernommen.
+
+## Nachbesserung nach Review A (`review/wave4-a`, W-P12/W-P13) und Review B (`review/wave4-b`, W-P17/27/28/29)
+
+Beide Branches gemergt (Reviewer-Tests übernommen). Verträge v18-v22: `ImportStatementResult.outcome` um `rolled_back` erweitert plus Beschreibungstexte (nur Integrationsbranch, nicht auf main); v18-v22 neu gepinnt in `scripts/contract_chain.py`:
+v18 `17451221…b103e5`, v19 `c7a52e69…0a2d46`, v20 `83b49461…b63b0`, v21 `68db81f9…18881c`, v22 `397db161…44afd1` (v1-v17 unverändert; die SHAs der Tabelle oben sind damit überholt).
+
+Review A:
+- F1 Einmaliger Plan: `plan_ledger.go` (im Speicher, 1 h, 4096 Einträge). Plan-Aufruf schaltet den Hash frei, Ausführung verbraucht ihn vor dem ersten Schreiben (auch bei `outcome_unknown`); Wiederholung CSV-Import -> `plan_mismatch`, Bulk -> `plan_conflict` ("bereits ausgeführt"). Tests `TestReviewA_CSVImportReplayRefused`/`BulkCopyReplayRefused` auf SQLite, MySQL, MariaDB, PostgreSQL. Grenze: nach Neustart zurückgesetzt, mehrere Instanzen teilen nichts.
+- F2 Entscheidung: SQL-Import bleibt planlos (Dumps sind nicht planbar, Vertrag W-P12). Neu: erste Warnung der Antwort "führt beliebiges SQL ohne Plan aus" mit Zählung der Klassen DDL/DROP/DELETE/UPDATE/INSERT/sonstige der vollständig vorab validierten Datei; im Vertragstext dokumentiert. UI muss die Warnung vor Ausführung zeigen.
+- F3: Statements, die auf SQLite/PostgreSQL durch abschließendes ROLLBACK oder COMMIT eines abgebrochenen PG-Rahmens zurückgenommen wurden, melden `rolled_back` (neuer Enum-Wert, Vertrag angepasst).
+- F4: Dateiersetzen: `bulkValidateLimit` mit Budget 1 MiB + Base64(512 KiB); Upload-Body-Limit entsprechend; 400->400 KiB funktioniert, Übergröße `file_too_large`.
+- F5: Importdatei wird beim Hochladen vorallokiert gelesen, die entpackte Bytefolge wird als String geteilt (keine 64-MiB-Kopie); Speicher/Slots im Vertrag dokumentiert. Verbleibend: Plan hält Datei + dekodierte Kopie (zweifache Dateigröße je Slot).
+- F6: Abbruch/Fehler vor COMMIT -> `rejected`, `inserted=0` auf allen Engines (`ErrTxDone` gilt als zurückgerollt).
+- Testlücken: Plan mit Confirm/Hash abgelehnt, Neuplan schaltet frei, Datei-vor-Metadaten abgelehnt. Nicht machbar: Metadaten-Neulesen nach Sperre (gleichzeitiges DDL).
+
+Review B:
+- F1 YAML: `yamlSafeJSON` escaped DEL, C1 (inkl. U+0085), U+FFFE/FFFF als `\uXXXX`; PyYAML, CSafeLoader, Psych lesen alle Zellen verlustfrei (`review-wave4b-parsers.py` alle OK); Test `TestYAMLSafeJSONEscapesUnreadableCharacters`.
+- F2 Monitor: MySQL 1044/1045 nicht mehr `unavailable`; Profiling-Fehler (fehlende Tabelle/Spalte, Syntax) immer echter Fehler auf allen Engines; `unavailable` nur für Rechte-/Quellenfehler. Vertragstext angepasst.
+- F3 Server-Admin: exakte Zähler `max_connections`, `max_user_connections`, `Connections`, `Max_used_connections` sichtbar (Allowlist vor Namenssperre), Doku angepasst.
+- Testlücken: `wave4_package_test.go` (W-P17 Scope/Limit vor Verbindung, Sensitivnamen, 64/65-Ziffern; W-P29 Mehrbyte-Präfix, `opName`, Typname bei destruktivem Plan; W-P28 XML-Zeichenbereich, excel-csv-Steuerzeichen).

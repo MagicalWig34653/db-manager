@@ -126,7 +126,7 @@ func TestReviewA_BulkCopyReplayRefused(t *testing.T) {
 		dropIf(t, s, "rva_copy")
 		execute(t, s.e, s.c, autoPKDDL(s, "rva_copy"))
 		defer dropIf(t, s, "rva_copy")
-		execute(t, s.e, s.c, "INSERT INTO rva_copy (id,label) VALUES (1,'orig')")
+		execute(t, s.e, s.c, "INSERT INTO rva_copy (label) VALUES ('orig')")
 		ref := core.TableRef{Name: "rva_copy"}
 		rows := bulkSnapshots(t, s.e, s.c, ref)
 		req := core.RowsBulkRequest{Connection: s.c, Table: ref, Action: "copy", Rows: rows}
