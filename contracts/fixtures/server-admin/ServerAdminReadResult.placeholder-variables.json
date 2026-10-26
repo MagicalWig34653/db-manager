@@ -1,0 +1,11 @@
+{
+  "driver": "mysql",
+  "kind": "variables",
+  "scope": "SESSION",
+  "sampled_at": "2026-01-01T00:00:00Z",
+  "values": [],
+  "processes": [],
+  "limit": 100,
+  "offset": 0,
+  "has_more": false
+}

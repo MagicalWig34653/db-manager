@@ -75,6 +75,7 @@ var featureList = []Feature{
 	func(mux *http.ServeMux, a *API) { a.registerSearch(mux) },
 	func(mux *http.ServeMux, a *API) { a.registerAccounts(mux) },
 	func(mux *http.ServeMux, a *API) { a.registerPrograms(mux) },
+	func(mux *http.ServeMux, a *API) { a.registerServerAdmin(mux) },
 }
 
 func (a *API) registerFeatures(mux *http.ServeMux) {
