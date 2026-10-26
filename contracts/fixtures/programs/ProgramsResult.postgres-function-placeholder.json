@@ -1,0 +1,43 @@
+{
+  "driver": "postgres",
+  "objects": [
+    {
+      "object": {
+        "kind": "function",
+        "schema": "placeholder_schema",
+        "name": "placeholder_function",
+        "identity": "p integer"
+      },
+      "definition": "Platzhalter: vollständige Definition aus describe.",
+      "body": "Platzhalter: Nutzer-SQL",
+      "parameters": [
+        {
+          "name": "p",
+          "mode": "in",
+          "type": "integer"
+        }
+      ],
+      "properties": {
+        "returns": "integer",
+        "language": "plpgsql",
+        "volatility": "v",
+        "strict": "false"
+      },
+      "definer": {
+        "name": "placeholder_owner"
+      },
+      "security": "invoker",
+      "dependencies": [],
+      "dependencies_truncated": false,
+      "warnings": [
+        "Synthetischer Platzhalter, keine beobachtete Serverantwort."
+      ]
+    }
+  ],
+  "has_more": false,
+  "scheduler": null,
+  "event_errors_state": "unavailable",
+  "warnings": [
+    "Synthetischer Platzhalter."
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "driver": "sqlite",
+  "statements": [
+    "CREATE VIEW \"v\"\";DROP TABLE neighbor--\" AS SELECT 42 AS value"
+  ],
+  "warnings": [
+    "Keine automatische Wiederholung. Ein bestätigter Plan ist keine einmalige Freigabe; nach Abschluss oder unbekanntem Ausgang ist eine neue Vorschau erforderlich.",
+    "Zwischen Katalogprüfung und Ausführung können andere Sitzungen Objekte ändern. Abhängigkeiten sind auf sichtbare Katalogobjekte begrenzt; dynamisches SQL, String-Körper und externe Verweise sind nicht vollständig erkennbar.",
+    "Ohne expliziten Sicherheitskontext gelten die Dialektvorgaben; insbesondere können Sichten und MySQL-Objekte mit Definer-Rechten arbeiten.",
+    "Nutzer-SQL: Der Körper wird mit den Rechten der Verbindung beziehungsweise des Definers gespeichert. Keine Parser- oder Unbedenklichkeitszusage. DELIMITER ist kein SQL und wird nicht unterstützt."
+  ],
+  "affected_objects": [
+    "view:main.v\";DROP TABLE neighbor--"
+  ],
+  "plan_sha256": "7707cc0161ff73d606971fad73fdddcc2b6414f7daad2ff5aa1c3a9860eaa00e",
+  "action": "create",
+  "object": {
+    "kind": "view",
+    "schema": "main",
+    "name": "v\";DROP TABLE neighbor--"
+  },
+  "user_sql": true,
+  "destructive": false,
+  "transactional": true,
+  "dependencies": [],
+  "dependencies_truncated": false
+}

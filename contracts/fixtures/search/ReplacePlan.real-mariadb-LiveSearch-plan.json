@@ -1,0 +1,51 @@
+{
+  "driver": "mysql",
+  "table": {
+    "schema": "probe",
+    "name": "p14 odd'`\" --"
+  },
+  "column": "value'`\"",
+  "affected_rows": 2,
+  "examples": [
+    {
+      "key": [
+        {
+          "kind": "integer",
+          "value": "1"
+        }
+      ],
+      "before": {
+        "kind": "text",
+        "value": "100%_! fox"
+      },
+      "after": {
+        "kind": "text",
+        "value": "100%_! wolf"
+      }
+    },
+    {
+      "key": [
+        {
+          "kind": "integer",
+          "value": "2"
+        }
+      ],
+      "before": {
+        "kind": "text",
+        "value": "fox fox"
+      },
+      "after": {
+        "kind": "text",
+        "value": "wolf wolf"
+      }
+    }
+  ],
+  "statements": [
+    "UPDATE `probe`.`p14 odd'``\" --` SET `value'``\"` = ? WHERE `id` = ?"
+  ],
+  "warnings": [
+    "Vollständiger begrenzter Tabellenbestand und berechnete Werte werden geprüft. Kollation und native Ersetzungsfunktion bestimmen die Semantik.",
+    "Trigger und Kaskaden können zusätzliche oder externe Wirkungen haben. Kein automatischer Retry; ABA bleibt unerkennbar."
+  ],
+  "plan_sha256": "4f0e3066c5e16dd021f39448edbe49f92e75bbcb04eb64faf0c1ea59edc6b4ea"
+}

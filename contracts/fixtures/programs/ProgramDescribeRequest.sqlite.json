@@ -1,0 +1,10 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "placeholder_programs"
+  },
+  "object": {
+    "kind": "view",
+    "name": "placeholder_view"
+  }
+}

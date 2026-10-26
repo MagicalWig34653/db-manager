@@ -9,7 +9,7 @@ import (
 )
 
 func TestFeatureListKeepsRegistrationOrder(t *testing.T) {
-	if len(featureList) != 12 {
+	if len(featureList) != 16 {
 		t.Fatalf("feature count changed: %d", len(featureList))
 	}
 }
@@ -33,7 +33,7 @@ func TestAllKnownRoutesRegisteredAndAuthenticated(t *testing.T) {
 			t.Errorf("%s: want 401 without token, got %d", route, response.Code)
 		}
 	}
-	for _, route := range []string{"GET /api/v13/capabilities", "POST /api/v1/other"} {
+	for _, route := range []string{"GET /api/v18/capabilities", "POST /api/v1/other"} {
 		parts := strings.SplitN(route, " ", 2)
 		response := httptest.NewRecorder()
 		api.ServeHTTP(response, httptest.NewRequest(parts[0], parts[1], nil))

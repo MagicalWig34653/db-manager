@@ -1,0 +1,68 @@
+{
+  "driver": "postgres",
+  "objects": [
+    {
+      "object": {
+        "kind": "trigger",
+        "schema": "public",
+        "name": "p19 odd`trig\".;",
+        "table": {
+          "schema": "public",
+          "name": "p19_source"
+        }
+      },
+      "definition": "CREATE TRIGGER \"p19 odd`trig\"\".;\" AFTER INSERT ON p19_source FOR EACH ROW EXECUTE FUNCTION p19_trigger_fn()",
+      "body": null,
+      "parameters": [],
+      "properties": {
+        "enabled": "O",
+        "function_identity": "",
+        "function_name": "p19_trigger_fn",
+        "function_schema": "public"
+      },
+      "definer": {
+        "name": "postgres"
+      },
+      "security": null,
+      "dependencies": [
+        {
+          "object": {
+            "kind": "table",
+            "schema": "public",
+            "name": "p19_source"
+          },
+          "direction": "outgoing",
+          "certainty": "exact"
+        },
+        {
+          "object": {
+            "kind": "function",
+            "schema": "public",
+            "name": "p19_trigger_fn"
+          },
+          "direction": "outgoing",
+          "certainty": "exact"
+        },
+        {
+          "object": {
+            "kind": "table",
+            "schema": "public",
+            "name": "p19_source"
+          },
+          "direction": "outgoing",
+          "certainty": "exact"
+        }
+      ],
+      "dependencies_truncated": false,
+      "warnings": [
+        "Katalogabhängigkeiten sind exakt, aber unvollständig: String-Körper, dynamisches SQL, Erweiterungen und unsichtbare Objekte können weitere Verweise enthalten."
+      ]
+    }
+  ],
+  "has_more": false,
+  "scheduler": null,
+  "event_errors_state": "unavailable",
+  "warnings": [
+    "Eventfehlerprotokolle sind über diese API nicht verfügbar. Abhängigkeiten aus dynamischem SQL sind nicht vollständig erkennbar."
+  ]
+}

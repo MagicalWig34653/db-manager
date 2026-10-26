@@ -1,0 +1,9 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "synthetic_p14"
+  },
+  "targets": [],
+  "term": "fox",
+  "mode": "substring"
+}

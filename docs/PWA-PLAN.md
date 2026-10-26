@@ -183,7 +183,7 @@ PG PostgreSQL.
 Integrationsreihenfolge ohne Lücken: 0.8 Datenbank-/Tabellenoperationen (W-P07), 0.9 Spalten (W-P08), 0.10 Tabellenwartung (W-P10),
 0.11 Export und SQL-Dump (W-P11), 0.12 SQL-Stapel/EXPLAIN/Simulation (W-P15). Spätere Pakete (zum Beispiel W-P09 Indizes) erhalten die
 nächste freie Nummer bei ihrer Integration; Pfade `/api/vN/`, Vertragsdatei und Wächter folgen dieser Nummer. Siehe
-[WAVE2-INTEGRATION](handoffs/WAVE2-INTEGRATION.md).
+[WAVE2-INTEGRATION](handoffs/WAVE2-INTEGRATION.md). Welle 3: 0.13 Indizes/Schlüssel (W-P09), 0.14 Suche/Ersetzen (W-P14), 0.15 Benutzer/Rechte (W-P18), 0.16 Views/Routinen/Trigger/Events (W-P19); W-P17 (Serververwaltung) ist noch nicht integriert und erhält die nächste freie Nummer. Siehe [WAVE3-INTEGRATION](handoffs/WAVE3-INTEGRATION.md).
 
 Reihenfolge innerhalb einer Welle ist Vorschlag; Abhängigkeiten stehen je Paket. Wellen sind keine Gates: ein Paket
 startet, sobald seine Abhängigkeiten abgenommen sind (Abschnitt 4.3).

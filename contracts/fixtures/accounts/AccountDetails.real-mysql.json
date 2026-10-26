@@ -1,0 +1,32 @@
+{
+  "info": {
+    "account": {
+      "name": "p18 odd'`\"; x",
+      "host": "%"
+    },
+    "current": false,
+    "login": null,
+    "locked": false,
+    "auth_plugin": "caching_sha2_password",
+    "ssl_type": "",
+    "limits": {
+      "connections_per_hour": 0,
+      "queries_per_hour": 0,
+      "updates_per_hour": 0,
+      "user_connections": 0
+    },
+    "attributes": []
+  },
+  "grants": [
+    {
+      "scope": "global",
+      "privilege": "USAGE",
+      "grant_option": false
+    }
+  ],
+  "roles": [],
+  "notes": [
+    "Direkte Rechte und direkte Rollenmitgliedschaften; geerbte und öffentliche Rechte werden nicht als direkte Rechte ausgegeben. Ressourcen- und Authentifizierungseinstellungen sind nur lesend.",
+    "SQL-Rechte aus information_schema; dynamische MySQL-Rechte werden gesondert gelesen. MariaDB-Mehrfachauthentifizierung wird nicht vollständig durch die primäre Pluginanzeige beschrieben."
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "driver": "mysql",
+  "statements": [
+    "CREATE USER 'p18 odd''`\"; x'@'%' IDENTIFIED BY <protected-secret>"
+  ],
+  "warnings": [
+    "Serverrechte werden bei der Ausführung geprüft. Bestehende Sitzungen werden nicht beendet. Kein automatischer Retry; nach der Ausführung Konten und Rechte neu lesen.",
+    "Kontenbefehle bestätigen einzeln und sind nicht gemeinsam rückrollbar; bei Teilfehlern ist der Ausgang unbekannt.",
+    "<protected-secret> ist ein fester Platzhalter im Plan-Hash, kein SQL-Literal. Der Passwortwert wird nur bei der Ausführung eingesetzt und ist niemals Bestandteil des Plan-Hashes."
+  ],
+  "affected_objects": [
+    "13:p18 odd'`\"; x@%"
+  ],
+  "plan_sha256": "57e7894422527d3ece1ad5d3772126d9ab3d4c61badb3cde736e13cb8506e329",
+  "action": "create",
+  "confirmation": {
+    "action": "create",
+    "target_name": "13:p18 odd'`\"; x@%"
+  },
+  "destructive": false,
+  "self": false,
+  "requires_secret": true
+}

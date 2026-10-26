@@ -1,0 +1,8 @@
+{
+  "driver": "sqlite",
+  "objects": [],
+  "has_more": false,
+  "scheduler": null,
+  "event_errors_state": "unavailable",
+  "warnings": []
+}

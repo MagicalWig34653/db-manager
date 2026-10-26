@@ -1,0 +1,8 @@
+{
+  "scope": "column",
+  "database": "FIXTURE_DB_PLACEHOLDER",
+  "object": "FIXTURE_TABLE_PLACEHOLDER",
+  "column": "FIXTURE_COLUMN_PLACEHOLDER",
+  "privilege": "SELECT",
+  "grant_option": false
+}

@@ -1,0 +1,8 @@
+{
+  "outcome": "completed",
+  "message": "Die Anweisungen wurden bestätigt abgeschlossen. Eine anschließende Katalogbeobachtung ist separat erforderlich.",
+  "statements_executed": 1,
+  "statements_total": 1,
+  "atomic": true,
+  "observation": "unavailable"
+}

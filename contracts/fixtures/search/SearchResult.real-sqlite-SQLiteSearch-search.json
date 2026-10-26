@@ -1,0 +1,47 @@
+{
+  "tables": [
+    {
+      "table": {
+        "schema": "main",
+        "name": "p14 odd'`\" --"
+      },
+      "columns": [
+        "value'`\"",
+        "other"
+      ],
+      "count": 3,
+      "count_exact": true,
+      "rows": [
+        [
+          {
+            "kind": "text",
+            "value": "100%_! fox"
+          },
+          {
+            "kind": "text",
+            "value": "red"
+          }
+        ],
+        [
+          {
+            "kind": "text",
+            "value": "fox fox"
+          },
+          {
+            "kind": "text",
+            "value": "blue"
+          }
+        ],
+        [
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "text",
+            "value": "fox"
+          }
+        ]
+      ]
+    }
+  ]
+}

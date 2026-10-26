@@ -1,0 +1,18 @@
+{
+  "account": {
+    "name": "p18 odd'`\"; x",
+    "host": "%"
+  },
+  "current": false,
+  "login": null,
+  "locked": false,
+  "auth_plugin": "caching_sha2_password",
+  "ssl_type": "ANY",
+  "limits": {
+    "connections_per_hour": 0,
+    "queries_per_hour": 123,
+    "updates_per_hour": 0,
+    "user_connections": 3
+  },
+  "attributes": []
+}
