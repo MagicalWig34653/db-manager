@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Guard immutable v1-v12 and additive v18 import schemas and fixtures."""
+"""Guard immutable v1-v17 and additive v18 import schemas and fixtures."""
 import hashlib
 import importlib.util
 import json
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / 'scripts'))
+import contract_chain  # noqa: E402
 module_spec = importlib.util.spec_from_file_location('objectops_guard', ROOT / 'scripts/check-object-ops-contract.py')
 guard = importlib.util.module_from_spec(module_spec)
 module_spec.loader.exec_module(guard)
@@ -20,15 +23,8 @@ def validate(component, value):
 
 
 def main():
-    for name, digest in FROZEN.items():
-        assert hashlib.sha256((ROOT / 'contracts' / name).read_bytes()).hexdigest() == digest, name
-    # Concurrent feature versions are optional in this worktree. Their absence
-    # cannot weaken the required v1-v12 pins or the additive v12 baseline.
-    for version in range(13, 18):
-        path = ROOT / f'contracts/api-v0.{version}.0.json'
-        if path.exists():
-            assert json.loads(path.read_text())['info']['version'] == f'0.{version}.0'
-    previous = json.loads((ROOT / 'contracts/api-v0.12.0.json').read_text())
+    contract_chain.check(18)
+    previous = json.loads((ROOT / 'contracts/api-v0.17.0.json').read_text())
     assert SPEC['info']['version'] == '0.18.0'
     for name, route in previous['paths'].items():
         assert SPEC['paths'][name] == route, name
@@ -57,7 +53,7 @@ def main():
         problems = validate(path.name.split('.')[0], json.loads(path.read_text()))
         assert bool(problems) == path.name.endswith('.invalid.json'), (path.name, problems)
     assert list((ROOT / 'contracts/fixtures/import').glob('*.real-*.json')), 'real SQLite fixtures required'
-    print(f'Frozen v1-v12, optional v13-v17, additive v18 and {len(fixtures)} fixtures passed; SHA256 ' + hashlib.sha256((ROOT / 'contracts/api-v0.18.0.json').read_bytes()).hexdigest())
+    print(f'Frozen v1-v17 (cumulative chain), additive v18 and {len(fixtures)} fixtures passed; SHA256 ' + hashlib.sha256((ROOT / 'contracts/api-v0.18.0.json').read_bytes()).hexdigest())
 
 
 if __name__ == '__main__':

@@ -4,9 +4,12 @@
 import hashlib
 import importlib.util
 import json
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / 'scripts'))
+import contract_chain  # noqa: E402
 module_spec = importlib.util.spec_from_file_location('sqlbatch_guard', ROOT / 'scripts/check-sqlbatch-contract.py')
 base = importlib.util.module_from_spec(module_spec)
 module_spec.loader.exec_module(base)
@@ -24,13 +27,8 @@ def validate(component, value):
 
 
 def main():
-    for version in range(1, 20):
-        path = ROOT / f'contracts/api-v0.{version}.0.json'
-        if version >= 13 and not path.exists():
-            continue
-        assert path.name in FROZEN, f'{path.name}: bei Integration festen Pin ergänzen'
-        assert hashlib.sha256(path.read_bytes()).hexdigest() == FROZEN[path.name], path.name
-    previous = json.loads((ROOT / 'contracts/api-v0.16.0.json').read_text())
+    contract_chain.check(20)
+    previous = json.loads((ROOT / 'contracts/api-v0.19.0.json').read_text())
     assert SPEC['info']['version'] == '0.20.0'
     for section in ('paths',):
         for name, value in previous[section].items():
@@ -63,7 +61,7 @@ def main():
         component = path.name.split('.')[0]
         problems = validate(component, json.loads(path.read_text()))
         assert bool(problems) == path.name.endswith('.invalid.json'), (path.name, problems)
-    print(f'Frozen v1-v16 pinned (v17-v19 optional, not yet merged), additive v20, {len(fixtures)} fixtures passed; SHA256 ' + hashlib.sha256((ROOT / 'contracts/api-v0.20.0.json').read_bytes()).hexdigest())
+    print(f'Frozen v1-v19 pinned (cumulative chain), additive v20, {len(fixtures)} fixtures passed; SHA256 ' + hashlib.sha256((ROOT / 'contracts/api-v0.20.0.json').read_bytes()).hexdigest())
 
 
 if __name__ == '__main__':

@@ -7156,6 +7156,1181 @@
         }
       }
     },
+    "/api/v17/capabilities": {
+      "get": {
+        "operationId": "serverAdminCapabilities",
+        "summary": "Serververwaltung ausschlie\u00dflich lesen",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminCapabilities"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v17/status": {
+      "post": {
+        "operationId": "serverAdminStatus",
+        "summary": "Serververwaltung ausschlie\u00dflich lesen",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminReadResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServerAdminReadRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v17/variables": {
+      "post": {
+        "operationId": "serverAdminVariables",
+        "summary": "Serververwaltung ausschlie\u00dflich lesen",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminReadResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServerAdminReadRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v17/processes": {
+      "post": {
+        "operationId": "serverAdminProcesses",
+        "summary": "Serververwaltung ausschlie\u00dflich lesen",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminReadResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAdminError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServerAdminReadRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v18/capabilities": {
+      "get": {
+        "operationId": "importCapabilities",
+        "summary": "Importf\u00e4higkeiten und Grenzen",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis; Ausgang und Fehlerliste beachten",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportCapabilities"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler (400, 401, 404, 408, 409, 413, 415, 422, 503)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v18/imports/plan": {
+      "post": {
+        "operationId": "importPlan",
+        "summary": "CSV-Datei ohne Schreibwirkung pr\u00fcfen",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis; Ausgang und Fehlerliste beachten",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportPlan"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler (400, 401, 404, 408, 409, 413, 415, 422, 503)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportPlanUpload"
+              },
+              "encoding": {
+                "metadata": {
+                  "contentType": "application/json"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v18/imports/execute": {
+      "post": {
+        "operationId": "importExecute",
+        "summary": "Best\u00e4tigten Import im Speicher starten",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Ergebnis; Ausgang und Fehlerliste beachten",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportJob"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler (400, 401, 404, 408, 409, 413, 415, 422, 503)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportExecuteUpload"
+              },
+              "encoding": {
+                "metadata": {
+                  "contentType": "application/json"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v18/imports/{id}": {
+      "get": {
+        "operationId": "importStatus",
+        "summary": "Importfortschritt und Ergebnis lesen",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis; Ausgang und Fehlerliste beachten",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportJob"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler (400, 401, 404, 408, 409, 413, 415, 422, 503)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$",
+              "minLength": 32,
+              "maxLength": 32
+            }
+          }
+        ]
+      }
+    },
+    "/api/v18/imports/{id}/cancel": {
+      "post": {
+        "operationId": "importCancel",
+        "summary": "Abbruch anfordern; Ergebnis weiterhin abfragen",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis; Ausgang und Fehlerliste beachten",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportJob"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler (400, 401, 404, 408, 409, 413, 415, 422, 503)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$",
+              "minLength": 32,
+              "maxLength": 32
+            }
+          }
+        ]
+      }
+    },
+    "/api/v19/capabilities": {
+      "get": {
+        "operationId": "rowsBulkCapabilities",
+        "summary": "F\u00e4higkeiten und feste Grenzen",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RowsBulkCapabilities"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler (400, 401, 408, 409, 413, 415, 422, 503)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v19/rows/plan": {
+      "post": {
+        "operationId": "rowsBulkRowsPlan",
+        "summary": "Auswahl und Werte ohne Schreibwirkung pr\u00fcfen",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RowsBulkPlan"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler (400, 401, 408, 409, 413, 415, 422, 503)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RowsBulkPlanRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v19/rows/execute": {
+      "post": {
+        "operationId": "rowsBulkRowsExecute",
+        "summary": "Best\u00e4tigte Auswahl atomar ausf\u00fchren",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RowsBulkResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler (400, 401, 408, 409, 413, 415, 422, 503)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Abgelehnt oder unbekannter Commitausgang; kein automatischer Retry",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RowsBulkResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Abgelehnt oder unbekannter Commitausgang; kein automatischer Retry",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RowsBulkResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Abgelehnt oder unbekannter Commitausgang; kein automatischer Retry",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RowsBulkResult"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Abgelehnt oder unbekannter Commitausgang; kein automatischer Retry",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RowsBulkResult"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RowsBulkExecuteRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v19/values/upload": {
+      "post": {
+        "operationId": "rowsBulkValuesUpload",
+        "summary": "Begrenzten Bin\u00e4rwert best\u00e4tigt setzen",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MutationResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler (400, 401, 408, 409, 413, 415, 422, 503)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/FileValueMultipart"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v19/values/download": {
+      "post": {
+        "operationId": "rowsBulkValuesDownload",
+        "summary": "Bin\u00e4rwert als sicheren Download streamen",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler (400, 401, 408, 409, 413, 415, 422, 503)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FileValueRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v19/foreign-keys/lookup": {
+      "post": {
+        "operationId": "rowsBulkForeignKeysLookup",
+        "summary": "Referenzierte Werte gebunden suchen",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForeignKeyLookupResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler (400, 401, 408, 409, 413, 415, 422, 503)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForeignKeyLookupRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v20/capabilities": {
+      "get": {
+        "operationId": "monitorCapabilities",
+        "summary": "Lesender Monitor: capabilities",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Messung oder ehrliche Nichtverf\u00fcgbarkeit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonitorCapabilities"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler: 400, 401, 408, 413, 415, 422",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v20/monitor/sample": {
+      "post": {
+        "operationId": "monitorSample",
+        "summary": "Lesender Monitor: sample",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Messung oder ehrliche Nichtverf\u00fcgbarkeit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonitorResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler: 400, 401, 408, 413, 415, 422",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MonitorRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v20/monitor/analysis": {
+      "post": {
+        "operationId": "monitorAnalysis",
+        "summary": "Lesender Monitor: analysis",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Messung oder ehrliche Nichtverf\u00fcgbarkeit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonitorResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler: 400, 401, 408, 413, 415, 422",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MonitorRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v20/monitor/advisor": {
+      "post": {
+        "operationId": "monitorAdvisor",
+        "summary": "Lesender Monitor: advisor",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Messung oder ehrliche Nichtverf\u00fcgbarkeit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonitorResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler: 400, 401, 408, 413, 415, 422",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MonitorRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v20/monitor/replication": {
+      "post": {
+        "operationId": "monitorReplication",
+        "summary": "Lesender Monitor: replication",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Messung oder ehrliche Nichtverf\u00fcgbarkeit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonitorResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler: 400, 401, 408, 413, 415, 422",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MonitorRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v20/monitor/binary-logs": {
+      "post": {
+        "operationId": "monitorBinaryLogs",
+        "summary": "Lesender Monitor: binary-logs",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Messung oder ehrliche Nichtverf\u00fcgbarkeit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonitorResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler: 400, 401, 408, 413, 415, 422",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MonitorRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v20/monitor/binary-events": {
+      "post": {
+        "operationId": "monitorBinaryEvents",
+        "summary": "Lesender Monitor: binary-events",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Messung oder ehrliche Nichtverf\u00fcgbarkeit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonitorResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler: 400, 401, 408, 413, 415, 422",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MonitorRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v20/monitor/profiling": {
+      "post": {
+        "operationId": "monitorProfiling",
+        "summary": "Lesender Monitor: profiling",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Messung oder ehrliche Nichtverf\u00fcgbarkeit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonitorResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler: 400, 401, 408, 413, 415, 422",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MonitorRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v20/monitor/engines": {
+      "post": {
+        "operationId": "monitorEngines",
+        "summary": "Lesender Monitor: engines",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Messung oder ehrliche Nichtverf\u00fcgbarkeit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonitorResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler: 400, 401, 408, 413, 415, 422",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MonitorRequest"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v21/export": {
       "post": {
         "operationId": "extendedExportDownload",
@@ -21496,6 +22671,2550 @@
           "name",
           "mode",
           "type"
+        ]
+      },
+      "ServerAdminReadRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connection"
+        ],
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 200
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "filter": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "",
+              "SESSION",
+              "GLOBAL"
+            ]
+          }
+        }
+      },
+      "ServerAdminValue": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "value",
+          "masked"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 64
+          },
+          "masked": {
+            "type": "boolean"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "masked": {
+                  "const": true
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ServerAdminProcess": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "user",
+          "database",
+          "seconds",
+          "self"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,19}$"
+          },
+          "user": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "database": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "self": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ServerAdminReadResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "driver",
+          "kind",
+          "scope",
+          "sampled_at",
+          "values",
+          "processes",
+          "limit",
+          "offset",
+          "has_more"
+        ],
+        "properties": {
+          "driver": {
+            "type": "string",
+            "enum": [
+              "sqlite",
+              "mysql",
+              "postgres"
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "status",
+              "variables",
+              "processes"
+            ]
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "",
+              "SESSION",
+              "GLOBAL"
+            ]
+          },
+          "sampled_at": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServerAdminValue"
+            },
+            "maxItems": 200
+          },
+          "processes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServerAdminProcess"
+            },
+            "maxItems": 200
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "has_more": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ServerAdminDriverCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "variables",
+          "processes"
+        ],
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ObjectOpCapability"
+          },
+          "variables": {
+            "$ref": "#/components/schemas/ObjectOpCapability"
+          },
+          "processes": {
+            "$ref": "#/components/schemas/ObjectOpCapability"
+          }
+        }
+      },
+      "ServerAdminCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract_version",
+          "features",
+          "drivers",
+          "max_limit",
+          "default_limit",
+          "max_offset",
+          "max_timeout_ms",
+          "default_timeout_ms",
+          "max_request_bytes"
+        ],
+        "properties": {
+          "contract_version": {
+            "type": "string",
+            "const": "0.17.0"
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "status",
+                "variables",
+                "processes"
+              ]
+            },
+            "maxItems": 3
+          },
+          "drivers": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sqlite",
+              "mysql",
+              "postgres"
+            ],
+            "properties": {
+              "sqlite": {
+                "$ref": "#/components/schemas/ServerAdminDriverCapabilities"
+              },
+              "mysql": {
+                "$ref": "#/components/schemas/ServerAdminDriverCapabilities"
+              },
+              "postgres": {
+                "$ref": "#/components/schemas/ServerAdminDriverCapabilities"
+              }
+            }
+          },
+          "max_limit": {
+            "type": "integer",
+            "const": 200
+          },
+          "default_limit": {
+            "type": "integer",
+            "const": 100
+          },
+          "max_offset": {
+            "type": "integer",
+            "const": 10000
+          },
+          "max_timeout_ms": {
+            "type": "integer",
+            "const": 10000
+          },
+          "default_timeout_ms": {
+            "type": "integer",
+            "const": 5000
+          },
+          "max_request_bytes": {
+            "type": "integer",
+            "const": 1048576
+          }
+        }
+      },
+      "ServerAdminError": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "maxLength": 128
+              },
+              "message": {
+                "type": "string",
+                "maxLength": 2048
+              }
+            }
+          }
+        }
+      },
+      "ImportConfirmation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "import_csv",
+              "import_sql"
+            ]
+          },
+          "target_name": {
+            "type": "string",
+            "maxLength": 1024
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "CSVImportOptions": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "maxItems": 1024,
+            "minItems": 1
+          },
+          "separator": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1
+          },
+          "quote": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1
+          },
+          "escape": {
+            "type": "string",
+            "enum": [
+              "double",
+              "backslash"
+            ]
+          },
+          "charset": {
+            "type": "string",
+            "enum": [
+              "utf-8",
+              "iso-8859-1",
+              "windows-1252"
+            ]
+          },
+          "header": {
+            "type": "boolean"
+          },
+          "null": {
+            "type": "string",
+            "maxLength": 1048576
+          }
+        },
+        "required": []
+      },
+      "ImportRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "sql",
+              "csv"
+            ]
+          },
+          "compression": {
+            "type": "string",
+            "enum": [
+              "none",
+              "gzip"
+            ]
+          },
+          "table": {
+            "$ref": "#/components/schemas/TableRef"
+          },
+          "csv": {
+            "$ref": "#/components/schemas/CSVImportOptions"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "stop",
+              "skip",
+              "continue"
+            ]
+          },
+          "max_rows": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "max_bytes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 67108864
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 300000
+          },
+          "delimiter": {
+            "type": "string",
+            "maxLength": 16
+          },
+          "confirm": {
+            "$ref": "#/components/schemas/ImportConfirmation"
+          },
+          "expected_plan_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "minLength": 64,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "connection",
+          "format"
+        ]
+      },
+      "ImportUpload": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/ImportRequest"
+          },
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "description": "Browserdatei; maximal 64 MiB, kein Serverpfad."
+          }
+        },
+        "required": [
+          "metadata",
+          "file"
+        ]
+      },
+      "ImportIssue": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "row": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "column": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1024
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "row",
+          "column",
+          "code"
+        ]
+      },
+      "ImportProgress": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "processed": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          }
+        },
+        "required": [
+          "processed",
+          "total"
+        ]
+      },
+      "ImportPlan": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "driver": {
+            "type": "string",
+            "enum": [
+              "sqlite",
+              "mysql",
+              "postgres"
+            ]
+          },
+          "statements": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 2097152
+            },
+            "maxItems": 2,
+            "minItems": 2
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 4096
+            },
+            "maxItems": 10
+          },
+          "affected_objects": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 2049
+            },
+            "maxItems": 1
+          },
+          "plan_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "minLength": 64,
+            "maxLength": 64
+          },
+          "rows": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "valid_rows": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "preview": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Cell"
+              },
+              "maxItems": 1024
+            },
+            "maxItems": 20
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportIssue"
+            },
+            "maxItems": 100
+          },
+          "errors_truncated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "driver",
+          "statements",
+          "warnings",
+          "affected_objects",
+          "plan_sha256",
+          "rows",
+          "valid_rows",
+          "preview",
+          "errors",
+          "errors_truncated"
+        ]
+      },
+      "ImportResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "rejected",
+              "outcome_unknown"
+            ]
+          },
+          "processed": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "inserted": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "skipped": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "statements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportStatementResult"
+            },
+            "maxItems": 10000
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportIssue"
+            },
+            "maxItems": 100
+          },
+          "errors_truncated": {
+            "type": "boolean"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 4096
+            },
+            "maxItems": 10
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "outcome",
+          "processed",
+          "inserted",
+          "skipped",
+          "statements",
+          "errors",
+          "errors_truncated",
+          "warnings"
+        ]
+      },
+      "ImportJob": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$",
+            "minLength": 32,
+            "maxLength": 32
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "running",
+              "finished"
+            ]
+          },
+          "cancel_requested": {
+            "type": "boolean"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/ImportProgress"
+          },
+          "result": {
+            "$ref": "#/components/schemas/ImportResult"
+          }
+        },
+        "required": [
+          "id",
+          "state",
+          "cancel_requested",
+          "progress"
+        ]
+      },
+      "ImportDriverCapability": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "driver": {
+            "type": "string",
+            "enum": [
+              "sqlite",
+              "mysql",
+              "postgres"
+            ]
+          },
+          "sql": {
+            "type": "string",
+            "enum": [
+              "limited"
+            ]
+          },
+          "csv": {
+            "type": "string",
+            "enum": [
+              "limited"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 4096
+          }
+        },
+        "required": [
+          "driver",
+          "sql",
+          "csv",
+          "reason"
+        ]
+      },
+      "ImportCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "contract_version": {
+            "type": "string",
+            "const": "0.18.0"
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "max_file_bytes": {
+            "type": "integer",
+            "const": 67108864
+          },
+          "max_expanded_bytes": {
+            "type": "integer",
+            "const": 67108864
+          },
+          "max_request_bytes": {
+            "type": "integer",
+            "const": 68157440
+          },
+          "max_rows": {
+            "type": "integer",
+            "const": 100000
+          },
+          "max_statements": {
+            "type": "integer",
+            "const": 10000
+          },
+          "max_statement_bytes": {
+            "type": "integer",
+            "const": 1048576
+          },
+          "max_timeout_ms": {
+            "type": "integer",
+            "const": 300000
+          },
+          "max_jobs": {
+            "type": "integer",
+            "const": 2
+          },
+          "retention_seconds": {
+            "type": "integer",
+            "const": 300
+          },
+          "formats": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "sql",
+                "csv"
+              ]
+            },
+            "maxItems": 2
+          },
+          "compression": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "none",
+                "gzip"
+              ]
+            },
+            "maxItems": 2
+          },
+          "charsets": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "utf-8",
+                "iso-8859-1",
+                "windows-1252"
+              ]
+            },
+            "maxItems": 3
+          },
+          "confirmation_required": {
+            "type": "boolean",
+            "const": true
+          },
+          "drivers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportDriverCapability"
+            },
+            "maxItems": 3
+          }
+        },
+        "required": [
+          "contract_version",
+          "available",
+          "max_file_bytes",
+          "max_expanded_bytes",
+          "max_request_bytes",
+          "max_rows",
+          "max_statements",
+          "max_statement_bytes",
+          "max_timeout_ms",
+          "max_jobs",
+          "retention_seconds",
+          "formats",
+          "compression",
+          "charsets",
+          "confirmation_required",
+          "drivers"
+        ]
+      },
+      "ImportStatementResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "outcome_unknown",
+              "not_executed"
+            ]
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SQLBatchSet"
+            },
+            "maxItems": 0
+          },
+          "rows_affected": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SQLWarning"
+            },
+            "maxItems": 1
+          },
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9223372036854775807
+          },
+          "error_code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "server_code": {
+            "type": "string",
+            "pattern": "^(?:[0-9]{1,10}|[A-Z0-9]{5})$",
+            "maxLength": 10
+          }
+        },
+        "required": [
+          "index",
+          "outcome",
+          "results",
+          "warnings",
+          "duration_ms"
+        ]
+      },
+      "CSVImportMappedOptions": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "maxItems": 1024,
+            "minItems": 1
+          },
+          "separator": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1
+          },
+          "quote": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1
+          },
+          "escape": {
+            "type": "string",
+            "enum": [
+              "double",
+              "backslash"
+            ]
+          },
+          "charset": {
+            "type": "string",
+            "enum": [
+              "utf-8",
+              "iso-8859-1",
+              "windows-1252"
+            ]
+          },
+          "header": {
+            "type": "boolean"
+          },
+          "null": {
+            "type": "string",
+            "maxLength": 1048576
+          }
+        },
+        "required": [
+          "columns"
+        ]
+      },
+      "ImportPlanRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "format": {
+            "type": "string",
+            "const": "csv"
+          },
+          "compression": {
+            "type": "string",
+            "enum": [
+              "none",
+              "gzip"
+            ]
+          },
+          "table": {
+            "$ref": "#/components/schemas/TableRef"
+          },
+          "csv": {
+            "$ref": "#/components/schemas/CSVImportMappedOptions"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "stop",
+              "skip",
+              "continue"
+            ]
+          },
+          "max_rows": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "max_bytes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 67108864
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 300000
+          },
+          "delimiter": {
+            "type": "string",
+            "maxLength": 16
+          }
+        },
+        "required": [
+          "connection",
+          "format",
+          "table",
+          "csv"
+        ]
+      },
+      "ImportExecuteRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "sql",
+              "csv"
+            ]
+          },
+          "compression": {
+            "type": "string",
+            "enum": [
+              "none",
+              "gzip"
+            ]
+          },
+          "table": {
+            "$ref": "#/components/schemas/TableRef"
+          },
+          "csv": {
+            "$ref": "#/components/schemas/CSVImportOptions"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "stop",
+              "skip",
+              "continue"
+            ]
+          },
+          "max_rows": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "max_bytes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 67108864
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 300000
+          },
+          "delimiter": {
+            "type": "string",
+            "maxLength": 16
+          },
+          "confirm": {
+            "$ref": "#/components/schemas/ImportConfirmation"
+          },
+          "expected_plan_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "minLength": 64,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "connection",
+          "format",
+          "confirm"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "format": {
+                  "const": "csv"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "table",
+                "csv",
+                "expected_plan_sha256"
+              ],
+              "properties": {
+                "csv": {
+                  "$ref": "#/components/schemas/CSVImportMappedOptions"
+                },
+                "confirm": {
+                  "properties": {
+                    "action": {
+                      "const": "import_csv"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "format": {
+                  "const": "sql"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "confirm": {
+                  "properties": {
+                    "action": {
+                      "const": "import_sql"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ImportPlanUpload": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/ImportPlanRequest"
+          },
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "description": "Browserdatei; maximal 64 MiB, kein Serverpfad."
+          }
+        },
+        "required": [
+          "metadata",
+          "file"
+        ]
+      },
+      "ImportExecuteUpload": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/ImportExecuteRequest"
+          },
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "description": "Browserdatei; maximal 64 MiB, kein Serverpfad."
+          }
+        },
+        "required": [
+          "metadata",
+          "file"
+        ]
+      },
+      "BulkSelectedRow": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected"
+        ],
+        "properties": {
+          "expected": {
+            "$ref": "#/components/schemas/RowSnapshot"
+          },
+          "stability_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "copy_values": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RowChange"
+            },
+            "minItems": 0,
+            "maxItems": 1024
+          }
+        }
+      },
+      "RowsBulkPlanRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connection",
+          "table",
+          "action",
+          "rows"
+        ],
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "table": {
+            "$ref": "#/components/schemas/TableRef"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "update",
+              "delete",
+              "copy"
+            ]
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkSelectedRow"
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RowChange"
+            },
+            "minItems": 0,
+            "maxItems": 1024
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 60000
+          },
+          "confirm": {
+            "type": "boolean",
+            "const": false
+          },
+          "expected_plan_sha256": {
+            "type": "string",
+            "const": ""
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "action": {
+                "const": "update"
+              },
+              "changes": {
+                "minItems": 1
+              }
+            },
+            "required": [
+              "changes"
+            ]
+          },
+          {
+            "properties": {
+              "action": {
+                "enum": [
+                  "delete",
+                  "copy"
+                ]
+              },
+              "changes": {
+                "maxItems": 0
+              }
+            }
+          }
+        ]
+      },
+      "RowsBulkExecuteRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connection",
+          "table",
+          "action",
+          "rows",
+          "confirm",
+          "expected_plan_sha256"
+        ],
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "table": {
+            "$ref": "#/components/schemas/TableRef"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "update",
+              "delete",
+              "copy"
+            ]
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkExecuteRow"
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RowChange"
+            },
+            "minItems": 0,
+            "maxItems": 1024
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 60000
+          },
+          "confirm": {
+            "type": "boolean",
+            "const": true
+          },
+          "expected_plan_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "action": {
+                "const": "update"
+              },
+              "changes": {
+                "minItems": 1
+              }
+            },
+            "required": [
+              "changes"
+            ]
+          },
+          {
+            "properties": {
+              "action": {
+                "enum": [
+                  "delete",
+                  "copy"
+                ]
+              },
+              "changes": {
+                "maxItems": 0
+              }
+            }
+          }
+        ]
+      },
+      "BulkPlannedRow": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "stability_sha256"
+        ],
+        "properties": {
+          "key": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RowChange"
+            },
+            "minItems": 1,
+            "maxItems": 1024
+          },
+          "stability_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      },
+      "RowsBulkPlan": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "table",
+          "action",
+          "rows",
+          "row_count",
+          "warnings",
+          "plan_sha256"
+        ],
+        "properties": {
+          "table": {
+            "$ref": "#/components/schemas/TableRef"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "update",
+              "delete",
+              "copy"
+            ]
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkPlannedRow"
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "row_count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 16
+          },
+          "plan_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      },
+      "BulkRowResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "index",
+          "outcome"
+        ],
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 99
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "rejected",
+              "outcome_unknown"
+            ]
+          },
+          "row": {
+            "$ref": "#/components/schemas/RowSnapshot"
+          }
+        }
+      },
+      "RowsBulkResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "outcome",
+          "rows"
+        ],
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "rejected",
+              "outcome_unknown"
+            ]
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkRowResult"
+            },
+            "minItems": 0,
+            "maxItems": 100
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "FileValueRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connection",
+          "table",
+          "expected",
+          "column"
+        ],
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "table": {
+            "$ref": "#/components/schemas/TableRef"
+          },
+          "expected": {
+            "$ref": "#/components/schemas/RowSnapshot"
+          },
+          "column": {
+            "type": "string"
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 60000
+          },
+          "confirm": {
+            "type": "boolean"
+          },
+          "preview": {
+            "type": "boolean"
+          }
+        }
+      },
+      "FileValueMultipart": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "metadata",
+          "file"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/FileValueUploadRequest"
+          },
+          "file": {
+            "type": "string",
+            "format": "binary"
+          }
+        }
+      },
+      "ForeignKeyLookupRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connection",
+          "table",
+          "column",
+          "display_column"
+        ],
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "table": {
+            "$ref": "#/components/schemas/TableRef"
+          },
+          "column": {
+            "type": "string"
+          },
+          "display_column": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 60000
+          }
+        }
+      },
+      "ForeignKeyChoice": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "value",
+          "display"
+        ],
+        "properties": {
+          "value": {
+            "$ref": "#/components/schemas/Cell"
+          },
+          "display": {
+            "$ref": "#/components/schemas/Cell"
+          }
+        }
+      },
+      "ForeignKeyLookupResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "table",
+          "value_column",
+          "display_column",
+          "choices",
+          "has_more"
+        ],
+        "properties": {
+          "table": {
+            "$ref": "#/components/schemas/TableRef"
+          },
+          "value_column": {
+            "type": "string"
+          },
+          "display_column": {
+            "type": "string"
+          },
+          "choices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ForeignKeyChoice"
+            },
+            "minItems": 0,
+            "maxItems": 100
+          },
+          "has_more": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RowsBulkDriverCapability": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "driver",
+          "bulk",
+          "file_values",
+          "foreign_key_lookup",
+          "reason"
+        ],
+        "properties": {
+          "driver": {
+            "type": "string",
+            "enum": [
+              "sqlite",
+              "mysql",
+              "postgres"
+            ]
+          },
+          "bulk": {
+            "type": "string",
+            "enum": [
+              "limited"
+            ]
+          },
+          "file_values": {
+            "type": "string",
+            "enum": [
+              "limited"
+            ]
+          },
+          "foreign_key_lookup": {
+            "type": "string",
+            "enum": [
+              "limited"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "RowsBulkCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract_version",
+          "available",
+          "max_rows",
+          "max_file_bytes",
+          "max_request_bytes",
+          "max_timeout_ms",
+          "max_lookup_page_size",
+          "drivers"
+        ],
+        "properties": {
+          "contract_version": {
+            "type": "string",
+            "const": "0.19.0"
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "max_rows": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 100
+          },
+          "max_file_bytes": {
+            "type": "integer",
+            "minimum": 524288,
+            "maximum": 524288
+          },
+          "max_request_bytes": {
+            "type": "integer",
+            "minimum": 1048576,
+            "maximum": 1048576
+          },
+          "max_timeout_ms": {
+            "type": "integer",
+            "minimum": 60000,
+            "maximum": 60000
+          },
+          "max_lookup_page_size": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 100
+          },
+          "drivers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RowsBulkDriverCapability"
+            },
+            "minItems": 3,
+            "maxItems": 3
+          }
+        }
+      },
+      "BulkExecuteRow": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected",
+          "stability_sha256"
+        ],
+        "properties": {
+          "expected": {
+            "$ref": "#/components/schemas/RowSnapshot"
+          },
+          "stability_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "copy_values": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RowChange"
+            },
+            "minItems": 0,
+            "maxItems": 1024
+          }
+        }
+      },
+      "FileValueUploadRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connection",
+          "table",
+          "expected",
+          "column",
+          "confirm"
+        ],
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "table": {
+            "$ref": "#/components/schemas/TableRef"
+          },
+          "expected": {
+            "$ref": "#/components/schemas/RowSnapshot"
+          },
+          "column": {
+            "type": "string"
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 60000
+          },
+          "confirm": {
+            "type": "boolean",
+            "const": true
+          },
+          "preview": {
+            "type": "boolean"
+          }
+        }
+      },
+      "MonitorRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 200,
+            "default": 50
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000,
+            "default": 0
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30000,
+            "default": 10000
+          },
+          "log": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^[A-Za-z0-9_-]+\\.[0-9]{1,20}$"
+          },
+          "position": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "default": 0
+          },
+          "sql": {
+            "type": "string",
+            "maxLength": 16384
+          }
+        },
+        "required": [
+          "connection"
+        ]
+      },
+      "MonitorRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uptime": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "questions": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "bytes_received": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "bytes_sent": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "threads_running": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "threads_connected": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "slow_queries": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "connections": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "aborted_connects": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "calls": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "total_seconds": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "rows_sent": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "seconds_behind_source": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "seconds_behind_master": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "read_source_log_pos": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "read_master_log_pos": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "exec_source_log_pos": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "exec_master_log_pos": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "last_io_errno": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "last_sql_errno": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "file_size": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "pos": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "server_id": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "end_log_pos": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "numbackends": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "xact_commit": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "xact_rollback": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "blks_read": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "blks_hit": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "tup_returned": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "tup_fetched": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "deadlocks": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "temp_files": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "temp_bytes": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "queryid": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "total_exec_time": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "rows": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "pid": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "table_access_methods": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "id": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "filtered": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "startup_cost": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "total_cost": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "plan_rows": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "plan_width": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "history_list_length": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "buffer_pool_size": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "free_buffers": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "database_pages": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "modified_db_pages": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^[0-9]+(?:\\.[0-9]+)+$",
+            "maxLength": 256
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{16,64}$"
+          },
+          "log_name": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+\\.[0-9]{1,20}$",
+            "maxLength": 256
+          },
+          "replica_io_running": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No",
+              "Connecting"
+            ]
+          },
+          "slave_io_running": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No",
+              "Connecting"
+            ]
+          },
+          "replica_sql_running": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ]
+          },
+          "slave_sql_running": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ]
+          },
+          "encrypted": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "sender",
+              "receiver"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "startup",
+              "catchup",
+              "streaming",
+              "backup",
+              "stopped",
+              "starting",
+              "waiting",
+              "restarting",
+              "stopping"
+            ]
+          },
+          "sync_state": {
+            "type": "string",
+            "enum": [
+              "async",
+              "potential",
+              "sync",
+              "quorum"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "system",
+              "const",
+              "eq_ref",
+              "ref",
+              "fulltext",
+              "ref_or_null",
+              "index_merge",
+              "unique_subquery",
+              "index_subquery",
+              "range",
+              "index",
+              "ALL"
+            ]
+          },
+          "engine": {
+            "type": "string",
+            "enum": [
+              "InnoDB",
+              "MyISAM",
+              "MEMORY",
+              "CSV",
+              "ARCHIVE",
+              "BLACKHOLE",
+              "MRG_MYISAM",
+              "PERFORMANCE_SCHEMA",
+              "SEQUENCE",
+              "Aria",
+              "FEDERATED",
+              "partition"
+            ]
+          },
+          "support": {
+            "type": "string",
+            "enum": [
+              "YES",
+              "NO",
+              "DEFAULT",
+              "DISABLED"
+            ]
+          },
+          "transactions": {
+            "type": "string",
+            "enum": [
+              "YES",
+              "NO"
+            ]
+          },
+          "xa": {
+            "type": "string",
+            "enum": [
+              "YES",
+              "NO"
+            ]
+          },
+          "savepoints": {
+            "type": "string",
+            "enum": [
+              "YES",
+              "NO"
+            ]
+          },
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "Start",
+              "Stop",
+              "Rotate",
+              "Format_desc",
+              "Previous_gtids",
+              "Gtid",
+              "Anonymous_Gtid",
+              "Query",
+              "Table_map",
+              "Write_rows",
+              "Update_rows",
+              "Delete_rows",
+              "Xid",
+              "Rows_query",
+              "Annotate_rows",
+              "Heartbeat",
+              "Ignorable"
+            ]
+          },
+          "node_type": {
+            "type": "string",
+            "enum": [
+              "Result",
+              "Seq Scan",
+              "Index Scan",
+              "Index Only Scan",
+              "Bitmap Heap Scan",
+              "Bitmap Index Scan",
+              "Limit",
+              "Sort",
+              "Gather",
+              "Gather Merge",
+              "Append",
+              "Aggregate",
+              "Group",
+              "Nested Loop",
+              "Hash Join",
+              "Merge Join",
+              "Hash",
+              "Materialize",
+              "Memoize",
+              "Subquery Scan",
+              "Unique",
+              "LockRows",
+              "SetOp",
+              "WindowAgg"
+            ]
+          }
+        },
+        "required": []
+      },
+      "MonitorHint": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "rule": {
+            "type": "string",
+            "maxLength": 512
+          },
+          "source": {
+            "type": "string",
+            "maxLength": 512
+          },
+          "metric": {
+            "type": "string",
+            "maxLength": 512
+          },
+          "threshold": {
+            "type": "string",
+            "maxLength": 512
+          },
+          "observed": {
+            "type": "string",
+            "maxLength": 512
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 512
+          }
+        },
+        "required": [
+          "rule",
+          "source",
+          "metric",
+          "threshold",
+          "observed",
+          "message"
+        ]
+      },
+      "MonitorResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "driver": {
+            "type": "string",
+            "enum": [
+              "sqlite",
+              "mysql",
+              "postgres"
+            ]
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "sample",
+              "analysis",
+              "advisor",
+              "replication",
+              "binary-logs",
+              "binary-events",
+              "profiling",
+              "engines"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "unavailable"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 2048
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "none",
+              "sqlite_version",
+              "global_status",
+              "performance_schema",
+              "slow_log_table",
+              "replica_status",
+              "binary_logs",
+              "binlog_events",
+              "explain",
+              "show_engines",
+              "pg_stat_database",
+              "pg_stat_statements",
+              "pg_replication",
+              "pg_am"
+            ]
+          },
+          "sampled_at": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 40
+          },
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MonitorRecord"
+            },
+            "maxItems": 200
+          },
+          "hints": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MonitorHint"
+            },
+            "maxItems": 4
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 200
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "truncated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "driver",
+          "action",
+          "state",
+          "reason",
+          "source",
+          "sampled_at",
+          "duration_ms",
+          "records",
+          "hints",
+          "limit",
+          "offset",
+          "has_more",
+          "truncated"
+        ]
+      },
+      "MonitorCapability": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "driver": {
+            "type": "string",
+            "enum": [
+              "sqlite",
+              "mysql",
+              "postgres"
+            ]
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "sample",
+              "analysis",
+              "advisor",
+              "replication",
+              "binary-logs",
+              "binary-events",
+              "profiling",
+              "engines"
+            ]
+          },
+          "support": {
+            "type": "string",
+            "enum": [
+              "limited",
+              "unsupported"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          }
+        },
+        "required": [
+          "driver",
+          "action",
+          "support",
+          "reason"
+        ]
+      },
+      "MonitorCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "contract_version": {
+            "type": "string",
+            "const": "0.20.0"
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "read_only": {
+            "type": "boolean",
+            "const": true
+          },
+          "max_limit": {
+            "type": "integer",
+            "const": 200
+          },
+          "max_offset": {
+            "type": "integer",
+            "const": 10000
+          },
+          "max_timeout_ms": {
+            "type": "integer",
+            "const": 30000
+          },
+          "max_response_bytes": {
+            "type": "integer",
+            "const": 8388608
+          },
+          "drivers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MonitorCapability"
+            },
+            "minItems": 24,
+            "maxItems": 24
+          }
+        },
+        "required": [
+          "contract_version",
+          "available",
+          "read_only",
+          "max_limit",
+          "max_offset",
+          "max_timeout_ms",
+          "max_response_bytes",
+          "drivers"
         ]
       },
       "ExtendedExportAlias": {

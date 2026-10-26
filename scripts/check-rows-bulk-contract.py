@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Check v19 additions, frozen v1..v12 and marked/real W-P13 fixtures."""
+"""Check v19 additions, frozen v1..v18 and marked/real W-P13 fixtures."""
 import hashlib
 import importlib.util
 import json
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / 'scripts'))
+import contract_chain  # noqa: E402
 spec = importlib.util.spec_from_file_location('sqlbatch_guard', ROOT / 'scripts/check-sqlbatch-contract.py')
 previous_guard = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(previous_guard)
@@ -25,15 +28,9 @@ def validate(component, value):
 
 def main():
     previous_guard.main()
-    path = ROOT / 'contracts/api-v0.12.0.json'
-    assert hashlib.sha256(path.read_bytes()).hexdigest() == FROZEN_V12
-    previous = json.loads(path.read_text())
+    contract_chain.check(19)
+    previous = json.loads((ROOT / 'contracts/api-v0.18.0.json').read_text())
     assert SPEC['info']['version'] == '0.19.0'
-    # Versions 13..18 belong to other packages and need not exist in this worktree.
-    for version in range(13, 19):
-        optional = ROOT / f'contracts/api-v0.{version}.0.json'
-        if optional.exists():
-            json.loads(optional.read_text())
     for name, route in previous['paths'].items():
         assert SPEC['paths'][name] == route, name
     for name, schema in previous['components']['schemas'].items():

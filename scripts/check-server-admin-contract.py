@@ -6,8 +6,11 @@ import importlib.util
 import json
 from pathlib import Path
 import re
+import sys
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / 'scripts'))
+import contract_chain  # noqa: E402
 loader = importlib.util.spec_from_file_location('overview_guard', ROOT / 'scripts/check-overview-contract.py')
 overview = importlib.util.module_from_spec(loader)
 loader.loader.exec_module(overview)
@@ -54,6 +57,7 @@ def validate(component, value):
 
 def main():
     programs.main()  # freezes v1..v15 and the v16 programs guard
+    contract_chain.check(17)
     spec = load()
     assert spec['info']['version'] == '0.17.0'
     for filename, digest in FROZEN.items():
@@ -95,7 +99,7 @@ def main():
         assert bool(problems) == path.name.endswith('.invalid.json'), (path.name, problems)
         count += 1
     assert count >= 15, count
-    print(f'Frozen v1-v16 bytes, additive read-only v17, references, strict schemas and {count} fixtures passed.')
+    print(f'Frozen v1-v16 bytes, cumulative chain, additive read-only v17, references, strict schemas and {count} fixtures passed.')
 
 
 if __name__ == '__main__':
