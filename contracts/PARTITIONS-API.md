@@ -1,6 +1,6 @@
 # Partitionen und Tabellenpräfix-Stapel (API 0.22)
 
-[Schema](api-v0.22.0.json), additiv auf API 0.12; v1 bis v12 bleiben byteidentisch.
+[Schema](api-v0.22.0.json), kumulativ und additiv auf API 0.16; v1 bis v16 bleiben byteidentisch.
 Die Nummer 0.22 ist endgültig. Reserviert für andere Pakete sind 0.17 (W-P17), 0.18 (W-P12), 0.19 (W-P13), 0.20 (W-P27) und 0.21 (W-P28); diese Lücken sind keine Voraussetzung. Der Wächter pinnt nur die in diesem Stand vorhandenen Vorgänger (v1 bis v16).
 Alle Routen benötigen Bearer-Authentifizierung und eine flüchtige Verbindung.
 1 MiB Anfrage, 30 Sekunden Standardzeitlimit, höchstens 60 Sekunden; unbekannte

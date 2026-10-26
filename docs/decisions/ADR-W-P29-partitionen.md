@@ -7,7 +7,7 @@ Leadintegration offen. API 0.22 ist durch den Auftrag festgelegt.
 
 [W-P29](../PWA-PLAN.md) ergänzt Partitionierung und Präfixstapel über den
 [W-P07-Objektoperationen](../../contracts/OBJECT-OPS-API.md).
-Neue additive [API 0.22](../../contracts/PARTITIONS-API.md) auf v12. Die
+Neue additive [API 0.22](../../contracts/PARTITIONS-API.md) kumulativ auf v16. Die
 Präfixplanung ruft die vorhandene Objektplanung auf; ein Gesamt-Hash bindet die
 exakte vollständige Anweisungsliste. Kein zweiter SQL-Generator für Objektaktionen.
 

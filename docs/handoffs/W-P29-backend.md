@@ -8,10 +8,10 @@ beim Lead. Kein Webpin, Assetbuild oder Deployment.
 
 ## Ergebnis und Abnahmeumfang
 
-Neue [API 0.22](../../contracts/PARTITIONS-API.md) unter `/api/v22/`, additiv auf
-v12; Nummer durch Auftrag endgültig festgelegt. V1 bis v12 unverändert gepinnt,
-v13 bis v20 keine Voraussetzung. Registrierung genau ein neuer Featureeintrag,
-Featurezählung 13. Keine neuen Abhängigkeiten oder Änderungen an SQLite-Sandbox,
+Neue [API 0.22](../../contracts/PARTITIONS-API.md) unter `/api/v22/`, kumulativ
+und additiv auf v16 (enthält 0.13 bis 0.16). Der Wächter pinnt v1 bis v16 mit SHA-256;
+v17 bis v21 sind reserviert, hier nicht vorhanden und nicht vorausgesetzt (Lücken
+dokumentiert). Registrierung genau ein neuer Featureeintrag, Featurezählung 17. Keine neuen Abhängigkeiten oder Änderungen an SQLite-Sandbox,
 Treibern oder bestehender Objektoperationslogik. Eigener Code AGPL-3.0-only.
 
 Partitionen: Katalogliste mit Methode, Ausdruck, Grenzen und Zeilenschätzungen;
