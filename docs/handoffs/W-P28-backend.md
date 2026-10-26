@@ -1,11 +1,10 @@
 # Handoff W-P28 Backend: Erweiterte Textformate und Dump-Details
 
-Stand: 25.10.2026. Implementierter Reviewkandidat auf `feat/w-p28-backend`,
-Basis und unveränderter HEAD `c331c642fa4957747845458b079cffc32f6b1ff6`.
-Arbeit ausschließlich im zugewiesenen Worktree `.worktrees/w-p28-backend`.
-Keine Git-Schreibbefehle, kein Commit, keine Integration oder Veröffentlichung.
-Lead übernimmt unabhängigen Review, Commit und Integration. Zentrale STATUS-/
-ARBEITSPLAN-Dateien, Vertragsindex, Paritätsmatrix und Webassets bleiben beim Lead.
+Stand: 26.10.2026. Reviewkandidat auf `feat/w-p28-backend`, auf main `3a7e1f1` (Wave 3,
+API 0.16) gemergt. API-Nummer 0.21 (reserviert: W-P17=0.17, W-P12=0.18, W-P13=0.19,
+W-P27=0.20); ein früherer Codex-Lauf nutzte 0.22 und wurde auf 0.21 umnummeriert.
+Nichts nach main gemergt. Zentrale STATUS-/ARBEITSPLAN-Dateien, Vertragsindex,
+Paritätsmatrix und Webassets bleiben beim Lead; unabhängiger Review steht aus.
 
 ## Ergebnis und Dateien
 
@@ -33,7 +32,7 @@ ARBEITSPLAN-Dateien, Vertragsindex, Paritätsmatrix und Webassets bleiben beim L
   `export-format-v1.schema.json` unverändert.
 - `scripts/check-extended-export-contract.py`: feste SHA256-Pins aller v1–v12,
   Additivität zu v12, Referenzen, Authentisierung, strikte neue Schemas und Fixtures;
-  v13–v21 sind optional, werden nicht vorausgesetzt.
+  v13–v20 sind optional und werden nicht vorausgesetzt (Lücken 0.17–0.20 bis zu deren Integration; v21 baut nur auf v12 auf und enthält deshalb die Pfade von 0.13–0.16 nicht. Der Lead führt beim Zusammenführen die Vertragsunion).
 - `scripts/test-extended-export.py`: SQLite/HTTP mit Race, echte Fähigkeitsantwort
   gegen Schema; optional seriell `dbfix.py` für MySQL 8.4, MariaDB 12.3, PG 18.6.
   `.github/workflows/extended-export.yml`: vorbereitete CI einschließlich Livefällen.
@@ -74,68 +73,29 @@ GZip-Abschluss und geschlossene Einzeltabelle reichen nicht. Trailer können im 
 fehlen. Ein Textwert mit Markerinhalt ist kein gültiger Dokumentabschluss. Daten werden
 nicht gesammelt und Quelldaten nicht verändert; Restore erst nach Abschlussprüfung.
 
-## Prüfstand
+## Prüfstand (26.10.2026, Docker verfügbar)
 
-Alle Go-Läufe verwenden einen beschreibbaren temporären Cache und
-`GOPROXY=off GOSUMDB=off`; keine Downloads oder neuen Abhängigkeiten.
+- Live: `python3 scripts/test-extended-export.py --live` bestanden; je serielle Wegwerf-
+  Container (dbfix) MySQL 8.4, MariaDB 12.3, PostgreSQL 18.6 mit TLS, plus SQLite; alle
+  acht Formate PASS, View-Materialisierung und Restore in unabhängige DB. Danach keine
+  übrig gebliebenen `dbmanager-`-Container.
+- Unabhängige Parser: `scripts/check-extended-export-files.py` prüft echte Ausgaben
+  (24 Dateien: 3 Treiber x 8 Formate) mit PHP (`include`), PyYAML, ElementTree, json
+  sowie HTML-Entitäts-/LaTeX-Rückwandlung gegen die CodeGen-Zeilen: Typen, NULL,
+  leerer Text, Binär, Steuerzeichen und Sonderzeichen stimmen überein; letzte
+  Abschlussmarke je Format geprüft. Kein LaTeX-/MediaWiki-/Texy-Renderer vorhanden.
+- `gofmt -l .` leer, `go vet ./...` ok, `go test -race -count=1 ./...` alle Pakete ok
+  (Listener- und Crash-Tests liefen diesmal), alle 16 `check-*-contract.py` ok,
+  `check-docs.py` 1159 Dateien/0 Fehler.
+- Korrigiert: Wächter prüfte versehentlich v21 selbst als Vorgänger (range 13..21).
+- CSV-Formelinjektion: `excel-csv` präfixiert jedes Feld (auch Kopf) mit `'`; Klartext-`csv`
+  bleibt bewusst unverändert (W-P08-Vertrag). Neue Formate escapen alle Daten.
+- Parallelität: max. 2 Exporte über die bestehenden Slots; neue Routen nutzen denselben
+  Handler. Kein Teilzustand, Abschlussmarker fehlt bei Fehler/Abbruch.
 
-- `python3 scripts/test-extended-export.py`: bestanden mit Race; alle acht
-  Textvarianten, XML-/YAML-Parser, Referenzbytes, SQLite-View-Restore und Katalogaliase,
-  Konfliktvarianten, Dauer-/Byte-/Zeilenlimits, Abbruch, GZip, HTTP-Auth und Trailer.
-  Tatsächliche Fähigkeitsantwort gegen v21-Schema validiert. Livefälle ohne Ports
-  ausdrücklich übersprungen. Nach letzten Ergänzungen folgt der Abschlusslauf unten.
-- Vollständiger Race-Lauf, Vet, sämtliche Vertragswächter und Dokumentationsprüfung:
-  Abschlussresultate werden unten nachgetragen; keine Vorwegnahme grüner Ergebnisse.
-- `docker ps --format '{{.Names}} {{.Status}}'`: Docker-Socketzugriff verweigert.
-  Prozessübersicht `ps` ebenfalls durch Sandbox gesperrt; keine eigenen Dockerjobs
-  gestartet. Eigene Go-Läufe werden über ihre Session bis zum Ende verfolgt.
+## Offen
 
-## Nicht ausgeführt und nächste Schritte
-
-Keine Docker-/Live-DB-Läufe, kein `scripts/test-extended-export.py --live`, keine
-MySQL-/MariaDB-/PG-Roundtrips, Compose-/Swarm-/Browserprüfungen, kein externer PHP-/
-LaTeX-/Wiki-/Texy-Renderer und kein unabhängiger Review oder öffentlicher CI-Lauf.
-XML und die strikte YAML-Teilmenge haben unabhängige Parser; PHP/LaTeX/Wiki/Texy sind
-lokal durch feste Referenzbytes und Injektionsfälle geprüft, kein Rendererbeweis.
-
-Nächster Schritt: Lead übernimmt den vollständigen uncommitteten Diff einschließlich
-neuer Dateien, lässt Vertrag/ADR/Backend unabhängig reviewen und führt die vorbereiteten
-Vier-DB-Läufe auf geeignetem Host aus. Insbesondere die begrenzten DEFINER-/Kommentar-/
-Kompatibilitäts-/CodeGen-Profile vor Freigabe fachlich abnehmen. Offene Teilparität
-nicht als vollständige phpMyAdmin-Parität in die zentralen Dokumente übernehmen.
-
-## Abschlusscheckpoint und exakte Ergebnisse
-
-Prüfdatum 25.10.2026. Für die Go-Befehle:
-`GOCACHE=/private/tmp/dbm-wp28-cache GOPROXY=off GOSUMDB=off`.
-Der Cache liegt außerhalb der Produktdateien und enthält keine DB-Fixtures.
-
-| Befehl | Tatsächlicher Ausgang |
-| --- | --- |
-| `gofmt -l .` | ohne Ausgabe |
-| `go vet ./...` | bestanden, einschließlich Abschlusswiederholung |
-| `go test -race -count=1 ./...` | ausgeführt; bestehender `TestMySQLPerConnectionLoggerSuppressesServerInput` scheitert an `listen tcp … bind: operation not permitted`; übrige Pakete bestanden |
-| `go test -race -count=1 ./... -skip '^TestMySQLPerConnectionLoggerSuppressesServerInput$'` | Datenbank 72,637 s, HTTP 5,466 s und übrige Pakete bestanden; bestehender `TestCrashRecovery` scheitert am Kindprozess-Starttimeout; deshalb kein vollständig grüner Gesamtlauf behauptet |
-| `go test -race -count=1 ./internal/sqlitesandbox -run '^TestCrashRecovery$'` | gezielte Wiederholung bestanden, 6,680 s |
-| `python3 scripts/test-extended-export.py` | abschließend bestanden mit Race; alle neuen Format-/Dump-/HTTP-Tests, Typallowlist und echte v21-Fähigkeitsantwort gegen Schema; drei Livefälle ausdrücklich übersprungen |
-| `go test -race -count=1 ./internal/core -run '^TestExtendedExportOptions$'` | bestanden, 1,246 s; nach zusätzlicher UTF-8-Namensvalidierung |
-| alle `scripts/check-*-contract.py` mittels sequenziellem Python-Subprozessaufruf | zwölf Wächter bestanden, einschließlich v21 mit 17 Platzhalterfixtures; v1–v12-Pins und bestehendes Formatschema unverändert |
-| `python3 scripts/check-docs.py` | 880 Dateien, 0 Fehler; Schlussprüfung nach diesem Checkpoint unten |
-| `git diff --check` | bestanden; neue Dateien zusätzlich auf nachgestellte Leerzeichen geprüft |
-| `docker ps --format '{{.Names}} {{.Status}}'` | Socketzugriff verweigert; keine eigenen Container gestartet |
-
-Frühe lokale Befunde wurden korrigiert und nachgeprüft: v11-Normalisierung bleibt
-separat strikt; der neue Requestdecoder erhält die TLS-Vorgabe; Alias-Duplikate nach
-Katalogauflösung werden abgewiesen; die View-Typallowlist besitzt echte Klammerescapes.
-Der SQLite-Materialisierungsvergleich prüft Zellwerte und `typeof`, nicht bewusst
-entfernte Deklarationstypen. Das ersetzt keinen unabhängigen Review.
-
-Uncommittete Arbeit liegt vollständig in diesem Worktree. Keine unintegrierte Arbeit
-an anderer Stelle, keine eigenen Server oder Dockerressourcen. Die gestarteten
-Testsessions werden bis Prozessende verfolgt; Abschlusszustand unten. Kein Gitindex
-oder Ref wurde verändert. Nächster konkreter Schritt bleibt Leadreview des vollständigen
-Diffs und Liveprüfung auf einem Host mit Docker-/Listenerzugriff.
-
-Abschlusszustand: Alle eigenen Testsessions beendet, keine laufenden eigenen Jobs.
-Schlussprüfung: `gofmt -l .` ohne Ausgabe, `git diff --check` bestanden und
-`python3 scripts/check-docs.py` mit 880 Dateien/0 Fehlern. Keine Freigabe vorweggenommen.
+Unabhängiger Review, Annahme des ADR, fachliche Abnahme der begrenzten DEFINER-/
+Kommentar-/CodeGen-Profile, Vertragsunion mit 0.17–0.20 beim Integrieren (Routen
+`/api/v21/*` kollisionsfrei), kein Browser-/Compose-Test, DUMP-001 (Trigger/Routinen)
+offen. Offene Teilparität nicht als phpMyAdmin-Parität übernehmen.

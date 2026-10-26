@@ -25,7 +25,7 @@ def main():
         for name, definition in previous.items():
             assert current[name] == definition, name
     assert set(spec['paths']) - set(old['paths']) == {'/api/v21/export', '/api/v21/capabilities'}
-    for version in range(13, 22):
+    for version in range(13, 21):
         path = ROOT / f'contracts/api-v0.{version}.0.json'
         if path.exists():
             candidate = json.loads(path.read_text())

@@ -42,6 +42,7 @@ def main():
                     live['DBM_EXTENDED_EXPORT_DUMP'] = str(dump)
                     subprocess.run(command[:-1] + ['TestLiveExtendedExport/' + system + '$'],
                                    cwd=ROOT, env=live, check=True)
+        subprocess.run(['python3', '-I', str(ROOT / 'scripts/check-extended-export-files.py'), str(dump)], check=True)
         module = importlib.util.spec_from_file_location('extended_guard', ROOT / 'scripts/check-extended-export-contract.py')
         guard = importlib.util.module_from_spec(module)
         module.loader.exec_module(guard)
