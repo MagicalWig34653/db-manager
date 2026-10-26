@@ -1,0 +1,29 @@
+{
+  "connection": {
+    "driver": "postgres",
+    "database": "placeholder_db",
+    "username": "placeholder_user",
+    "password": "placeholder_not_a_secret",
+    "host": "localhost",
+    "tls_mode": "verify-full"
+  },
+  "action": "create",
+  "object": {
+    "kind": "function",
+    "schema": "public",
+    "name": "placeholder_function"
+  },
+  "input": {
+    "parameters": [
+      {
+        "name": "p",
+        "mode": "in",
+        "type": "integer"
+      }
+    ],
+    "returns": "integer",
+    "language": "plpgsql",
+    "security": "invoker",
+    "body": "BEGIN RETURN p+1; END"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "outcome": "rejected",
+  "reason": "permission_denied",
+  "message": "Platzhalter: Änderung abgelehnt.",
+  "statements_executed": 0,
+  "statements_total": 1,
+  "atomic": false,
+  "observation": "unavailable"
+}

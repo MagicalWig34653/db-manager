@@ -1,0 +1,36 @@
+{
+  "driver": "postgres",
+  "statements": [
+    "DROP VIEW \"public\".\"p19 odd`view\"\".;DROP TABLE p19_neighbor--\""
+  ],
+  "warnings": [
+    "Keine automatische Wiederholung. Ein bestätigter Plan ist keine einmalige Freigabe; nach Abschluss oder unbekanntem Ausgang ist eine neue Vorschau erforderlich.",
+    "Zwischen Katalogprüfung und Ausführung können andere Sitzungen Objekte ändern. Abhängigkeiten sind auf sichtbare Katalogobjekte begrenzt; dynamisches SQL, String-Körper und externe Verweise sind nicht vollständig erkennbar."
+  ],
+  "affected_objects": [
+    "view:public.p19 odd`view\".;DROP TABLE p19_neighbor--",
+    "outgoing:table:public.p19_source"
+  ],
+  "plan_sha256": "0fd76fb2e43ce480d13cd778641250d0edf6828bdd412209b81e654776420d2d",
+  "action": "drop",
+  "object": {
+    "kind": "view",
+    "schema": "public",
+    "name": "p19 odd`view\".;DROP TABLE p19_neighbor--"
+  },
+  "user_sql": false,
+  "destructive": true,
+  "transactional": true,
+  "dependencies": [
+    {
+      "object": {
+        "kind": "table",
+        "schema": "public",
+        "name": "p19_source"
+      },
+      "direction": "outgoing",
+      "certainty": "exact"
+    }
+  ],
+  "dependencies_truncated": false
+}
