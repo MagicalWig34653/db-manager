@@ -1,0 +1,49 @@
+{
+  "driver": "sqlite",
+  "statements": [
+    "INSERT OR ABORT INTO \"main\".\"p12_rows\" (\"id\",\"value\") VALUES (?,?)",
+    "-- import-bindings-sha256: 772b293576c462db75da39ab09577bfa816ed44813c4bdb7807d5258ce02cdba"
+  ],
+  "warnings": [
+    "Nur direkte Zeilen; Trigger, Sequenzen und externe Effekte sind nicht allgemein rücknehmbar. Typprüfung ist konservativ; Constraints werden erst beim Schreiben geprüft."
+  ],
+  "affected_objects": [
+    "main.p12_rows"
+  ],
+  "plan_sha256": "9c6c21a9b9e0c25f43cc423961fa2baf999ea49da95a46f81c02fb1a503b28a5",
+  "rows": 3,
+  "valid_rows": 3,
+  "preview": [
+    [
+      {
+        "kind": "integer",
+        "value": "1"
+      },
+      {
+        "kind": "text",
+        "value": "Grüße, \"Welt\"\nzweite Zeile"
+      }
+    ],
+    [
+      {
+        "kind": "integer",
+        "value": "2"
+      },
+      {
+        "kind": "null"
+      }
+    ],
+    [
+      {
+        "kind": "integer",
+        "value": "3"
+      },
+      {
+        "kind": "text",
+        "value": ""
+      }
+    ]
+  ],
+  "errors": [],
+  "errors_truncated": false
+}
