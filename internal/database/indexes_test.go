@@ -308,7 +308,7 @@ func indexCases(t *testing.T, e *Engine, c core.Connection) {
 				t.Fatal(result)
 			}
 			spatial := findStructureIndex(t, readStructure(r.Table), "spatial_index")
-			if !strings.EqualFold(spatial.Method, "RTREE") {
+			if !strings.EqualFold(spatial.Method, "RTREE") && !strings.EqualFold(spatial.Method, "SPATIAL") { // MySQL 8.4 reports SPATIAL, MariaDB RTREE
 				t.Fatal(spatial)
 			}
 		}

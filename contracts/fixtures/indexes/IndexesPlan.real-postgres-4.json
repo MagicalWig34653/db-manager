@@ -1,0 +1,27 @@
+{
+  "driver": "postgres",
+  "statements": [
+    "CREATE UNIQUE INDEX \"duplicate_unique\" ON \"public\".\"keys \"\"` ;DROP TABLE neighbor\" (\"value\")"
+  ],
+  "warnings": [
+    "Schlüsseländerungen können die Tabelle sperren und lange dauern; vollständige Scans und Indexaufbau benötigen Zeit und Speicher.",
+    "Entfernen oder Ersetzen verliert Indexstrukturen und Integritätsregeln, keine Tabellenzeilen; neue Eindeutigkeit kann an vorhandenen Daten scheitern.",
+    "Kein CASCADE. Trigger, externe Verweise und gleichnamig ersetzte Objekte sind nicht vollständig erfasst; Plan-Hash ist kein Replay- oder ABA-Schutz. Nach Abschluss oder unbekanntem Ausgang neu planen und bestätigen.",
+    "Vorprüfung: 1 Gruppen mit doppelten Schlüsselwerten; NULL-Werte bei UNIQUE ausgenommen. Konkurrenz bleibt möglich."
+  ],
+  "affected_objects": [
+    "public.keys \"` ;DROP TABLE neighbor",
+    "duplicate_unique"
+  ],
+  "plan_sha256": "35d524bbe06014545e000953045febcde486685ad67206a04f7ea76f480125a8",
+  "table": {
+    "schema": "public",
+    "name": "keys \"` ;DROP TABLE neighbor"
+  },
+  "destructive": false,
+  "target_name": "keys \"` ;DROP TABLE neighbor",
+  "dependencies": [],
+  "ddl_transactional": true,
+  "duplicate_groups": 1,
+  "contains_null": false
+}
