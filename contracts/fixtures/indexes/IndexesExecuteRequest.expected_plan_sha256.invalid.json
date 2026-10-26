@@ -1,0 +1,16 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "probe"
+  },
+  "table": {
+    "name": "fixture"
+  },
+  "action": "index_drop",
+  "name": "fixture_idx",
+  "confirm": {
+    "action": "index_drop",
+    "target_name": "fixture"
+  },
+  "expected_plan_sha256": "x"
+}

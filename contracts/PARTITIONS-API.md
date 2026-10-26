@@ -1,20 +1,20 @@
-# Partitionen und Tabellenpräfix-Stapel (API 0.21)
+# Partitionen und Tabellenpräfix-Stapel (API 0.22)
 
-[Schema](api-v0.21.0.json), additiv auf API 0.12; v1 bis v12 bleiben byteidentisch.
-Die Nummer 0.21 ist endgültig. v13 bis v20 sind für dieses Paket keine Voraussetzung.
+[Schema](api-v0.22.0.json), additiv auf API 0.12; v1 bis v12 bleiben byteidentisch.
+Die Nummer 0.22 ist endgültig. Reserviert für andere Pakete sind 0.17 (W-P17), 0.18 (W-P12), 0.19 (W-P13), 0.20 (W-P27) und 0.21 (W-P28); diese Lücken sind keine Voraussetzung. Der Wächter pinnt nur die in diesem Stand vorhandenen Vorgänger (v1 bis v16).
 Alle Routen benötigen Bearer-Authentifizierung und eine flüchtige Verbindung.
 1 MiB Anfrage, 30 Sekunden Standardzeitlimit, höchstens 60 Sekunden; unbekannte
 Felder und `null` werden vom HTTP-Decoder abgewiesen. Keine neuen Abhängigkeiten.
 
 | Route | Zweck |
 | --- | --- |
-| `GET /api/v21/capabilities` | Fähigkeiten je Treiber und Partitionsaktion; Präfixstapel als Feature |
-| `POST /api/v21/tables/partitions/list` | `connection`, `table`, optional `timeout_ms` |
-| `POST /api/v21/tables/partitions/plan` | strukturierte Partitionsaktion, Vorschau ohne Ausführung |
-| `POST /api/v21/tables/partitions/execute` | gleiche Anfrage mit `confirm`, `expected_plan_sha256` |
-| `POST /api/v21/tables/prefix/list` | `connection`, `prefix`, optional `schema`, `timeout_ms` |
-| `POST /api/v21/tables/prefix/plan` | Präfixaktion als gemeinsamer Stapelplan |
-| `POST /api/v21/tables/prefix/execute` | gleicher Stapel mit Bestätigung und Gesamt-Hash |
+| `GET /api/v22/capabilities` | Fähigkeiten je Treiber und Partitionsaktion; Präfixstapel als Feature |
+| `POST /api/v22/tables/partitions/list` | `connection`, `table`, optional `timeout_ms` |
+| `POST /api/v22/tables/partitions/plan` | strukturierte Partitionsaktion, Vorschau ohne Ausführung |
+| `POST /api/v22/tables/partitions/execute` | gleiche Anfrage mit `confirm`, `expected_plan_sha256` |
+| `POST /api/v22/tables/prefix/list` | `connection`, `prefix`, optional `schema`, `timeout_ms` |
+| `POST /api/v22/tables/prefix/plan` | Präfixaktion als gemeinsamer Stapelplan |
+| `POST /api/v22/tables/prefix/execute` | gleicher Stapel mit Bestätigung und Gesamt-Hash |
 
 ## Partitionen
 
@@ -88,6 +88,19 @@ vor der Ausführung abgewiesen. Alle Pläne werden vor der ersten Änderung geba
 Die konkrete W-P07-Planung wird wiederverwendet, einschließlich Kindobjekten,
 Abhängigkeiten, Quoting und Kopiergrenzen (siehe [Objektoperationen](OBJECT-OPS-API.md)).
 
+## Teilzustand im Präfixstapel
+
+`PrefixStructureResult.tables` nennt je Katalogtabelle des Stapels in Planreihenfolge
+`status` (`applied`, `not_applied`, `unknown`), `statements_total` und
+`statements_executed`. Ein Stapel wird nie stillschweigend halb ausgeführt: PostgreSQL
+und SQLite führen ihn in einer Transaktion aus (Fehler: alle `not_applied`, unsicherer
+Commit: alle `unknown`). MySQL/MariaDB bestätigen DDL implizit und haben keinen
+Stapelrollback; nach einem Fehler sind bereits abgeschlossene Tabellen `applied`, die
+Tabelle der fehlgeschlagenen oder unterbrochenen Anweisung `unknown` (nie als nicht
+angewendet behauptet), alle folgenden `not_applied`, `outcome` ist `outcome_unknown`
+und `message` nennt den Teilzustand. Es gibt keinen Retry und kein automatisches
+Zurückrollen; der Client lädt eine neue Vorschau und bestätigt neu.
+
 ## Bestätigung und Ergebnis
 
 Die Vorschau enthält exakte `statements`, `warnings`, `affected_objects`, `action`,
@@ -100,7 +113,7 @@ CHECK und Präfixkopien brauchen keinen getippten Namen. Ein neuer Treffer ände
 den Stapelhash. Warnungen nennen Datenverlust bei DROP/TRUNCATE und Sperren bei
 REORGANIZE. Neue Definitionen und beobachtete Kinder stehen in `affected_objects`.
 
-Ausführung liefert `StructureResult` mit `completed`, `rejected` oder
+Partitionsausführung liefert `StructureResult`, Präfixausführung `PrefixStructureResult` (gleiche Felder plus `tables`), jeweils mit `completed`, `rejected` oder
 `outcome_unknown`, Anweisungszähler, `atomic` und `observation=null`. Es wird kein
 zusätzlich beobachteter Nachzustand behauptet. PostgreSQL/SQLite verwenden eine
 Transaktion; MySQL/MariaDB können nach erfolgreicher erster Anweisung Teiländerungen

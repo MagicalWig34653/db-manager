@@ -39,6 +39,48 @@ func TestPartitionDefinitionsAreData(t *testing.T) {
 	}
 }
 func TestSQLitePrefixBatch(t *testing.T) { prefixCases(t, testEngine(t), sqliteConnection(), "main") }
+func TestSQLitePrefixPartialFailureReport(t *testing.T) {
+	prefixPartialCase(t, testEngine(t), sqliteConnection(), "main")
+}
+
+// prefixPartialCase drops a batch whose second table is referenced from outside
+// the batch. Transactional systems must report a clean rollback; MySQL/MariaDB
+// keep the first drop and must report exactly which table is applied or unknown.
+func prefixPartialCase(t *testing.T, e *Engine, c core.Connection, schema string) {
+	ctx := context.Background()
+	h := &opHarness{t: t, e: e, c: c, schema: schema}
+	h.exec("CREATE TABLE " + h.q("pp_a") + " (id INTEGER PRIMARY KEY)")
+	h.exec("CREATE TABLE " + h.q("pp_b") + " (id INTEGER PRIMARY KEY)")
+	h.exec("INSERT INTO " + h.q("pp_b") + " VALUES (1)")
+	h.exec("CREATE TABLE " + h.q("qq_child") + " (id INTEGER PRIMARY KEY, b INTEGER, FOREIGN KEY (b) REFERENCES " + quoteIdentifier(c.Driver, "pp_b") + "(id))")
+	h.exec("INSERT INTO " + h.q("qq_child") + " VALUES (1,1)")
+	r := core.PrefixRequest{Connection: c, Schema: schema, Prefix: "pp_", Action: "drop"}
+	p, err := e.PlanPrefix(ctx, r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := e.ExecutePrefix(ctx, core.PrefixExecuteRequest{PrefixRequest: r, Confirm: dbplan.Confirmation{Action: p.Action, TargetName: p.Confirmation.TargetName}, ExpectedPlanSHA256: p.SHA256})
+	if err != nil {
+		t.Fatal(err)
+	}
+	dumpPartition(t, "PrefixStructureResult", res)
+	if len(res.Tables) != 2 || res.Outcome == "completed" {
+		t.Fatalf("expected a failed two-table batch: %+v", res)
+	}
+	if c.Driver == "mysql" {
+		if res.Outcome != "outcome_unknown" || res.Tables[0].Status != "applied" || res.Tables[1].Status != "unknown" || h.has("pp_a") {
+			t.Fatalf("mysql partial state: %+v", res)
+		}
+		if !strings.Contains(res.Message, "Teilzustand") {
+			t.Fatalf("partial state not announced: %s", res.Message)
+		}
+	} else if res.Outcome != "rejected" || res.Tables[0].Status != "not_applied" || res.Tables[1].Status != "not_applied" || !h.has("pp_a") || !h.has("pp_b") {
+		t.Fatalf("transactional batch not rolled back: %+v", res)
+	}
+	if h.count("qq_child") != "1" {
+		t.Fatal("unrelated table changed")
+	}
+}
 func prefixCases(t *testing.T, e *Engine, c core.Connection, schema string) {
 	t.Helper()
 	ctx := context.Background()
@@ -131,7 +173,15 @@ func prefixCases(t *testing.T, e *Engine, c core.Connection, schema string) {
 	if err != nil || result.Outcome != "completed" {
 		t.Fatalf("drop %+v %v", result, err)
 	}
-	dumpPartition(t, "StructureResult", result)
+	dumpPartition(t, "PrefixStructureResult", result)
+	if len(result.Tables) == 0 {
+		t.Fatal("prefix result without per-table states")
+	}
+	for _, item := range result.Tables {
+		if item.Status != "applied" || item.StatementsExecuted != item.StatementsTotal {
+			t.Fatalf("table state: %+v", item)
+		}
+	}
 	if h.has("p29_%one") || h.count("p29_neighbor") != "1" || h.count("p29_keep") != "1" {
 		t.Fatal("unrelated table changed")
 	}
@@ -164,6 +214,42 @@ func TestSQLitePrefixTransactionalFailure(t *testing.T) {
 	}
 	if queryText(t, e, c, "SELECT count(*) FROM fail_a") != "1" {
 		t.Fatal("batch did not roll back")
+	}
+	if len(result.Tables) != 2 || result.Tables[0].Status != "not_applied" || result.Tables[1].Status != "not_applied" {
+		t.Fatalf("per-table state after rollback: %+v", result.Tables)
+	}
+}
+
+func TestPrefixTableResultsPartialStates(t *testing.T) {
+	groups := []prefixGroup{{table: core.TableRef{Name: "a"}, count: 1}, {table: core.TableRef{Name: "b"}, count: 2}, {table: core.TableRef{Name: "c"}, count: 1}}
+	statuses := func(items []core.PrefixTableResult) string {
+		out := []string{}
+		for _, i := range items {
+			out = append(out, i.Status)
+		}
+		return strings.Join(out, ",")
+	}
+	cases := []struct {
+		name, driver string
+		res          core.ObjectOpResult
+		want         string
+	}{
+		{"completed", "mysql", core.ObjectOpResult{Outcome: "completed", StatementsExecuted: 4}, "applied,applied,applied"},
+		{"mysql stops in the second table", "mysql", core.ObjectOpResult{Outcome: "outcome_unknown", StatementsExecuted: 2}, "applied,unknown,not_applied"},
+		{"mysql stops at a table boundary", "mysql", core.ObjectOpResult{Outcome: "outcome_unknown", StatementsExecuted: 1}, "applied,unknown,not_applied"},
+		{"mysql first statement rejected", "mysql", core.ObjectOpResult{Outcome: "rejected"}, "not_applied,not_applied,not_applied"},
+		{"transactional rollback", "postgres", core.ObjectOpResult{Outcome: "rejected", StatementsExecuted: 0}, "not_applied,not_applied,not_applied"},
+		{"transactional unknown commit", "postgres", core.ObjectOpResult{Outcome: "outcome_unknown", StatementsExecuted: 4}, "unknown,unknown,unknown"},
+	}
+	for _, c := range cases {
+		if got := statuses(prefixTableResults(c.driver, c.res, groups)); got != c.want {
+			t.Errorf("%s: got %s want %s", c.name, got, c.want)
+		}
+	}
+	// Partly executed multi-statement table is never reported as applied.
+	items := prefixTableResults("mysql", core.ObjectOpResult{Outcome: "outcome_unknown", StatementsExecuted: 2}, groups)
+	if items[1].StatementsExecuted != 1 || items[1].StatementsTotal != 2 {
+		t.Fatalf("partial table counters: %+v", items[1])
 	}
 }
 

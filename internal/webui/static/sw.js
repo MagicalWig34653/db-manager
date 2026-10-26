@@ -5,8 +5,8 @@
 // stores a response in the cache other than during installation.
 'use strict';
 
-const BUILD_ID = '48c2f67113d8fd0a27e9cf966d20904fd7d0da61';
-const SHELL = /** @type {string[]} */ (JSON.parse('["index.html","manifest.webmanifest","icon.svg","icon-192.png","icon-512.png","icon-maskable-512.png","apple-touch-icon.png","favicon-32.png","assets/feature-BPqPrbnZ.css","assets/feature-BbAEuRYR.js","assets/feature-C2xS-vVO.js","assets/feature-D2nHilXW.css","assets/index-CY5VlWzu.css","assets/index-CnOlEE_p.js"]'));
+const BUILD_ID = 'c14271ec12bfb7940253787c2f84aeb65cc4252e';
+const SHELL = /** @type {string[]} */ (JSON.parse('["index.html","manifest.webmanifest","icon.svg","icon-192.png","icon-512.png","icon-maskable-512.png","apple-touch-icon.png","favicon-32.png","assets/PlanPreview-DIdf5lVd.css","assets/PlanPreview-DUiKGtiA.js","assets/circle-check-CDGqhoW1.js","assets/feature-BPqPrbnZ.css","assets/feature-BR5z3Dr0.js","assets/feature-BcixFSIF.css","assets/feature-Cc4YJa3q.css","assets/feature-CzdzV0ta.css","assets/feature-D2nHilXW.css","assets/feature-DY8XpTED.js","assets/feature-DZ6C2MWM.js","assets/feature-DzT_VAM5.js","assets/feature-QvgXdtKz.js","assets/index-BnxbHZ7e.js","assets/index-Dp8BW1VF.css"]'));
 const CACHE_PREFIX = 'db-manager-shell-';
 const CACHE_NAME = CACHE_PREFIX + BUILD_ID;
 const sw = /** @type {ServiceWorkerGlobalScope} */ (/** @type {unknown} */ (self));

@@ -1,0 +1,30 @@
+{
+  "driver": "mysql",
+  "table": {
+    "schema": "probe",
+    "name": "p29_partitioned"
+  },
+  "method": "RANGE",
+  "expression": "`id`",
+  "partitions": [
+    {
+      "table": {
+        "schema": "probe",
+        "name": "p29_p0"
+      },
+      "bound": "10",
+      "estimated_rows": 1
+    },
+    {
+      "table": {
+        "schema": "probe",
+        "name": "p29_p1"
+      },
+      "bound": "20",
+      "estimated_rows": 1
+    }
+  ],
+  "notes": [
+    "Zeilenzahlen sind Katalogschätzungen; kein atomarer Schemasnapshot."
+  ]
+}

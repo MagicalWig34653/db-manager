@@ -6,7 +6,7 @@ import (
 	"github.com/MagicalWig34653/db-manager/internal/dbplan"
 )
 
-const PartitionsContractVersion = "0.21.0"
+const PartitionsContractVersion = "0.22.0"
 const PrefixMaxTables = 100
 
 // PartitionDefinition accepts typed bounds, never SQL expressions. Values are
@@ -70,13 +70,27 @@ type PrefixExecuteRequest struct {
 	Confirm            dbplan.Confirmation `json:"confirm"`
 	ExpectedPlanSHA256 string              `json:"expected_plan_sha256"`
 }
+
+// PrefixTableResult reports the per-table state of a prefix batch. Status is
+// "applied", "not_applied" or "unknown"; the batch is never reported as a
+// whole when it could be partial.
+type PrefixTableResult struct {
+	Table              TableRef `json:"table"`
+	Status             string   `json:"status"`
+	StatementsTotal    int      `json:"statements_total"`
+	StatementsExecuted int      `json:"statements_executed"`
+}
+type PrefixExecuteResult struct {
+	ObjectOpResult
+	Tables []PrefixTableResult `json:"tables"`
+}
 type PartitionsEngine interface {
 	Partitions(context.Context, PartitionRequest) (PartitionsResult, error)
 	PlanPartitions(context.Context, PartitionRequest) (StructurePlan, error)
 	ExecutePartitions(context.Context, StructureExecuteRequest) (ObjectOpResult, error)
 	PrefixTables(context.Context, PrefixRequest) (PrefixResult, error)
 	PlanPrefix(context.Context, PrefixRequest) (StructurePlan, error)
-	ExecutePrefix(context.Context, PrefixExecuteRequest) (ObjectOpResult, error)
+	ExecutePrefix(context.Context, PrefixExecuteRequest) (PrefixExecuteResult, error)
 }
 
 func PartitionsCapabilities() dbplan.Capabilities {

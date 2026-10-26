@@ -1,0 +1,9 @@
+{
+  "action": "partition_add",
+  "outcome": "completed",
+  "message": "Anweisungen ausgeführt. Keine zusätzliche Zustandsbeobachtung; kein automatischer Retry.",
+  "statements_total": 1,
+  "statements_executed": 1,
+  "atomic": false,
+  "observation": null
+}

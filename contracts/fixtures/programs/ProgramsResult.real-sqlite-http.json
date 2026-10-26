@@ -1,0 +1,29 @@
+{
+  "driver": "sqlite",
+  "objects": [
+    {
+      "object": {
+        "kind": "view",
+        "schema": "main",
+        "name": "v\";DROP TABLE neighbor--"
+      },
+      "definition": "CREATE VIEW \"v\"\";DROP TABLE neighbor--\" AS SELECT 42 AS value",
+      "body": null,
+      "parameters": [],
+      "properties": {},
+      "definer": null,
+      "security": null,
+      "dependencies": [],
+      "dependencies_truncated": false,
+      "warnings": [
+        "Abhängigkeiten sind textuelle Hinweise innerhalb des Schemas (maximal 1000 Kandidaten, 100 Treffer), keine vollständige Analyse. Fehlende Katalogrechte und dynamisches SQL können Verweise verbergen."
+      ]
+    }
+  ],
+  "has_more": false,
+  "scheduler": null,
+  "event_errors_state": "unavailable",
+  "warnings": [
+    "Eventfehlerprotokolle sind über diese API nicht verfügbar. Abhängigkeiten aus dynamischem SQL sind nicht vollständig erkennbar."
+  ]
+}

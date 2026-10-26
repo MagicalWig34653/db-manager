@@ -103,14 +103,22 @@ func (e *Engine) PrefixTables(ctx context.Context, r core.PrefixRequest) (core.P
 	out, err := prefixTables(ctx, env, r)
 	return out, opPlanError(ctx, err)
 }
-func buildPrefix(ctx context.Context, env *opEnv, r core.PrefixRequest) (core.StructurePlan, error) {
+
+// prefixGroup records how many plan statements belong to one batch table, in plan order.
+type prefixGroup struct {
+	table core.TableRef
+	count int
+}
+
+func buildPrefix(ctx context.Context, env *opEnv, r core.PrefixRequest) (core.StructurePlan, []prefixGroup, error) {
 	empty := core.StructurePlan{}
+	groups := []prefixGroup{}
 	tables, err := prefixTables(ctx, env, r)
 	if err != nil {
-		return empty, err
+		return empty, nil, err
 	}
 	if len(tables.Tables) == 0 {
-		return empty, opNotFound()
+		return empty, nil, opNotFound()
 	}
 	statements, warnings, affected := []string{}, []string{"Der Stapel umfasst alle passenden Basistabellen im Schema. Kein automatischer Retry; MySQL/MariaDB können Teiländerungen behalten."}, []string{}
 	for _, ref := range tables.Tables {
@@ -136,11 +144,12 @@ func buildPrefix(ctx context.Context, env *opEnv, r core.PrefixRequest) (core.St
 		// dependency warnings, quoting and exact statement generation.
 		st, err := buildOp(ctx, env, action, req)
 		if err != nil {
-			return empty, err
+			return empty, nil, err
 		}
 		if st.view.DependenciesTruncated {
-			return empty, public("result_too_large", "Abhängigkeitsliste ist gekürzt; Stapel wird nicht ausgeführt.")
+			return empty, nil, public("result_too_large", "Abhängigkeitsliste ist gekürzt; Stapel wird nicht ausgeführt.")
 		}
+		groups = append(groups, prefixGroup{table: ref, count: len(st.plan.Statements)})
 		statements = append(statements, st.plan.Statements...)
 		warnings = append(warnings, st.plan.Warnings...)
 		affected = append(affected, st.plan.Affected...)
@@ -150,7 +159,8 @@ func buildPrefix(ctx context.Context, env *opEnv, r core.PrefixRequest) (core.St
 	}
 	// The typed source prefix is derived from the common prefix of catalog names.
 	target := tables.Tables[0].Name[:len(r.Prefix)]
-	return structurePlan(env.c.Driver, "prefix_"+r.Action, target, statements, warnings, affected, r.Action != "copy")
+	plan, err := structurePlan(env.c.Driver, "prefix_"+r.Action, target, statements, warnings, affected, r.Action != "copy")
+	return plan, groups, err
 }
 func spPrefix(s string) *string { return &s }
 func (e *Engine) PlanPrefix(ctx context.Context, r core.PrefixRequest) (core.StructurePlan, error) {
@@ -164,26 +174,75 @@ func (e *Engine) PlanPrefix(ctx context.Context, r core.PrefixRequest) (core.Str
 		return core.StructurePlan{}, err
 	}
 	defer closeAll()
-	p, err := buildPrefix(ctx, env, r)
+	p, _, err := buildPrefix(ctx, env, r)
 	return p, opPlanError(ctx, err)
 }
-func (e *Engine) ExecutePrefix(ctx context.Context, r core.PrefixExecuteRequest) (core.ObjectOpResult, error) {
+func (e *Engine) ExecutePrefix(ctx context.Context, r core.PrefixExecuteRequest) (core.PrefixExecuteResult, error) {
+	none := core.PrefixExecuteResult{}
 	if err := validatePrefix(r.PrefixRequest, false); err != nil {
-		return core.ObjectOpResult{}, err
+		return none, err
 	}
 	ctx, cancel := opContext(ctx, r.TimeoutMS)
 	defer cancel()
 	env, closeAll, err := e.openOp(ctx, r.Connection)
 	if err != nil {
-		return core.ObjectOpResult{}, err
+		return none, err
 	}
 	defer closeAll()
-	p, err := buildPrefix(ctx, env, r.PrefixRequest)
+	p, groups, err := buildPrefix(ctx, env, r.PrefixRequest)
 	if err != nil {
-		return core.ObjectOpResult{}, opPlanError(ctx, err)
+		return none, opPlanError(ctx, err)
 	}
 	if err = checkedStructure(p, r.ExpectedPlanSHA256, r.Confirm); err != nil {
-		return core.ObjectOpResult{}, err
+		return none, err
 	}
-	return executeStructure(ctx, env, p), nil
+	res := executeStructure(ctx, env, p)
+	tables := prefixTableResults(env.c.Driver, res, groups)
+	if res.Outcome != "completed" {
+		for _, t := range tables {
+			if t.Status == "applied" {
+				res.Message += " Teilzustand: Der Stapel wurde nicht vollständig ausgeführt, siehe Ergebnis je Tabelle."
+				break
+			}
+		}
+	}
+	return core.PrefixExecuteResult{ObjectOpResult: res, Tables: tables}, nil
+}
+
+// prefixTableResults derives an explicit per-table state. It never claims more
+// than the executor knows: the table containing the first unexecuted statement
+// is "unknown" after any non-definite stop on MySQL/MariaDB (no transaction).
+func prefixTableResults(driver string, res core.ObjectOpResult, groups []prefixGroup) []core.PrefixTableResult {
+	out := make([]core.PrefixTableResult, 0, len(groups))
+	remaining := res.StatementsExecuted
+	transactional := driver != "mysql"
+	firstOpen := true
+	for _, g := range groups {
+		item := core.PrefixTableResult{Table: g.table, StatementsTotal: g.count}
+		switch {
+		case res.Outcome == "completed":
+			item.Status, item.StatementsExecuted = "applied", g.count
+		case transactional:
+			// One transaction: either everything is rolled back or the commit result is unknown.
+			item.Status = "not_applied"
+			if res.Outcome == "outcome_unknown" {
+				item.Status = "unknown"
+			}
+		case remaining >= g.count:
+			item.Status, item.StatementsExecuted = "applied", g.count
+			remaining -= g.count
+		case firstOpen && res.Outcome == "outcome_unknown":
+			item.Status, item.StatementsExecuted = "unknown", remaining
+			remaining, firstOpen = 0, false
+		default:
+			item.Status = "not_applied"
+			if firstOpen && remaining > 0 {
+				// Partly executed multi-statement table (copy): state of the rest is unknown.
+				item.Status, item.StatementsExecuted = "unknown", remaining
+			}
+			remaining, firstOpen = 0, false
+		}
+		out = append(out, item)
+	}
+	return out
 }

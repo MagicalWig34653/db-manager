@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-name: Partitionen und Präfixstapel (API 0.21)
+name: Partitionen und Präfixstapel (API 0.22)
 on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read

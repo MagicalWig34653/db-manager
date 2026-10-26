@@ -1,13 +1,13 @@
 # ADR W-P29: Strukturierte Partitionen und gemeinsame Präfixpläne
 
 Datum: 25.10.2026. Status: implementierter Paketvorschlag; unabhängiges Review und
-Leadintegration offen. API 0.21 ist durch den Auftrag festgelegt.
+Leadintegration offen. API 0.22 ist durch den Auftrag festgelegt.
 
 ## Kontext und Entscheidung im Paket
 
 [W-P29](../PWA-PLAN.md) ergänzt Partitionierung und Präfixstapel über den
 [W-P07-Objektoperationen](../../contracts/OBJECT-OPS-API.md).
-Neue additive [API 0.21](../../contracts/PARTITIONS-API.md) auf v12. Die
+Neue additive [API 0.22](../../contracts/PARTITIONS-API.md) auf v12. Die
 Präfixplanung ruft die vorhandene Objektplanung auf; ein Gesamt-Hash bindet die
 exakte vollständige Anweisungsliste. Kein zweiter SQL-Generator für Objektaktionen.
 

@@ -1,0 +1,51 @@
+{
+  "driver": "postgres",
+  "table": {
+    "schema": "public",
+    "name": "p14 odd'`\" --"
+  },
+  "column": "value'`\"",
+  "affected_rows": 2,
+  "examples": [
+    {
+      "key": [
+        {
+          "kind": "integer",
+          "value": "1"
+        }
+      ],
+      "before": {
+        "kind": "text",
+        "value": "100%_! fox"
+      },
+      "after": {
+        "kind": "text",
+        "value": "100%_! wolf"
+      }
+    },
+    {
+      "key": [
+        {
+          "kind": "integer",
+          "value": "2"
+        }
+      ],
+      "before": {
+        "kind": "text",
+        "value": "fox fox"
+      },
+      "after": {
+        "kind": "text",
+        "value": "wolf wolf"
+      }
+    }
+  ],
+  "statements": [
+    "UPDATE ONLY \"public\".\"p14 odd'`\"\" --\" SET \"value'`\"\"\" = $1 WHERE \"id\" = $2"
+  ],
+  "warnings": [
+    "Vollständiger begrenzter Tabellenbestand und berechnete Werte werden geprüft. Kollation und native Ersetzungsfunktion bestimmen die Semantik.",
+    "Trigger und Kaskaden können zusätzliche oder externe Wirkungen haben. Kein automatischer Retry; ABA bleibt unerkennbar."
+  ],
+  "plan_sha256": "0fcee2ff640d6b235630b6bd9413ac22ed15812c45f382b5e1c902db3327819d"
+}

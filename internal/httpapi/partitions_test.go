@@ -40,24 +40,24 @@ func TestPartitionsHTTP(t *testing.T) {
 	}
 	for _, group := range []string{"partitions", "prefix"} {
 		for _, mode := range []string{"list", "plan", "execute"} {
-			path := "/api/v21/tables/" + group + "/" + mode
+			path := "/api/v22/tables/" + group + "/" + mode
 			if w := send("POST", path, `{}`, false); w.Code != 401 {
 				t.Fatal(path, w.Code)
 			}
 		}
 	}
-	w := send("GET", "/api/v21/capabilities", "", true)
+	w := send("GET", "/api/v22/capabilities", "", true)
 	if w.Code != 200 {
 		t.Fatal(w.Code)
 	}
 	dump("PartitionsCapabilities", w)
 	conn := `{"driver":"sqlite","database":"partition_http"}`
 	for _, body := range []string{`{"connection":` + conn + `,"table":{"name":"x"},"sql":"DROP TABLE x"}`, `{"connection":` + conn + `,"table":null}`, `{"connection":` + conn + `,"table":{"name":"x"},"action":null}`} {
-		if w = send("POST", "/api/v21/tables/partitions/plan", body, true); w.Code != 400 {
+		if w = send("POST", "/api/v22/tables/partitions/plan", body, true); w.Code != 400 {
 			t.Fatalf("%d %s", w.Code, w.Body)
 		}
 	}
-	w = send("POST", "/api/v21/tables/partitions/list", `{"connection":`+conn+`,"table":{"name":"x"}}`, true)
+	w = send("POST", "/api/v22/tables/partitions/list", `{"connection":`+conn+`,"table":{"name":"x"}}`, true)
 	if w.Code != 422 {
 		t.Fatalf("%d %s", w.Code, w.Body)
 	}
@@ -67,7 +67,7 @@ func TestPartitionsHTTP(t *testing.T) {
 		t.Fatal(err)
 	}
 	body := `{"connection":` + conn + `,"prefix":"http_","action":"drop"}`
-	w = send("POST", "/api/v21/tables/prefix/plan", body, true)
+	w = send("POST", "/api/v22/tables/prefix/plan", body, true)
 	if w.Code != 200 {
 		t.Fatalf("%d %s", w.Code, w.Body)
 	}
@@ -77,14 +77,14 @@ func TestPartitionsHTTP(t *testing.T) {
 		t.Fatal(err)
 	}
 	bad := strings.TrimSuffix(body, "}") + `,"confirm":{"action":"prefix_drop","target_name":"wrong"},"expected_plan_sha256":"` + p.SHA256 + `"}`
-	w = send("POST", "/api/v21/tables/prefix/execute", bad, true)
+	w = send("POST", "/api/v22/tables/prefix/execute", bad, true)
 	if w.Code != 400 {
 		t.Fatalf("%d %s", w.Code, w.Body)
 	}
 	good := strings.Replace(bad, `"wrong"`, `"http_"`, 1)
-	w = send("POST", "/api/v21/tables/prefix/execute", good, true)
+	w = send("POST", "/api/v22/tables/prefix/execute", good, true)
 	if w.Code != 200 {
 		t.Fatalf("%d %s", w.Code, w.Body)
 	}
-	dump("StructureResult", w)
+	dump("PrefixStructureResult", w)
 }

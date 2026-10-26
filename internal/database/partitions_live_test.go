@@ -56,6 +56,7 @@ func TestLivePartitions(t *testing.T) {
 				schema = "public"
 			}
 			prefixCases(t, e, c, schema)
+			prefixPartialCase(t, e, c, schema)
 			h := &opHarness{t: t, e: e, c: c, schema: schema}
 			ctx := context.Background()
 			table := "p29_partitioned"

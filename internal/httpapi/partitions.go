@@ -7,7 +7,7 @@ import (
 )
 
 func (a *API) registerPartitions(mux *http.ServeMux) {
-	mux.Handle("GET /api/v21/capabilities", a.auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("GET /api/v22/capabilities", a.auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		features := []string{}
 		if _, ok := a.engine.(core.PartitionsEngine); ok {
 			features = []string{"partitions", "prefix_batch"}
@@ -16,7 +16,7 @@ func (a *API) registerPartitions(mux *http.ServeMux) {
 	})))
 	for _, kind := range []string{"partitions", "prefix"} {
 		for _, mode := range []string{"list", "plan", "execute"} {
-			mux.Handle("POST /api/v21/tables/"+kind+"/"+mode, a.auth(a.partitionHandler(kind, mode)))
+			mux.Handle("POST /api/v22/tables/"+kind+"/"+mode, a.auth(a.partitionHandler(kind, mode)))
 		}
 	}
 }

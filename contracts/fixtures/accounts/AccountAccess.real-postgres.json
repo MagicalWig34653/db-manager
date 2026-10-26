@@ -1,0 +1,6 @@
+{
+  "actions": [],
+  "notes": [
+    "Konservative Anzeigehilfe, keine Autorisierung. Objektbezogene Rechte und geerbte Rechte können zusätzliche Aktionen erlauben; der Datenbankserver entscheidet bei Ausführung."
+  ]
+}

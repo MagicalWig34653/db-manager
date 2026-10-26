@@ -1,0 +1,14 @@
+{
+  "connection": {
+    "driver": "mysql",
+    "host": "fixture.invalid",
+    "username": "FIXTURE_ADMIN_PLACEHOLDER",
+    "password": "FIXTURE_PASSWORD_PLACEHOLDER",
+    "database": "fixture",
+    "tls_mode": "verify-full"
+  },
+  "new_account": {
+    "name": "FIXTURE_ACCOUNT_PLACEHOLDER",
+    "host": "%"
+  }
+}
