@@ -1,0 +1,28 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "probe",
+    "tls_mode": "verify-full"
+  },
+  "format": "csv",
+  "table": {
+    "name": "p12_rows"
+  },
+  "csv": {
+    "columns": [
+      "id",
+      "value"
+    ],
+    "separator": ";",
+    "quote": "\"",
+    "escape": "double",
+    "charset": "utf-8",
+    "header": true,
+    "null": "\\N"
+  },
+  "mode": "stop",
+  "confirm": {
+    "action": "import_sql"
+  },
+  "expected_plan_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+}

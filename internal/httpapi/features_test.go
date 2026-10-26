@@ -9,7 +9,7 @@ import (
 )
 
 func TestFeatureListKeepsRegistrationOrder(t *testing.T) {
-	if len(featureList) != 17 {
+	if len(featureList) != 18 {
 		t.Fatalf("feature count changed: %d", len(featureList))
 	}
 }
@@ -44,8 +44,8 @@ func TestAllKnownRoutesRegisteredAndAuthenticated(t *testing.T) {
 }
 
 func TestBodyLimitClasses(t *testing.T) {
-	if BodyLimit(ClassStandard) != MaxRequestBytes || BodyLimit(ClassUpload) != MaxRequestBytes || BodyLimit("unknown") != MaxRequestBytes {
-		t.Fatal("default limits must stay at 1 MiB")
+	if BodyLimit(ClassStandard) != MaxRequestBytes || BodyLimit(ClassUpload) != ImportUploadLimit || BodyLimit("unknown") != MaxRequestBytes {
+		t.Fatal("route class limits changed")
 	}
 	saved := classBodyLimits[ClassUpload]
 	classBodyLimits[ClassUpload] = 4 * MaxRequestBytes

@@ -1,0 +1,13 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "probe",
+    "tls_mode": "verify-full"
+  },
+  "format": "sql",
+  "confirm": {
+    "action": "import_sql"
+  },
+  "compression": "gzip",
+  "mode": "continue"
+}

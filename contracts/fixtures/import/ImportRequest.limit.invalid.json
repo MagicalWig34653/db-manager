@@ -1,0 +1,25 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "probe",
+    "tls_mode": "verify-full"
+  },
+  "format": "csv",
+  "table": {
+    "name": "p12_rows"
+  },
+  "csv": {
+    "columns": [
+      "id",
+      "value"
+    ],
+    "separator": ";",
+    "quote": "\"",
+    "escape": "double",
+    "charset": "utf-8",
+    "header": true,
+    "null": "\\N"
+  },
+  "mode": "stop",
+  "max_bytes": 67108865
+}

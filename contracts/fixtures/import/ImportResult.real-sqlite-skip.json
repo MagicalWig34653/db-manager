@@ -1,0 +1,18 @@
+{
+  "outcome": "completed",
+  "processed": 3,
+  "inserted": 2,
+  "skipped": 1,
+  "statements": [],
+  "errors": [
+    {
+      "row": 2,
+      "column": 1,
+      "code": "invalid_integer"
+    }
+  ],
+  "errors_truncated": false,
+  "warnings": [
+    "Nur direkte Zeilen; Trigger, Sequenzen und externe Effekte sind nicht allgemein rücknehmbar. Typprüfung ist konservativ; Constraints werden erst beim Schreiben geprüft."
+  ]
+}
