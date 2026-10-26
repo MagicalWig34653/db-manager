@@ -35,12 +35,18 @@ func adminSafeValue(name, value string, variable bool) core.ServerAdminValue {
 	// Only known numeric variables can expose values. Unknown/plugin values,
 	// paths, DSNs, key material and free-form strings remain masked.
 	sensitive := false
+	known := false
+	// Exact known counters/limits that merely contain "connection" in their name.
+	switch strings.ToLower(name) {
+	case "max_connections", "connections", "max_used_connections", "max_user_connections":
+		known = true
+	}
 	for _, part := range []string{"password", "passwd", "secret", "token", "key", "path", "file", "dir", "ssl", "tls", "connection", "credential"} {
-		if strings.Contains(strings.ToLower(name), part) {
+		if !known && strings.Contains(strings.ToLower(name), part) {
 			sensitive = true
 		}
 	}
-	allowed := !variable || name == "max_heap_table_size" || name == "tmp_table_size" || name == "statement_timeout" || name == "lock_timeout" || name == "max_connections" || name == "port"
+	allowed := !variable || name == "max_heap_table_size" || name == "tmp_table_size" || name == "statement_timeout" || name == "lock_timeout" || name == "max_connections" || name == "max_user_connections" || name == "port"
 	_, numericError := strconv.ParseFloat(value, 64)
 	if !sensitive && allowed && numericError == nil && len(value) <= 64 && value != "" && strings.Trim(value, "0123456789.+-eE") == "" {
 		v := value

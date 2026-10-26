@@ -98,7 +98,9 @@ func (e *Engine) Monitor(ctx context.Context, action string, r core.MonitorReque
 		if ctx.Err() != nil {
 			return out, safe(ctx, err)
 		}
-		if monitorUnavailable(err) {
+		// Credentials/privilege errors (1044/1045) and any error of a user-supplied
+		// profiling statement are real errors, not a missing capability.
+		if action != "profiling" && monitorUnavailable(err) {
 			out.State = "unavailable"
 			out.Reason = "Datenquelle ist nicht installiert, deaktiviert oder mit diesen Datenbankrechten nicht lesbar."
 			out.Records = []core.MonitorRecord{}
@@ -122,7 +124,7 @@ func monitorUnavailable(err error) bool {
 	var m *mysql.MySQLError
 	if errors.As(err, &m) {
 		switch m.Number {
-		case 1044, 1045, 1064, 1109, 1142, 1143, 1146, 1193, 1227, 1381:
+		case 1064, 1109, 1142, 1143, 1146, 1193, 1227, 1381:
 			return true
 		}
 	}

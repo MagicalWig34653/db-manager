@@ -52,7 +52,7 @@ Werte bleiben Strings, damit große Ganzzahlen präzise bleiben. `masked=true`
 erfordert `value=null`. Namen mit Passwort-/Secret-/Token-/Key-/Pfad-/Datei-/TLS-
 oder Credentialbezug sind gesperrt. Variablenwerte werden ausschließlich für
 bekannte unkritische Zahlenvariablen ausgegeben (`max_heap_table_size`,
-`tmp_table_size`, `statement_timeout`, `lock_timeout`, `max_connections`, `port`),
+`tmp_table_size`, `statement_timeout`, `lock_timeout`, `max_connections`, `max_user_connections`, `port`; Status `Connections` und `Max_used_connections` sind als exakte Zähler ebenfalls sichtbar),
 sofern sie als Zahl mit höchstens 64 Bytes darstellbar sind. Unbekannte Variablen
 und nichtnumerische Statuswerte bleiben maskiert. Die SQLite-Version ist eine
 feste, unkritische Ausnahme.

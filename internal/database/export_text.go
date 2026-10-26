@@ -141,7 +141,7 @@ func (f *exportFormat) textTable(c core.Connection, d core.TableDescription) err
 		}
 		f.firstTable = false
 		b, _ := json.Marshal(meta)
-		return f.write(strings.TrimSuffix(string(b), "}") + `,"rows":[`)
+		return f.write(strings.TrimSuffix(string(yamlSafeJSON(b)), "}") + `,"rows":[`)
 	case "php-array":
 		b, _ := json.Marshal(meta)
 		return f.write("array('metadata'=>" + phpExportString(string(b)) + ",'rows'=>array(\n")
@@ -208,7 +208,11 @@ func (f *exportFormat) textRow(row []core.Cell) error {
 			}
 		}
 		f.firstRow = false
-		return f.json(row)
+		b, err := json.Marshal(row)
+		if err != nil {
+			return err
+		}
+		return f.write(string(yamlSafeJSON(b)))
 	case "php-array":
 		s := "array("
 		for _, c := range row {
@@ -264,4 +268,26 @@ func (f *exportFormat) textFinish() error {
 	default:
 		return f.write("{\"complete\":true}\n")
 	}
+}
+
+// yamlSafeJSON rewrites characters that encoding/json leaves raw but YAML parsers
+// reject or fold (DEL, C1 controls including NEL, U+FFFE/U+FFFF) as \uXXXX escapes.
+// Such characters only occur inside JSON strings, so the document stays valid JSON
+// and a valid YAML 1.2 flow document that round-trips every cell losslessly.
+func yamlSafeJSON(b []byte) []byte {
+	var out []byte
+	last := 0
+	for i := 0; i < len(b); {
+		r, size := utf8.DecodeRune(b[i:])
+		if r == 0x7f || r >= 0x80 && r <= 0x9f || r == 0xfffe || r == 0xffff {
+			out = append(out, b[last:i]...)
+			out = append(out, fmt.Sprintf("\\u%04x", r)...)
+			last = i + size
+		}
+		i += size
+	}
+	if out == nil {
+		return b
+	}
+	return append(out, b[last:]...)
 }

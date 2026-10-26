@@ -27,7 +27,9 @@ tragen `limit`, `offset`, `has_more`. `sampled_at` bezeichnet den Beginn der
 Abfragen, keinen atomaren Snapshot; `duration_ms` misst den gesamten Aufruf.
 
 `state=available` bedeutet erfolgreiche Abfrage, auch bei leerem Ergebnis.
-`state=unavailable` bedeutet fehlende Rechte, deaktivierte oder fehlende Quelle;
+`state=unavailable` bedeutet fehlende Tabellen-/Systemrechte (z. B. MySQL 1142/1143/1227, PostgreSQL 42501), deaktivierte oder fehlende Monitor-Quelle;
+Anmeldefehler (MySQL 1044/1045, PostgreSQL 28xxx) und jeder Fehler einer vom Nutzer gelieferten
+Profiling-Anweisung (fehlende Tabelle/Spalte, Syntax) sind echte Fehler (wie in der Query-API), nie `unavailable`;
 `reason` erklärt die Einschränkung ohne Treiberrohfehler. Nicht unterstützte Aktionen
 liefern 422 `unsupported_feature`. Ungültige Grenzen, SQL oder Logparameter:
 400 `invalid_monitor`; ferner bestehende 400/401/408/413/415/422-Fehler.

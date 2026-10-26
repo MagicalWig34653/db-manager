@@ -181,8 +181,11 @@ func TestReviewB17MaskingAdversarial(t *testing.T) {
 		variable    bool
 		visible     bool
 	}{
-		{"max_connections", "151", true, false}, // over-masked (contains "connection"): functional gap, not a leak
-		{"Connections", "5", false, false},
+		{"max_connections", "151", true, true}, // exact known limit stays visible (SERVER-ADMIN-API.md)
+		{"Connections", "5", false, true},
+		{"Max_used_connections", "9", false, true},
+		{"Connection_errors_internal", "1", false, false},
+		{"max_connections", "x", true, false},
 		{"Threads_connected", "5", false, true},
 		{"datadir", "123", true, false},
 		{"secure_file_priv", "1", true, false},
