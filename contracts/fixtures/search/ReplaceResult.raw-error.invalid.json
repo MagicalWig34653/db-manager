@@ -1,0 +1,5 @@
+{
+  "outcome": "rejected",
+  "affected_rows": 0,
+  "reason": "raw SQL password"
+}

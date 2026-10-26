@@ -1,0 +1,19 @@
+{
+  "connection": {
+    "driver": "sqlite",
+    "database": "synthetic_p14"
+  },
+  "targets": [
+    {
+      "table": {
+        "name": "synthetic_table"
+      },
+      "columns": [
+        "value"
+      ]
+    }
+  ],
+  "term": "fox",
+  "mode": "substring",
+  "sql": "SELECT secret"
+}
