@@ -28,11 +28,11 @@ Paritätsmatrix und Webassets bleiben beim Lead; unabhängiger Review steht aus.
 - [API 0.21](../../contracts/api-v0.21.0.json),
   [Verhaltensvertrag](../../contracts/EXTENDED-EXPORT-API.md),
   [synthetische Platzhalterfixtures](../../contracts/fixtures/extended-export/README.md),
-  ergänzender Link in `contracts/EXPORT-API.md`. Alle v1–v12-Vertragsbytes und
+  ergänzender Link in `contracts/EXPORT-API.md`. Alle v1–v16-Vertragsbytes und
   `export-format-v1.schema.json` unverändert.
-- `scripts/check-extended-export-contract.py`: feste SHA256-Pins aller v1–v12,
-  Additivität zu v12, Referenzen, Authentisierung, strikte neue Schemas und Fixtures;
-  v13–v20 sind optional und werden nicht vorausgesetzt (Lücken 0.17–0.20 bis zu deren Integration; v21 baut nur auf v12 auf und enthält deshalb die Pfade von 0.13–0.16 nicht. Der Lead führt beim Zusammenführen die Vertragsunion).
+- `scripts/check-extended-export-contract.py`: feste SHA256-Pins aller v1–v16 (inkl. v13–v16),
+  kumulative Additivität zu v16, Referenzen, Authentisierung, strikte neue Schemas und Fixtures;
+  v17–v20 sind optional (Pins ergänzt der Lead beim Integrieren; Lücke dokumentiert). v21 baut kumulativ auf v16 auf; bei Integration von 0.17–0.20 ist die Union der Pfade zu bilden.
 - `scripts/test-extended-export.py`: SQLite/HTTP mit Race, echte Fähigkeitsantwort
   gegen Schema; optional seriell `dbfix.py` für MySQL 8.4, MariaDB 12.3, PG 18.6.
   `.github/workflows/extended-export.yml`: vorbereitete CI einschließlich Livefällen.
@@ -96,6 +96,6 @@ nicht gesammelt und Quelldaten nicht verändert; Restore erst nach Abschlussprü
 ## Offen
 
 Unabhängiger Review, Annahme des ADR, fachliche Abnahme der begrenzten DEFINER-/
-Kommentar-/CodeGen-Profile, Vertragsunion mit 0.17–0.20 beim Integrieren (Routen
+Kommentar-/CodeGen-Profile, Pins/Vertragsunion mit 0.17–0.20 beim Integrieren (Routen
 `/api/v21/*` kollisionsfrei), kein Browser-/Compose-Test, DUMP-001 (Trigger/Routinen)
 offen. Offene Teilparität nicht als phpMyAdmin-Parität übernehmen.

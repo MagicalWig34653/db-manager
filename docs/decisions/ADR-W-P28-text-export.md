@@ -11,7 +11,7 @@ Umschreiben nativer DDL wäre ohne Parser kein sicherer Kompatibilitätsmodus.
 
 ## Entscheidungsvorschlag
 
-v21 ergänzt eigene Routen und Schemata additiv zu v12; v1–v12 bleiben bytefest.
+v21 ergänzt eigene Routen und Schemata kumulativ und additiv zu v16; v1–v16 bleiben bytefest.
 Zeilen laufen durch die vorhandenen Limits und zwei Exportplätze. YAML beschränkt
 sich auf JSON-kompatibles YAML 1.2, XML kodiert nicht darstellbare Felder Base64.
 PHP-Strings kodieren jeden Byte als Hexescape. Wiki/Texy kodieren jedes Zeichen als

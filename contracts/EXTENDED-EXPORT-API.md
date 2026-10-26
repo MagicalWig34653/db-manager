@@ -1,7 +1,7 @@
 # Erweiterter Export und Dump-Details – API 0.21
 
 Implementierter Reviewkandidat W-P28, keine Freigabe oder Veröffentlichung. Der
-[OpenAPI-Vertrag](api-v0.21.0.json) erweitert API 0.12 additiv um
+[OpenAPI-Vertrag](api-v0.21.0.json) erweitert API 0.16 kumulativ und additiv um
 `GET /api/v21/capabilities` und `POST /api/v21/export`. Bestehende Vertragsbytes,
 insbesondere API 0.11 und das JSON-Formatschema 1, bleiben unverändert.
 
