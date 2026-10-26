@@ -55,3 +55,8 @@ Review B:
 - F2 Monitor: MySQL 1044/1045 nicht mehr `unavailable`; Profiling-Fehler (fehlende Tabelle/Spalte, Syntax) immer echter Fehler auf allen Engines; `unavailable` nur für Rechte-/Quellenfehler. Vertragstext angepasst.
 - F3 Server-Admin: exakte Zähler `max_connections`, `max_user_connections`, `Connections`, `Max_used_connections` sichtbar (Allowlist vor Namenssperre), Doku angepasst.
 - Testlücken: `wave4_package_test.go` (W-P17 Scope/Limit vor Verbindung, Sensitivnamen, 64/65-Ziffern; W-P29 Mehrbyte-Präfix, `opName`, Typname bei destruktivem Plan; W-P28 XML-Zeichenbereich, excel-csv-Steuerzeichen).
+
+## Vertrag v23 (reason-Abgleich)
+Der Web-Review fand `reason: grant_without_effect` (Accounts) außerhalb des Enums v15. Neu `contracts/api-v0.23.0.json` (kumulativ auf v22, SHA-256 `e925d96087e95860b3e5c1013f7e5e7fcc01a983959a26af5f29560fe42817b6`): nur `AccountResult.reason` + `grant_without_effect` und Beschreibungen. `contract_chain.py` pinnt v1..v22 (v22 `397db161…44afd1`), erlaubt für v23 ausschließlich die Schemaerweiterung `AccountResult`; Wächter `scripts/check-reasons-contract.py`, Fixtures `contracts/fixtures/reasons/`.
+Abgleich aller im Code erzeugten Reason-Werte (Literale in accounts, columns, indexes, search_replace, programs, maintenance, objectops, partitions, prefix sowie `reasonText`/`columnsFailure`) gegen die Enums der neuesten Version: einzige Abweichung war `grant_without_effect`; Test `TestEmittedReasonsAreInLatestContract` hält das künftig fest. Freie Strings (Import, Monitor, Bulk `reason`) haben kein Enum.
+Hinweis: v23 hat keine Pfade und keine neue Laufzeit-Versionsnummer (Capabilities melden weiter 0.15/0.22).

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Shared guard for the cumulative contract chain v1..v22.
+"""Shared guard for the cumulative contract chain v1..v23.
 
 Every version N pins all predecessors v1..v(N-1) by SHA-256, carries the matching
 info.version and is a strict superset (paths, schemas, security schemes) of v(N-1).
@@ -32,7 +32,12 @@ PINS = {
     19: 'c7a52e69685a1ab88656916071d1e931a500ba4aa9854c9fe0e11f130d0a2d46',
     20: '83b49461222f4d79690bd645fea12cfe2427d9fb0bddb9bd21a51ce0c34b63b0',
     21: '68db81f9de234193bb3a85d5004e416651221b8f423783b8f2a7f8715218881c',
+    22: '397db1613129333a755b22093e25bf1443756d252379940661c6c2df9144afd1',
 }
+
+# Versions that deliberately widen an existing schema (enum extension); the version's own
+# guard pins exactly what may differ.
+EXTENDED = {23: {'AccountResult'}}
 
 
 def spec(version):
@@ -50,5 +55,7 @@ def check(version):
         for name, value in old['paths'].items():
             assert new['paths'].get(name) == value, (number, name)
         for name, value in old['components']['schemas'].items():
+            if name in EXTENDED.get(number, ()):
+                continue
             assert new['components']['schemas'].get(name) == value, (number, name)
         assert new['components'].get('securitySchemes') == old['components'].get('securitySchemes'), number

@@ -1,0 +1,7 @@
+{
+  "outcome": "rejected",
+  "reason": "grant_without_effect",
+  "message": "Das Recht wurde nicht wirksam gewährt (der Server meldet bei fehlender Grant-Berechtigung nur eine Warnung). Es wurde nichts geändert.",
+  "statements_executed": 0,
+  "atomic": true
+}

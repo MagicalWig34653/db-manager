@@ -1,0 +1,7 @@
+{
+  "outcome": "rejected",
+  "reason": "no_such_reason",
+  "message": "x",
+  "statements_executed": 0,
+  "atomic": true
+}
