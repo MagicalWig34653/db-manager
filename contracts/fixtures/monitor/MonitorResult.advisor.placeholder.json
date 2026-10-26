@@ -1,0 +1,15 @@
+{
+  "driver": "mysql",
+  "action": "advisor",
+  "state": "available",
+  "reason": "Synthetischer Schema-Platzhalter; kein Live-Nachweis.",
+  "source": "global_status",
+  "sampled_at": "2026-10-25T00:00:00Z",
+  "duration_ms": 0,
+  "records": [],
+  "hints": [],
+  "limit": 50,
+  "offset": 0,
+  "has_more": false,
+  "truncated": false
+}
