@@ -1,0 +1,46 @@
+{
+  "driver": "sqlite",
+  "statements": [
+    "DROP VIEW \"v odd\"\"`.;DROP TABLE neighbor--\""
+  ],
+  "warnings": [
+    "Keine automatische Wiederholung. Ein bestätigter Plan ist keine einmalige Freigabe; nach Abschluss oder unbekanntem Ausgang ist eine neue Vorschau erforderlich.",
+    "Zwischen Katalogprüfung und Ausführung können andere Sitzungen Objekte ändern. Abhängigkeiten sind auf sichtbare Katalogobjekte begrenzt; dynamisches SQL, String-Körper und externe Verweise sind nicht vollständig erkennbar."
+  ],
+  "affected_objects": [
+    "view:main.v odd\"`.;DROP TABLE neighbor--",
+    "outgoing:table:main.neighbor",
+    "outgoing:table:main.source"
+  ],
+  "plan_sha256": "7b0059d3d7990ddf53c79aa9eb1e59c7cd946a63e59ab4ada87612cd1702a565",
+  "action": "drop",
+  "object": {
+    "kind": "view",
+    "schema": "main",
+    "name": "v odd\"`.;DROP TABLE neighbor--"
+  },
+  "user_sql": false,
+  "destructive": true,
+  "transactional": true,
+  "dependencies": [
+    {
+      "object": {
+        "kind": "table",
+        "schema": "main",
+        "name": "neighbor"
+      },
+      "direction": "outgoing",
+      "certainty": "textual"
+    },
+    {
+      "object": {
+        "kind": "table",
+        "schema": "main",
+        "name": "source"
+      },
+      "direction": "outgoing",
+      "certainty": "textual"
+    }
+  ],
+  "dependencies_truncated": false
+}

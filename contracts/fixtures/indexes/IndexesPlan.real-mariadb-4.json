@@ -1,0 +1,27 @@
+{
+  "driver": "mysql",
+  "statements": [
+    "ALTER TABLE `probe`.`keys \"`` ;DROP TABLE neighbor` ADD UNIQUE INDEX `duplicate_unique` (`value`)"
+  ],
+  "warnings": [
+    "Schlüsseländerungen können die Tabelle sperren und lange dauern; vollständige Scans und Indexaufbau benötigen Zeit und Speicher.",
+    "Entfernen oder Ersetzen verliert Indexstrukturen und Integritätsregeln, keine Tabellenzeilen; neue Eindeutigkeit kann an vorhandenen Daten scheitern.",
+    "Kein CASCADE. Trigger, externe Verweise und gleichnamig ersetzte Objekte sind nicht vollständig erfasst; Plan-Hash ist kein Replay- oder ABA-Schutz. Nach Abschluss oder unbekanntem Ausgang neu planen und bestätigen.",
+    "Vorprüfung: 1 Gruppen mit doppelten Schlüsselwerten; NULL-Werte bei UNIQUE ausgenommen. Konkurrenz bleibt möglich."
+  ],
+  "affected_objects": [
+    "probe.keys \"` ;DROP TABLE neighbor",
+    "duplicate_unique"
+  ],
+  "plan_sha256": "0ff2eeb165ce340ebbee643818ee97e676e07795c8d916a2584c7dc183db390b",
+  "table": {
+    "schema": "probe",
+    "name": "keys \"` ;DROP TABLE neighbor"
+  },
+  "destructive": false,
+  "target_name": "keys \"` ;DROP TABLE neighbor",
+  "dependencies": [],
+  "ddl_transactional": false,
+  "duplicate_groups": 1,
+  "contains_null": false
+}

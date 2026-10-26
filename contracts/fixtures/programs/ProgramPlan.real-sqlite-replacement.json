@@ -1,0 +1,38 @@
+{
+  "driver": "sqlite",
+  "statements": [
+    "CREATE VIEW \"changing_view\" AS SELECT value FROM old_source"
+  ],
+  "warnings": [
+    "Keine automatische Wiederholung. Ein bestätigter Plan ist keine einmalige Freigabe; nach Abschluss oder unbekanntem Ausgang ist eine neue Vorschau erforderlich.",
+    "Zwischen Katalogprüfung und Ausführung können andere Sitzungen Objekte ändern. Abhängigkeiten sind auf sichtbare Katalogobjekte begrenzt; dynamisches SQL, String-Körper und externe Verweise sind nicht vollständig erkennbar.",
+    "Ohne expliziten Sicherheitskontext gelten die Dialektvorgaben; insbesondere können Sichten und MySQL-Objekte mit Definer-Rechten arbeiten.",
+    "Nutzer-SQL: Der Körper wird mit den Rechten der Verbindung beziehungsweise des Definers gespeichert. Keine Parser- oder Unbedenklichkeitszusage. DELIMITER ist kein SQL und wird nicht unterstützt."
+  ],
+  "affected_objects": [
+    "view:main.changing_view",
+    "outgoing:table:main.old_source"
+  ],
+  "plan_sha256": "d1a50b74a5d0c81152344f663b6c13e5d16976ddf5763b11065b4c067935fe18",
+  "action": "create",
+  "object": {
+    "kind": "view",
+    "schema": "main",
+    "name": "changing_view"
+  },
+  "user_sql": true,
+  "destructive": false,
+  "transactional": true,
+  "dependencies": [
+    {
+      "object": {
+        "kind": "table",
+        "schema": "main",
+        "name": "old_source"
+      },
+      "direction": "outgoing",
+      "certainty": "textual"
+    }
+  ],
+  "dependencies_truncated": false
+}

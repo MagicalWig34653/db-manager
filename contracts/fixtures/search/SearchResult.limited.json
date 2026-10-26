@@ -1,0 +1,23 @@
+{
+  "tables": [
+    {
+      "table": {
+        "schema": "main",
+        "name": "synthetic_table"
+      },
+      "columns": [
+        "value"
+      ],
+      "count": 1,
+      "count_exact": false,
+      "rows": [
+        [
+          {
+            "kind": "text",
+            "value": "fox"
+          }
+        ]
+      ]
+    }
+  ]
+}

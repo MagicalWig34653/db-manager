@@ -1,0 +1,25 @@
+{
+  "driver": "sqlite",
+  "statements": [
+    "CREATE INDEX \"main\".\"idx \"\"` test\" ON \"keys \"\"` ;DROP TABLE neighbor\" (\"value\" DESC)"
+  ],
+  "warnings": [
+    "Schlüsseländerungen können die Tabelle sperren und lange dauern; vollständige Scans und Indexaufbau benötigen Zeit und Speicher.",
+    "Entfernen oder Ersetzen verliert Indexstrukturen und Integritätsregeln, keine Tabellenzeilen; neue Eindeutigkeit kann an vorhandenen Daten scheitern.",
+    "Kein CASCADE. Trigger, externe Verweise und gleichnamig ersetzte Objekte sind nicht vollständig erfasst; Plan-Hash ist kein Replay- oder ABA-Schutz. Nach Abschluss oder unbekanntem Ausgang neu planen und bestätigen."
+  ],
+  "affected_objects": [
+    "main.keys \"` ;DROP TABLE neighbor",
+    "idx \"` test"
+  ],
+  "plan_sha256": "3f6eebb01068354bc4942fe74756bd16b711f3deca33fe486448102c2647b821",
+  "table": {
+    "schema": "main",
+    "name": "keys \"` ;DROP TABLE neighbor"
+  },
+  "destructive": false,
+  "target_name": "keys \"` ;DROP TABLE neighbor",
+  "dependencies": [],
+  "ddl_transactional": true,
+  "contains_null": false
+}

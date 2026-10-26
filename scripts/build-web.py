@@ -167,7 +167,8 @@ def run(command: list[str], cwd: Path, env: dict[str, str], capture: bool = Fals
     return result.stdout.strip() if capture else ""
 
 
-MAX_CHUNKS = 12
+# Lazy feature chunks (JS + CSS each) grow with the PWA waves: 6 at 48c2f67, 15 at c14271e. The orphan check stays the real guard.
+MAX_CHUNKS = 24
 ENTRY_SCRIPT = re.compile(r'<script\b[^>]*\btype="module"[^>]*\bsrc="/(assets/[^"]+\.js)"')
 ENTRY_STYLE = re.compile(r'<link\b[^>]*\brel="stylesheet"[^>]*\bhref="/(assets/[^"]+\.css)"')
 SHELL_LIST = re.compile(r"JSON\.parse\('(\[[^']*\])'\)")

@@ -1,0 +1,8 @@
+{
+  "outcome": "rejected",
+  "reason": "invalid_value",
+  "message": "Handgeschriebener Vertragsplatzhalter.",
+  "statements_executed": 0,
+  "atomic": false,
+  "observation": "unavailable"
+}

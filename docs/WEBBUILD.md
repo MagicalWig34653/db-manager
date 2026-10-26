@@ -8,8 +8,8 @@ Prüfstand und unabhängige Abnahme: [F5b-Handoff](handoffs/F5b.md).
 ## Quelle, Vertrag und Reproduzierbarkeit
 
 [web-build.lock.json](../web-build.lock.json) pinnt das öffentliche Webrepository auf
-Commit [48c2f67](https://github.com/MagicalWig34653/db-manager-web/tree/48c2f67113d8fd0a27e9cf966d20904fd7d0da61)
-(Pin Bündel 2, siehe Abschnitt am Ende). Der folgende Text beschreibt den **historischen** Pin
+Commit [c14271e](https://github.com/MagicalWig34653/db-manager-web/tree/c14271ec12bfb7940253787c2f84aeb65cc4252e)
+(Pin Bündel 3, siehe Abschnitt am Ende). Der folgende Text beschreibt den **historischen** Pin
 [8ef738d](https://github.com/MagicalWig34653/db-manager-web/tree/8ef738d22a1164291e2c8183d80e72d1f043c0f8):
 F5 einschließlich lesender Index-/Constraintmetadaten, F6-Ergebnisexport und bisheriger
 Einzelzeilenaktionen wurde unabhängig
@@ -210,7 +210,14 @@ Katalog/Übersicht). Neu in der Vertragsliste: `create` 0.6.0 (`b08b6aba...6887`
 erscheint im Manifest `source.schema_version` 2 mit `additional_contracts`. Der Webbuild ist code-gesplittet
 (`assets/feature-*.js/css`); die Neubauprüfung (`verify_build` in `build-web.py`) ersetzt die feste Dateizahl durch drei Prüfungen:
 (1) `index.html` hat genau ein Entry-Modulskript und ein Entry-Stylesheet, der Quelllink des gepinnten Commits steht im
-Entry-Skript; (2) jede Datei unter `assets/` ist transitiv vom Entry referenziert, höchstens `MAX_CHUNKS` (12) Dateien;
+Entry-Skript; (2) jede Datei unter `assets/` ist transitiv vom Entry referenziert, höchstens `MAX_CHUNKS` (24; bei Bündel 3 von 12 begründet angehoben, siehe PIN-BUNDLE-3) Dateien;
 (3) die `SHELL`-Liste in `sw.js` entspricht exakt `index.html` + PWA-Dateien (ohne `sw.js`) + `assets/*`. Der alte Pin
 8ef738d besteht diese Prüfungen unverändert und bleibt bytegleich rekonstruierbar. Das Dockerfile-Label `org.dbmanager.frontend.source` wird bei Pinwechsel von Hand gepflegt;
 `scripts/test-build-web.py` und `verify_image` schlagen bei Abweichung zum Lock fehl. Details: [PIN-BUNDLE-2](handoffs/PIN-BUNDLE-2.md).
+
+## Pin Bündel 3 (25.10.2026)
+
+Das Lock pinnt Web-main `c14271ec12bfb7940253787c2f84aeb65cc4252e` (zusätzlich zu Bündel 2: Objektoperationen, Spalten, Export,
+Navigationssperre). Neue Vertragseinträge: `object-ops` 0.8.0 (`74aa39ed...8264`), `columns` 0.9.0 (`508b9951...e3f8`),
+`export` 0.11.0 (`b3bcc38b...6620`), Webkopien v8, v9, v11 byte-identisch zu den Rootverträgen. 0.10 (maintenance) und 0.12
+(sqlbatch) liegen nur im Root, das Web enthält keine Kopie: **nicht gepinnt**. Details: [PIN-BUNDLE-3](handoffs/PIN-BUNDLE-3.md).
