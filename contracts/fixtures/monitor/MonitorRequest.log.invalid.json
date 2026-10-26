@@ -1,0 +1,8 @@
+{
+  "connection": {
+    "driver": "mysql",
+    "host": "localhost",
+    "database": "probe"
+  },
+  "log": "../private/bin.000001"
+}

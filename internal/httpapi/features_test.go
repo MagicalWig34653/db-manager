@@ -9,7 +9,7 @@ import (
 )
 
 func TestFeatureListKeepsRegistrationOrder(t *testing.T) {
-	if len(featureList) != 19 {
+	if len(featureList) != 20 {
 		t.Fatalf("feature count changed: %d", len(featureList))
 	}
 }
@@ -23,6 +23,7 @@ func TestAllKnownRoutesRegisteredAndAuthenticated(t *testing.T) {
 		"GET /api/v4/capabilities", "POST /api/v4/tables/insert-eligibility", "POST /api/v4/rows/insert",
 		"GET /api/v5/capabilities", "POST /api/v5/tables/structure",
 		"GET /api/v6/capabilities", "POST /api/v6/tables/create",
+		"GET /api/v20/capabilities", "POST /api/v20/monitor/sample", "POST /api/v20/monitor/analysis", "POST /api/v20/monitor/advisor", "POST /api/v20/monitor/replication", "POST /api/v20/monitor/binary-logs", "POST /api/v20/monitor/binary-events", "POST /api/v20/monitor/profiling", "POST /api/v20/monitor/engines",
 		"GET /api/v7/capabilities", "POST /api/v7/databases", "POST /api/v7/objects", "POST /api/v7/definition", "POST /api/v7/server-info",
 	}
 	for _, route := range routes {
