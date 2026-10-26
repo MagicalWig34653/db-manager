@@ -18,6 +18,9 @@ func TestScramVerifierFormatAndDeterminism(t *testing.T) {
 		t.Fatalf("verifier %q", a)
 	}
 	c, _ := scramVerifier("pencil")
+	if !strings.HasPrefix(c, "SCRAM-SHA-256$4096:") {
+		t.Fatalf("iteration count changed: %q", c)
+	}
 	d, _ := scramVerifier("pencil")
 	if c == d || strings.Contains(c, "pencil") {
 		t.Fatal("salt must differ and the verifier must not contain the password")
@@ -41,6 +44,30 @@ func TestSystemAccountsAreProtected(t *testing.T) {
 	} {
 		if p, s := accountSystem(test.driver, test.a); p != test.prot || s != test.second {
 			t.Fatalf("%s %v: %v %v", test.driver, test.a, p, s)
+		}
+	}
+}
+
+func TestPostgresSecretStatementNeverContainsClearText(t *testing.T) {
+	for _, secret := range []string{"plain-pw", "ﬁx①ｗpw", "caf\u0065\u0301-pw", "it's \"quoted\""} {
+		statement, err := accountSecretStatement("postgres", `CREATE ROLE "x" LOGIN PASSWORD <protected-secret>`, secret)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if strings.Contains(statement, secret) || !strings.Contains(statement, "PASSWORD 'SCRAM-SHA-256$4096:") {
+			t.Fatalf("clear text or wrong form for %q: %s", secret, statement)
+		}
+	}
+	mysqlStatement, _ := accountSecretStatement("mysql", "CREATE USER 'x'@'%' IDENTIFIED BY <protected-secret>", "pw'x")
+	if !strings.HasSuffix(mysqlStatement, "'pw''x'") {
+		t.Fatalf("mysql literal %s", mysqlStatement)
+	}
+}
+
+func TestSASLPrepNormalizesLikePostgres(t *testing.T) {
+	for in, want := range map[string]string{"plain": "plain", "ﬁx①ｗpw": "fix1wpw", "caf\u0065\u0301-pw": "caf\u00e9-pw", "a\u00a0b": "a b", "a\u00adb": "ab", "bad\x07ctl\u00e9": "bad\x07ctl\u00e9"} {
+		if got := saslPrep(in); got != want {
+			t.Fatalf("saslPrep(%q) = %q want %q", in, got, want)
 		}
 	}
 }

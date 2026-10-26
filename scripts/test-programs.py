@@ -35,7 +35,7 @@ def main():
             subprocess.run(['docker', 'ps', '--format', '{{.Names}} {{.Status}}'], check=True)
             for system in ('mysql', 'maria', 'postgres'):
                 with Fixtures('w-p19', systems=(system,)) as fx:
-                    run(fx.environment(), './internal/database', '^(TestLivePrograms|TestReviewW3ProgramsLive)/' + system + '$', dump)
+                    run(fx.environment(), './internal/database', '^(TestLivePrograms|TestReviewW3ProgramsLive|TestRereviewW3RestoreFidelity)/' + system + '$', dump)
                 left = subprocess.check_output(['docker', 'ps', '-a', '--filter',
                                                'label=dbmanager.fixture=' + fx.prefix,
                                                '--format', '{{.Names}}'], text=True).split()

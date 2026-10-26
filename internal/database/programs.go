@@ -291,7 +291,7 @@ func buildProgramPlan(ctx context.Context, env *opEnv, r core.ProgramChangeReque
 			if len(shown) > 8000 {
 				shown = shown[:8000] + " ... (gekürzt)"
 			}
-			warnings = append(warnings, "Ersetzen besteht aus DROP und CREATE und ist nicht atomar. Scheitert das CREATE, wird die bisherige Definition automatisch wiederhergestellt (Sitzungs-sql_mode der Verbindung). Bisherige Definition: "+shown)
+			warnings = append(warnings, "Ersetzen besteht aus DROP und CREATE und ist nicht atomar. Scheitert das CREATE, wird die bisherige Definition automatisch wiederhergestellt (mit dem ursprünglichen sql_mode des Objekts). Bisherige Definition: "+shown)
 		}
 		if existing != nil {
 			warnings = append(warnings, "Ersetzen ist destruktiv. Bestehende Eigenschaften, Privilegien und Abhängigkeiten müssen anhand der exakten Anweisungen geprüft werden.")
@@ -413,9 +413,9 @@ func (e *Engine) ProgramExecute(ctx context.Context, r core.ProgramExecuteReques
 		defer tx.Rollback()
 	}
 	// MySQL/MariaDB replace is DROP + CREATE: secure the old definition so a failing CREATE can be undone.
-	oldDefinition := ""
+	oldDefinition, oldSettings := "", map[string]string(nil)
 	if env.c.Driver == "mysql" && r.Action == "replace" && len(plan.Statements) == 2 {
-		oldDefinition, err = mysqlShowCreate(ctx, env, plan.Object)
+		oldDefinition, oldSettings, err = mysqlShowCreateMode(ctx, env, plan.Object)
 		if err != nil || oldDefinition == "" {
 			result.Outcome = "rejected"
 			result.Message = "Die bisherige Definition ist nicht lesbar; das Ersetzen wurde nicht begonnen. Es wurde nichts geändert."
@@ -454,17 +454,41 @@ func (e *Engine) ProgramExecute(ctx context.Context, r core.ProgramExecuteReques
 				tx.Rollback()
 			}
 			if oldDefinition != "" && result.StatementsExecuted == 1 {
-				// The DROP took effect, the CREATE failed: restore the previous definition.
-				rctx, rcancel := context.WithTimeout(context.Background(), 10*time.Second)
-				_, rerr := env.sess.conn.ExecContext(rctx, oldDefinition)
-				rcancel()
+				// The DROP took effect, the CREATE failed. If the CREATE may nevertheless have succeeded
+				// (cancel, timeout, lost answer), do not restore over it.
+				rctx, rcancel := context.WithTimeout(context.Background(), 15*time.Second)
+				defer rcancel()
 				result.Reason = "database_error"
+				if _, existsErr := mysqlShowCreate(rctx, env, plan.Object); existsErr == nil {
+					result.Outcome = "outcome_unknown"
+					result.Message = "Der Ausgang des CREATE ist unbestimmt: das Objekt ist vorhanden. Zustand prüfen; es wurde nicht wiederhergestellt. Bisherige Definition: " + oldDefinition
+					return result, nil
+				}
+				var rerr error
+				previous := map[string]string{}
+				for _, variable := range []string{"sql_mode", "character_set_client", "collation_connection", "time_zone"} {
+					value, ok := oldSettings[variable]
+					if !ok || rerr != nil {
+						continue
+					}
+					var current string
+					if rerr = env.sess.conn.QueryRowContext(rctx, "SELECT @@SESSION."+variable).Scan(&current); rerr == nil {
+						previous[variable] = current
+						_, rerr = env.sess.conn.ExecContext(rctx, "SET SESSION "+variable+" = "+accountLiteral(value))
+					}
+				}
+				if rerr == nil {
+					_, rerr = env.sess.conn.ExecContext(rctx, oldDefinition)
+				}
+				for variable, value := range previous {
+					_, _ = env.sess.conn.ExecContext(rctx, "SET SESSION "+variable+" = "+accountLiteral(value))
+				}
 				if rerr == nil {
 					result.Outcome = "rejected"
 					result.Message = "Die neue Definition wurde vom Server abgelehnt; die bisherige Definition wurde automatisch wiederhergestellt (restored)."
 				} else {
 					result.Outcome = "outcome_unknown"
-					result.Message = "Die neue Definition wurde abgelehnt und die Wiederherstellung schlug fehl (restore_failed). Das Objekt fehlt. Bisherige Definition zur manuellen Wiederherstellung: " + oldDefinition
+					result.Message = "Die neue Definition wurde abgelehnt und die Wiederherstellung schlug fehl (restore_failed). Das Objekt fehlt möglicherweise. Bisherige Definition zur manuellen Wiederherstellung: " + oldDefinition
 				}
 			}
 			return result, nil
@@ -486,18 +510,25 @@ func (e *Engine) ProgramExecute(ctx context.Context, r core.ProgramExecuteReques
 // mysqlShowCreate reads the current definition of a MySQL/MariaDB routine, trigger or event
 // with the server's own SHOW CREATE, using the catalog-resolved, quoted name.
 func mysqlShowCreate(ctx context.Context, env *opEnv, ref core.ProgramRef) (string, error) {
+	definition, _, err := mysqlShowCreateMode(ctx, env, ref)
+	return definition, err
+}
+
+// mysqlShowCreateMode also returns the session settings the object was created with (sql_mode,
+// client character set, connection collation and, for events, the time zone), keyed by variable.
+func mysqlShowCreateMode(ctx context.Context, env *opEnv, ref core.ProgramRef) (string, map[string]string, error) {
 	q, err := opQualified(env.c.Driver, ref.Schema, ref.Name)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	rows, err := env.sess.conn.QueryContext(ctx, "SHOW CREATE "+strings.ToUpper(ref.Kind)+" "+q)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	defer rows.Close()
 	columns, err := rows.Columns()
 	if err != nil || !rows.Next() {
-		return "", errors.New("no definition")
+		return "", nil, errors.New("no definition")
 	}
 	values := make([]sql.NullString, len(columns))
 	dest := make([]any, len(columns))
@@ -505,14 +536,28 @@ func mysqlShowCreate(ctx context.Context, env *opEnv, ref core.ProgramRef) (stri
 		dest[i] = &values[i]
 	}
 	if err = rows.Scan(dest...); err != nil {
-		return "", err
+		return "", nil, err
 	}
-	index := 2 // routines and triggers: name, sql_mode, definition
+	index := 2 // routines and triggers: name, sql_mode, definition, character_set_client, collation_connection
 	if ref.Kind == "event" {
-		index = 3
+		index = 3 // name, sql_mode, time_zone, definition, character_set_client, collation_connection
 	}
 	if len(values) <= index || !values[index].Valid {
-		return "", errors.New("definition hidden by missing privileges")
+		return "", nil, errors.New("definition hidden by missing privileges")
 	}
-	return values[index].String, nil
+	settings := map[string]string{}
+	if ref.Kind != "view" {
+		set := func(variable string, column int) {
+			if column < len(values) && values[column].Valid && values[column].String != "" {
+				settings[variable] = values[column].String
+			}
+		}
+		set("sql_mode", 1)
+		set("character_set_client", index+1)
+		set("collation_connection", index+2)
+		if ref.Kind == "event" {
+			set("time_zone", 2)
+		}
+	}
+	return values[index].String, settings, nil
 }

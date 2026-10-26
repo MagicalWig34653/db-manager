@@ -615,13 +615,18 @@ func TestReviewW3BScanCancelLive(t *testing.T) {
 				time.Sleep(500 * time.Millisecond)
 				var n string
 				if r.c.Driver == "mysql" {
-					n = r.text("SELECT COUNT(*) FROM information_schema.PROCESSLIST WHERE INFO LIKE '%FROM `probe`.`big`%'")
+					n = r.text("SELECT COUNT(*) FROM information_schema.PROCESSLIST WHERE COMMAND IN ('Query','Execute') AND ID<>CONNECTION_ID()")
 				} else {
 					n = r.text("SELECT COUNT(*) FROM pg_stat_activity WHERE state='active' AND query LIKE '%FROM \"public\".\"big\" WHERE%' AND pid<>pg_backend_pid()")
 				}
 				seen = append(seen, n)
 			}
-			t.Logf("%s: elapsed=%v err=%v server-active samples (0.5s apart)=%v", mode, el, err != nil, seen)
+			for _, n := range seen[4:] {
+				if n != "0" {
+					t.Errorf("%s: server query still active after the client deadline (%v, err=%v): %v", mode, el, err != nil, seen)
+					break
+				}
+			}
 		}
 	})
 }

@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/MagicalWig34653/db-manager/internal/core"
 	"github.com/MagicalWig34653/db-manager/internal/dbplan"
@@ -51,8 +52,15 @@ func buildAccountPlan(ctx context.Context, env *opEnv, action string, r core.Acc
 	}
 	if driver == "mysql" && !env.maria {
 		for _, name := range []*core.AccountRef{r.Account, r.NewAccount, r.Role} {
-			if name != nil && len(name.Name) > 32 {
+			if name != nil && utf8.RuneCountInString(name.Name) > 32 {
 				return out, public("invalid_account_request", "Der Kontoname ist für MySQL auf 32 Zeichen begrenzt (MariaDB: 80).")
+			}
+		}
+	}
+	for _, n := range []*core.AccountRef{r.NewAccount} {
+		if n != nil {
+			if protected, _ := accountSystem(driver, *n); protected {
+				return out, public("system_account", "Der Zielname gehört einem Systemkonto des Servers.")
 			}
 		}
 	}

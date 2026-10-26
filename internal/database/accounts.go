@@ -42,7 +42,11 @@ func accountName(driver string, a core.AccountRef) bool {
 	if driver == "postgres" {
 		max = 63
 	}
-	return a.Name != "" && utf8.ValidString(a.Name) && len(a.Name) <= max && !strings.ContainsAny(a.Name, "\x00\r\n") && utf8.ValidString(a.Host) && len(a.Host) <= 255 && !strings.ContainsAny(a.Host, "\x00\r\n") && (driver != "postgres" || a.Host == "")
+	length := len(a.Name) // PostgreSQL limits bytes (NAMEDATALEN); MySQL/MariaDB limit characters
+	if driver != "postgres" {
+		length = utf8.RuneCountInString(a.Name)
+	}
+	return a.Name != "" && utf8.ValidString(a.Name) && length <= max && !strings.ContainsAny(a.Name, "\x00\r\n") && utf8.ValidString(a.Host) && len(a.Host) <= 255 && !strings.ContainsAny(a.Host, "\x00\r\n") && (driver != "postgres" || a.Host == "")
 }
 func accountLabel(a core.AccountRef) string {
 	// Length-prefixed identity avoids ambiguity between name and host.
@@ -186,7 +190,7 @@ func (e *Engine) AccountExecute(parent context.Context, action string, r core.Ac
 		return out, accountSafe(ctx, err)
 	}
 	defer closeAll()
-	if needsSecret && env.c.Driver == "mysql" && !env.maria && len(*r.Secret) > 256 {
+	if needsSecret && env.c.Driver == "mysql" && !env.maria && utf8.RuneCountInString(*r.Secret) > 256 {
 		return out, public("invalid_account_request", "Das Passwort ist für MySQL auf 256 Zeichen begrenzt.")
 	}
 	plan, err := buildAccountPlan(ctx, env, action, r.AccountRequest)
@@ -206,18 +210,11 @@ func (e *Engine) AccountExecute(parent context.Context, action string, r core.Ac
 	// value after validation; neither the expanded statement nor driver errors escape.
 	statements := append([]string{}, plan.Statements...)
 	if needsSecret {
-		// Replace only the final marker of the first statement, never identifier text.
-		value := *r.Secret
-		if env.c.Driver == "postgres" {
-			// Only the SCRAM-SHA-256 verifier leaves this process, so a failing statement in the
-			// server log never contains the clear-text password.
-			verifier, verr := scramVerifier(value)
-			if verr != nil {
-				return out, public("database_error", "Das Passwort konnte nicht verarbeitet werden.")
-			}
-			value = verifier
+		statement, serr := accountSecretStatement(env.c.Driver, statements[0], *r.Secret)
+		if serr != nil {
+			return out, public("database_error", "Das Passwort konnte nicht verarbeitet werden.")
 		}
-		statements[0] = strings.TrimSuffix(statements[0], "<protected-secret>") + accountLiteral(value)
+		statements[0] = statement
 	}
 	var verify func(context.Context) error
 	if action == "grant" && env.c.Driver == "postgres" && r.Grant != nil && r.Account != nil {
@@ -375,4 +372,19 @@ func (e *Engine) openAccounts(ctx context.Context, c core.Connection) (*opEnv, f
 		return nil, nil, accountSafe(ctx, err)
 	}
 	return env, closeAll, nil
+}
+
+// accountSecretStatement substitutes the protected secret into the first statement. Only the final
+// marker is replaced, never identifier text. For PostgreSQL only a SCRAM-SHA-256 verifier is sent, so a
+// failing statement in the server log never contains the clear-text password.
+func accountSecretStatement(driver, statement, secret string) (string, error) {
+	value := secret
+	if driver == "postgres" {
+		verifier, err := scramVerifier(saslPrep(secret))
+		if err != nil {
+			return "", err
+		}
+		value = verifier
+	}
+	return strings.TrimSuffix(statement, "<protected-secret>") + accountLiteral(value), nil
 }

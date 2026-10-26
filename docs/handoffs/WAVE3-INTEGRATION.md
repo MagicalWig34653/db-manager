@@ -42,3 +42,12 @@ Alle vier Reviews: Freigabe (mit Auflagen), Auflagen umgesetzt; Vertrags-JSONs v
 - W-P09: L1 AUTO_INCREMENT-PK- und Waisen-FK-Vorwarnung; L2 aktionsbezogene Sperr-/Neuaufbauhinweise; L3 Handoff.
 - Prüfstand: gofmt, vet, `go test -race -count=1 ./...`, alle 15 Wächter, `test-accounts.py`, `test-programs.py`, `test-indexes.py`, `test-search.py` (vier Systeme nacheinander), `check-docs.py` (0 Fehler); echte Accounts-/Programs-Fixtures neu erzeugt.
 - Entscheidung/Grenze: Die Wiederherstellung beim Ersetzen nutzt die Sitzungsdefinition aus `SHOW CREATE` (sql_mode der Verbindung); die Vorabprüfung unter temporärem Namen entfiel.
+
+## Nachbesserung nach Re-Review (`review/wave3-rereview`)
+
+- N1: Die Wiederherstellung setzt vor dem CREATE `sql_mode`, `character_set_client`, `collation_connection` (Event: `time_zone`) aus `SHOW CREATE` und stellt die Sitzungswerte danach zurück (Test `TestRereviewW3RestoreFidelity` grün auf MySQL und MariaDB: Katalog vor/nach identisch).
+- N2: Entscheidung: SASLprep wird angewendet (`saslPrep`: NFKC aus `golang.org/x/text/unicode/norm`, Mapping "to nothing" und Leerzeichen, bei verbotenen Zeichen Rohpasswort wie PostgreSQL). `golang.org/x/text` v0.42.0 ist bereits in `go.mod` und `docs/LIZENZEN.md` (BSD-3-Clause); jetzt direkte statt indirekte Abhängigkeit. Das eigene precis-Paket wurde nicht genutzt, weil `OpaqueString` NFC statt NFKC anwendet. Beleg: `TestRereviewW3ScramSASLprep` lässt PostgreSQL dasselbe Klartextpasswort hashen und vergleicht Stored-/ServerKey mit dem eigenen Verifier (ﬁ, ①, NFD). Hinweis: pgx selbst wendet kein SASLprep an; solche Passwörter melden sich nur mit libpq-konformen Clients an (wie bei nativ gesetzten Passwörtern).
+- N3: Namens- und Passwortlimits zählen bei MySQL/MariaDB Zeichen (PostgreSQL bleibt Byte, NAMEDATALEN).
+- N4: Vor der Wiederherstellung wird geprüft, ob das Objekt nach dem CREATE-Fehler vorhanden ist; dann `outcome_unknown` ohne Restore.
+- N5: Auch `new_account` (Rename/Kopie) mit Systemkontonamen wird als `system_account` abgelehnt.
+- N6: `TestReviewW3BScanCancelLive` assertiert (Probe `COMMAND IN ('Query','Execute')`), Iterationszahl 4096 gepinnt, `TestPostgresSecretStatementNeverContainsClearText` erkennt einen Klartext-Rückfall im Go-Test (`accountSecretStatement` ausgelagert).
