@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Validate frozen contracts, additive provisional v17 schemas and synthetic fixtures."""
+"""Validate frozen contracts, additive read-only v15 schemas and synthetic fixtures."""
 import hashlib
 import importlib.util
 import json
@@ -15,10 +15,14 @@ FROZEN = dict(overview.FROZEN)
 FROZEN.update({
     'api-v0.7.0.json': 'c6fd8c91315e25185d949d309397c7c0d80cc67fcab87ae521e38068e7004d17',
     'api-v0.8.0.json': '74aa39ed06311f2c45afc274a2412a0ac30912e3a5683ec96b812fd473a28264',
+    'api-v0.9.0.json': '508b9951d102ec44bf4cafc9fe444f7266b31f898d9e91c887f4bef39735e3f8',
+    'api-v0.10.0.json': '077a0e0222963b112bd6ea528ef5668d2ff7fbe2b2d3555669487c4beaf55cc5',
+    'api-v0.11.0.json': 'b3bcc38b44b020335151aead207e281f9c54bdc7463d6fb1ddd7a6cc22396620',
+    'api-v0.12.0.json': '7f0446edccdc368a202e4eaae5689d4b44d641e34bdf77ec8314de9f3e3f2dcd',
 })
 
 def load():
-    return json.loads((ROOT / 'contracts/api-v0.17.0.json').read_text())
+    return json.loads((ROOT / 'contracts/api-v0.15.0.json').read_text())
 
 
 def errors(spec, schema, value):
@@ -46,19 +50,20 @@ def validate(component, value):
 
 def main():
     spec = load()
-    assert spec['info']['version'] == '0.17.0'
+    assert spec['info']['version'] == '0.15.0'
     for filename, digest in FROZEN.items():
         assert hashlib.sha256((ROOT / 'contracts' / filename).read_bytes()).hexdigest() == digest, filename
-    base = json.loads((ROOT / 'contracts/api-v0.8.0.json').read_text())
+    base = json.loads((ROOT / 'contracts/api-v0.12.0.json').read_text())
     for group in ('paths',):
         for name, definition in base[group].items():
             assert spec[group][name] == definition, name
     for name, definition in base['components']['schemas'].items():
         assert spec['components']['schemas'][name] == definition, name
-    routes = {'capabilities', 'status', 'variables', 'processes', 'processes/kill/plan', 'processes/kill', 'variables/set/plan', 'variables/set'}
-    assert set(spec['paths']) - set(base['paths']) == {'/api/v17/' + r for r in routes}
+    # v13/v14/v16+ are independent, optional packages, not v15 prerequisites.
+    routes = {'capabilities', 'status', 'variables', 'processes'}
+    assert set(spec['paths']) - set(base['paths']) == {'/api/v15/' + r for r in routes}
     for route in routes:
-        for op in spec['paths']['/api/v17/' + route].values():
+        for op in spec['paths']['/api/v15/' + route].values():
             assert op['security'] == [{'bearerAuth': []}]
     def walk(node):
         if isinstance(node, dict):
@@ -73,13 +78,20 @@ def main():
     for name, schema in spec['components']['schemas'].items():
         if name.startswith('ServerAdmin') and schema.get('type') == 'object':
             assert schema.get('additionalProperties') is False, name
+    assert set(spec['components']['schemas']) - set(base['components']['schemas']) == {
+        'ServerAdminReadRequest', 'ServerAdminValue', 'ServerAdminProcess',
+        'ServerAdminReadResult', 'ServerAdminDriverCapabilities',
+        'ServerAdminCapabilities', 'ServerAdminError',
+    }
+    assert set(spec['components']['schemas']['ServerAdminDriverCapabilities']['properties']) == {'status', 'variables', 'processes'}
+    assert spec['components']['schemas']['ServerAdminCapabilities']['properties']['features']['items']['enum'] == ['status', 'variables', 'processes']
     count = 0
     for path in sorted((ROOT / 'contracts/fixtures/server-admin').glob('*.json')):
         problems = validate(path.name.split('.')[0], json.loads(path.read_text()))
         assert bool(problems) == path.name.endswith('.invalid.json'), (path.name, problems)
         count += 1
-    assert count >= 20, count
-    print(f'Frozen v1-v8 bytes, additive provisional v17, references, strict schemas and {count} fixtures passed.')
+    assert count >= 15, count
+    print(f'Frozen v1-v12 bytes, additive read-only v15, references, strict schemas and {count} fixtures passed.')
 
 
 if __name__ == '__main__':

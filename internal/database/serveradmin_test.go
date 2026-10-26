@@ -11,9 +11,6 @@ import (
 	"testing"
 
 	"github.com/MagicalWig34653/db-manager/internal/core"
-	"github.com/MagicalWig34653/db-manager/internal/dbplan"
-	mysql "github.com/go-sql-driver/mysql"
-	"github.com/jackc/pgx/v5/pgconn"
 )
 
 func TestSQLiteServerAdmin(t *testing.T) {
@@ -24,14 +21,9 @@ func TestSQLiteServerAdmin(t *testing.T) {
 	if err != nil || len(r.Values) != 1 || r.Values[0].Name != "sqlite_version" || r.Values[0].Value == nil || len(r.Processes) != 0 {
 		t.Fatalf("basic info: %#v %v", r, err)
 	}
+	adminDump(t, "ServerAdminReadResult", "sqlite-real", r)
 	for _, kind := range []string{"variables", "processes"} {
 		_, err = e.ServerAdminRead(ctx, kind, core.ServerAdminReadRequest{Connection: c})
-		adminWantCode(t, err, "unsupported_action")
-	}
-	for _, action := range []string{"kill", "set_variable"} {
-		_, err = e.ServerAdminPlan(ctx, action, core.ServerAdminRequest{Connection: c})
-		adminWantCode(t, err, "unsupported_action")
-		_, err = e.ServerAdminExecute(ctx, action, core.ServerAdminExecuteRequest{ServerAdminRequest: core.ServerAdminRequest{Connection: c}})
 		adminWantCode(t, err, "unsupported_action")
 	}
 	for _, r := range []core.ServerAdminReadRequest{{Connection: c, Limit: 201}, {Connection: c, Offset: 10001}, {Connection: c, TimeoutMS: 10001}, {Connection: c, Limit: -1}, {Connection: c, Scope: "GLOBAL"}, {Connection: c, Filter: strings.Repeat("x", 129)}} {
@@ -69,59 +61,87 @@ func TestServerAdminMaskAndWhitelist(t *testing.T) {
 	if item := adminSafeValue("tmp_table_size", "16384", true); item.Masked || item.Value == nil {
 		t.Fatal("numeric allowlist masked")
 	}
-	for _, r := range []struct{ driver, name, scope, value string }{{"mysql", "password", "GLOBAL", "16384"}, {"mysql", "max_connections", "GLOBAL", "16384"}, {"mysql", "tmp_table_size;DROP", "GLOBAL", "16384"}, {"mysql", "tmp_table_size", "GLOBAL", "16384;DROP"}, {"mysql", "tmp_table_size", "GLOBAL", "016384"}, {"mysql", "tmp_table_size", "GLOBAL", "1073741825"}, {"postgres", "statement_timeout", "GLOBAL", "1000"}, {"postgres", "statement_timeout", "SESSION", "0"}, {"postgres", "lock_timeout", "SESSION", "600001"}} {
-		if adminVariable(r.driver, r.name, r.scope, r.value) {
-			t.Fatalf("unsafe allowlist: %#v", r)
-		}
-	}
+
 	for _, d := range []string{"sqlite", "mysql", "postgres"} {
-		for _, a := range []string{"status", "variables", "processes", "kill", "set_variable", "flush"} {
+		for _, a := range []string{"status", "variables", "processes"} {
 			cap := core.ServerAdminCapabilities().Get(d, a)
 			if cap.Support != "supported" && cap.Reason == "" {
 				t.Fatalf("missing reason: %s/%s", d, a)
 			}
 		}
 	}
+	for _, value := range []string{"+", "1e", "--1", "NaN", "Inf", "1e999", "123/private"} {
+		if item := adminSafeValue("tmp_table_size", value, true); !item.Masked || item.Value != nil {
+			t.Fatalf("invalid number: %#v", item)
+		}
+	}
 }
 
-// Metadata driver permits deterministic stale-target/self-protection tests
-// without a network or a third-party mocking dependency.
+// A deterministic read-only metadata driver checks bounds and pagination offline.
 type adminFixtureDriver struct{}
-type adminFixtureConn struct {
-	self  bool
-	mode  string
-	calls int
-}
+type adminFixtureConn struct{ mode string }
 type adminFixtureRows struct {
-	data    [][]driver.Value
-	index   int
-	columns int
+	data     [][]driver.Value
+	index    int
+	columns  int
+	rowError bool
 }
 
 func (adminFixtureDriver) Open(name string) (driver.Conn, error) {
-	return &adminFixtureConn{self: name == "self", mode: name}, nil
+	return &adminFixtureConn{mode: name}, nil
 }
 func (*adminFixtureConn) Prepare(string) (driver.Stmt, error) {
 	return nil, errors.New("unexpected prepare")
 }
 func (*adminFixtureConn) Close() error              { return nil }
 func (*adminFixtureConn) Begin() (driver.Tx, error) { return nil, errors.New("unexpected transaction") }
-func (c *adminFixtureConn) QueryContext(_ context.Context, query string, _ []driver.NamedValue) (driver.Rows, error) {
-	if strings.HasPrefix(query, "SELECT pg_cancel_backend") {
-		return &adminFixtureRows{columns: 1, data: [][]driver.Value{{false}}}, nil
+func (c *adminFixtureConn) QueryContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Rows, error) {
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
 	}
-	if strings.HasPrefix(query, "SELECT name,setting") {
-		return &adminFixtureRows{columns: 2, data: [][]driver.Value{{"statement_timeout", "0"}}}, nil
+	if query == "values" {
+		data := [][]driver.Value{{"tmp_table_size", "16384"}, {"password", "12345"}, {"max_connections", "100"}, {"plugin_custom", "private-placeholder"}}
+		switch c.mode {
+		case "many":
+			data = make([][]driver.Value, 4097)
+			for i := range data {
+				data[i] = []driver.Value{"counter", "1"}
+			}
+		case "large":
+			data = [][]driver.Value{{"counter", strings.Repeat("1", MaxCellBytes+1)}}
+		case "bytes":
+			data = make([][]driver.Value, MaxResponseBytes/MaxCellBytes+1)
+			for i := range data {
+				data[i] = []driver.Value{"counter", strings.Repeat("1", MaxCellBytes)}
+			}
+		case "name":
+			data = [][]driver.Value{{strings.Repeat("n", 257), "1"}}
+		}
+		return &adminFixtureRows{columns: 2, data: data, rowError: c.mode == "rows-error"}, nil
 	}
-	if strings.HasPrefix(query, "SHOW SESSION VARIABLES") {
-		return &adminFixtureRows{columns: 2, data: [][]driver.Value{{"tmp_table_size", "16384"}}}, nil
+	// Raw query/host columns must never be requested, even for private hashing.
+	if strings.Contains(query, "INFO") || strings.Contains(query, "HOST") || strings.Contains(query, "backend_start") || strings.Contains(query, "query_start::text") || len(args) != 3 || args[0].Value != "fixture" || args[1].Value != int64(2) || args[2].Value != int64(0) {
+		return nil, errors.New("unsafe process query")
 	}
-	return &adminFixtureRows{columns: 7, data: [][]driver.Value{{"123", "fixture_user", "probe", int64(3), c.self, "stable-generation", "private-query-placeholder"}}}, nil
+	data := [][]driver.Value{{"123", "fixture_user", "probe", int64(3), false}, {"124", "fixture_user", "probe", int64(4), true}}
+	if c.mode == "long-user" {
+		data[0][1] = strings.Repeat("u", 257)
+	}
+	if c.mode == "scan-error" {
+		data[0][3] = "invalid-seconds"
+	}
+	if c.mode == "rows-error" {
+		data = nil
+	}
+	return &adminFixtureRows{columns: 5, data: data, rowError: c.mode == "rows-error"}, nil
 }
 func (r *adminFixtureRows) Columns() []string { return make([]string, r.columns) }
 func (*adminFixtureRows) Close() error        { return nil }
 func (r *adminFixtureRows) Next(dest []driver.Value) error {
 	if r.index == len(r.data) {
+		if r.rowError {
+			return errors.New("private-placeholder driver SQL path password")
+		}
 		return io.EOF
 	}
 	copy(dest, r.data[r.index])
@@ -129,141 +149,107 @@ func (r *adminFixtureRows) Next(dest []driver.Value) error {
 	return nil
 }
 func init() { sql.Register("w_p17_metadata", adminFixtureDriver{}) }
-func TestServerAdminMetadataPlans(t *testing.T) {
-	ctx := context.Background()
-	db, err := sql.Open("w_p17_metadata", "")
+func adminTestConn(t *testing.T, mode string) *sql.Conn {
+	t.Helper()
+	db, err := sql.Open("w_p17_metadata", mode)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
-	conn, err := db.Conn(ctx)
+	t.Cleanup(func() { db.Close() })
+	conn, err := db.Conn(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer conn.Close()
-	processes, _, err := adminProcesses(ctx, conn, "postgres", 1, 0, "", "123")
-	if err != nil {
-		t.Fatal(err)
-	}
-	req := core.ServerAdminRequest{Connection: core.Connection{Driver: "postgres", Host: "placeholder.invalid"}, ID: "123", Identity: processes[0].QueryIdentity, Mode: "query"}
-	plan, err := adminBuild(ctx, conn, "kill", req)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if plan.TargetName != "123:fixture_user" || !strings.Contains(plan.Statements[0], "pg_cancel_backend(123)") || strings.Contains(plan.Statements[0], "private-query-placeholder") {
-		t.Fatalf("unsafe plan: %#v", plan)
-	}
-	same, err := adminBuild(ctx, conn, "kill", req)
-	if err != nil || plan.SHA256 != same.SHA256 {
-		t.Fatal("unstable plan")
-	}
-	req.Connection.Host = "other.invalid"
-	other, err := adminBuild(ctx, conn, "kill", req)
-	if err != nil || plan.SHA256 == other.SHA256 {
-		t.Fatal("plan does not bind connection target")
-	}
-	for _, confirm := range []dbplan.Confirmation{{Action: "kill", TargetName: "123:other_user"}, {Action: "set_variable", TargetName: plan.TargetName}, {Action: "kill"}} {
-		if err := dbplan.Check(plan.Plan, plan.SHA256, confirm, "kill", plan.TargetName, true); err == nil {
-			t.Fatal("confirmation bypass")
+	t.Cleanup(func() { conn.Close() })
+	return conn
+}
+func TestServerAdminMetadataReads(t *testing.T) {
+	for _, dialect := range []string{"mysql", "postgres"} {
+		conn := adminTestConn(t, "")
+		processes, more, err := adminProcesses(context.Background(), conn, dialect, 1, 0, "fixture")
+		if err != nil || !more || len(processes) != 1 || processes[0].ID != "123" {
+			t.Fatalf("process page: %#v %v %v", processes, more, err)
 		}
 	}
-	if err := dbplan.Check(plan.Plan, strings.Repeat("0", 64), dbplan.Confirmation{Action: "kill", TargetName: plan.TargetName}, "kill", plan.TargetName, true); !errors.Is(err, dbplan.ErrPlanMismatch) {
-		t.Fatal("stale hash accepted")
+	for _, mode := range []string{"long-user", "scan-error", "rows-error"} {
+		_, _, err := adminProcesses(context.Background(), adminTestConn(t, mode), "postgres", 1, 0, "fixture")
+		if err == nil {
+			t.Fatalf("accepted %s", mode)
+		}
+		if strings.Contains(safe(context.Background(), err).Error(), "private-placeholder") {
+			t.Fatal("driver error leaked")
+		}
 	}
-	req.Identity = strings.Repeat("0", 64)
-	_, err = adminBuild(ctx, conn, "kill", req)
-	adminWantCode(t, err, "plan_mismatch")
-	req.ID = "123; DROP"
-	_, err = adminBuild(ctx, conn, "kill", req)
+	for _, test := range []struct {
+		filter        string
+		offset, limit int
+		name          string
+		more          bool
+	}{
+		{"", 0, 2, "max_connections", true}, {"", 2, 2, "plugin_custom", false}, {"TABLE", 0, 1, "tmp_table_size", false}, {"", 4, 1, "", false},
+	} {
+		rows, err := adminTestConn(t, "").QueryContext(context.Background(), "values")
+		if err != nil {
+			t.Fatal(err)
+		}
+		values, more, err := adminValues(rows, core.ServerAdminReadRequest{Filter: test.filter, Offset: test.offset, Limit: test.limit}, true)
+		if err != nil || more != test.more {
+			t.Fatalf("values: %#v %v %v", values, more, err)
+		}
+		if test.name == "" {
+			if len(values) != 0 {
+				t.Fatal("offset ignored")
+			}
+		} else if len(values) == 0 || values[0].Name != test.name {
+			t.Fatalf("filter/sort/page: %#v", values)
+		}
+		for _, v := range values {
+			if (v.Name == "password" || v.Name == "plugin_custom") && (!v.Masked || v.Value != nil) {
+				t.Fatal("secret exposed")
+			}
+		}
+	}
+	for _, mode := range []string{"many", "large", "bytes", "name", "rows-error"} {
+		rows, err := adminTestConn(t, mode).QueryContext(context.Background(), "values")
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, _, err = adminValues(rows, core.ServerAdminReadRequest{Limit: 1}, false)
+		if mode == "rows-error" {
+			if err == nil {
+				t.Fatal("row error ignored")
+			}
+		} else {
+			adminWantCode(t, err, "result_too_large")
+		}
+	}
+}
+
+func TestServerAdminTimeoutAndValidation(t *testing.T) {
+	e := testEngine(t)
+	for _, r := range []core.ServerAdminReadRequest{
+		{Connection: core.Connection{Driver: "unknown"}},
+		{Connection: sqliteConnection(), Offset: -1},
+		{Connection: sqliteConnection(), TimeoutMS: -1},
+	} {
+		_, err := e.ServerAdminRead(context.Background(), "status", r)
+		adminWantCode(t, err, "invalid_server_admin")
+	}
+	_, err := e.ServerAdminRead(context.Background(), "kill", core.ServerAdminReadRequest{Connection: sqliteConnection()})
 	adminWantCode(t, err, "invalid_server_admin")
-	req = core.ServerAdminRequest{Connection: core.Connection{Driver: "postgres"}, Name: "statement_timeout", Scope: "SESSION", Value: "1000"}
-	plan, err = adminBuild(ctx, conn, "set_variable", req)
-	if err != nil || plan.TargetName != "SESSION:statement_timeout" || !strings.HasPrefix(plan.Statements[0], "SET SESSION statement_timeout = 1000") {
-		t.Fatalf("variable plan %#v %v", plan, err)
-	}
-	req = core.ServerAdminRequest{Connection: core.Connection{Driver: "mysql"}, Name: "tmp_table_size", Scope: "SESSION", Value: "32768"}
-	if _, err = adminBuild(ctx, conn, "set_variable", req); err != nil {
-		t.Fatal(err)
-	}
-	selfDB, _ := sql.Open("w_p17_metadata", "self")
-	defer selfDB.Close()
-	selfConn, _ := selfDB.Conn(ctx)
-	defer selfConn.Close()
-	self, _, _ := adminProcesses(ctx, selfConn, "postgres", 1, 0, "", "123")
-	req = core.ServerAdminRequest{Connection: core.Connection{Driver: "postgres"}, ID: "123", Identity: self[0].Identity, Mode: "connection"}
-	_, err = adminBuild(ctx, selfConn, "kill", req)
+	_, err = e.ServerAdminRead(context.Background(), "variables", core.ServerAdminReadRequest{Connection: core.Connection{Driver: "postgres"}, Scope: "GLOBAL"})
 	adminWantCode(t, err, "unsupported_action")
-}
-
-func (c *adminFixtureConn) ExecContext(_ context.Context, _ string, _ []driver.NamedValue) (driver.Result, error) {
-	c.calls++
-	if c.mode == "lost" {
-		return nil, errors.New("private-placeholder driver path and password")
+	// Exhaust the admission slots so expiration must interrupt a real engine wait.
+	for i := 0; i < cap(e.slots); i++ {
+		e.slots <- struct{}{}
 	}
-	if c.mode == "denied" {
-		return nil, &mysql.MySQLError{Number: 1227, Message: "private-placeholder"}
-	}
-	return driver.RowsAffected(0), nil
-}
-func TestServerAdminExecutionOutcomes(t *testing.T) {
-	for _, mode := range []string{"lost", "denied", "ok", "canceled", "signal-false"} {
-		t.Run(mode, func(t *testing.T) {
-			db, err := sql.Open("w_p17_metadata", mode)
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer db.Close()
-			ctx := context.Background()
-			conn, err := db.Conn(ctx)
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer conn.Close()
-			req := core.ServerAdminRequest{Connection: core.Connection{Driver: "mysql"}}
-			plan := core.ServerAdminPlan{Plan: dbplan.Plan{Statements: []string{"KILL CONNECTION 123"}}}
-			if mode == "signal-false" {
-				req.Connection.Driver = "postgres"
-				plan.Statements[0] = "SELECT pg_cancel_backend(123)"
-			}
-			if mode == "canceled" {
-				var cancel context.CancelFunc
-				ctx, cancel = context.WithCancel(ctx)
-				cancel()
-			}
-			result, err := adminRun(ctx, conn, "kill", req, plan)
-			if err != nil || strings.Contains(result.Message, "private-placeholder") {
-				t.Fatalf("unsafe error %#v %v", result, err)
-			}
-			want := dbplan.StatusRejected
-			if mode == "ok" {
-				want = dbplan.StatusCompleted
-			}
-			if mode == "lost" {
-				want = dbplan.StatusOutcomeUnknown
-			}
-			if result.Outcome != want {
-				t.Fatalf("outcome %#v", result)
-			}
-			if mode == "denied" && result.Reason != "permission_denied" {
-				t.Fatalf("reason %#v", result)
-			}
-			if err = conn.Raw(func(raw any) error {
-				calls := raw.(*adminFixtureConn).calls
-				if calls > 1 || (mode == "canceled" && calls != 0) {
-					t.Fatalf("retried/sent after cancel: %d", calls)
-				}
-				return nil
-			}); err != nil {
-				t.Fatal(err)
-			}
-		})
-	}
-}
-
-func TestServerAdminDisconnectUncertainty(t *testing.T) {
-	for _, err := range []error{&mysql.MySQLError{Number: 1927}, &mysql.MySQLError{Number: 2013}, &pgconn.PgError{Code: "57P01"}, &pgconn.PgError{Code: "08006"}, &pgconn.PgError{Code: "57014"}} {
-		if _, definite := adminReason(err); definite {
-			t.Fatalf("disconnect/cancel claimed definite: %T", err)
+	defer func() {
+		for i := 0; i < cap(e.slots); i++ {
+			<-e.slots
 		}
+	}()
+	_, err = e.ServerAdminRead(context.Background(), "status", core.ServerAdminReadRequest{Connection: sqliteConnection(), TimeoutMS: 1})
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("timeout ignored: %v", err)
 	}
 }

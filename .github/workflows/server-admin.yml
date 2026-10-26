@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-name: Serververwaltung (API 0.17, vorläufig)
+name: Serververwaltung (API 0.15, nur lesend)
 on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read

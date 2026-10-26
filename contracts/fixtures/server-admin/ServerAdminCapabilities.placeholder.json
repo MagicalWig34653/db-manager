@@ -1,11 +1,9 @@
 {
-  "contract_version": "0.17.0",
+  "contract_version": "0.15.0",
   "features": [
     "status",
     "variables",
-    "processes",
-    "kill",
-    "set_variable"
+    "processes"
   ],
   "drivers": {
     "sqlite": {
@@ -18,18 +16,6 @@
         "reason": "Synthetischer Platzhalter, kein Livebeleg."
       },
       "processes": {
-        "support": "unsupported",
-        "reason": "Synthetischer Platzhalter, kein Livebeleg."
-      },
-      "kill": {
-        "support": "unsupported",
-        "reason": "Synthetischer Platzhalter, kein Livebeleg."
-      },
-      "set_variable": {
-        "support": "unsupported",
-        "reason": "Synthetischer Platzhalter, kein Livebeleg."
-      },
-      "flush": {
         "support": "unsupported",
         "reason": "Synthetischer Platzhalter, kein Livebeleg."
       }
@@ -46,18 +32,6 @@
       "processes": {
         "support": "limited",
         "reason": "Synthetischer Platzhalter, kein Livebeleg."
-      },
-      "kill": {
-        "support": "limited",
-        "reason": "Synthetischer Platzhalter, kein Livebeleg."
-      },
-      "set_variable": {
-        "support": "limited",
-        "reason": "Synthetischer Platzhalter, kein Livebeleg."
-      },
-      "flush": {
-        "support": "unsupported",
-        "reason": "Synthetischer Platzhalter, kein Livebeleg."
       }
     },
     "postgres": {
@@ -71,18 +45,6 @@
       },
       "processes": {
         "support": "limited",
-        "reason": "Synthetischer Platzhalter, kein Livebeleg."
-      },
-      "kill": {
-        "support": "limited",
-        "reason": "Synthetischer Platzhalter, kein Livebeleg."
-      },
-      "set_variable": {
-        "support": "limited",
-        "reason": "Synthetischer Platzhalter, kein Livebeleg."
-      },
-      "flush": {
-        "support": "unsupported",
         "reason": "Synthetischer Platzhalter, kein Livebeleg."
       }
     }

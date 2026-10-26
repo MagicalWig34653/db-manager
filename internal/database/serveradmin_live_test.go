@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/MagicalWig34653/db-manager/internal/core"
-	"github.com/MagicalWig34653/db-manager/internal/dbplan"
 )
 
 func adminDump(t *testing.T, component, label string, value any) {
@@ -56,216 +55,128 @@ func TestLiveServerAdmin(t *testing.T) {
 				t.Fatal(err)
 			}
 			defer cleanup()
-			// Dedicated fixtures preserve a target session and an unaffected control session.
-			db.SetMaxOpenConns(4)
-			target, err := db.Conn(ctx)
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer target.Close()
 			control, err := db.Conn(ctx)
 			if err != nil {
 				t.Fatal(err)
 			}
 			defer control.Close()
-			var targetID string
-			idQuery := "SELECT CAST(CONNECTION_ID() AS CHAR)"
-			if c.Driver == "postgres" {
-				idQuery = "SELECT pg_backend_pid()::text"
-			}
-			if err = target.QueryRowContext(ctx, idQuery).Scan(&targetID); err != nil {
-				t.Fatal(err)
-			}
-			status := func() core.ServerAdminReadResult {
-				r, err := e.ServerAdminRead(ctx, "status", core.ServerAdminReadRequest{Connection: c, Limit: 200})
+			read := func(kind, label string, r core.ServerAdminReadRequest) core.ServerAdminReadResult {
+				t.Helper()
+				r.Connection = c
+				result, err := e.ServerAdminRead(ctx, kind, r)
 				if err != nil {
 					t.Fatal(err)
 				}
-				return r
+				adminDump(t, "ServerAdminReadResult", label, result)
+				return result
 			}
-			before := status()
+			settingQuery := "SELECT @@SESSION.tmp_table_size"
+			if c.Driver == "postgres" {
+				settingQuery = "SHOW statement_timeout"
+			}
+			var originalSetting string
+			if err = control.QueryRowContext(ctx, settingQuery).Scan(&originalSetting); err != nil {
+				t.Fatal(err)
+			}
+			// Filter the metric explicitly: Com_select need not be on the first status page.
+			metric := "Com_select"
+			if c.Driver == "postgres" {
+				metric = "xact_commit"
+			}
+			before := read("status", "before", core.ServerAdminReadRequest{Filter: metric})
 			for i := 0; i < 5; i++ {
 				var n int
-				if err = control.QueryRowContext(ctx, "SELECT 1").Scan(&n); err != nil {
-					t.Fatal(err)
+				if err = control.QueryRowContext(ctx, "SELECT 1").Scan(&n); err != nil || n != 1 {
+					t.Fatal("synthetic load failed")
 				}
 			}
-			if c.Driver == "postgres" {
-				time.Sleep(1100 * time.Millisecond)
-			}
-			after := status()
-			adminDump(t, "ServerAdminReadResult", "status", after)
-			if len(after.Values) == 0 || after.SampledAt == before.SampledAt {
+			after := read("status", "after", core.ServerAdminReadRequest{Filter: metric})
+			if len(after.Values) != 1 || after.SampledAt == before.SampledAt || after.Values[0].Value == nil {
 				t.Fatal("missing metrics/timestamp")
 			}
 			if c.Driver == "mysql" {
-				find := func(r core.ServerAdminReadResult) int64 {
-					for _, v := range r.Values {
-						if v.Name == "Com_select" && v.Value != nil {
-							n, _ := strconv.ParseInt(*v.Value, 10, 64)
-							return n
-						}
-					}
-					return -1
+				b, err := strconv.ParseUint(*before.Values[0].Value, 10, 64)
+				if err != nil {
+					t.Fatal(err)
 				}
-				if find(after) <= find(before) {
-					t.Fatal("synthetic SELECT load did not increase Com_select")
+				a, err := strconv.ParseUint(*after.Values[0].Value, 10, 64)
+				if err != nil || a <= b {
+					t.Fatal("synthetic load did not increase Com_select")
 				}
 			}
-			vars, err := e.ServerAdminRead(ctx, "variables", core.ServerAdminReadRequest{Connection: c, Filter: "timeout", Limit: 3})
-			if err != nil || len(vars.Values) > 3 {
-				t.Fatalf("variable filter/page %#v %v", vars, err)
+			vars := read("variables", "variables", core.ServerAdminReadRequest{Filter: "timeout", Limit: 3})
+			if len(vars.Values) == 0 || len(vars.Values) > 3 {
+				t.Fatal("missing variable page")
 			}
-			adminDump(t, "ServerAdminReadResult", "variables", vars)
 			for _, v := range vars.Values {
 				if !strings.Contains(strings.ToLower(v.Name), "timeout") {
 					t.Fatal("filter ignored")
 				}
 			}
-			bad := core.ServerAdminRequest{Connection: c, Name: "password", Scope: "GLOBAL", Value: "16384"}
-			if _, err = e.ServerAdminPlan(ctx, "set_variable", bad); err == nil {
-				t.Fatal("nonallowlisted setting accepted")
+			page1 := read("variables", "page1", core.ServerAdminReadRequest{Limit: 2})
+			page2 := read("variables", "page2", core.ServerAdminReadRequest{Limit: 2, Offset: 2})
+			if !page1.HasMore || len(page1.Values) != 2 || len(page2.Values) != 2 || page1.Values[1].Name >= page2.Values[0].Name {
+				t.Fatal("variable paging/sorting failed")
 			}
-			set := core.ServerAdminRequest{Connection: c, Name: "tmp_table_size", Scope: "SESSION", Value: "32768"}
+			secretFilter := "ssl"
 			if c.Driver == "postgres" {
-				set.Name = "statement_timeout"
-				set.Value = "1000"
+				secretFilter = "directory"
 			}
-			run := func(action string, r core.ServerAdminRequest) core.ServerAdminResult {
-				t.Helper()
-				p, err := e.ServerAdminPlan(ctx, action, r)
-				if err != nil {
-					t.Fatal(err)
+			masked := read("variables", "masked", core.ServerAdminReadRequest{Filter: secretFilter})
+			if len(masked.Values) == 0 {
+				t.Fatal("mask fixture missing")
+			}
+			for _, v := range masked.Values {
+				if !v.Masked || v.Value != nil {
+					t.Fatal("sensitive value exposed")
 				}
-				adminDump(t, "ServerAdminPlan", action+"-"+r.Mode+"-"+r.Scope, p)
-				x := core.ServerAdminExecuteRequest{ServerAdminRequest: r, Confirm: dbplan.Confirmation{Action: action, TargetName: p.TargetName}, ExpectedPlanSHA256: p.SHA256}
-				x.Confirm.TargetName = "wrong"
-				_, err = e.ServerAdminExecute(ctx, action, x)
-				adminWantCode(t, err, "confirmation_mismatch")
-				x.Confirm.TargetName = p.TargetName
-				x.ExpectedPlanSHA256 = strings.Repeat("0", 64)
-				_, err = e.ServerAdminExecute(ctx, action, x)
-				adminWantCode(t, err, "plan_mismatch")
-				x.ExpectedPlanSHA256 = p.SHA256
-				res, err := e.ServerAdminExecute(ctx, action, x)
-				if err != nil || res.Outcome != dbplan.StatusCompleted {
-					t.Fatalf("execute %#v %v", res, err)
-				}
-				adminDump(t, "ServerAdminResult", action+"-"+r.Mode+"-"+r.Scope, res)
-				return res
-			}
-			res := run("set_variable", set)
-			if res.ObservedValue == nil {
-				t.Fatal("no same-session readback")
-			}
-			// A new SESSION read must show the original setting, not the closed API session's value.
-			var original string
-			settingQuery := "SELECT @@SESSION.tmp_table_size"
-			if c.Driver == "postgres" {
-				settingQuery = "SHOW statement_timeout"
-			}
-			if err = control.QueryRowContext(ctx, settingQuery).Scan(&original); err != nil {
-				t.Fatal(err)
-			}
-			freshDB, freshCleanup, openErr := e.open(ctx, c)
-			if openErr != nil {
-				t.Fatal(openErr)
-			}
-			var freshValue string
-			readErr := freshDB.QueryRowContext(ctx, settingQuery).Scan(&freshValue)
-			freshCleanup()
-			if readErr != nil || freshValue != original {
-				t.Fatal("SESSION setting escaped closed API connection")
 			}
 			if c.Driver == "mysql" {
-				var old string
-				if err = control.QueryRowContext(ctx, "SELECT @@GLOBAL.tmp_table_size").Scan(&old); err != nil {
-					t.Fatal(err)
-				}
-				defer func() {
-					if _, err := control.ExecContext(context.Background(), "SET GLOBAL tmp_table_size = "+old); err != nil {
-						t.Error("fixture restore failed")
-					}
-				}()
-				set.Scope = "GLOBAL"
-				set.Value = "33554432"
-				run("set_variable", set)
-				var observed string
-				if err = control.QueryRowContext(ctx, "SELECT @@GLOBAL.tmp_table_size").Scan(&observed); err != nil || observed != set.Value {
-					t.Fatal("independent GLOBAL readback failed")
-				}
+				read("variables", "global", core.ServerAdminReadRequest{Scope: "GLOBAL", Filter: "max_connections"})
+			} else {
+				_, err = e.ServerAdminRead(ctx, "variables", core.ServerAdminReadRequest{Connection: c, Scope: "GLOBAL"})
+				adminWantCode(t, err, "unsupported_action")
 			}
-			// Kill a long query, then the same dedicated connection; a control connection survives both.
-			done := make(chan error, 1)
-			go func() {
-				sleep := "SELECT SLEEP(20)"
-				if c.Driver == "postgres" {
-					sleep = "SELECT pg_sleep(20)"
-				}
-				_, err := target.ExecContext(ctx, sleep)
-				done <- err
-			}()
-			var p core.ServerAdminProcess
-			for attempt := 0; attempt < 30; attempt++ {
-				listed, err := e.ServerAdminRead(ctx, "processes", core.ServerAdminReadRequest{Connection: c, Limit: 200})
-				if err != nil {
-					t.Fatal(err)
-				}
-				for _, candidate := range listed.Processes {
-					if candidate.ID == targetID {
-						p = candidate
-					}
-				}
-				if p.ID != "" && p.Seconds >= 1 {
-					adminDump(t, "ServerAdminReadResult", "processes", listed)
-					break
-				}
-				time.Sleep(100 * time.Millisecond)
+			idQuery := "SELECT CAST(CONNECTION_ID() AS CHAR)"
+			if c.Driver == "postgres" {
+				idQuery = "SELECT pg_backend_pid()::text"
 			}
-			if p.ID == "" || p.Seconds < 1 {
-				t.Fatal("long query missing")
-			}
-			kill := core.ServerAdminRequest{Connection: c, ID: p.ID, Identity: p.QueryIdentity, Mode: "query"}
-			run("kill", kill)
-			select {
-			case queryErr := <-done:
-				if queryErr == nil {
-					t.Fatal("long query completed without cancellation")
-				}
-			case <-time.After(3 * time.Second):
-				t.Fatal("target query still running")
-			}
-			var one int
-			if err = control.QueryRowContext(ctx, "SELECT 1").Scan(&one); err != nil || one != 1 {
-				t.Fatal("unrelated control connection affected")
-			}
-			listed, err := e.ServerAdminRead(ctx, "processes", core.ServerAdminReadRequest{Connection: c, Limit: 200})
-			if err != nil {
+			var id string
+			if err = control.QueryRowContext(ctx, idQuery).Scan(&id); err != nil {
 				t.Fatal(err)
 			}
-			for _, candidate := range listed.Processes {
-				if candidate.ID == targetID {
-					p = candidate
+			processes := read("processes", "processes", core.ServerAdminReadRequest{Filter: c.Username, Limit: 200})
+			found := false
+			for _, p := range processes.Processes {
+				if p.ID == id {
+					found = true
+					if p.Self {
+						t.Fatal("control session marked self")
+					}
 				}
 			}
-			kill.Identity = p.Identity
-			kill.Mode = "connection"
-			run("kill", kill)
-			terminated := false
-			for attempt := 0; attempt < 20; attempt++ {
-				if target.QueryRowContext(ctx, "SELECT 1").Scan(&one) != nil {
-					terminated = true
-					break
-				}
-				time.Sleep(50 * time.Millisecond)
+			if !found {
+				t.Fatal("control session missing")
 			}
-			if !terminated {
-				t.Fatal("target connection survived termination")
+			first := read("processes", "process-page1", core.ServerAdminReadRequest{Filter: c.Username, Limit: 1})
+			second := read("processes", "process-page2", core.ServerAdminReadRequest{Filter: c.Username, Limit: 1, Offset: 1})
+			if !first.HasMore || len(first.Processes) != 1 || len(second.Processes) != 1 || first.Processes[0].ID == second.Processes[0].ID {
+				t.Fatal("process paging failed")
 			}
-			if err = control.QueryRowContext(ctx, "SELECT 1").Scan(&one); err != nil {
-				t.Fatal("control affected by termination")
+			empty := read("processes", "no-match", core.ServerAdminReadRequest{Filter: "no-such-fixture-user"})
+			if len(empty.Processes) != 0 || empty.HasMore {
+				t.Fatal("process filter ignored")
 			}
-			adminLivePrivileges(t, e, c, control)
+			// Reads must leave this independent session usable and its setting unchanged.
+			var one int
+			if err = control.QueryRowContext(ctx, "SELECT 1").Scan(&one); err != nil || one != 1 {
+				t.Fatal("control session affected")
+			}
+			var observedSetting string
+			if err = control.QueryRowContext(ctx, settingQuery).Scan(&observedSetting); err != nil || observedSetting != originalSetting {
+				t.Fatal("read changed session setting")
+			}
+			adminLiveVisibility(t, e, c, control)
 			wrong := c
 			wrong.Password = "never-echo-placeholder"
 			_, err = e.ServerAdminRead(ctx, "status", core.ServerAdminReadRequest{Connection: wrong})
@@ -275,64 +186,44 @@ func TestLiveServerAdmin(t *testing.T) {
 		})
 	}
 }
-func adminLivePrivileges(t *testing.T, e *Engine, c core.Connection, control *sql.Conn) {
+
+func adminLiveVisibility(t *testing.T, e *Engine, c core.Connection, control *sql.Conn) {
 	t.Helper()
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 	low := c
 	low.Username = "w_p17_limited"
 	low.Password = "public-disposable-placeholder"
-	if c.Driver == "mysql" {
-		if _, err := control.ExecContext(ctx, "CREATE USER 'w_p17_limited'@'%' IDENTIFIED BY 'public-disposable-placeholder'"); err != nil {
-			t.Fatal(err)
+	// Account DDL is fixture setup only; no server variables or connections are changed.
+	create := "CREATE USER 'w_p17_limited'@'%' IDENTIFIED BY 'public-disposable-placeholder'"
+	drop := "DROP USER 'w_p17_limited'@'%'"
+	if c.Driver == "postgres" {
+		create = "CREATE ROLE w_p17_limited LOGIN PASSWORD 'public-disposable-placeholder'"
+		drop = "DROP ROLE w_p17_limited"
+	}
+	if _, err := control.ExecContext(ctx, create); err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		if _, err := control.ExecContext(ctx, drop); err != nil {
+			t.Error("fixture account cleanup failed")
 		}
-		defer control.ExecContext(ctx, "DROP USER 'w_p17_limited'@'%'")
+	}()
+	if c.Driver == "mysql" {
 		if _, err := control.ExecContext(ctx, "GRANT SELECT ON probe.* TO 'w_p17_limited'@'%'"); err != nil {
 			t.Fatal(err)
 		}
-		r := core.ServerAdminRequest{Connection: low, Name: "tmp_table_size", Scope: "GLOBAL", Value: "33554432"}
-		p, err := e.ServerAdminPlan(ctx, "set_variable", r)
-		if err != nil {
-			t.Fatal(err)
-		}
-		res, err := e.ServerAdminExecute(ctx, "set_variable", core.ServerAdminExecuteRequest{ServerAdminRequest: r, Confirm: dbplan.Confirmation{Action: "set_variable", TargetName: p.TargetName}, ExpectedPlanSHA256: p.SHA256})
-		if err != nil || res.Outcome != dbplan.StatusRejected || res.Reason != "permission_denied" {
-			t.Fatalf("missing privilege not rejected %#v %v", res, err)
-		}
-		adminDump(t, "ServerAdminResult", "permission", res)
-	} else {
-		if _, err := control.ExecContext(ctx, "CREATE ROLE w_p17_limited LOGIN PASSWORD 'public-disposable-placeholder'"); err != nil {
-			t.Fatal(err)
-		}
-		defer control.ExecContext(ctx, "DROP ROLE w_p17_limited")
-		if _, err := control.ExecContext(ctx, "GRANT pg_read_all_stats TO w_p17_limited"); err != nil {
-			t.Fatal(err)
-		}
-		var id string
-		if err := control.QueryRowContext(ctx, "SELECT pg_backend_pid()::text").Scan(&id); err != nil {
-			t.Fatal(err)
-		}
-		listed, err := e.ServerAdminRead(ctx, "processes", core.ServerAdminReadRequest{Connection: low, Limit: 200})
-		if err != nil {
-			t.Fatal(err)
-		}
-		var identity string
-		for _, p := range listed.Processes {
-			if p.ID == id {
-				identity = p.Identity
-			}
-		}
-		if identity == "" {
-			t.Fatal("privilege fixture not visible")
-		}
-		r := core.ServerAdminRequest{Connection: low, ID: id, Identity: identity, Mode: "connection"}
-		p, err := e.ServerAdminPlan(ctx, "kill", r)
-		if err != nil {
-			t.Fatal(err)
-		}
-		res, err := e.ServerAdminExecute(ctx, "kill", core.ServerAdminExecuteRequest{ServerAdminRequest: r, Confirm: dbplan.Confirmation{Action: "kill", TargetName: p.TargetName}, ExpectedPlanSHA256: p.SHA256})
-		if err != nil || res.Outcome != dbplan.StatusRejected || res.Reason != "permission_denied" {
-			t.Fatalf("superuser termination allowed %#v %v", res, err)
-		}
-		adminDump(t, "ServerAdminResult", "permission", res)
 	}
+
+	result, err := e.ServerAdminRead(ctx, "processes", core.ServerAdminReadRequest{Connection: low, Limit: 200})
+	if err != nil {
+		t.Fatal(err)
+	}
+	adminDump(t, "ServerAdminReadResult", "limited-visibility", result)
+	for _, p := range result.Processes {
+		if c.Driver == "mysql" && p.User != low.Username {
+			t.Fatal("unprivileged account sees foreign process")
+		}
+	}
+	// PostgreSQL exposes foreign IDs/users, but restricted query metadata is never selected.
 }

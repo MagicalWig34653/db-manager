@@ -1,9 +1,0 @@
-{
-  "connection": {
-    "driver": "sqlite",
-    "database": "placeholder"
-  },
-  "id": "1; DROP",
-  "identity": "0000000000000000000000000000000000000000000000000000000000000000",
-  "mode": "query"
-}

@@ -3,7 +3,5 @@
   "user": "placeholder",
   "database": "placeholder",
   "seconds": 0,
-  "self": false,
-  "identity": "0000000000000000000000000000000000000000000000000000000000000000",
-  "query_identity": "1111111111111111111111111111111111111111111111111111111111111111"
+  "self": false
 }

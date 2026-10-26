@@ -1,12 +1,12 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "DB Manager – Serververwaltung (vorläufig)",
-    "version": "0.17.0",
+    "title": "DB Manager API",
+    "version": "0.15.0",
     "license": {
       "name": "AGPL-3.0-only"
     },
-    "description": "Additive Datenbank- und Tabellenoperationen nach dem Plan/Ausführen-Muster: Datenbank anlegen, löschen, Kollation ändern; Tabelle umbenennen, kopieren, leeren, löschen, Optionen ändern; Abhängigkeitsvorschau. Jede Aktion hat eine Vorschau (plan) ohne Wirkung mit exakten Anweisungen und plan_sha256 und eine Ausführung, die Aktion, getippten Zielnamen (zerstörende Aktionen) und den erwarteten Plan-Hash verlangt. Kein freies SQL vom Client. Fähigkeiten je Treiber sind ehrlich (unsupported/limited mit Grund)."
+    "description": "Additiver W-P17-Vertrag über API 0.12: ausschließlich Serverstatus, Variablenlesen und Prozessliste. Unabhängiger Review und Vertragsfreeze offen."
   },
   "paths": {
     "/healthz": {
@@ -2442,10 +2442,710 @@
         }
       }
     },
-    "/api/v17/capabilities": {
+    "/api/v9/capabilities": {
+      "get": {
+        "operationId": "columnsCapabilities",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ColumnsCapabilities"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v9/columns/plan": {
+      "post": {
+        "operationId": "columnsPlan",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ColumnsPlan"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ColumnsPlanRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v9/columns/alter": {
+      "post": {
+        "operationId": "columnsResult",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ColumnsResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ColumnsExecuteRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v10/capabilities": {
+      "get": {
+        "operationId": "maintenanceCapabilities",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis je Tabelle; Ablehnungen sind einzeln ausgewiesen.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaintenanceCapabilities"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Anfrage- oder Verbindungsfehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaintenanceError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v10/tables/maintenance/plan": {
+      "post": {
+        "operationId": "planMaintenance",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis je Tabelle; Ablehnungen sind einzeln ausgewiesen.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaintenancePlanResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Anfrage- oder Verbindungsfehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaintenanceError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MaintenancePlanRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v10/tables/maintenance": {
+      "post": {
+        "operationId": "executeMaintenance",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis je Tabelle; Ablehnungen sind einzeln ausgewiesen.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaintenanceResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Anfrage- oder Verbindungsfehler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaintenanceError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MaintenanceExecuteRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v11/capabilities": {
+      "get": {
+        "operationId": "exportCapabilities",
+        "summary": "Exportfähigkeiten und feste Obergrenzen",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exportfähigkeiten",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportCapabilities"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fester öffentlicher Fehler vor Streambeginn (400, 401, 408, 422); nach Beginn nur unvollständiger Stream mit fehlendem Formatabschluss und Trailer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v11/export": {
+      "post": {
+        "operationId": "exportDownload",
+        "summary": "Browserdownload; kein Serverdateiziel; Details in EXPORT-API und EXPORT-FORMAT",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stream; erst gültiger Formatabschluss UND (soweit verfügbar) complete-Trailer beweisen Vollständigkeit. Kein universeller SQL-Roundtrip.",
+            "headers": {
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Export-Snapshot": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "per-database",
+                    "read-only-best-effort"
+                  ]
+                }
+              },
+              "X-Export-Status": {
+                "description": "HTTP-Trailer: complete oder incomplete; fehlt bei Verbindungsabbruch.",
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "complete",
+                    "incomplete"
+                  ]
+                }
+              },
+              "X-Export-Error": {
+                "description": "Fester öffentlicher Fehlercode als Trailer; keine DB-Details.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/sql": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/gzip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportDocument"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Fester öffentlicher Fehler vor Streambeginn (400, 401, 408, 422); nach Beginn nur unvollständiger Stream mit fehlendem Formatabschluss und Trailer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v12/capabilities": {
+      "get": {
+        "operationId": "sqlBatchCapabilities",
+        "summary": "SQL-Werkzeugfähigkeiten und Grenzen",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis; Statementfehler im Outcome beachten",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SQLBatchCapabilities"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler (400, 401, 408, 413, 415, 422)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v12/sql/batch": {
+      "post": {
+        "operationId": "sqlBatchBatch",
+        "summary": "Bestätigtes Nutzer-SQL als begrenzter Stapel",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis; Statementfehler im Outcome beachten",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SQLBatchResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler (400, 401, 408, 413, 415, 422)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SQLBatchRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v12/sql/explain": {
+      "post": {
+        "operationId": "sqlBatchExplain",
+        "summary": "EXPLAIN ohne ANALYZE für genau eine Anweisung",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis; Statementfehler im Outcome beachten",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SQLBatchResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler (400, 401, 408, 413, 415, 422)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SQLBatchRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v12/sql/simulate": {
+      "post": {
+        "operationId": "sqlBatchSimulate",
+        "summary": "SQLite-DML ausführen und zurückrollen",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ergebnis; Statementfehler im Outcome beachten",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SQLSimulationResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sicherer Fehler (400, 401, 408, 413, 415, 422)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SQLBatchRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v15/capabilities": {
       "get": {
         "operationId": "serverAdminCapabilities",
-        "summary": "Serververwaltung; vorläufiger Vertrag",
+        "summary": "Serververwaltung ausschließlich lesen",
         "security": [
           {
             "bearerAuth": []
@@ -2482,26 +3182,6 @@
               }
             }
           },
-          "404": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
           "422": {
             "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
             "content": {
@@ -2525,10 +3205,10 @@
         }
       }
     },
-    "/api/v17/status": {
+    "/api/v15/status": {
       "post": {
         "operationId": "serverAdminStatus",
-        "summary": "Serververwaltung; vorläufiger Vertrag",
+        "summary": "Serververwaltung ausschließlich lesen",
         "security": [
           {
             "bearerAuth": []
@@ -2556,26 +3236,6 @@
             }
           },
           "401": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "409": {
             "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
             "content": {
               "application/json": {
@@ -2618,10 +3278,10 @@
         }
       }
     },
-    "/api/v17/variables": {
+    "/api/v15/variables": {
       "post": {
         "operationId": "serverAdminVariables",
-        "summary": "Serververwaltung; vorläufiger Vertrag",
+        "summary": "Serververwaltung ausschließlich lesen",
         "security": [
           {
             "bearerAuth": []
@@ -2649,26 +3309,6 @@
             }
           },
           "401": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "409": {
             "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
             "content": {
               "application/json": {
@@ -2711,10 +3351,10 @@
         }
       }
     },
-    "/api/v17/processes": {
+    "/api/v15/processes": {
       "post": {
         "operationId": "serverAdminProcesses",
-        "summary": "Serververwaltung; vorläufiger Vertrag",
+        "summary": "Serververwaltung ausschließlich lesen",
         "security": [
           {
             "bearerAuth": []
@@ -2751,26 +3391,6 @@
               }
             }
           },
-          "404": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
           "422": {
             "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
             "content": {
@@ -2798,378 +3418,6 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ServerAdminReadRequest"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v17/processes/kill/plan": {
-      "post": {
-        "operationId": "serverAdminProcessesKillPlan",
-        "summary": "Serververwaltung; vorläufiger Vertrag",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminPlan"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ServerAdminKillRequest"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v17/processes/kill": {
-      "post": {
-        "operationId": "serverAdminProcessesKill",
-        "summary": "Serververwaltung; vorläufiger Vertrag",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ServerAdminKillExecuteRequest"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v17/variables/set/plan": {
-      "post": {
-        "operationId": "serverAdminVariablesSetPlan",
-        "summary": "Serververwaltung; vorläufiger Vertrag",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminPlan"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ServerAdminSetRequest"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v17/variables/set": {
-      "post": {
-        "operationId": "serverAdminVariablesSet",
-        "summary": "Serververwaltung; vorläufiger Vertrag",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "Ergebnis oder sicherer Fehler ohne Treiberdetails",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerAdminError"
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ServerAdminSetExecuteRequest"
               }
             }
           }
@@ -7548,6 +7796,3402 @@
           }
         }
       },
+      "ColumnTypeSelection": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "int64",
+                  "binary",
+                  "boolean",
+                  "date",
+                  "timestamp"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "text"
+                ]
+              },
+              "length": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1024
+              }
+            },
+            "required": [
+              "kind",
+              "length"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "decimal"
+                ]
+              },
+              "precision": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 38
+              },
+              "scale": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 38
+              }
+            },
+            "required": [
+              "kind",
+              "precision"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "enum"
+                ]
+              },
+              "values": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 255
+                },
+                "minItems": 1,
+                "maxItems": 256
+              }
+            },
+            "required": [
+              "kind",
+              "values"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "set"
+                ]
+              },
+              "values": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 255
+                },
+                "minItems": 1,
+                "maxItems": 64
+              }
+            },
+            "required": [
+              "kind",
+              "values"
+            ]
+          }
+        ]
+      },
+      "ColumnConstant": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "integer",
+              "text",
+              "decimal",
+              "boolean"
+            ]
+          },
+          "value": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 4096
+          }
+        },
+        "required": [
+          "kind",
+          "value"
+        ]
+      },
+      "ColumnDefault": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "value"
+                ]
+              },
+              "value": {
+                "$ref": "#/components/schemas/ColumnConstant"
+              }
+            },
+            "required": [
+              "mode",
+              "value"
+            ]
+          }
+        ]
+      },
+      "ColumnDefinition": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 63
+          },
+          "type": {
+            "$ref": "#/components/schemas/ColumnTypeSelection"
+          },
+          "nullable": {
+            "type": "boolean"
+          },
+          "default": {
+            "$ref": "#/components/schemas/ColumnDefault"
+          },
+          "comment": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 2048
+          },
+          "collation": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "nullable",
+          "default"
+        ]
+      },
+      "ColumnPosition": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "first"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "before",
+                  "after"
+                ]
+              },
+              "column": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 63
+              }
+            },
+            "required": [
+              "mode",
+              "column"
+            ]
+          }
+        ]
+      },
+      "ColumnChange": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "add"
+                ]
+              },
+              "definition": {
+                "$ref": "#/components/schemas/ColumnDefinition"
+              },
+              "position": {
+                "$ref": "#/components/schemas/ColumnPosition"
+              }
+            },
+            "required": [
+              "action",
+              "definition"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "change"
+                ]
+              },
+              "column": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 63
+              },
+              "definition": {
+                "$ref": "#/components/schemas/ColumnDefinition"
+              },
+              "position": {
+                "$ref": "#/components/schemas/ColumnPosition"
+              }
+            },
+            "required": [
+              "action",
+              "column",
+              "definition"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "reorder"
+                ]
+              },
+              "column": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 63
+              },
+              "definition": {
+                "$ref": "#/components/schemas/ColumnDefinition"
+              },
+              "position": {
+                "$ref": "#/components/schemas/ColumnPosition"
+              }
+            },
+            "required": [
+              "action",
+              "column",
+              "definition",
+              "position"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "rename"
+                ]
+              },
+              "column": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 63
+              },
+              "new_name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 63
+              }
+            },
+            "required": [
+              "action",
+              "column",
+              "new_name"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "drop"
+                ]
+              },
+              "column": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 63
+              }
+            },
+            "required": [
+              "action",
+              "column"
+            ]
+          }
+        ]
+      },
+      "ColumnsPlanRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "table": {
+            "$ref": "#/components/schemas/TableRef"
+          },
+          "changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ColumnChange"
+            },
+            "minItems": 1,
+            "maxItems": 16
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 60000
+          }
+        },
+        "required": [
+          "connection",
+          "table",
+          "changes"
+        ]
+      },
+      "ColumnsConfirmation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "columns_alter"
+            ]
+          },
+          "target_name": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 1024
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "ColumnsExecuteRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "table": {
+            "$ref": "#/components/schemas/TableRef"
+          },
+          "changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ColumnChange"
+            },
+            "minItems": 1,
+            "maxItems": 16
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 60000
+          },
+          "confirm": {
+            "$ref": "#/components/schemas/ColumnsConfirmation"
+          },
+          "expected_plan_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "connection",
+          "table",
+          "changes",
+          "confirm",
+          "expected_plan_sha256"
+        ]
+      },
+      "ColumnsPlan": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "driver": {
+            "type": "string",
+            "enum": [
+              "sqlite",
+              "mysql",
+              "postgres"
+            ]
+          },
+          "statements": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1048576
+            },
+            "minItems": 1,
+            "maxItems": 96
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 4096
+            },
+            "minItems": 0,
+            "maxItems": 64
+          },
+          "affected_objects": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "minItems": 1,
+            "maxItems": 33
+          },
+          "plan_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "table": {
+            "$ref": "#/components/schemas/TableRef"
+          },
+          "destructive": {
+            "type": "boolean"
+          },
+          "target_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "minItems": 0,
+            "maxItems": 256
+          },
+          "ddl_transactional": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "driver",
+          "statements",
+          "warnings",
+          "affected_objects",
+          "plan_sha256",
+          "table",
+          "destructive",
+          "target_name",
+          "dependencies",
+          "ddl_transactional"
+        ]
+      },
+      "ColumnsResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "rejected",
+              "outcome_unknown"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "database_error",
+              "permission_denied",
+              "dependency_blocks",
+              "lock_timeout",
+              "connection_lost",
+              "canceled",
+              "observation_unavailable",
+              "commit_unknown"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "statements_executed": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 96
+          },
+          "atomic": {
+            "type": "boolean"
+          },
+          "observation": {
+            "type": "string",
+            "enum": [
+              "transactional",
+              "observed",
+              "unavailable"
+            ]
+          },
+          "description": {
+            "$ref": "#/components/schemas/TableDescription"
+          }
+        },
+        "required": [
+          "outcome",
+          "reason",
+          "message",
+          "statements_executed",
+          "atomic",
+          "observation"
+        ]
+      },
+      "ColumnsCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "contract_version": {
+            "type": "string",
+            "enum": [
+              "0.9.0"
+            ]
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "columns_alter"
+              ]
+            },
+            "minItems": 0,
+            "maxItems": 1
+          },
+          "drivers": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sqlite": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "add": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "supported",
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "support"
+                    ]
+                  },
+                  "change": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "supported",
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "support"
+                    ]
+                  },
+                  "rename": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "supported",
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "support"
+                    ]
+                  },
+                  "drop": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "supported",
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "support"
+                    ]
+                  },
+                  "reorder": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "supported",
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "support"
+                    ]
+                  },
+                  "generated": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "supported",
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "support"
+                    ]
+                  }
+                },
+                "required": [
+                  "add",
+                  "change",
+                  "rename",
+                  "drop",
+                  "reorder",
+                  "generated"
+                ]
+              },
+              "mysql": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "add": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "supported",
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "support"
+                    ]
+                  },
+                  "change": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "supported",
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "support"
+                    ]
+                  },
+                  "rename": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "supported",
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "support"
+                    ]
+                  },
+                  "drop": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "supported",
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "support"
+                    ]
+                  },
+                  "reorder": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "supported",
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "support"
+                    ]
+                  },
+                  "generated": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "supported",
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "support"
+                    ]
+                  }
+                },
+                "required": [
+                  "add",
+                  "change",
+                  "rename",
+                  "drop",
+                  "reorder",
+                  "generated"
+                ]
+              },
+              "postgres": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "add": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "supported",
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "support"
+                    ]
+                  },
+                  "change": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "supported",
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "support"
+                    ]
+                  },
+                  "rename": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "supported",
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "support"
+                    ]
+                  },
+                  "drop": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "supported",
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "support"
+                    ]
+                  },
+                  "reorder": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "supported",
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "support"
+                    ]
+                  },
+                  "generated": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "supported",
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "support"
+                    ]
+                  }
+                },
+                "required": [
+                  "add",
+                  "change",
+                  "rename",
+                  "drop",
+                  "reorder",
+                  "generated"
+                ]
+              }
+            },
+            "required": [
+              "sqlite",
+              "mysql",
+              "postgres"
+            ]
+          },
+          "types": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sqlite": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "int64",
+                    "text",
+                    "binary",
+                    "decimal",
+                    "boolean",
+                    "date",
+                    "timestamp",
+                    "enum",
+                    "set"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 9
+              },
+              "mysql": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "int64",
+                    "text",
+                    "binary",
+                    "decimal",
+                    "boolean",
+                    "date",
+                    "timestamp",
+                    "enum",
+                    "set"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 9
+              },
+              "postgres": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "int64",
+                    "text",
+                    "binary",
+                    "decimal",
+                    "boolean",
+                    "date",
+                    "timestamp",
+                    "enum",
+                    "set"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 9
+              }
+            },
+            "required": [
+              "sqlite",
+              "mysql",
+              "postgres"
+            ]
+          },
+          "max_changes": {
+            "const": 16,
+            "type": "integer"
+          },
+          "max_timeout_ms": {
+            "const": 60000,
+            "type": "integer"
+          },
+          "max_request_bytes": {
+            "const": 1048576,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "contract_version",
+          "features",
+          "drivers",
+          "types",
+          "max_changes",
+          "max_timeout_ms",
+          "max_request_bytes"
+        ]
+      },
+      "MaintenanceTable": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 1024
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "MaintenanceConfirm": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "check",
+              "analyze",
+              "optimize",
+              "repair",
+              "checksum",
+              "vacuum",
+              "reindex"
+            ]
+          },
+          "target_name": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 1024
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "MaintenanceItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "table": {
+            "$ref": "#/components/schemas/MaintenanceTable"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "check",
+              "analyze",
+              "optimize",
+              "repair",
+              "checksum",
+              "vacuum",
+              "reindex"
+            ]
+          },
+          "full": {
+            "type": "boolean"
+          },
+          "analyze": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "table",
+          "action"
+        ]
+      },
+      "MaintenanceExecuteItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "table": {
+            "$ref": "#/components/schemas/MaintenanceTable"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "check",
+              "analyze",
+              "optimize",
+              "repair",
+              "checksum",
+              "vacuum",
+              "reindex"
+            ]
+          },
+          "full": {
+            "type": "boolean"
+          },
+          "analyze": {
+            "type": "boolean"
+          },
+          "expected_plan_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "minLength": 64,
+            "maxLength": 64
+          },
+          "confirm": {
+            "$ref": "#/components/schemas/MaintenanceConfirm"
+          }
+        },
+        "required": [
+          "table",
+          "action",
+          "expected_plan_sha256",
+          "confirm"
+        ]
+      },
+      "MaintenancePlanRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MaintenanceItem"
+            },
+            "minItems": 1,
+            "maxItems": 50
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 60000
+          }
+        },
+        "required": [
+          "connection",
+          "items"
+        ]
+      },
+      "MaintenanceExecuteRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MaintenanceExecuteItem"
+            },
+            "minItems": 1,
+            "maxItems": 50
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 60000
+          }
+        },
+        "required": [
+          "connection",
+          "items"
+        ]
+      },
+      "MaintenancePlan": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "driver": {
+            "type": "string",
+            "enum": [
+              "sqlite",
+              "mysql",
+              "postgres"
+            ]
+          },
+          "statements": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            },
+            "minItems": 1,
+            "maxItems": 1
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "minItems": 1,
+            "maxItems": 8
+          },
+          "affected_objects": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2050
+            },
+            "minItems": 1,
+            "maxItems": 1
+          },
+          "plan_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "minLength": 64,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "driver",
+          "statements",
+          "warnings",
+          "affected_objects",
+          "plan_sha256"
+        ]
+      },
+      "MaintenancePreview": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "table": {
+            "$ref": "#/components/schemas/MaintenanceTable"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "check",
+              "analyze",
+              "optimize",
+              "repair",
+              "checksum",
+              "vacuum",
+              "reindex"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "planned",
+              "rejected"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "",
+              "invalid_maintenance",
+              "unsupported_action",
+              "system_table",
+              "object_not_found",
+              "unsupported_table",
+              "unsupported_engine",
+              "permission_denied",
+              "database_error",
+              "canceled"
+            ]
+          },
+          "plan": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/MaintenancePlan"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "typed_confirmation": {
+            "type": "boolean"
+          },
+          "target_name": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 1024
+          }
+        },
+        "required": [
+          "table",
+          "action",
+          "state",
+          "reason",
+          "plan",
+          "typed_confirmation",
+          "target_name"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "planned"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "plan": {
+                  "$ref": "#/components/schemas/MaintenancePlan"
+                },
+                "reason": {
+                  "const": ""
+                },
+                "target_name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "rejected"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "plan": {
+                  "type": "null"
+                },
+                "reason": {
+                  "type": "string",
+                  "enum": [
+                    "invalid_maintenance",
+                    "unsupported_action",
+                    "system_table",
+                    "object_not_found",
+                    "unsupported_table",
+                    "unsupported_engine",
+                    "permission_denied",
+                    "database_error",
+                    "canceled"
+                  ]
+                },
+                "typed_confirmation": {
+                  "const": false
+                },
+                "target_name": {
+                  "const": ""
+                }
+              }
+            }
+          }
+        ]
+      },
+      "MaintenancePlanResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MaintenancePreview"
+            },
+            "minItems": 1,
+            "maxItems": 50
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "MaintenanceOutcome": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "table": {
+            "$ref": "#/components/schemas/MaintenanceTable"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "check",
+              "analyze",
+              "optimize",
+              "repair",
+              "checksum",
+              "vacuum",
+              "reindex"
+            ]
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "rejected",
+              "outcome_unknown"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "",
+              "invalid_maintenance",
+              "unsupported_action",
+              "system_table",
+              "object_not_found",
+              "unsupported_table",
+              "unsupported_engine",
+              "permission_denied",
+              "database_error",
+              "canceled",
+              "plan_mismatch",
+              "confirmation_mismatch",
+              "session_setup_failed",
+              "execution_unconfirmed",
+              "integrity_check_failed",
+              "checksum_unavailable"
+            ]
+          },
+          "checksum": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]{1,20}$",
+            "maxLength": 20
+          },
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "table",
+          "action",
+          "outcome",
+          "reason",
+          "checksum",
+          "duration_ms"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "outcome": {
+                  "const": "completed"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "reason": {
+                  "const": ""
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "outcome": {
+                  "const": "rejected"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "reason": {
+                  "enum": [
+                    "invalid_maintenance",
+                    "unsupported_action",
+                    "system_table",
+                    "object_not_found",
+                    "unsupported_table",
+                    "unsupported_engine",
+                    "permission_denied",
+                    "database_error",
+                    "canceled",
+                    "plan_mismatch",
+                    "confirmation_mismatch",
+                    "session_setup_failed",
+                    "integrity_check_failed",
+                    "checksum_unavailable"
+                  ]
+                },
+                "checksum": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "outcome": {
+                  "const": "outcome_unknown"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "reason": {
+                  "const": "execution_unconfirmed"
+                },
+                "checksum": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "action": {
+                  "const": "checksum"
+                },
+                "outcome": {
+                  "const": "completed"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "checksum": {
+                  "type": "string",
+                  "pattern": "^[0-9]{1,20}$"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "checksum": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "MaintenanceResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MaintenanceOutcome"
+            },
+            "minItems": 1,
+            "maxItems": 50
+          },
+          "partial": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "partial"
+        ]
+      },
+      "MaintenanceCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "contract_version": {
+            "const": "0.10.0"
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "drivers": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sqlite": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "check": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  },
+                  "analyze": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  },
+                  "optimize": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  },
+                  "repair": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  },
+                  "checksum": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  },
+                  "vacuum": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  },
+                  "reindex": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  }
+                },
+                "required": [
+                  "check",
+                  "analyze",
+                  "optimize",
+                  "repair",
+                  "checksum",
+                  "vacuum",
+                  "reindex"
+                ]
+              },
+              "mysql": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "check": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  },
+                  "analyze": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  },
+                  "optimize": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  },
+                  "repair": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  },
+                  "checksum": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  },
+                  "vacuum": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  },
+                  "reindex": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  }
+                },
+                "required": [
+                  "check",
+                  "analyze",
+                  "optimize",
+                  "repair",
+                  "checksum",
+                  "vacuum",
+                  "reindex"
+                ]
+              },
+              "postgres": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "check": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  },
+                  "analyze": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  },
+                  "optimize": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  },
+                  "repair": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  },
+                  "checksum": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  },
+                  "vacuum": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  },
+                  "reindex": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "support": {
+                        "type": "string",
+                        "enum": [
+                          "limited",
+                          "unsupported"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "support",
+                      "reason"
+                    ]
+                  }
+                },
+                "required": [
+                  "check",
+                  "analyze",
+                  "optimize",
+                  "repair",
+                  "checksum",
+                  "vacuum",
+                  "reindex"
+                ]
+              }
+            },
+            "required": [
+              "sqlite",
+              "mysql",
+              "postgres"
+            ]
+          },
+          "max_items": {
+            "const": 50
+          },
+          "default_timeout_ms": {
+            "const": 10000
+          },
+          "max_timeout_ms": {
+            "const": 60000
+          },
+          "max_request_bytes": {
+            "const": 1048576
+          }
+        },
+        "required": [
+          "contract_version",
+          "available",
+          "drivers",
+          "max_items",
+          "default_timeout_ms",
+          "max_timeout_ms",
+          "max_request_bytes"
+        ]
+      },
+      "MaintenanceError": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2048
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "ExportTableRef": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "schema": {
+            "type": "string",
+            "maxLength": 1024,
+            "pattern": "^[^\\u0000]*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024,
+            "pattern": "^[^\\u0000]+$"
+          }
+        }
+      },
+      "ExportRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connection"
+        ],
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "sql",
+              "csv",
+              "excel-csv",
+              "json"
+            ]
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "tables",
+              "database",
+              "server",
+              "query"
+            ]
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExportTableRef"
+            },
+            "maxItems": 100,
+            "uniqueItems": true
+          },
+          "databases": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "maxItems": 20,
+            "uniqueItems": true
+          },
+          "sql": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1048576
+          },
+          "structure": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "boolean"
+          },
+          "drop": {
+            "type": "boolean"
+          },
+          "if_not_exists": {
+            "type": "boolean"
+          },
+          "extended": {
+            "type": "boolean"
+          },
+          "dialect": {
+            "type": "string",
+            "enum": [
+              "sqlite",
+              "mysql",
+              "postgres"
+            ]
+          },
+          "charset": {
+            "type": "string",
+            "enum": [
+              "utf-8",
+              "utf-8-bom"
+            ]
+          },
+          "filename": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,119}$"
+          },
+          "gzip": {
+            "type": "boolean"
+          },
+          "transaction": {
+            "type": "boolean"
+          },
+          "disable_fk": {
+            "type": "boolean"
+          },
+          "delimiter": {
+            "type": "string",
+            "enum": [
+              ",",
+              ";",
+              "\t"
+            ]
+          },
+          "crlf": {
+            "type": "boolean"
+          },
+          "max_rows": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000000
+          },
+          "max_bytes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1073741824
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 300000
+          },
+          "max_statement_bytes": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "const": 0
+              },
+              {
+                "type": "integer",
+                "minimum": 1024,
+                "maximum": 4194304
+              }
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "required": [
+                "scope"
+              ],
+              "properties": {
+                "scope": {
+                  "const": "query"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "sql",
+                "format"
+              ],
+              "properties": {
+                "format": {
+                  "type": "string",
+                  "enum": [
+                    "csv",
+                    "excel-csv",
+                    "json"
+                  ]
+                },
+                "tables": {
+                  "maxItems": 0
+                },
+                "databases": {
+                  "maxItems": 0
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "sql": {
+                  "maxLength": 0
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "anyOf": [
+                {
+                  "not": {
+                    "required": [
+                      "scope"
+                    ]
+                  }
+                },
+                {
+                  "properties": {
+                    "scope": {
+                      "const": "tables"
+                    }
+                  }
+                }
+              ]
+            },
+            "then": {
+              "required": [
+                "tables"
+              ],
+              "properties": {
+                "tables": {
+                  "minItems": 1
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "tables": {
+                  "maxItems": 0
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "scope"
+              ],
+              "properties": {
+                "scope": {
+                  "const": "server"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "databases"
+              ],
+              "properties": {
+                "databases": {
+                  "minItems": 1
+                },
+                "format": {
+                  "type": "string",
+                  "enum": [
+                    "sql",
+                    "json"
+                  ]
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "databases": {
+                  "maxItems": 0
+                }
+              }
+            }
+          },
+          {
+            "not": {
+              "required": [
+                "structure",
+                "data"
+              ],
+              "properties": {
+                "structure": {
+                  "const": false
+                },
+                "data": {
+                  "const": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "format"
+              ],
+              "properties": {
+                "format": {
+                  "type": "string",
+                  "enum": [
+                    "csv",
+                    "excel-csv",
+                    "json"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "structure": {
+                  "const": false
+                },
+                "drop": {
+                  "const": false
+                },
+                "if_not_exists": {
+                  "const": false
+                },
+                "extended": {
+                  "const": false
+                },
+                "transaction": {
+                  "const": false
+                },
+                "disable_fk": {
+                  "const": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "connection": {
+                  "properties": {
+                    "driver": {
+                      "const": "sqlite"
+                    }
+                  }
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "dialect": {
+                  "const": "sqlite"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "connection": {
+                  "properties": {
+                    "driver": {
+                      "const": "mysql"
+                    }
+                  }
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "dialect": {
+                  "const": "mysql"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "connection": {
+                  "properties": {
+                    "driver": {
+                      "const": "postgres"
+                    }
+                  }
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "dialect": {
+                  "const": "postgres"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "structure": {
+                  "const": false
+                }
+              },
+              "required": [
+                "structure"
+              ]
+            },
+            "then": {
+              "properties": {
+                "drop": {
+                  "const": false
+                },
+                "if_not_exists": {
+                  "const": false
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ExportColumn": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "database_type"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "database_type": {
+            "type": "string"
+          }
+        }
+      },
+      "ExportJSONTable": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "database",
+          "table",
+          "columns",
+          "rows"
+        ],
+        "properties": {
+          "database": {
+            "type": "string"
+          },
+          "table": {
+            "$ref": "#/components/schemas/ExportTableRef"
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExportColumn"
+            },
+            "maxItems": 1024
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Cell"
+              },
+              "maxItems": 1024
+            }
+          }
+        }
+      },
+      "ExportDocument": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "format",
+          "version",
+          "snapshot",
+          "tables",
+          "complete"
+        ],
+        "properties": {
+          "format": {
+            "type": "string",
+            "const": "dbmanager-export"
+          },
+          "version": {
+            "type": "integer",
+            "const": 1
+          },
+          "snapshot": {
+            "type": "string",
+            "enum": [
+              "per_database",
+              "read_only_best_effort"
+            ]
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExportJSONTable"
+            }
+          },
+          "complete": {
+            "type": "boolean",
+            "const": true
+          }
+        }
+      },
+      "ExportDriverCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "driver",
+          "snapshot",
+          "sql_server",
+          "state",
+          "reason"
+        ],
+        "properties": {
+          "driver": {
+            "type": "string",
+            "enum": [
+              "sqlite",
+              "mysql",
+              "postgres"
+            ]
+          },
+          "snapshot": {
+            "type": "string",
+            "enum": [
+              "exclusive_local_transaction",
+              "repeatable_read_innodb_only",
+              "repeatable_read"
+            ]
+          },
+          "sql_server": {
+            "type": "boolean"
+          },
+          "state": {
+            "type": "string",
+            "const": "limited"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "ExportCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract_version",
+          "available",
+          "formats",
+          "charsets",
+          "drivers",
+          "default_max_bytes",
+          "max_bytes",
+          "default_max_rows",
+          "max_rows",
+          "default_timeout_ms",
+          "max_timeout_ms",
+          "max_tables",
+          "max_request_bytes"
+        ],
+        "properties": {
+          "contract_version": {
+            "type": "string",
+            "const": "0.11.0"
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "formats": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "sql",
+                "csv",
+                "excel-csv",
+                "json"
+              ]
+            },
+            "maxItems": 4
+          },
+          "charsets": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "utf-8",
+                "utf-8-bom"
+              ]
+            },
+            "maxItems": 2
+          },
+          "drivers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExportDriverCapabilities"
+            },
+            "maxItems": 3
+          },
+          "default_max_bytes": {
+            "type": "integer",
+            "const": 67108864
+          },
+          "max_bytes": {
+            "type": "integer",
+            "const": 1073741824
+          },
+          "default_max_rows": {
+            "type": "integer",
+            "const": 1000000
+          },
+          "max_rows": {
+            "type": "integer",
+            "const": 10000000
+          },
+          "default_timeout_ms": {
+            "type": "integer",
+            "const": 60000
+          },
+          "max_timeout_ms": {
+            "type": "integer",
+            "const": 300000
+          },
+          "max_tables": {
+            "type": "integer",
+            "const": 100
+          },
+          "max_request_bytes": {
+            "type": "integer",
+            "const": 1048576
+          }
+        }
+      },
+      "ResultSnapshotColumn": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "type"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "ResultSnapshotScope": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "sql_result"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "offset",
+              "page_size",
+              "has_more"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "table_page"
+              },
+              "offset": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "page_size": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "has_more": {
+                "type": "boolean"
+              }
+            }
+          }
+        ]
+      },
+      "ResultSnapshot": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schema_version",
+          "scope",
+          "truncated",
+          "columns",
+          "rows"
+        ],
+        "properties": {
+          "schema_version": {
+            "type": "integer",
+            "const": 1
+          },
+          "scope": {
+            "$ref": "#/components/schemas/ResultSnapshotScope"
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResultSnapshotColumn"
+            }
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Cell"
+              }
+            }
+          }
+        }
+      },
+      "SQLBatchRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/Connection"
+          },
+          "sql": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1048576
+          },
+          "delimiter": {
+            "type": "string",
+            "maxLength": 16
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "stop",
+              "continue"
+            ],
+            "default": "stop"
+          },
+          "confirm": {
+            "type": "boolean",
+            "const": true
+          },
+          "max_rows": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 60000
+          }
+        },
+        "required": [
+          "connection",
+          "sql",
+          "confirm"
+        ]
+      },
+      "SQLWarning": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "SQLBatchSet": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "maxLength": 1048576
+                },
+                "database_type": {
+                  "type": "string",
+                  "maxLength": 1048576
+                }
+              },
+              "required": [
+                "name",
+                "database_type"
+              ]
+            },
+            "maxItems": 1024
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Cell"
+              },
+              "maxItems": 1024
+            },
+            "maxItems": 10000
+          },
+          "rows_affected": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "truncated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "columns",
+          "rows",
+          "truncated"
+        ]
+      },
+      "SQLStatementResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "outcome_unknown",
+              "not_executed"
+            ]
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SQLBatchSet"
+            },
+            "maxItems": 16
+          },
+          "rows_affected": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SQLWarning"
+            },
+            "maxItems": 102
+          },
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9223372036854775807
+          },
+          "error_code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "server_code": {
+            "type": "string",
+            "pattern": "^(?:[0-9]{1,10}|[A-Z0-9]{5})$",
+            "maxLength": 10
+          }
+        },
+        "required": [
+          "index",
+          "outcome",
+          "results",
+          "warnings",
+          "duration_ms"
+        ]
+      },
+      "SQLBatchResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "statements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SQLStatementResult"
+            },
+            "maxItems": 100
+          },
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9223372036854775807
+          }
+        },
+        "required": [
+          "statements",
+          "duration_ms"
+        ]
+      },
+      "SQLSimulationResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "rolled_back",
+              "outcome_unknown"
+            ]
+          },
+          "rows_affected": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SQLWarning"
+            },
+            "maxItems": 102
+          },
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9223372036854775807
+          }
+        },
+        "required": [
+          "outcome",
+          "warnings",
+          "duration_ms"
+        ]
+      },
+      "SQLBatchDriverCapability": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "driver": {
+            "type": "string",
+            "enum": [
+              "sqlite",
+              "mysql",
+              "postgres"
+            ]
+          },
+          "batch": {
+            "type": "string",
+            "enum": [
+              "limited"
+            ]
+          },
+          "explain": {
+            "type": "string",
+            "enum": [
+              "limited"
+            ]
+          },
+          "simulation": {
+            "type": "string",
+            "enum": [
+              "limited",
+              "unsupported"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          }
+        },
+        "required": [
+          "driver",
+          "batch",
+          "explain",
+          "simulation",
+          "reason"
+        ]
+      },
+      "SQLBatchCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "contract_version": {
+            "type": "string",
+            "const": "0.12.0"
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "max_statements": {
+            "type": "integer",
+            "const": 100
+          },
+          "max_sql_bytes": {
+            "type": "integer",
+            "const": 1048576
+          },
+          "max_rows": {
+            "type": "integer",
+            "const": 10000
+          },
+          "max_timeout_ms": {
+            "type": "integer",
+            "const": 60000
+          },
+          "max_response_bytes": {
+            "type": "integer",
+            "const": 8388608
+          },
+          "confirmation_required": {
+            "type": "boolean",
+            "const": true
+          },
+          "explain_analyze": {
+            "type": "boolean",
+            "const": false
+          },
+          "drivers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SQLBatchDriverCapability"
+            },
+            "maxItems": 3
+          }
+        },
+        "required": [
+          "contract_version",
+          "available",
+          "max_statements",
+          "max_sql_bytes",
+          "max_rows",
+          "max_timeout_ms",
+          "max_response_bytes",
+          "confirmation_required",
+          "explain_analyze",
+          "drivers"
+        ]
+      },
       "ServerAdminReadRequest": {
         "type": "object",
         "additionalProperties": false,
@@ -7580,6 +11224,7 @@
           "scope": {
             "type": "string",
             "enum": [
+              "",
               "SESSION",
               "GLOBAL"
             ]
@@ -7637,14 +11282,12 @@
           "user",
           "database",
           "seconds",
-          "self",
-          "identity",
-          "query_identity"
+          "self"
         ],
         "properties": {
           "id": {
             "type": "string",
-            "pattern": "^[1-9][0-9]{0,9}$"
+            "pattern": "^[1-9][0-9]{0,19}$"
           },
           "user": {
             "type": "string",
@@ -7661,14 +11304,6 @@
           },
           "self": {
             "type": "boolean"
-          },
-          "identity": {
-            "type": "string",
-            "pattern": "^[0-9a-f]{64}$"
-          },
-          "query_identity": {
-            "type": "string",
-            "pattern": "^[0-9a-f]{64}$"
           }
         }
       },
@@ -7744,317 +11379,13 @@
           }
         }
       },
-      "ServerAdminConfirm": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "action",
-          "target_name"
-        ],
-        "properties": {
-          "action": {
-            "type": "string",
-            "enum": [
-              "kill",
-              "set_variable"
-            ]
-          },
-          "target_name": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 512
-          }
-        }
-      },
-      "ServerAdminKillRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "connection",
-          "id",
-          "identity",
-          "mode"
-        ],
-        "properties": {
-          "connection": {
-            "$ref": "#/components/schemas/Connection"
-          },
-          "timeout_ms": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 10000
-          },
-          "id": {
-            "type": "string",
-            "pattern": "^[1-9][0-9]{0,9}$"
-          },
-          "identity": {
-            "type": "string",
-            "pattern": "^[0-9a-f]{64}$"
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "query",
-              "connection"
-            ]
-          }
-        }
-      },
-      "ServerAdminKillExecuteRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "connection",
-          "id",
-          "identity",
-          "mode",
-          "confirm",
-          "expected_plan_sha256"
-        ],
-        "properties": {
-          "connection": {
-            "$ref": "#/components/schemas/Connection"
-          },
-          "timeout_ms": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 10000
-          },
-          "id": {
-            "type": "string",
-            "pattern": "^[1-9][0-9]{0,9}$"
-          },
-          "identity": {
-            "type": "string",
-            "pattern": "^[0-9a-f]{64}$"
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "query",
-              "connection"
-            ]
-          },
-          "confirm": {
-            "$ref": "#/components/schemas/ServerAdminConfirm"
-          },
-          "expected_plan_sha256": {
-            "type": "string",
-            "pattern": "^[0-9a-f]{64}$"
-          }
-        }
-      },
-      "ServerAdminSetRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "connection",
-          "name",
-          "scope",
-          "value"
-        ],
-        "properties": {
-          "connection": {
-            "$ref": "#/components/schemas/Connection"
-          },
-          "timeout_ms": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 10000
-          },
-          "name": {
-            "type": "string",
-            "enum": [
-              "max_heap_table_size",
-              "tmp_table_size",
-              "statement_timeout",
-              "lock_timeout"
-            ]
-          },
-          "scope": {
-            "type": "string",
-            "enum": [
-              "SESSION",
-              "GLOBAL"
-            ]
-          },
-          "value": {
-            "type": "string",
-            "pattern": "^[1-9][0-9]{2,9}$"
-          }
-        }
-      },
-      "ServerAdminSetExecuteRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "connection",
-          "name",
-          "scope",
-          "value",
-          "confirm",
-          "expected_plan_sha256"
-        ],
-        "properties": {
-          "connection": {
-            "$ref": "#/components/schemas/Connection"
-          },
-          "timeout_ms": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 10000
-          },
-          "name": {
-            "type": "string",
-            "enum": [
-              "max_heap_table_size",
-              "tmp_table_size",
-              "statement_timeout",
-              "lock_timeout"
-            ]
-          },
-          "scope": {
-            "type": "string",
-            "enum": [
-              "SESSION",
-              "GLOBAL"
-            ]
-          },
-          "value": {
-            "type": "string",
-            "pattern": "^[1-9][0-9]{2,9}$"
-          },
-          "confirm": {
-            "$ref": "#/components/schemas/ServerAdminConfirm"
-          },
-          "expected_plan_sha256": {
-            "type": "string",
-            "pattern": "^[0-9a-f]{64}$"
-          }
-        }
-      },
-      "ServerAdminPlan": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "driver",
-          "statements",
-          "warnings",
-          "affected_objects",
-          "plan_sha256",
-          "action",
-          "target_name"
-        ],
-        "properties": {
-          "driver": {
-            "type": "string",
-            "enum": [
-              "sqlite",
-              "mysql",
-              "postgres"
-            ]
-          },
-          "statements": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "maxLength": 4096
-            },
-            "minItems": 1,
-            "maxItems": 1
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "maxLength": 1024
-            },
-            "maxItems": 8
-          },
-          "affected_objects": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "maxLength": 512
-            },
-            "maxItems": 1
-          },
-          "plan_sha256": {
-            "type": "string",
-            "pattern": "^[0-9a-f]{64}$"
-          },
-          "action": {
-            "type": "string",
-            "enum": [
-              "kill",
-              "set_variable"
-            ]
-          },
-          "target_name": {
-            "type": "string",
-            "maxLength": 512
-          }
-        }
-      },
-      "ServerAdminResult": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "outcome",
-          "message",
-          "reason",
-          "observed_value"
-        ],
-        "properties": {
-          "outcome": {
-            "type": "string",
-            "enum": [
-              "completed",
-              "rejected",
-              "outcome_unknown"
-            ]
-          },
-          "message": {
-            "type": "string",
-            "maxLength": 1024
-          },
-          "reason": {
-            "type": "string",
-            "enum": [
-              "",
-              "canceled",
-              "not_signaled",
-              "connection_lost",
-              "permission_denied",
-              "object_exists",
-              "object_not_found",
-              "dependency_blocks",
-              "lock_timeout",
-              "in_use",
-              "invalid_value",
-              "database_error"
-            ]
-          },
-          "observed_value": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "maxLength": 64
-          }
-        }
-      },
       "ServerAdminDriverCapabilities": {
         "type": "object",
         "additionalProperties": false,
         "required": [
           "status",
           "variables",
-          "processes",
-          "kill",
-          "set_variable",
-          "flush"
+          "processes"
         ],
         "properties": {
           "status": {
@@ -8064,15 +11395,6 @@
             "$ref": "#/components/schemas/ObjectOpCapability"
           },
           "processes": {
-            "$ref": "#/components/schemas/ObjectOpCapability"
-          },
-          "kill": {
-            "$ref": "#/components/schemas/ObjectOpCapability"
-          },
-          "set_variable": {
-            "$ref": "#/components/schemas/ObjectOpCapability"
-          },
-          "flush": {
             "$ref": "#/components/schemas/ObjectOpCapability"
           }
         }
@@ -8094,7 +11416,7 @@
         "properties": {
           "contract_version": {
             "type": "string",
-            "const": "0.17.0"
+            "const": "0.15.0"
           },
           "features": {
             "type": "array",
@@ -8103,13 +11425,10 @@
               "enum": [
                 "status",
                 "variables",
-                "processes",
-                "kill",
-                "set_variable",
-                "flush"
+                "processes"
               ]
             },
-            "maxItems": 6
+            "maxItems": 3
           },
           "drivers": {
             "type": "object",

@@ -3,7 +3,5 @@
     "driver": "sqlite",
     "database": "placeholder"
   },
-  "name": "tmp_table_size",
-  "scope": "SESSION",
-  "value": "16384"
+  "timeout_ms": 10001
 }

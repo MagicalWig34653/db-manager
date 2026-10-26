@@ -3,7 +3,5 @@
     "driver": "sqlite",
     "database": "placeholder"
   },
-  "name": "password",
-  "scope": "GLOBAL",
-  "value": "123"
+  "scope": "INVALID"
 }

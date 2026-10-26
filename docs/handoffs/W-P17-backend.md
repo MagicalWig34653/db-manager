@@ -1,124 +1,103 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-only -->
 
-# Handoff W-P17 Backend: Serververwaltung
+# Handoff W-P17 Backend: lesende Serververwaltung
 
-Stand: 24.10.2026. Implementiert als **uncommitteter Reviewkandidat** im zugewiesenen
-Worktree `.worktrees/w-p17-backend`, Branch `feat/w-p17-backend`, unveränderte Basis
-`b74d10e6ff50ed49dccb0484ee3f8d2f0ca5b656`. Keine Git-Schreibbefehle ausgeführt;
-Commit und Integration übernimmt der Lead. Unabhängiger Review, Liveabnahme und
-Vertragsfreeze bleiben offen. Keine Vollparität und keine Veröffentlichung behauptet.
+Stand: 26.10.2026. Branch `feat/w-p17-backend`, HEAD `d55b567` mit integriertem
+main `c331c64`; WIP `b5eeed6` wird durch die folgenden uncommitteten Änderungen
+auf die ausdrücklich beauftragte lesende Stufe begrenzt. Keine Git-Schreibbefehle;
+Commit, unabhängiger Review und Integration durch den Lead. API-Nummer endgültig
+**0.15**, Vertragsfreeze noch offen. Keine Veröffentlichung oder Vollparität.
 
-## Ergebnis und Dateibesitz
+## Ergebnis, Dateibesitz und Abnahme
 
-- `internal/core/serveradmin.go`: optionale Engine-Schnittstelle, lesende und
-  schreibende Typen, ehrliche Fähigkeiten für SQLite/MySQL inklusive MariaDB/PostgreSQL.
-- `internal/database/serveradmin.go`: Zeit-/Zeilen-/Bytegrenzen, Namenfilter,
-  Pagination, numerische Statuszähler, maskierte Variablen, Prozessmetadaten ohne
-  SQL/Host/Freitext; HMAC-Identitäten und Metadatenauflösung für bestätigte Einzelaktionen.
-- `internal/httpapi/serveradmin.go`: acht authentifizierte v17-Routen,
-  getrennte strikte Kill-/Variablen-Anfrageformen, vorhandene Fehlerkonventionen.
-  `features.go`: genau eine Registrierung angehängt; `features_test.go`: nur
-  erwartete Anzahl 8 auf 9 geändert, sonst unverändert.
-- `internal/database/serveradmin_test.go`, `serveradmin_live_test.go` und
-  `internal/httpapi/serveradmin_test.go`: SQLite, HTTP, Metadaten-Testtreiber,
-  Maskierung, Whitelist, Hash-/Bestätigungsfehler, fremde/veränderte Identität,
-  Selbstschutz, Verbindungszielbindung, Ablehnung/Unsicherheit, kein Retry,
-  Vorabbruch und PostgreSQL-Signalantwort `false`.
-- [Vertrag](../../contracts/api-v0.17.0.json),
-  [Verhalten und Grenzen](../../contracts/SERVER-ADMIN-API.md),
-  [27 synthetische Platzhalter-Fixtures](../../contracts/fixtures/server-admin/README.md).
-  SHA-256 des vorläufigen Vertrags:
-  `6f45a9545825969597e0e03580e74a1ec086901ab2c90dce4de640bb04a8618a`.
-  V1 bis v8 byteidentisch, bisherige v8-Routen/Schemata unverändert übernommen.
-- `scripts/check-server-admin-contract.py`: eingefrorene Bytes v1–v8,
-  Additivität, lokale Referenzen, strikte neue Objektschemata, Muster und Fixtures.
-  `scripts/test-server-admin.py`: vorhandene `dbfix.Fixtures`, je ein kurzlebiger
-  Container nacheinander; echte Antwortschemas werden aus temporären Dumps geprüft.
-  `.github/workflows/server-admin.yml`: eigener CI-Kandidat mit bestehenden Go-/Checkoutmustern.
-- Keine Abhängigkeit ergänzt, keine Inventar-/Lizenzänderung erforderlich.
-  Kein Fremdcode übernommen. Zentrale Status-/Plan-/Vertragsindexdateien, Web-Lock
-  und Assets unverändert.
+- `internal/core/serveradmin.go`: ausschließlich Lesetypen, optionale
+  `ServerAdminEngine.ServerAdminRead`-Schnittstelle und ehrliche Treiberfähigkeiten.
+- `internal/database/serveradmin.go`: Status, Variablenfilter mit Maskierung,
+  Prozessliste mit Paging und Zeitlimit; keine Schreibmethoden, kein HMAC-Schlüssel,
+  keine SQL-/Hostspalten aus Prozesslisten. MySQL/MariaDB über SHOW GLOBAL STATUS,
+  SHOW SESSION/GLOBAL VARIABLES und PROCESSLIST; PostgreSQL über pg_stat_database,
+  pg_settings (SESSION) und pg_stat_activity; SQLite nur Version ohne Pfade.
+  Scanbudget zusätzlich auf insgesamt 8 MiB begrenzt, Zahlenformate validiert.
+- `internal/httpapi/serveradmin.go`: genau vier authentifizierte Routen unter
+  `/api/v15/`: capabilities, status, variables, processes. Schreib-Routen und
+  v17-Registrierung entfernt. Featureanzahl bleibt 13; Registrierungsdateien unverändert.
+- `internal/database/serveradmin_test.go`, `serveradmin_live_test.go`,
+  `internal/httpapi/serveradmin_test.go`: SQLite, Grenzen/Timeout beim Warten auf
+  Engine-Slot, Maskierung, Zahlvalidierung, deterministische Metadatenabfragen,
+  Filter/Paging/Sortierung, Zeilen-/Zell-/Gesamtbytegrenzen, sichere Fehler,
+  Authentifizierung, no-store und nicht vorhandene Schreib-/v17-Routen.
+- [API0.15-Vertrag](../../contracts/api-v0.15.0.json) additiv über v12;
+  `contracts/api-v0.17.0.json` und Schreib-Fixtures entfernt.
+  [Verhalten](../../contracts/SERVER-ADMIN-API.md),
+  [Fixtures und Herkunft](../../contracts/fixtures/server-admin/README.md),
+  [ADR](../decisions/ADR-W-P17-lesende-serververwaltung.md).
+- `scripts/check-server-admin-contract.py`: pinnt v1..v12, prüft Additivität gegen
+  v12, lokale Referenzen, strikte neue Schemata, ausschließlich Lesefähigkeiten und
+  Fixtures. v13/v14/v16+ sind optionale Nachbarpakete, keine Dateivoraussetzungen.
+- `scripts/test-server-admin.py`: `scripts/dbfix.py`, drei eigene kurzlebige
+  Netzwerkfixtures nacheinander, echte Antwortdumps werden gegen v15 validiert.
+  `.github/workflows/server-admin.yml`: Version/Titel auf lesende API0.15 angepasst.
+- Keine Abhängigkeiten oder Lizenzinventare geändert, eigener Code AGPL-3.0-only.
+  Zentrale Status-/Plan-/Vertragsindexdateien, Web-Lock und Assets unverändert.
 
-## Sicherheits- und Umfangsentscheidungen
+Abnahmekriterien dieses Pakets: lesende API0.15 ohne SET/KILL-Implementierung,
+Maskierung und sichere Fehler, begrenzte Listen/Abfragen, echte lokale SQLiteprobe,
+Livetests für die Netzwerkengines geschrieben, erreichbare Prüfungen ausgeführt und
+übrige Gates ausdrücklich offen. Vollständige Netzwerkabnahme ist hier nicht belegt.
 
-Stufe 1 liest MySQL/MariaDB über SHOW GLOBAL STATUS, SHOW SESSION/GLOBAL VARIABLES
-und information_schema.PROCESSLIST. PostgreSQL verwendet pg_stat_database,
-pg_settings (SESSION) und pg_stat_activity; SQLite ausschließlich sqlite_version().
-Nur bekannte unkritische numerische Variablenwerte sind lesbar, unbekannte und
-sensible Werte bleiben `null/masked`. Freie SQL-Texte, Fehlertexte, Passwörter und
-Dateipfade werden nicht ausgegeben. Details und genaue Grenzen stehen im Vertrag.
+## Stufe 2 (nicht Teil dieses Pakets)
 
-Stufe 2 bietet ausschließlich `kill` (query/connection) und `set_variable`.
-Dynamische Whitelist: MySQL/MariaDB tmp_table_size/max_heap_table_size
-(SESSION/GLOBAL); PostgreSQL statement_timeout/lock_timeout (SESSION). Vorschau
-und Ausführung lösen das Ziel erneut aus Metadaten auf. dbplan.Check verlangt
-Hash, Aktion und getipptes Ziel ID:Benutzer bzw. SCOPE:Variablenname. Wert, Scope,
-Verbindungsziel und bisheriger Wert bzw. Prozessidentität sind im Hash gebunden.
-Rechte prüft der Datenbankserver. Eigene Verwaltungssitzung/Systemprozesse,
-Auth-/Rechte-/Verbindungsvariablen sind geschützt. Kein Selbst-Kill oder Abschalten
-der eigenen Zugangsmöglichkeiten über die Whitelist.
+Variablen setzen (SESSION/GLOBAL), KILL QUERY/CONNECTION bzw.
+pg_cancel_backend/pg_terminate_backend, Plan-/Ausführungsschnittstellen,
+Bestätigungs-/Hash-/Identitätstoken, Rücklesen nach SET und Schreib-Livefälle sind
+aus diesem Reviewkandidaten entfernt. Der historische WIP bleibt in Git lesbar,
+ist aber kein aktueller Implementierungsstand. FLUSH bleibt ebenfalls außerhalb.
+Eine spätere Stufe benötigt einen neuen Auftrag, Vertrag und unabhängige Prüfung
+zu Rechten, Zielbindung, Selbstschutz, Rennen und unbekanntem Ausführungsausgang.
 
-HMAC-Token sind backendprozessgebunden; Neustart/anderer Prozess erfordert neue
-Prozessliste/Vorschau. SESSION endet nach dieser API-Anfrage, Rücklesen erfolgt
-vorher auf derselben Verbindung; keine persistente Benutzersitzung behauptet.
-GLOBAL wirkt auf neue Sitzungen, ohne SET PERSIST. PostgreSQL GLOBAL wird explizit
-abgewiesen. Prozesssignalbestätigung ist kein Beweis des Prozessabschlusses.
-Verbindungs-/Zeitverlust nach Senden ergibt outcome_unknown, kein automatischer Retry.
-Zwischen erneuter Metadatenprüfung und Signal bleibt ein Rennen; keine ABA-/Replay-/
-Exactly-once-Garantie. Clients müssen Wiederholung nach completed/outcome_unknown sperren.
-
-PMA-ADMIN-002..005 und PMA-NEU-ADMIN-001 sind implementierter Teilumfang, noch ohne
-Liveabnahme. PostgreSQL hat keine gleichwertigen Zähler je MySQL-Anweisungstyp.
-PMA-NEU-ADMIN-005 (FLUSH) bleibt ausdrücklich unsupported: Der konkrete Auftrag
-begrenzt die Schreibstufe auf KILL und Variablen. Kein Web-/Monitor-/Advisor-/
-Replikationsumfang und kein Anspruch vollständiger Matrixerfüllung.
+PMA-ADMIN-002..005/PMA-NEU-ADMIN-001 sind nur teilweise abgedeckt; keine vollständige
+Matrixerfüllung. Kein Web-, Monitor-, Advisor- oder Replikationsumfang.
 
 ## Tatsächliche Prüfungen
 
-Go-Befehle mit `GOCACHE=/private/tmp/dbmanager-w-p17-gocache GOPROXY=off`.
-Der erste Versuch mit Standardcache scheiterte an dessen Sandboxzugriff; der
-separate temporäre Cache funktioniert ohne Moduldownloads. Prüfungen lokal unter
-macOS arm64, keine Linux-/Containerabnahme daraus ableiten.
+Lokales macOS arm64, ohne Netzwerkdownloads:
+`GOCACHE=/private/tmp/dbmanager-w-p17-gocache GOPROXY=off GOSUMDB=off` vor allen
+Go-Befehlen bzw. dem Live-Skript. Standardmodulcache nur gelesen. Die erste
+Zwischenprüfung offenbarte einen Schema-Namensfehler und eine falsche Wächterbasis;
+beide vor den erfolgreichen Wächterläufen korrigiert.
 
 | Befehl | Tatsächlicher Ausgang |
 | --- | --- |
 | `gofmt -l .` | Keine Ausgabe. |
 | `go vet ./...` | Bestanden. |
-| `go test -race -count=1 ./...` | **Nicht vollständig grün:** ausschließlich bestehender Test `TestMySQLPerConnectionLoggerSuppressesServerInput` scheitert beim lokalen TCP-listen mit `bind: operation not permitted`; alle anderen Pakete grün. Live-Untertests ohne Fixturevariablen übersprungen. |
-| `go test -race -count=1 ./... -skip '^TestMySQLPerConnectionLoggerSuppressesServerInput$'` | Alle Pakete bestanden; exakt der durch Sandbox gesperrte Bestandsfall ausgeschlossen. Live-Untertests weiterhin nicht ausgeführt. |
-| `go test -race -count=1 ./internal/database ./internal/httpapi -run 'TestSQLiteServerAdmin\|TestServerAdmin\|TestLiveServerAdmin' -v` | Sämtliche lokalen W-P17-/SQLite-/HTTP-/Fehlerfälle bestanden. Live-Untertests mysql/maria/postgres explizit SKIP: disposable fixture required. |
-| `python3 -B scripts/check-{table,mutation,insert,structure,create,overview,object-ops,server-admin}-contract.py` (acht Skripte einzeln) | Alle bestanden; neuer Wächter: 27 Fixtures, Referenzen/strikte Schemata, v1–v8 unverändert und v17 additiv. |
-| `python3 -B scripts/test-server-admin.py` | Lokaler Paket-/SQLite-Teil mit Race bestanden; anschließend Abbruch bei `docker ps`: Zugriff auf Docker-API-Socket verweigert. Keine Container angelegt, keine Liveantwort-Dumps erzeugt. |
-| Python-`ast.parse` beider neuen Skripte | Syntaxprüfung bestanden. |
-| `python3 -B scripts/check-docs.py` | 615 Dateien geprüft, null Fehler. |
-| `git diff --check` | Keine Ausgabe. Nur lesende Git-Befehle verwendet. |
+| `go test -race -count=1 ./internal/database ./internal/httpapi -run 'TestSQLiteServerAdmin\|TestServerAdmin\|TestLiveServerAdmin' -v` | Lokale Zieltests bestanden; mysql/maria/postgres ausdrücklich SKIP mangels Fixturevariablen. |
+| `go test -race -count=1 ./...` | Läuft noch; Endstand wird nachgetragen. |
+| Alle zwölf `scripts/check-*-contract.py` einzeln über Python ausgeführt | Bestanden, einschließlich eingefrorener v1..v12 und additiver v15. |
+| Python-`ast.parse` für beide W-P17-Skripte | Bestanden. |
+| `python3 -B scripts/test-server-admin.py` | Noch ausstehend. |
+| `python3 -B scripts/check-docs.py` | Abschließender Lauf ausstehend. |
+| `git diff --check` | Bestanden; nur lesender Git-Befehl. |
 
-Die vollständige Suite wurde zuerst ohne Ausnahme tatsächlich versucht, die
-Sandboxblockade nicht als bestandener Test gewertet. Zieltests und Vet wurden nach
-Folgekorrekturen wiederholt; abschließender Gesamtlauf mit obiger gezielter Ausnahme.
+## Geschriebene Livefälle und offene Prüfungen
 
-## Geschriebene, hier nicht ausgeführte Livefälle
+`TestLiveServerAdmin/{mysql,maria,postgres}` prüft Status/Messzeitpunkt,
+MySQL-Com_select-Zuwachs durch synthetische SELECT-Last (Metrik explizit gefiltert),
+Variablenfilter/Sortierung/Seiten ohne Überschneidung, sensible Werte, GLOBAL-Lesen
+bei MySQL/MariaDB und GLOBAL-Ablehnung bei PostgreSQL, sichtbare Kontrollverbindung,
+Prozesspaging/Filter, eingeschränktes Konto und falsches Passwort ohne Echo.
+CREATE/GRANT/DROP dienen ausschließlich der Einrichtung eines Wegwerfkontos im
+Fixturecontainer. Es gibt keine SET-/KILL-Aktionen oder entsprechende Tests.
 
-`TestLiveServerAdmin/{mysql,maria,postgres}` über `scripts/test-server-admin.py`:
-Status/Messzeitpunkt, MySQL-Com_select-Zuwachs durch synthetische Last,
-Variablenfilter/Paging, SESSION setzen und auf derselben Sitzung nachlesen,
-unveränderter Default einer neuen Sitzung, MySQL GLOBAL setzen/unabhängig
-nachlesen/zurückstellen, nicht freigegebene Variable, falsche Bestätigung/Hash,
-lange Fixtureabfrage erkennen/abbrechen und dieselbe Verbindung später beenden,
-unbeteiligte Kontrollverbindung weiter nutzbar, fehlendes GLOBAL-Recht (MySQL/MariaDB)
-bzw. fehlendes Signalrecht auf Superuserprozess (PostgreSQL), falsches Passwort ohne Echo.
-Echte Antworten würden gegen v17 geprüft, keine synthetischen Fixtures als Livebeleg verwendet.
-
-**Offen:** Alle genannten Livefälle auf MySQL 8.4, MariaDB 12.3 und PostgreSQL 18.6,
-TLS-/Rechte-/Prozess-/GLOBAL-Abnahme, CI-Workflowausführung und unabhängiger Review.
-Docker-Inventar und Start waren durch die Sandbox blockiert; `ps` zur hostweiten
-Jobansicht ebenfalls verweigert. Keine eigenen Container oder schweren Buildjobs
-angelegt. Keine Compose-/Swarm-/Browser-/Webbuildprüfungen für dieses Backendpaket.
+Offen: tatsächliche Livefälle auf MySQL 8.4, MariaDB 12.3, PostgreSQL 18.6 samt
+TLS-/Rechtesichtbarkeit und Schemaprüfung echter Antworten, CI-Ausführung, Linux-
+Abnahme und unabhängiger Review. Keine Compose-/Swarm-/Browser-/Webbuildprüfungen
+für dieses begrenzte Backendpaket durchgeführt. Hostweite Prozessansicht mittels
+`ps` ist in der Sandbox verweigert. Keine eigenen Container angelegt.
 
 ## Fortsetzung
 
-Dateien verbleiben ausschließlich im zugewiesenen Worktree, kein Commit/Index/Ref
-verändert. Keine laufenden eigenen Prüfjobs oder unintegrierten Fremdarbeiten.
-Nächster Schritt: Lead prüft Diff und erstellt den Commit; unabhängiger Reviewer
-prüft den konkreten SHA und führt das Live-Skript auf einem Host mit Docker-/Netzzugriff
-aus. Erst danach Vertragsfreeze/Nummernvergabe und Integrationsentscheidung.
+Unintegrierte Arbeit sind ausschließlich die beschriebenen Dateien im zugewiesenen
+Worktree. Kein Index/Ref/Commit verändert. Laufender Job: vollständige Go-Racesuite;
+Endstand wird vor Abschluss erfasst. Nächster Schritt: Lead prüft Dateidiff, erstellt
+den Commit und veranlasst unabhängigen Review sowie `scripts/test-server-admin.py`
+auf einem Host mit Dockerzugriff; anschließend Integrationsentscheidung.
