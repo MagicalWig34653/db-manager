@@ -1,0 +1,18 @@
+{
+  "connection": {
+    "driver": "postgres",
+    "database": "placeholder"
+  },
+  "table": {
+    "schema": "public",
+    "name": "placeholder_parent"
+  },
+  "action": "add",
+  "definitions": [
+    {
+      "name": "placeholder_child",
+      "from": "0",
+      "to": "10"
+    }
+  ]
+}

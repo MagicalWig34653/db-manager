@@ -1,0 +1,21 @@
+{
+  "driver": "postgres",
+  "statements": [
+    "ALTER TABLE \"public\".\"p29_partitioned\" ATTACH PARTITION \"public\".\"p29_p0\" FOR VALUES FROM (0) TO (10)"
+  ],
+  "warnings": [
+    "Partitionierungs-DDL kann lange sperren. Abhängigkeiten und Serverrechte bleiben wirksam."
+  ],
+  "affected_objects": [
+    "table:public.p29_partitioned",
+    "partition:public.p29_p0"
+  ],
+  "plan_sha256": "68fe56859064fb3941da91b30f6d6d7c6204cf2bc6bb54e9deb8e208089b13d1",
+  "action": "partition_attach",
+  "confirmation": {
+    "action": "partition_attach",
+    "destructive": true,
+    "target_name": "p29_partitioned",
+    "current_database": false
+  }
+}

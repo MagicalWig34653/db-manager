@@ -1,0 +1,10 @@
+{
+  "connection": {
+    "driver": "mysql",
+    "host": "localhost",
+    "database": "placeholder"
+  },
+  "prefix": "placeholder_",
+  "action": "copy",
+  "new_prefix": "copy_"
+}
