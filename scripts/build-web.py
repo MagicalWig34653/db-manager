@@ -171,8 +171,9 @@ def run(command: list[str], cwd: Path, env: dict[str, str], capture: bool = Fals
 # guards are entry+source link, transitive reachability of every file under assets/ and SHELL == inventory. 64 keeps a runaway
 # build (or a smuggled file) visible while leaving room for the remaining features (PIN-BUNDLE-3 review finding 2).
 MAX_CHUNKS = 64
-# The service worker precaches every shell file at install (one-time per release): 16.2 MB at 9545f75. Ceiling 32 MiB.
-MAX_PRECACHE_BYTES = 32 * 1024 * 1024
+# The service worker precaches every shell file at install (one-time per release): 3.6 MB at f830326 (16.2 MB before the
+# validators were slimmed, see PIN-BUNDLE-4). Ceiling 8 MiB; beyond it rare features must move to runtime caching.
+MAX_PRECACHE_BYTES = 8 * 1024 * 1024
 ENTRY_SCRIPT = re.compile(r'<script\b[^>]*\btype="module"[^>]*\bsrc="/(assets/[^"]+\.js)"')
 ENTRY_STYLE = re.compile(r'<link\b[^>]*\brel="stylesheet"[^>]*\bhref="/(assets/[^"]+\.css)"')
 SHELL_LIST = re.compile(r"JSON\.parse\('(\[[^']*\])'\)")

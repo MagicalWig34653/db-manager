@@ -8,7 +8,7 @@ Prüfstand und unabhängige Abnahme: [F5b-Handoff](handoffs/F5b.md).
 ## Quelle, Vertrag und Reproduzierbarkeit
 
 [web-build.lock.json](../web-build.lock.json) pinnt das öffentliche Webrepository auf
-Commit [9545f75](https://github.com/MagicalWig34653/db-manager-web/tree/9545f752e56149ede6a07eea52f808691682b908)
+Commit [f830326](https://github.com/MagicalWig34653/db-manager-web/tree/f8303266a403ebf2c75280aa68ff875a03dae31d)
 (Pin Bündel 4, siehe Abschnitt am Ende). Der folgende Text beschreibt den **historischen** Pin
 [8ef738d](https://github.com/MagicalWig34653/db-manager-web/tree/8ef738d22a1164291e2c8183d80e72d1f043c0f8):
 F5 einschließlich lesender Index-/Constraintmetadaten, F6-Ergebnisexport und bisheriger
@@ -224,7 +224,7 @@ Navigationssperre). Neue Vertragseinträge: `object-ops` 0.8.0 (`74aa39ed...8264
 
 ## Pin Bündel 4 (26.10.2026)
 
-Das Lock pinnt Web-Branch `release/pin-bundle4` auf `9545f752e56149ede6a07eea52f808691682b908` (Web-Wellenstand
+Das Lock pinnt Web-Branch `release/pin-bundle4` auf `f8303266a403ebf2c75280aa68ff875a03dae31d` (Web-Wellenstand
 `integration/web-wave-fixes` plus Konten auf Vertrag 0.23). Das Lock führt nun 17 Verträge; neu gegenüber Bündel 3:
 `maintenance` 0.10, `sqlbatch` 0.12, `indexes` 0.13, `search` 0.14, `accounts` 0.15, `programs` 0.16, `reasons` 0.23
 (alle Webkopien byte-identisch zu den Rootverträgen). 0.17 bis 0.22 haben im Web noch keine Oberfläche und sind nicht
@@ -233,6 +233,11 @@ kopiert und nicht gepinnt. Die Kontenrouten bleiben `/api/v15/...`; 0.23 ergänz
 
 - **MAX_CHUNKS** ist auf 64 gesetzt (vorher 24, Review-Befund 2 zu Bündel 3): reine Plausibilitätsgrenze. Die eigentlichen Garantien
   bleiben Entry mit Quelllink, transitive Erreichbarkeit jeder Datei unter `assets/` und `SHELL` = Inventar.
-- **Precache-Größe:** Der Service Worker legt beim Install die gesamte Shell an (alle Dateien außer `sw.js`): **ca. 16,2 MB**
-  (16 226 019 Bytes, davon 16,06 MB unter `assets/`, 31 Dateien), einmalig je Release (Bündel 3: ca. 4,8 MB). Der Build bricht
-  oberhalb `MAX_PRECACHE_BYTES` (32 MiB) ab. Das Wachstum ist die offene Frage für Lazy-Precaching, siehe PIN-BUNDLE-4.
+- **Precache-Größe:** Der Service Worker legt beim Install die gesamte Shell an (alle Dateien außer `sw.js`): **3,6 MB**
+  (3 616 607 Bytes, davon 3 446 671 unter `assets/`, 31 Dateien), einmalig je Release (Bündel 3: ca. 4,8 MB). Ein erster Bündel-4-Stand
+  hatte 16,2 MB. Ursache: jede generierte Validatordatei `src/lib/contract/vN/validators.js` enthielt den Code für die **ganze** API
+  bis Version N (v23: 6,6 MB Quelltext), und jeder Feature-Chunk bündelte seine eigene Kopie (dynamischer Zugriff `validators[name]`
+  verhindert Tree-Shaking). Behoben im Web durch `scripts/validator-roots.json`: der Generator exportiert je Vertrag nur die vom
+  Programm geprüften Schemas (plus Fixture-Namen der Tests). Keine Sourcemaps, keine Testdaten im Bundle. Der Build bricht oberhalb
+  `MAX_PRECACHE_BYTES` (8 MiB) ab. Eine Laufzeit-Cache-Strategie für selten genutzte Features war damit nicht nötig; der Service Worker
+  ist unverändert, der Offline-Start der gesamten Oberfläche bleibt belegt (`check-pwa-embedded.mjs`).
