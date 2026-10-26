@@ -285,9 +285,6 @@ func TestReReview_CSVCancelUniform(t *testing.T) {
 		rows := scalar(t, s, "SELECT COUNT(*) FROM rrv_c")
 		t.Logf("%s: err=%v outcome=%s reason=%s inserted=%d rows=%s", s.name, err, got.Outcome, got.Reason, got.Inserted, rows)
 		if got.Outcome != "rejected" || got.Inserted != 0 || got.Reason != "query_canceled" || rows != "0" {
-			if s.c.Driver == "postgres" && os.Getenv("DBM_REREVIEW_FINDINGS") == "" {
-				t.Skip("open finding F6-PG (see docs/handoffs/WAVE4-REREVIEW.md); run with DBM_REREVIEW_FINDINGS=1")
-			}
 			t.Errorf("not uniform: outcome=%s reason=%s inserted=%d rows=%s", got.Outcome, got.Reason, got.Inserted, rows)
 		}
 	})

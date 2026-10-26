@@ -56,9 +56,6 @@ func TestReReview_ImportExecuteReplayOverHTTP(t *testing.T) {
 	t.Logf("rows in table after two identical executes: %s", reReviewCount(t, api, c))
 	t.Logf("execute status codes %v, inserted per accepted job %v", codes, inserted)
 	if codes[1] == 202 {
-		if os.Getenv("DBM_REREVIEW_FINDINGS") == "" {
-			t.Skip("open finding B1 (see docs/handoffs/WAVE4-REREVIEW.md); run with DBM_REREVIEW_FINDINGS=1")
-		}
 		t.Errorf("replayed confirmed CSV import over HTTP was accepted again (inserted %v)", inserted)
 	}
 }

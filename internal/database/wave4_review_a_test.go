@@ -20,6 +20,7 @@ import (
 	"io"
 	"os"
 	"runtime"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -111,7 +112,7 @@ func TestReviewA_CSVImportReplayRefused(t *testing.T) {
 		if got, err := s.e.ExecuteImport(context.Background(), c, file, nil); err != nil || got.Outcome != "completed" {
 			t.Fatalf("first run: %#v %v", got, err)
 		}
-		if _, err := s.e.ExecuteImport(context.Background(), c, file, nil); err == nil || !strings.Contains(err.Error(), "bereits ausgeführt") {
+		if _, err := s.e.ExecuteImport(context.Background(), c, file, nil); err == nil || !strings.Contains(err.Error(), "verbraucht") {
 			t.Fatalf("replay must be refused as consumed plan, got %v", err)
 		}
 		if n := scalar(t, s, "SELECT COUNT(*) FROM rva_replay"); n != "2" {
@@ -134,7 +135,7 @@ func TestReviewA_BulkCopyReplayRefused(t *testing.T) {
 		if _, err := s.e.RowsBulkExecute(context.Background(), req); err != nil {
 			t.Fatal(err)
 		}
-		if _, err := s.e.RowsBulkExecute(context.Background(), req); err == nil || !strings.Contains(err.Error(), "bereits ausgeführt") {
+		if _, err := s.e.RowsBulkExecute(context.Background(), req); err == nil || !strings.Contains(err.Error(), "verbraucht") {
 			t.Fatalf("replay must be refused as consumed plan, got %v", err)
 		}
 		if n := scalar(t, s, "SELECT COUNT(*) FROM rva_copy"); n != "2" {
@@ -166,6 +167,8 @@ func TestReviewA_GzipBomb(t *testing.T) {
 	}
 	_ = z.Close()
 	t.Logf("compressed=%d bytes", buf.Len())
+	// Tight GC so uncollected garbage does not mask or fake the bound; restore afterwards.
+	defer debug.SetGCPercent(debug.SetGCPercent(20))
 	e := testEngine(t)
 	// Peak heap must stay near the 64 MiB bound, not follow the 600 MiB expansion.
 	var peak atomic.Uint64
@@ -392,6 +395,9 @@ func TestReviewA_SQLImportPartialStateHonesty(t *testing.T) {
 		got, err := s.e.ExecuteImport(context.Background(), r, []byte(file), nil)
 		if err != nil {
 			t.Fatal(err)
+		}
+		if s.name == "sqlite" {
+			dumpImport(t, "ImportResult.real-sqlite-rollback", got)
 		}
 		rows := scalar(t, s, "SELECT COUNT(*) FROM rva_p1")
 		t.Logf("outcome=%s reason=%s rows_in_p1=%s", got.Outcome, got.Reason, rows)

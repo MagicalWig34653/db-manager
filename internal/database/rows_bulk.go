@@ -182,7 +182,7 @@ func (e *Engine) bulkSession(ctx context.Context, r core.RowsBulkRequest, execut
 	}
 	// Single use: consumed before the first write, also when the outcome stays unknown.
 	if !e.plans.consume("bulk:" + plan.PlanSHA256) {
-		return plan, result, public("plan_conflict", "Plan wurde bereits ausgeführt. Neue Vorschau erforderlich.")
+		return plan, result, public("plan_conflict", "Plan ist verbraucht (ein Ausführungsversuch hat begonnen; auch ein fehlgeschlagener verbraucht ihn). Neue Vorschau erforderlich.")
 	}
 	for i, row := range r.Rows {
 		entry := core.BulkRowResult{Index: i, Outcome: "rejected"}

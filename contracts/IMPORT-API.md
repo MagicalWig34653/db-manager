@@ -40,8 +40,13 @@ Wiederholung, Exactly-once- oder Mehrinstanz-Jobgarantie; Status benötigt diese
 serverseitig (im Speicher, 1 h) als verbraucht markiert, auch wenn das Ergebnis `outcome_unknown`
 bleibt. Dieselbe Ausführungsanfrage ein zweites Mal liefert `plan_mismatch` ("bereits ausgeführt");
 ein neuer Plan-Aufruf mit gleichem Inhalt macht den Hash wieder nutzbar (bewusster zweiter Import).
-Nach Serverneustart ist der Schutz zurückgesetzt. Zu geringe Speichergrenze: Ein 64-MiB-Import hält
-ca. Datei + dekodierte Kopie im Speicher; zwei Slots bleiben dadurch unter etwa 300 MiB Spitze.
+Nach Serverneustart ist der Schutz zurückgesetzt. Speicher (gemessen, 61-MiB-CSV, zwei Slots parallel, einschließlich nicht eingesammelter Garbage):
+Plan etwa 320 MiB, Ausführung etwa 500 MiB Spitze (etwa 250 MiB je Slot: Datei, Entpackung/Dekodierung,
+Vorabprüfung des Plans, Jobdaten). Für 64-MiB-Dateien ist ein Containerlimit von mindestens 1 GiB
+vorzusehen; das Repository setzt kein Limit. Ledger-Grenzen: höchstens 4096 Einträge (bei Vollstand wird
+zuerst Abgelaufenes, sonst der älteste entfernt, danach ist dessen Replay wieder möglich) und 1 h Lebensdauer.
+Die Vorabprüfung der Execute-Route gibt einen Hash nie frei und lehnt verbrauchte Pläne synchron mit 409
+`plan_mismatch` ab.
 
 ## Metadaten und Grenzen
 

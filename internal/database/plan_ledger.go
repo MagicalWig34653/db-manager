@@ -57,3 +57,11 @@ func (l *planLedger) consume(key string) bool {
 	l.consumed[key] = now
 	return true
 }
+
+// isConsumed reports, without changing state, whether the digest is currently used up.
+func (l *planLedger) isConsumed(key string) bool {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	t, ok := l.consumed[key]
+	return ok && time.Since(t) < planLedgerTTL
+}

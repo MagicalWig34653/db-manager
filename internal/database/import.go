@@ -269,7 +269,11 @@ func (e *Engine) PlanImport(ctx context.Context, r core.ImportRequest, data []by
 	}
 	defer closeDB()
 	p, _, err := makeImportPlan(ctx, db, r, text)
-	if err == nil {
+	if err == nil && core.IsPlanPreflight(ctx) && e.plans.isConsumed("import:"+p.SHA256) {
+		// Execute pre-check: refuse a consumed plan synchronously, without releasing it.
+		return core.ImportPlan{}, public("plan_mismatch", "Importplan ist verbraucht (ein Ausführungsversuch hat begonnen). Neue Vorschau erforderlich.")
+	}
+	if err == nil && !core.IsPlanPreflight(ctx) {
 		e.plans.arm("import:" + p.SHA256)
 	}
 	return p, err
@@ -353,7 +357,7 @@ func (e *Engine) ExecuteImport(ctx context.Context, r core.ImportRequest, data [
 	}
 	// Single use: consumed before the first write, also when the outcome stays unknown.
 	if !e.plans.consume("import:" + p.SHA256) {
-		return out, public("plan_mismatch", "Importplan wurde bereits ausgeführt. Neue Vorschau erforderlich.")
+		return out, public("plan_mismatch", "Importplan ist verbraucht (ein Ausführungsversuch hat begonnen; auch ein fehlgeschlagener verbraucht ihn). Neue Vorschau erforderlich.")
 	}
 	// Recheck metadata while holding the write lock. PostgreSQL holds its relation
 	// lock from the first INSERT; savepoints preserve the transaction after conflicts.
@@ -456,8 +460,8 @@ func rollbackImport(s *mutationSession) error {
 		// ErrTxDone can race the automatic rollback after cancellation. Without
 		// its driver acknowledgement we keep the outcome conservative.
 		// After cancellation database/sql has already rolled the transaction back and
-		// reports ErrTxDone; no COMMIT was sent, so nothing can be persistent.
-		if err := s.tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) {
+		// reports ErrTxDone (pgx: "context already done", the connection is closed server-side); no COMMIT was sent, so nothing can be persistent.
+		if err := s.tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) && !errors.Is(err, context.Canceled) && !errors.Is(err, context.DeadlineExceeded) && !strings.Contains(err.Error(), "context already done") {
 			return err
 		}
 		return nil

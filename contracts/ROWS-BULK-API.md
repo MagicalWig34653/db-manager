@@ -34,7 +34,7 @@ Die Ergebnisse enthalten je Auswahlindex `completed`, `rejected` oder
 `outcome_unknown`; es gibt keinen als Erfolg ausgegebenen Teilcommit.
 
 **Einmaliger Plan.** Ein bestätigter `plan_sha256` wird bei der Ausführung vor der ersten Änderung
-verbraucht (im Speicher, 1 h, auch bei `outcome_unknown`); Wiederholung der Anfrage liefert
+verbraucht (im Speicher, höchstens 4096 Einträge, 1 h – danach oder bei Verdrängung ist ein Replay wieder möglich; auch bei `outcome_unknown`); Wiederholung der Anfrage liefert
 `plan_conflict` ("bereits ausgeführt"). Ein neuer Plan-Aufruf schaltet den Hash wieder frei.
 So duplizieren Netzwerk-Retries kein Kopieren mit Auto-Schlüssel.
 

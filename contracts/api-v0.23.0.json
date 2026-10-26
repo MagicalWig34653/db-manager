@@ -6,7 +6,7 @@
     "license": {
       "name": "AGPL-3.0-only"
     },
-    "description": "Additiver W-P29-Vertrag f\u00fcr Partitionen und Tabellenpr\u00e4fix-Stapel; kumulativ auf API 0.16 (enth\u00e4lt 0.13 bis 0.16). Review und Integration offen."
+    "description": "Additive Vertragsrevision 0.23 (kumulativ auf 0.22): AccountResult.reason um grant_without_effect erweitert; keine neuen Pfade."
   },
   "paths": {
     "/healthz": {

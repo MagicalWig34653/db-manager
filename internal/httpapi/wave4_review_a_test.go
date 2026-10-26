@@ -441,3 +441,48 @@ func TestReviewA_FileUploadFileBeforeMetadata(t *testing.T) {
 		t.Fatalf("file before metadata -> %d %s", rec.Code, rec.Body.String())
 	}
 }
+
+// Single-use plan over the real bulk routes: a second identical execute is refused.
+func TestBulkCopyReplayOverHTTP(t *testing.T) {
+	api, c := reviewAPI(t)
+	engine := api.engine.(*database.Engine)
+	if _, err := engine.Query(context.Background(), core.QueryRequest{Connection: c, SQL: "INSERT INTO rv(value) VALUES ('one')"}); err != nil {
+		t.Fatal(err)
+	}
+	page, err := engine.Browse(context.Background(), core.BrowseRequest{Connection: c, Table: core.TableRef{Name: "rv"}, PageSize: 10})
+	if err != nil {
+		t.Fatal(err)
+	}
+	cols := []string{}
+	for _, col := range page.Description.Columns {
+		cols = append(cols, col.Name)
+	}
+	req := core.RowsBulkRequest{Connection: c, Table: core.TableRef{Name: "rv"}, Action: "copy", Rows: []core.BulkRow{{Expected: core.RowSnapshot{Columns: cols, Values: page.Result.Rows[0]}}}}
+	send := func(path string, v any) *httptest.ResponseRecorder {
+		b, _ := json.Marshal(v)
+		r := httptest.NewRequest("POST", "/api/v19/"+path, bytes.NewReader(b))
+		r.Header.Set("Content-Type", "application/json")
+		r.Header.Set("Authorization", "Bearer token")
+		w := httptest.NewRecorder()
+		api.ServeHTTP(w, r)
+		return w
+	}
+	w := send("rows/plan", req)
+	var plan core.RowsBulkPlan
+	if w.Code != 200 || json.Unmarshal(w.Body.Bytes(), &plan) != nil {
+		t.Fatal(w.Code, w.Body.String())
+	}
+	req.Confirm, req.ExpectedPlanSHA256 = true, plan.PlanSHA256
+	for i := range req.Rows {
+		req.Rows[i].StabilitySHA256 = plan.Rows[i].StabilitySHA256
+	}
+	if w = send("rows/execute", req); w.Code != 200 {
+		t.Fatalf("first execute %d %s", w.Code, w.Body.String())
+	}
+	if w = send("rows/execute", req); w.Code < 400 {
+		t.Fatalf("replayed execute accepted: %d %s", w.Code, w.Body.String())
+	}
+	if n := scalarHTTP(t, engine, c, "SELECT COUNT(*) FROM rv"); n != "2" {
+		t.Fatalf("rows=%s want 2", n)
+	}
+}

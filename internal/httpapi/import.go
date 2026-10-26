@@ -204,7 +204,7 @@ func (a *API) importUpload(w http.ResponseWriter, r *http.Request, action string
 		preview := input
 		preview.Confirm = nil
 		preview.ExpectedPlanSHA256 = ""
-		p, err := engine.PlanImport(r.Context(), preview, data)
+		p, err := engine.PlanImport(core.WithPlanPreflight(r.Context()), preview, data)
 		if err != nil {
 			importHTTPError(w, err)
 			return
