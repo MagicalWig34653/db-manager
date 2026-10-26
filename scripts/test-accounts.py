@@ -27,7 +27,11 @@ def main():
             with Fixtures('w-p18', systems=(system,)) as fixture:
                 env = fixture.environment()
                 env['DBM_ACCOUNTS_DUMP'] = dump
-                subprocess.run(['go', 'test', '-race', '-count=1', '-v', './internal/database', '-run', '^TestLiveAccounts/' + system + '$'], cwd=ROOT, env=env, check=True)
+                subprocess.run(['go', 'test', '-race', '-count=1', '-v', './internal/database', '-run', '^(TestLiveAccounts|TestReviewW3Accounts)/' + system + '$'], cwd=ROOT, env=env, check=True)
+                if system == 'postgres':
+                    logs = subprocess.run(['docker', 'logs', fixture.prefix + '-postgres'], capture_output=True, text=True)
+                    assert 'rvSECRETmarker' not in logs.stdout + logs.stderr, 'clear-text password reached the PostgreSQL server log'
+                    assert 'fixture-only-account-secret' not in logs.stdout + logs.stderr, 'clear-text password reached the PostgreSQL server log'
             assert not fixture.leftovers()
         seen = set()
         for path in Path(dump).glob('*.json'):

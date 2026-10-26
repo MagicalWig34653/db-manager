@@ -32,3 +32,13 @@ W-P18: Passwort nur bei Ausführung, Plan-Hash enthält Platzhalter `<protected-
 
 ## Offen
 Unabhängige Reviews aller vier Pakete; W-P17 (lesende Stufe) folgt; Vertragsindex/STATUS/PARITAET beim Lead; `check-*`-Wächter der älteren Pakete (z. B. Wartung/Export) pinnen v13+ nicht (nur ihre Vorgänger).
+
+## Nachbesserung nach Reviews (`review/wave3-a` W-P18/W-P19, `review/wave3-b` W-P09/W-P14)
+
+Alle vier Reviews: Freigabe (mit Auflagen), Auflagen umgesetzt; Vertrags-JSONs v13 bis v16 unverändert (SHAs oben). Review-Tests übernommen (`wave3a_review_test.go`, `wave3b_review_test.go`; `w3Live` in Teil b zu `w3bLive` umbenannt), Logfälle zu M-Befunden sind Assertions.
+- W-P18: M1 Sperrliste Systemkonten (`system_account`, root/postgres nur mit Zweitbestätigung); M2 PostgreSQL-GRANT per `has_*_privilege` verifiziert (`grant_without_effect`); M3 privilegierte Rechte/GRANT OPTION/Rollenvergabe/Kopie: Warnung + getippter Name; M4 SCRAM-SHA-256-Verifier client-seitig (Stdlib), `test-accounts.py` prüft das Postgres-Docker-Log auf Klartextpasswort; L1 MySQL-Passwortlimit 256; L2 Namenslimit 32/80; L3 Wächter pinnt v0.15.
+- W-P19: M1 Ersetzen auf MySQL/MariaDB sichert `SHOW CREATE`, stellt bei CREATE-Fehler automatisch wieder her (Test Routine/Trigger/Event; Test des Autors angepasst); M2 PostgreSQL-SECURITY-DEFINER-Warnung; L1 Definer-Vorwarnung; L3 begründet (Handoff).
+- W-P14: M1 `max_execution_time`/`max_statement_time` auf der Sitzung; M2 Workflow repariert; L1 `ON UPDATE` → `unsupported_search`; L2/L3 Vertragstext; L4 Handoff.
+- W-P09: L1 AUTO_INCREMENT-PK- und Waisen-FK-Vorwarnung; L2 aktionsbezogene Sperr-/Neuaufbauhinweise; L3 Handoff.
+- Prüfstand: gofmt, vet, `go test -race -count=1 ./...`, alle 15 Wächter, `test-accounts.py`, `test-programs.py`, `test-indexes.py`, `test-search.py` (vier Systeme nacheinander), `check-docs.py` (0 Fehler); echte Accounts-/Programs-Fixtures neu erzeugt.
+- Entscheidung/Grenze: Die Wiederherstellung beim Ersetzen nutzt die Sitzungsdefinition aus `SHOW CREATE` (sql_mode der Verbindung); die Vorabprüfung unter temporärem Namen entfiel.

@@ -137,7 +137,7 @@ func TestAccountsRealPlanSecretProtection(t *testing.T) {
 		for _, secret := range []string{"FIXTURE_SECRET_ONE", "FIXTURE_SECRET_TWO'\\"} {
 			statements := append([]string{}, p.Statements...)
 			statements[0] = strings.TrimSuffix(statements[0], "<protected-secret>") + accountLiteral(secret)
-			result := executeAccounts(ctx, env, statements)
+			result := executeAccounts(ctx, env, statements, nil)
 			if result.Outcome != "completed" {
 				t.Fatal(result)
 			}
@@ -160,14 +160,14 @@ func TestAccountsExecutionSanitizesAndClassifies(t *testing.T) {
 		{[]string{"DISCONNECT_PRIVATE 'secret'"}, "outcome_unknown", 0},
 		{[]string{"ALTER USER fixture"}, "completed", 1},
 	} {
-		result := executeAccounts(ctx, accountTestEnv(t, "catalog"), tc.statements)
+		result := executeAccounts(ctx, accountTestEnv(t, "catalog"), tc.statements, nil)
 		if result.Outcome != tc.outcome || result.StatementsExecuted != tc.count || strings.Contains(result.Message, "PRIVATE") || strings.Contains(result.Message, "secret") {
 			t.Fatal(result)
 		}
 	}
 	canceled, cancel := context.WithCancel(ctx)
 	cancel()
-	if result := executeAccounts(canceled, accountTestEnv(t, "catalog"), []string{"ALTER USER fixture"}); result.Outcome != "rejected" || result.Reason != "canceled" {
+	if result := executeAccounts(canceled, accountTestEnv(t, "catalog"), []string{"ALTER USER fixture"}, nil); result.Outcome != "rejected" || result.Reason != "canceled" {
 		t.Fatal(result)
 	}
 }

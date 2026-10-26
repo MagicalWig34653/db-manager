@@ -32,7 +32,7 @@ def main():
                 env = fx.environment()
                 env['DBM_SEARCH_DUMP'] = scratch
                 subprocess.run(['go', 'test', '-race', '-count=1', '-v', './internal/database', './internal/httpapi', '-run',
-                                'TestSQLiteSearch|TestSQLiteReplaceSafety|TestSearchBrowseSQL|TestLiveSearch|TestSearchHTTP'], cwd=ROOT, env=env, check=True)
+                                'TestSQLiteSearch|TestSQLiteReplaceSafety|TestSearchBrowseSQL|TestLiveSearch|TestSearchHTTP|TestReviewW3B(Search|Replace|ScanCancel)Live'], cwd=ROOT, env=env, check=True)
             if system:
                 assert not fx.leftovers(), 'owned fixture containers remain'
         components = {'search': 'SearchResult', 'plan': 'ReplacePlan', 'result': 'ReplaceResult',

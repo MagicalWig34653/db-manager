@@ -131,3 +131,15 @@ Fehler vor dem Schreibversuch: 400 `invalid_search`, 404 `table_not_found`,
 409 `plan_mismatch`/`row_conflict`, 422 `unsupported_search`/`replace_limit`;
 sonst bestehende redigierte Verbindungs-/DB-/Timeoutfehler. Keine rohen SQL-,
 Treiber-, Zugangsdaten- oder Pfadtexte in Antworten.
+
+## Groß-/Kleinschreibung, Sperren und Abbruch (Review Welle 3)
+
+| Treiber | Suche `substring`/`all_words` | Ersetzen |
+| --- | --- | --- |
+| SQLite | `LIKE`: nur ASCII unabhängig von der Schreibung | case-sensitiv |
+| MySQL/MariaDB | Spaltenkollation (meist unabhängig von der Schreibung) | case-sensitiv |
+| PostgreSQL | `LIKE`, abhängig von der Schreibung (`strasse` findet nicht `STRASSE`) | case-sensitiv |
+
+* Der Ersetzungsplan liest auf MySQL/MariaDB mit `FOR UPDATE` und hält Zeilensperren bis zum Ende der Vorschau (höchstens 1001 Zeilen); PostgreSQL nimmt eine Tabellensperre `SHARE`. Die Vorschau erfordert daher das Schreibrecht.
+* Tabellen mit `ON UPDATE`-Spalte (MySQL/MariaDB) werden mit `unsupported_search` abgewiesen, weil das Update die Spalte selbst ändern würde.
+* Abbruch: MySQL/MariaDB setzen für die Sitzung `max_execution_time` bzw. `max_statement_time` auf die Restzeit des Zeitlimits, damit eine abgebrochene Suche den Serverscan nicht fortsetzt; PostgreSQL bricht über das Protokoll ab.

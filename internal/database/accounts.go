@@ -38,7 +38,7 @@ func accountSafe(ctx context.Context, err error) error {
 	return safe(ctx, err)
 }
 func accountName(driver string, a core.AccountRef) bool {
-	max := 32
+	max := 80 // MariaDB; MySQL's 32 is enforced once the server variant is known
 	if driver == "postgres" {
 		max = 63
 	}
@@ -186,6 +186,9 @@ func (e *Engine) AccountExecute(parent context.Context, action string, r core.Ac
 		return out, accountSafe(ctx, err)
 	}
 	defer closeAll()
+	if needsSecret && env.c.Driver == "mysql" && !env.maria && len(*r.Secret) > 256 {
+		return out, public("invalid_account_request", "Das Passwort ist für MySQL auf 256 Zeichen begrenzt.")
+	}
 	plan, err := buildAccountPlan(ctx, env, action, r.AccountRequest)
 	if err != nil {
 		return out, accountSafe(ctx, err)
@@ -204,11 +207,25 @@ func (e *Engine) AccountExecute(parent context.Context, action string, r core.Ac
 	statements := append([]string{}, plan.Statements...)
 	if needsSecret {
 		// Replace only the final marker of the first statement, never identifier text.
-		statements[0] = strings.TrimSuffix(statements[0], "<protected-secret>") + accountLiteral(*r.Secret)
+		value := *r.Secret
+		if env.c.Driver == "postgres" {
+			// Only the SCRAM-SHA-256 verifier leaves this process, so a failing statement in the
+			// server log never contains the clear-text password.
+			verifier, verr := scramVerifier(value)
+			if verr != nil {
+				return out, public("database_error", "Das Passwort konnte nicht verarbeitet werden.")
+			}
+			value = verifier
+		}
+		statements[0] = strings.TrimSuffix(statements[0], "<protected-secret>") + accountLiteral(value)
 	}
-	return executeAccounts(ctx, env, statements), nil
+	var verify func(context.Context) error
+	if action == "grant" && env.c.Driver == "postgres" && r.Grant != nil && r.Account != nil {
+		verify = func(vctx context.Context) error { return verifyPostgresGrant(vctx, env, r.Account.Name, *r.Grant) }
+	}
+	return executeAccounts(ctx, env, statements, verify), nil
 }
-func executeAccounts(ctx context.Context, env *opEnv, statements []string) (out core.AccountResult) {
+func executeAccounts(ctx context.Context, env *opEnv, statements []string, verify func(context.Context) error) (out core.AccountResult) {
 	transactional := env.c.Driver == "postgres"
 	if transactional {
 		if err := env.sess.begin(ctx); err != nil {
@@ -233,6 +250,12 @@ func executeAccounts(ctx context.Context, env *opEnv, statements []string) (out 
 			return
 		}
 		out.StatementsExecuted = i + 1
+	}
+	if verify != nil {
+		if err := verify(ctx); err != nil {
+			env.sess.rollback()
+			return core.AccountResult{Outcome: "rejected", Reason: "grant_without_effect", Message: "Das Recht wurde nicht wirksam gewährt (der Server meldet bei fehlender Grant-Berechtigung nur eine Warnung). Es wurde nichts geändert."}
+		}
 	}
 	if transactional {
 		if err := env.sess.commit(ctx); err != nil {

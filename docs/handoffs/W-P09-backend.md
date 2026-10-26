@@ -84,3 +84,6 @@ Keine eigenen DB-/Server-/Containerjobs verbleiben. Unintegrierte Arbeit liegt n
 in den genannten Dateien dieses Worktrees. Nächster Schritt: Lead committen lassen,
 unabhängigen Review und Docker-Livetests ausführen, danach gezielte Nachbesserung
 und Integrationsfreigabe. Zentrale Plan-/Statusdateien und Webassets unverändert.
+
+## Nachtrag Integration Welle 3 und Review ([W-P09-backend-review](W-P09-backend-review.md))
+Maßgeblich: [WAVE3-INTEGRATION](WAVE3-INTEGRATION.md); 61 Fixtures, davon echte `real-*` von allen vier Systemen, Vier-System-Suite bestanden (Listener-Test im Gesamtlauf grün). Review-Auflagen: L1 Plan warnt vor AUTO_INCREMENT-Primärschlüssel und vor Waisenwerten bei neuen Fremdschlüsseln (`EXISTS`-Vorprüfung), L2 Warnungen je Treiber/Aktion (Neuaufbau, Schreibsperre).

@@ -162,3 +162,6 @@ Formatierung, alle zwölf Vertragswächter, Python-Kompilierung und Diffprüfung
 bestanden. Vertrags-SHA direkt gegen die geschriebene v15-Datei geprüft.
 Die öffentlichen Metadaten des unveränderten HEAD verwenden weiterhin die
 bestehende Noreply-Autoradresse; keine Identität geändert und kein Commit erzeugt.
+
+## Nachtrag Integration Welle 3 und Review ([W-P18-backend-review](W-P18-backend-review.md))
+Behoben: M1 feste Sperrliste (`system_account`: mysql.sys, mysql.session, mysql.infoschema, mariadb.sys, PostgreSQL `pg_*`; `root` und `postgres` nur mit Zweitbestätigung); M2 PostgreSQL-GRANT wird per `has_*_privilege` in der Transaktion verifiziert, sonst `rejected/grant_without_effect`; M3 GRANT OPTION, mächtige globale Rechte, Rollenvergabe und Kopien davon sind privilegiert (Warnung, getippter Kontoname, Plan-Hash); M4 PostgreSQL erhält nur einen client-seitig berechneten SCRAM-SHA-256-Verifier (Stdlib), das Klartextpasswort erreicht den Serverlog nicht (`test-accounts.py` prüft das Docker-Log); L1 MySQL-Passwortlimit 256 und L2 Namenslimit 32 (MySQL) / 80 (MariaDB) mit klarer Meldung; L3 Wächter pinnt `api-v0.15.0.json`.

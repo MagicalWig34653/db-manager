@@ -69,6 +69,15 @@ func replacePrepare(ctx context.Context, s *mutationSession, r core.ReplaceReque
 			}
 		}
 	}
+	if s.driver == "mysql" {
+		var onUpdate int
+		if err = s.QueryRowContext(ctx, "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=? AND TABLE_NAME=? AND LOWER(EXTRA) LIKE '%on update%'", d.Table.Schema, d.Table.Name).Scan(&onUpdate); err != nil {
+			return state, err
+		}
+		if onUpdate > 0 {
+			return state, public("unsupported_search", "Die Tabelle hat eine ON UPDATE-Spalte (zum Beispiel ON UPDATE CURRENT_TIMESTAMP); das Update würde sie ändern und die Nachprüfung scheitern lassen. Ersetzen ist hier nicht verfügbar.")
+		}
+	}
 	table := searchTable(d, s.driver)
 	if s.driver == "postgres" {
 		// This relation lock prevents concurrent DML and DDL during execution. Plans
@@ -213,6 +222,7 @@ func (e *Engine) ReplacePlan(ctx context.Context, r core.ReplaceRequest) (core.R
 		return core.ReplacePlan{}, err
 	}
 	defer closeDB()
+	searchServerLimit(ctx, db, r.Connection.Driver)
 	conn, err := db.Conn(ctx)
 	if err != nil {
 		return core.ReplacePlan{}, safe(ctx, err)
@@ -244,6 +254,7 @@ func (e *Engine) ReplaceExecute(ctx context.Context, r core.ReplaceExecuteReques
 		return empty, err
 	}
 	defer closeDB()
+	searchServerLimit(ctx, db, r.Connection.Driver)
 	conn, err := db.Conn(ctx)
 	if err != nil {
 		return empty, safe(ctx, err)

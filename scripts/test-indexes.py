@@ -35,7 +35,7 @@ def main():
             with Fixtures('w-p09', systems=(system,)) as fx:
                 env = fx.environment()
                 env['DBM_INDEXES_DUMP'] = scratch
-                subprocess.run(['go', 'test', '-race', '-count=1', '-v', './internal/database', '-run', 'TestLiveIndexes/' + system + '$'], env=env, cwd=ROOT, check=True)
+                subprocess.run(['go', 'test', '-race', '-count=1', '-v', './internal/database', '-run', '(TestLiveIndexes|TestReviewW3BIndexesLive)/' + system + '$'], env=env, cwd=ROOT, check=True)
             left = subprocess.check_output(['docker', 'ps', '-a', '--filter', 'label=dbmanager.fixture=' + fx.prefix, '--format', '{{.Names}}'], text=True).split()
             assert not left, left
         results = list(Path(scratch).glob('*.json'))

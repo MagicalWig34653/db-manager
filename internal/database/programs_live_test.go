@@ -214,14 +214,12 @@ func TestLivePrograms(t *testing.T) {
 					t.Fatal(err)
 				}
 				result, err := e.ProgramExecute(ctx, core.ProgramExecuteRequest{ProgramChangeRequest: req, Confirm: dbplan.Confirmation{Action: "replace", TargetName: trigger.Name}, ExpectedPlanSHA256: plan.SHA256})
-				if err != nil || result.Outcome != "outcome_unknown" || result.StatementsExecuted != 1 {
-					t.Fatalf("partial DDL %#v %v", result, err)
+				if err != nil || result.Outcome != "rejected" || result.StatementsExecuted != 1 || !strings.Contains(result.Message, "wiederhergestellt") {
+					t.Fatalf("failed replace must restore the old trigger %#v %v", result, err)
 				}
-				_, err = e.Programs(ctx, core.ProgramsRequest{Connection: c, Object: &trigger})
-				programCode(t, err, "object_not_found")
-				req.Action = "create"
-				req.Input.Body = "BEGIN INSERT INTO p19_audit VALUES(NEW.value); END"
-				programApply(t, e, req)
+				if _, err = e.Programs(ctx, core.ProgramsRequest{Connection: c, Object: &trigger}); err != nil {
+					t.Fatalf("trigger missing after restore: %v", err)
+				}
 			}
 			if c.Driver == "postgres" {
 				replacement := core.ProgramRef{Kind: "function", Schema: schema, Name: "p19_trigger_fn_new"}

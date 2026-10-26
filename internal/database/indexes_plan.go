@@ -78,6 +78,28 @@ func buildIndexes(ctx context.Context, s *mutationSession, r core.IndexesRequest
 		clauses = append(clauses, clause)
 		statements = append(statements, "ALTER TABLE "+table+" "+clause)
 	}
+	// Action-specific lock and rebuild hints per driver.
+	switch driver {
+	case "mysql":
+		if r.Action == "primary_set" || r.Action == "primary_drop" || old.kind == "primary" {
+			warnings = append(warnings, "MySQL/MariaDB bauen die Tabelle bei Primärschlüsseländerungen möglicherweise neu auf (je nach Engine und Version inplace oder copy); Schreibzugriffe können währenddessen blockiert sein.")
+		} else if r.Index != nil || r.Action == "index_alter" {
+			warnings = append(warnings, "Der Indexaufbau liest die ganze Tabelle; je nach Version ist gleichzeitiges Schreiben eingeschränkt.")
+		}
+	case "postgres":
+		if r.Index != nil || r.Action == "index_alter" || r.Action == "primary_set" {
+			warnings = append(warnings, "PostgreSQL sperrt Schreibzugriffe auf die Tabelle, solange der Index aufgebaut wird (kein CONCURRENTLY).")
+		}
+	case "sqlite":
+		warnings = append(warnings, "SQLite sperrt die Datenbank für Schreibzugriffe während der Änderung.")
+	}
+	if driver == "mysql" && (r.Action == "primary_drop" || r.Action == "primary_set") {
+		for _, c := range d.Columns {
+			if c.Generated == "identity" && c.PKPosition > 0 {
+				warnings = append(warnings, "Die Spalte "+c.Name+" ist AUTO_INCREMENT und Teil des Primärschlüssels; MySQL/MariaDB lehnen das Entfernen des Schlüssels ab, solange die Spalte AUTO_INCREMENT bleibt (zuerst die Spalte ändern).")
+			}
+		}
+	}
 	if old.name != "" && r.Action != "index_rename" {
 		switch old.kind {
 		case "foreign":
@@ -247,6 +269,18 @@ func buildIndexes(ctx context.Context, s *mutationSession, r core.IndexesRequest
 		}
 		action := func(value string) string { return strings.ToUpper(strings.ReplaceAll(value, "_", " ")) }
 		addAlter("ADD CONSTRAINT " + q(f.Name) + " FOREIGN KEY (" + strings.Join(local, ", ") + ") REFERENCES " + qualified(ref.Table) + " (" + strings.Join(remote, ", ") + ") ON DELETE " + action(f.OnDelete) + " ON UPDATE " + action(f.OnUpdate))
+		conds, nonNull := []string{}, []string{}
+		for i, n := range f.Columns {
+			conds = append(conds, "r."+q(f.ReferencedColumns[i])+" = c."+q(n))
+			nonNull = append(nonNull, "c."+q(n)+" IS NOT NULL")
+		}
+		var orphans bool
+		if err = s.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM "+table+" c WHERE "+strings.Join(nonNull, " AND ")+" AND NOT EXISTS (SELECT 1 FROM "+qualified(ref.Table)+" r WHERE "+strings.Join(conds, " AND ")+"))").Scan(&orphans); err != nil {
+			return empty, err
+		}
+		if orphans {
+			warnings = append(warnings, "Vorprüfung: Die Kindtabelle enthält Werte ohne passende Elternzeile; der Server wird den Fremdschlüssel ablehnen. Zuerst die Daten bereinigen.")
+		}
 		warnings = append(warnings, "Referenzschlüssel, Kollation, Operatorverträglichkeit und vorhandene Daten prüft die Engine. CASCADE/SET NULL/SET DEFAULT können bei späteren Datenänderungen Zeilen ändern oder löschen.")
 	}
 	if driver == "mysql" {

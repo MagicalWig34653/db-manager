@@ -151,6 +151,7 @@ func (e *Engine) Search(ctx context.Context, r core.SearchRequest) (core.SearchR
 		return empty, err
 	}
 	defer closeDB()
+	searchServerLimit(ctx, db, r.Connection.Driver)
 	result := core.SearchResult{Tables: []core.SearchTableResult{}}
 	seen := map[core.TableRef]bool{}
 	remaining := r.MaxRows
@@ -225,6 +226,7 @@ func (e *Engine) SearchBrowse(ctx context.Context, r core.BrowseRequest) (core.B
 		return core.BrowseResult{}, err
 	}
 	defer closeDB()
+	searchServerLimit(ctx, db, r.Connection.Driver)
 	d, err := describe(ctx, db, r.Connection, r.Table)
 	if err != nil {
 		return core.BrowseResult{}, safe(ctx, err)
@@ -329,4 +331,30 @@ func searchBrowseSQL(r core.BrowseRequest, d core.TableDescription) (string, []a
 	}
 	query += order + " LIMIT " + b.bind(args[0]) + " OFFSET " + b.bind(args[1])
 	return query, b.args, nil
+}
+
+// searchServerLimit makes MySQL/MariaDB stop a scan server-side when the request deadline passes;
+// a client-side cancel alone leaves the query running there. PostgreSQL aborts through the
+// protocol cancel. The pool holds one connection, so the session settings apply to the query.
+func searchServerLimit(ctx context.Context, db *sql.DB, driver string) {
+	if driver != "mysql" {
+		return
+	}
+	deadline, ok := ctx.Deadline()
+	if !ok {
+		return
+	}
+	ms := time.Until(deadline).Milliseconds()
+	if ms < 1 {
+		ms = 1
+	}
+	var version string
+	if db.QueryRowContext(ctx, "SELECT VERSION()").Scan(&version) != nil {
+		return
+	}
+	if strings.Contains(version, "MariaDB") {
+		_, _ = db.ExecContext(ctx, "SET SESSION max_statement_time = "+strconv.FormatFloat(float64(ms)/1000, 'f', 3, 64))
+		return
+	}
+	_, _ = db.ExecContext(ctx, "SET SESSION max_execution_time = "+strconv.FormatInt(ms, 10))
 }

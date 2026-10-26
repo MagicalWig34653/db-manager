@@ -158,3 +158,6 @@ gesperrten Dockerzugriff nicht vollständig beobachtbar.
 Nächster konkreter Schritt: Lead sichert den Dateistand per Commit, gleicht v13–v16
 bei Integration ab und lässt die vollständige serielle dbfix-Serie sowie unabhängige
 Laufzeitabnahme durchführen; danach zentrale Vertrags-/Statuspflege und Freigabe.
+
+## Nachtrag Integration Welle 3 und Review ([W-P19-backend-review](W-P19-backend-review.md))
+Behoben: M1 MySQL/MariaDB-Ersetzen (DROP+CREATE): alte Definition (`SHOW CREATE`) steht in der Vorschau; scheitert das CREATE, wird sie automatisch wiederhergestellt (`rejected`, "wiederhergestellt"), sonst `outcome_unknown` mit der alten Definition in der Meldung ("restore_failed"); getestet für Routine, Trigger, Event. Eine Vorabprüfung unter temporärem Namen wurde nicht umgesetzt (Aufwand/Risiko: Trigger/Events sind namens- und tabellengebunden). M2 PostgreSQL SECURITY DEFINER warnt zu `search_path` und EXECUTE für PUBLIC; L1 Vorab-Warnung bei Definer-Wechsel ohne SUPER/SET_USER_ID/SET_ANY_DEFINER (Katalogprüfung, Rollenrechte nicht berücksichtigt). L3 Entscheidung: `create` bleibt ohne getippten Namen, weil es nur Neues anlegt (vorhandene Objekte lässt der Server nicht überschreiben); die Warnungen zu Nutzer-SQL und Events bleiben.

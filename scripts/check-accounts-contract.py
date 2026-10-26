@@ -43,6 +43,7 @@ def main():
         'api-v0.10.0.json': '077a0e0222963b112bd6ea528ef5668d2ff7fbe2b2d3555669487c4beaf55cc5',
         'api-v0.11.0.json': 'b3bcc38b44b020335151aead207e281f9c54bdc7463d6fb1ddd7a6cc22396620',
         'api-v0.12.0.json': '7f0446edccdc368a202e4eaae5689d4b44d641e34bdf77ec8314de9f3e3f2dcd',
+        'api-v0.15.0.json': 'cd4681a200045c2fdd5ddf9f1bdc2a356c998b30e640495121925ca8a609dad1',
         'api-v0.13.0.json': 'e05a2402a8e6ec6a1901afeac03969e34d4fa1821e50a5c8675a6e20f5c1d3d7', 'api-v0.14.0.json': 'b57c3e5dcf403c3e16d8564c68d0220453625b25f6f206fdc128d2e249656c1e'}).items():
         assert hashlib.sha256((ROOT / 'contracts' / name).read_bytes()).hexdigest() == digest, name
     old = json.loads((ROOT / 'contracts/api-v0.14.0.json').read_text())

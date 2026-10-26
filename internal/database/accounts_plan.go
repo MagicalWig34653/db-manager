@@ -14,6 +14,8 @@ import (
 
 func buildAccountPlan(ctx context.Context, env *opEnv, action string, r core.AccountRequest) (out core.AccountPlan, err error) {
 	driver := env.c.Driver
+	systemSecond := false
+	copyPrivileged := false
 	roles, lock, err := accountVersion(ctx, env)
 	if err != nil {
 		return
@@ -47,6 +49,20 @@ func buildAccountPlan(ctx context.Context, env *opEnv, action string, r core.Acc
 			return out, existsErr
 		}
 	}
+	if driver == "mysql" && !env.maria {
+		for _, name := range []*core.AccountRef{r.Account, r.NewAccount, r.Role} {
+			if name != nil && len(name.Name) > 32 {
+				return out, public("invalid_account_request", "Der Kontoname ist für MySQL auf 32 Zeichen begrenzt (MariaDB: 80).")
+			}
+		}
+	}
+	if r.Account != nil && action != "create" {
+		if protected, second := accountSystem(driver, info.Account); protected {
+			return out, public("system_account", "Systemkonten des Servers werden hier nicht verändert.")
+		} else if second {
+			systemSecond = true
+		}
+	}
 	target := "Serverrechte"
 	subject := ""
 	affected := []string{}
@@ -68,7 +84,7 @@ func buildAccountPlan(ctx context.Context, env *opEnv, action string, r core.Acc
 	destructive := action == "drop" || action == "rename" || action == "password" || action == "revoke" || action == "role_revoke" || action == "lock" || action == "flush"
 	// Role revocation and DROP can affect a current login indirectly through
 	// membership. Require the second confirmation conservatively for all of them.
-	self := destructive && info.Current || action == "revoke" || action == "role_revoke" || action == "drop" || action == "flush"
+	self := destructive && info.Current || action == "revoke" || action == "role_revoke" || action == "drop" || action == "flush" || systemSecond
 	createSQL := func() string {
 		if driver == "postgres" {
 			return "CREATE ROLE " + dest + " LOGIN PASSWORD <protected-secret>"
@@ -147,6 +163,9 @@ func buildAccountPlan(ctx context.Context, env *opEnv, action string, r core.Acc
 				return out, buildErr
 			}
 			statements = append(statements, statement)
+			if g.GrantOption || g.Scope == "global" && accountPowerful[g.Privilege] {
+				copyPrivileged = true
+			}
 		}
 		for _, role := range details.Roles {
 			roleSQL := accountQuote(driver, role)
@@ -170,6 +189,28 @@ func buildAccountPlan(ctx context.Context, env *opEnv, action string, r core.Acc
 	warnings := []string{"Serverrechte werden bei der Ausführung geprüft. Bestehende Sitzungen werden nicht beendet. Kein automatischer Retry; nach der Ausführung Konten und Rechte neu lesen."}
 	if driver == "mysql" {
 		warnings = append(warnings, "Kontenbefehle bestätigen einzeln und sind nicht gemeinsam rückrollbar; bei Teilfehlern ist der Ausgang unbekannt.")
+	}
+	privileged := false
+	if (action == "grant" || action == "copy") && r.Grant != nil {
+		if r.Grant.GrantOption {
+			privileged = true
+			warnings = append(warnings, "WITH GRANT OPTION erlaubt dem Konto, dieses Recht weiterzugeben (Rechteeskalation). Getippter Kontoname und Plan-Hash sind erforderlich.")
+		}
+		if r.Grant.Scope == "global" && accountPowerful[r.Grant.Privilege] {
+			privileged = true
+			warnings = append(warnings, "Das globale Recht "+r.Grant.Privilege+" gewährt weitreichende oder rechteändernde Befugnisse. Getippter Kontoname und Plan-Hash sind erforderlich.")
+		}
+	}
+	if action == "role_grant" {
+		privileged = true
+		warnings = append(warnings, "Die Rolle überträgt alle ihre Rechte (bei PostgreSQL mit INHERIT-Wirkung) auf das Konto. Getippter Kontoname und Plan-Hash sind erforderlich.")
+	}
+	if copyPrivileged {
+		privileged = true
+		warnings = append(warnings, "Die Kopie überträgt weitreichende oder weitergebbare Rechte (GRANT OPTION oder mächtige globale Rechte).")
+	}
+	if privileged {
+		destructive = true
 	}
 	if action == "revoke" && r.Grant.GrantOption && driver == "mysql" {
 		warnings = append(warnings, "MySQL/MariaDB entziehen GRANT OPTION für den gesamten gewählten Geltungsbereich, nicht nur für das angegebene Einzelrecht.")
@@ -364,4 +405,23 @@ func accountGrantSQL(ctx context.Context, env *opEnv, subject string, g core.Acc
 		suffix = " WITH GRANT OPTION"
 	}
 	return "GRANT " + privilege + " ON " + target + " TO " + subject + suffix, nil
+}
+
+// accountPowerful lists global privileges that allow privilege changes, impersonation or definer abuse.
+var accountPowerful = privilegeSet("SUPER|CREATE USER|SET_USER_ID|SYSTEM_USER|SET_ANY_DEFINER|ROLE_ADMIN|CREATE ROLE|DROP ROLE|SHUTDOWN|FILE|RELOAD|REPLICATION_SLAVE_ADMIN|BINLOG_ADMIN|SYSTEM_VARIABLES_ADMIN|ALLOW_NONEXISTENT_DEFINER")
+
+// accountSystem reports accounts the server owns (protected: refused outright) and
+// administrative accounts that require the second confirmation like the own account.
+func accountSystem(driver string, a core.AccountRef) (protected, second bool) {
+	name := strings.ToLower(a.Name)
+	if driver == "postgres" {
+		return strings.HasPrefix(name, "pg_"), name == "postgres"
+	}
+	switch name {
+	case "mysql.sys", "mysql.session", "mysql.infoschema", "mariadb.sys":
+		return true, false
+	case "root":
+		return false, true
+	}
+	return false, false
 }

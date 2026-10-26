@@ -158,3 +158,6 @@ Nächster konkreter Schritt: Lead lässt den Diff unabhängig prüfen, führt au
 geeigneten Host `python3 -B scripts/test-search.py` und den uneingeschränkten
 Gesamtracelauf aus, übernimmt den finalen v13-Vertrag additiv in v14, prüft alle
 Wächter erneut und committet/integriert nach Freigabe selbst.
+
+## Nachtrag Integration Welle 3 und Review ([W-P14-backend-review](W-P14-backend-review.md))
+Maßgeblich sind [WAVE3-INTEGRATION](WAVE3-INTEGRATION.md) und der Vertrag `api-v0.14.0.json` (SHA `b57c3e5dcf403c3e16d8564c68d0220453625b25f6f206fdc128d2e249656c1e`, Basis v13, Feature-Zähler jetzt 16); Livetests liefen auf allen vier Systemen, `test-search-guard.py` ist entfernt (auch aus dem Workflow). Review-Auflagen: M1 Serverlimit (`max_execution_time`/`max_statement_time`, Live-Test `TestReviewW3BScanCancelLive`), M2 Workflow repariert, L1 `ON UPDATE` wird im Plan abgewiesen, L2/L3 im Vertragstext `SEARCH-API.md` dokumentiert.
