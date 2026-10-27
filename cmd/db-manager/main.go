@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/MagicalWig34653/db-manager/internal/config"
+	"github.com/MagicalWig34653/db-manager/internal/configstore"
 	"github.com/MagicalWig34653/db-manager/internal/database"
 	"github.com/MagicalWig34653/db-manager/internal/httpapi"
 	"github.com/MagicalWig34653/db-manager/internal/serverstate"
@@ -64,7 +65,7 @@ func main() {
 			os.Exit(1)
 		}
 		defer store.Close()
-		apiOptions = append(apiOptions, httpapi.WithStateStore(store))
+		apiOptions = append(apiOptions, httpapi.WithStateStore(store), httpapi.WithConfigStore(configstore.NewService(store.ConfigRepo())))
 	}
 	server := &http.Server{Addr: cfg.Address, Handler: webui.Wrap(httpapi.New(engine, cfg.Token, apiOptions...)), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 70 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16384}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

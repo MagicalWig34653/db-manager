@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -20,6 +21,9 @@ type Migration struct {
 	Version    int
 	Name       string
 	Statements []string
+	// Verify runs after the statements and must confirm the resulting schema
+	// (a pre-existing, differently defined table is not silently accepted).
+	Verify func(ctx context.Context, q queryer) error
 }
 
 // Checksum fingerprints the statements so edited history is detected.
@@ -41,6 +45,47 @@ var migrations = []Migration{
 				"sealed VARBINARY(4096) NOT NULL, " +
 				"updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)" +
 				") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+		},
+	},
+	{
+		Version: 2,
+		Name:    "config_store",
+		Statements: []string{
+			// W-P20 comfort data. The owner row is the per-owner write lock; ASCII
+			// binary collation keeps ids and scopes case sensitive.
+			"CREATE TABLE IF NOT EXISTS config_owners (" +
+				"owner_id VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY, " +
+				"created_at DATETIME(6) NOT NULL DEFAULT UTC_TIMESTAMP(6)" +
+				") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+			"CREATE TABLE IF NOT EXISTS config_items (" +
+				"owner_id VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, " +
+				"kind VARCHAR(16) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, " +
+				"item_id CHAR(32) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, " +
+				"scope VARCHAR(128) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, " +
+				"nkey CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, " +
+				"key_id VARCHAR(40) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, " +
+				"sealed MEDIUMBLOB NOT NULL, " +
+				"plain_size INT UNSIGNED NOT NULL, " +
+				"version BIGINT UNSIGNED NOT NULL, " +
+				"created_at DATETIME(6) NOT NULL, " +
+				"updated_at DATETIME(6) NOT NULL, " +
+				"PRIMARY KEY (owner_id, kind, item_id), " +
+				"UNIQUE KEY config_items_nkey (owner_id, kind, scope, nkey), " +
+				"KEY config_items_order (owner_id, kind, scope, updated_at, item_id)" +
+				") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+			"CREATE TABLE IF NOT EXISTS config_meta (" +
+				"name VARCHAR(32) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY, " +
+				"key_id VARCHAR(40) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, " +
+				"sealed VARBINARY(512) NOT NULL" +
+				") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+		},
+		Verify: func(ctx context.Context, q queryer) error {
+			return verifyIndexes(ctx, q, map[string][]string{
+				"config_owners:PRIMARY":          {"owner_id"},
+				"config_meta:PRIMARY":            {"name"},
+				"config_items:PRIMARY":           {"owner_id", "kind", "item_id"},
+				"config_items:config_items_nkey": {"owner_id", "kind", "scope", "nkey"},
+			}, map[string]bool{"config_items:config_items_nkey": true})
 		},
 	},
 }
@@ -216,6 +261,11 @@ func Migrate(ctx context.Context, cfg Config, opts MigrateOptions) (Report, erro
 				return report, ErrMigrationFailed
 			}
 		}
+		if m.Verify != nil {
+			if err := m.Verify(ctx, conn); err != nil {
+				return report, ErrMigrationFailed
+			}
+		}
 		if _, err := conn.ExecContext(ctx, "INSERT INTO schema_migrations (version, name, checksum) VALUES (?, ?, ?)", m.Version, m.Name, m.Checksum()); err != nil {
 			return report, classify(err)
 		}
@@ -246,3 +296,80 @@ func (s *Store) VerifySchema(ctx context.Context) error {
 
 // lockSeconds converts to whole seconds, rounding up so a sub-second wait is not 0.
 func lockSeconds(d time.Duration) int { return int((d + time.Second - 1) / time.Second) }
+
+// verifyIndexes checks "table:index" -> ordered column list (and uniqueness)
+// in the current database via information_schema.
+func verifyIndexes(ctx context.Context, q queryer, want map[string][]string, unique map[string]bool) error {
+	rows, err := q.QueryContext(ctx, "SELECT table_name, index_name, non_unique, seq_in_index, column_name FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name IN ('config_owners','config_meta','config_items') ORDER BY table_name, index_name, seq_in_index")
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	got := map[string][]string{}
+	nonUnique := map[string]bool{}
+	for rows.Next() {
+		var table, index, column string
+		var non, seq int
+		if err := rows.Scan(&table, &index, &non, &seq, &column); err != nil {
+			return err
+		}
+		key := table + ":" + index
+		got[key] = append(got[key], column)
+		nonUnique[key] = non != 0
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+	if err := verifyColumns(ctx, q); err != nil {
+		return err
+	}
+	for key, columns := range want {
+		if strings.Join(got[key], ",") != strings.Join(columns, ",") || (unique[key] || strings.HasSuffix(key, ":PRIMARY")) && nonUnique[key] {
+			return ErrMigrationFailed
+		}
+	}
+	return nil
+}
+
+// verifyColumns compares column definitions (type, length, collation, nullability, signedness,
+// time precision) of the three W-P20 tables with the expected schema.
+func verifyColumns(ctx context.Context, q queryer) error {
+	rows, err := q.QueryContext(ctx, "SELECT table_name, column_name, data_type, IFNULL(character_maximum_length, 0), IFNULL(collation_name, ''), is_nullable, column_type LIKE '%unsigned%', IFNULL(datetime_precision, 0) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name IN ('config_owners','config_meta','config_items') ORDER BY table_name, column_name")
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	got := map[string]bool{}
+	for rows.Next() {
+		var table, column, dataType, collation, nullable string
+		var length int64
+		var unsigned bool
+		var precision int
+		if err := rows.Scan(&table, &column, &dataType, &length, &collation, &nullable, &unsigned, &precision); err != nil {
+			return err
+		}
+		got[fmt.Sprintf("%s.%s:%s:%d:%s:%s:%t:%d", table, column, dataType, length, collation, nullable, unsigned, precision)] = true
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+	if len(got) != len(expectedColumns) {
+		return ErrMigrationFailed
+	}
+	for _, want := range expectedColumns {
+		if !got[want] {
+			return ErrMigrationFailed
+		}
+	}
+	return nil
+}
+
+// expectedColumns: table.column:type:length:collation:nullable:unsigned:precision.
+var expectedColumns = []string{
+	"config_owners.owner_id:varchar:64:ascii_bin:NO:false:0", "config_owners.created_at:datetime:0::NO:false:6",
+	"config_meta.name:varchar:32:ascii_bin:NO:false:0", "config_meta.key_id:varchar:40:ascii_bin:NO:false:0", "config_meta.sealed:varbinary:512::NO:false:0",
+	"config_items.owner_id:varchar:64:ascii_bin:NO:false:0", "config_items.kind:varchar:16:ascii_bin:NO:false:0", "config_items.item_id:char:32:ascii_bin:NO:false:0",
+	"config_items.scope:varchar:128:ascii_bin:NO:false:0", "config_items.nkey:char:64:ascii_bin:NO:false:0", "config_items.key_id:varchar:40:ascii_bin:NO:false:0",
+	"config_items.sealed:mediumblob:16777215::NO:false:0", "config_items.plain_size:int:0::NO:true:0", "config_items.version:bigint:0::NO:true:0",
+	"config_items.created_at:datetime:0::NO:false:6", "config_items.updated_at:datetime:0::NO:false:6",
+}

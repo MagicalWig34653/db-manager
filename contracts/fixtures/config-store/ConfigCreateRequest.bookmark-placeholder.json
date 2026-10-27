@@ -1,0 +1,11 @@
+{
+  "scope": "conn1",
+  "client_ref": "bm-1",
+  "data": {
+    "name": "Offene Bestellungen",
+    "sql": "SELECT * FROM orders WHERE status = :status",
+    "variables": [
+      "status"
+    ]
+  }
+}

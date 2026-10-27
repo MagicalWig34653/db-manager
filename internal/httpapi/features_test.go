@@ -9,7 +9,7 @@ import (
 )
 
 func TestFeatureListKeepsRegistrationOrder(t *testing.T) {
-	if len(featureList) != 22 {
+	if len(featureList) != 23 {
 		t.Fatalf("feature count changed: %d", len(featureList))
 	}
 }
@@ -25,6 +25,7 @@ func TestAllKnownRoutesRegisteredAndAuthenticated(t *testing.T) {
 		"GET /api/v6/capabilities", "POST /api/v6/tables/create",
 		"GET /api/v17/capabilities", "GET /api/v18/capabilities", "POST /api/v18/imports/plan", "GET /api/v19/capabilities", "POST /api/v19/rows/plan", "GET /api/v21/capabilities", "POST /api/v21/export", "GET /api/v22/capabilities", "POST /api/v22/tables/partitions/list",
 		"GET /api/v20/capabilities", "POST /api/v20/monitor/sample", "POST /api/v20/monitor/analysis", "POST /api/v20/monitor/advisor", "POST /api/v20/monitor/replication", "POST /api/v20/monitor/binary-logs", "POST /api/v20/monitor/binary-events", "POST /api/v20/monitor/profiling", "POST /api/v20/monitor/engines",
+		"GET /api/v24/capabilities", "GET /api/v24/config/status", "GET /api/v24/config/export", "POST /api/v24/config/import", "POST /api/v24/config/clear/plan", "POST /api/v24/config/clear/execute", "GET /api/v24/config/bookmarks", "POST /api/v24/config/bookmarks", "GET /api/v24/config/bookmarks/0123456789abcdef0123456789abcdef", "PUT /api/v24/config/bookmarks/0123456789abcdef0123456789abcdef", "DELETE /api/v24/config/bookmarks/0123456789abcdef0123456789abcdef",
 		"GET /api/v7/capabilities", "POST /api/v7/databases", "POST /api/v7/objects", "POST /api/v7/definition", "POST /api/v7/server-info",
 	}
 	for _, route := range routes {
@@ -35,7 +36,7 @@ func TestAllKnownRoutesRegisteredAndAuthenticated(t *testing.T) {
 			t.Errorf("%s: want 401 without token, got %d", route, response.Code)
 		}
 	}
-	for _, route := range []string{"GET /api/v99/capabilities", "POST /api/v1/other"} {
+	for _, route := range []string{"GET /api/v23/capabilities", "GET /api/v99/capabilities", "POST /api/v1/other"} {
 		parts := strings.SplitN(route, " ", 2)
 		response := httptest.NewRecorder()
 		api.ServeHTTP(response, httptest.NewRequest(parts[0], parts[1], nil))

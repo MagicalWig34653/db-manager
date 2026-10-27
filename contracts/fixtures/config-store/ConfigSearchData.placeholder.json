@@ -1,0 +1,7 @@
+{
+  "name": "Suche",
+  "definition": {
+    "term": "abc",
+    "mode": "contains"
+  }
+}

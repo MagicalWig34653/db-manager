@@ -15,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/MagicalWig34653/db-manager/internal/configstore"
 	"github.com/MagicalWig34653/db-manager/internal/core"
 )
 
@@ -27,6 +28,10 @@ type API struct {
 	tokenHash [32]byte
 	handler   http.Handler
 	state     StateStore
+	config    *configstore.Service
+	owners    OwnerResolver
+	// ownerModel names the isolation guarantee of the owner resolver.
+	ownerModel string
 }
 
 // StateStore is the optional persistent server state. It is only consulted from
@@ -55,6 +60,10 @@ func New(engine core.Engine, token string, options ...Option) *API {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) { writeJSON(w, 200, map[string]string{"status": "ok"}) })
 	mux.HandleFunc("GET /readyz", a.ready)
+	if a.config != nil {
+		// The API token must never be stored as comfort data.
+		a.config.AddForbidden(token)
+	}
 	a.registerFeatures(mux)
 	a.handler = mux
 	return a

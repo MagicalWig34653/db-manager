@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Shared guard for the cumulative contract chain v1..v23.
+"""Shared guard for the cumulative contract chain v1..v24.
 
 Every version N pins all predecessors v1..v(N-1) by SHA-256, carries the matching
 info.version and is a strict superset (paths, schemas, security schemes) of v(N-1).
@@ -33,6 +33,7 @@ PINS = {
     20: '83b49461222f4d79690bd645fea12cfe2427d9fb0bddb9bd21a51ce0c34b63b0',
     21: '68db81f9de234193bb3a85d5004e416651221b8f423783b8f2a7f8715218881c',
     22: '397db1613129333a755b22093e25bf1443756d252379940661c6c2df9144afd1',
+    23: '7450a7fc994126beb25799e99dae07d6763e43f3e9ef002b20068cb38e313bd7',
 }
 
 # Versions that deliberately widen an existing schema (enum extension); the version's own

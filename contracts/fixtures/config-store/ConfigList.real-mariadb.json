@@ -1,0 +1,33 @@
+{
+  "items": [
+    {
+      "id": "1285fad3f75c209073da3681d57b9ad3",
+      "kind": "favorites",
+      "scope": "conn1",
+      "key": "shop\u001fitems",
+      "client_ref": "",
+      "version": 1,
+      "created_at": "2026-10-27T16:06:19.843Z",
+      "updated_at": "2026-10-27T16:06:19.843Z",
+      "data": {
+        "database": "shop",
+        "table": "items"
+      }
+    },
+    {
+      "id": "24b870a185a65e741079d577a90e66cb",
+      "kind": "favorites",
+      "scope": "conn1",
+      "key": "shop\u001fcustomers",
+      "client_ref": "",
+      "version": 1,
+      "created_at": "2026-10-27T16:06:19.837Z",
+      "updated_at": "2026-10-27T16:06:19.837Z",
+      "data": {
+        "database": "shop",
+        "table": "customers"
+      }
+    }
+  ],
+  "next_cursor": "MTc5MzExNzE3OTgzNzU3Mi4yNGI4NzBhMTg1YTY1ZTc0MTA3OWQ1NzdhOTBlNjZjYg"
+}
