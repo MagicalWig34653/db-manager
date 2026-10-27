@@ -1,1 +1,0 @@
-import{c as e,l as t}from"./i18n-Kc9hv7_9.js";import{z as n}from"./index-BVScxKFM.js";var r={name:`circle-check`,size:24,node:[[`circle`,{cx:`12`,cy:`12`,r:`10`}],[`path`,{d:`m16 9-5.5 5.5L8 12`}]],aliases:[`check-circle-2`]};r.node;var i=new Set([`$$slots`,`$$events`,`$$legacy`]);function a(a,o){let s=e(o,i);n(a,t(()=>s,{get icon(){return r}}))}export{a as t};

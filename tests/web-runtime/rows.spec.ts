@@ -208,11 +208,15 @@ for (const driver of ['sqlite', 'postgresql']) {
     await value(page, 'label', 'old-session-commit');
     await confirm(page, 'Zeile verbindlich hinzufügen');
     await expect.poll(() => heldCommit).toBe(true);
+    // Web review F-1: the editor cannot be dismissed while its write request is open (the lock stays held).
     await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog')).toBeVisible();
+    release();
+    await expect(page.getByRole('dialog').getByRole('alert')).toContainText('unbekannt');
+    await page.getByRole('button', { name: 'Entwurf verwerfen und Daten neu laden' }).click();
     await page.getByRole('button', { name: 'Backend-Zugang' }).click();
     await page.getByLabel('Zugriffstoken').fill(config.invalidToken);
     await page.getByRole('button', { name: 'Übernehmen' }).click();
-    release();
     await expect(page.getByText('Nicht verbunden', { exact: true })).toBeVisible();
     await expect(
       page.getByRole('region', { name: 'Tabellenarbeitsplatz', exact: true }),

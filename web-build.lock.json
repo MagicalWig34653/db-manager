@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "repository": "https://github.com/MagicalWig34653/db-manager-web.git",
-  "commit": "f8303266a403ebf2c75280aa68ff875a03dae31d",
+  "commit": "4b24e530af8f27700722379d4073a2edbbaa0d22",
   "npm_lock_sha256": "bac4b32ba0548428186f20b1d6382f3554b1a477c0fb89957b123820495b15c6",
   "toolchain": {
     "node": "26.5.0",
@@ -88,6 +88,36 @@
       "family": "programs",
       "version": "0.16.0",
       "sha256": "d90ac3fda8295a4b8a7095c72eb459c6433fce90f729d7a6b247760d86de7bf3"
+    },
+    {
+      "family": "serveradmin",
+      "version": "0.17.0",
+      "sha256": "ec2f75e2159f06fcc841c19089ba82fa9e58b998f55dfc27efcabed6771b39f3"
+    },
+    {
+      "family": "import",
+      "version": "0.18.0",
+      "sha256": "17451221a82e4c0cc64c99ad1d49dbda31846eac104698d7f7ec5db097b103e5"
+    },
+    {
+      "family": "bulk",
+      "version": "0.19.0",
+      "sha256": "c7a52e69685a1ab88656916071d1e931a500ba4aa9854c9fe0e11f130d0a2d46"
+    },
+    {
+      "family": "monitor",
+      "version": "0.20.0",
+      "sha256": "83b49461222f4d79690bd645fea12cfe2427d9fb0bddb9bd21a51ce0c34b63b0"
+    },
+    {
+      "family": "exportext",
+      "version": "0.21.0",
+      "sha256": "68db81f9de234193bb3a85d5004e416651221b8f423783b8f2a7f8715218881c"
+    },
+    {
+      "family": "partitions",
+      "version": "0.22.0",
+      "sha256": "397db1613129333a755b22093e25bf1443756d252379940661c6c2df9144afd1"
     },
     {
       "family": "reasons",
