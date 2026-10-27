@@ -14,7 +14,7 @@ RUN apk add --no-cache ca-certificates && addgroup -g 10001 app && adduser -D -u
 LABEL org.opencontainers.image.source="https://github.com/MagicalWig34653/db-manager" \
       org.opencontainers.image.documentation="https://github.com/MagicalWig34653/db-manager/blob/main/docs/BETRIEB.md" \
       org.opencontainers.image.licenses="AGPL-3.0-only" \
-      org.dbmanager.frontend.source="https://github.com/MagicalWig34653/db-manager-web/tree/f8303266a403ebf2c75280aa68ff875a03dae31d"
+      org.dbmanager.frontend.source="https://github.com/MagicalWig34653/db-manager-web/tree/e38e9b547e6c569f30ff3751a8dcd412b98aef5e"
 COPY --from=build /out/db-manager /usr/local/bin/db-manager
 COPY LICENSE /usr/share/licenses/db-manager/LICENSE
 COPY licenses/ /usr/share/licenses/db-manager/go/

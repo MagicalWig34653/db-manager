@@ -112,7 +112,7 @@ class ArtifactTests(unittest.TestCase):
         lock = build_web.load_lock()
         self.assertEqual(lock["schema_version"], 2)
         self.assertEqual([(c["family"], c["version"]) for c in lock["contracts"]][:5], list(build_web.LEGACY_CONTRACTS))
-        self.assertEqual([(c["family"], c["version"]) for c in lock["contracts"]][5:], [("create", "0.6.0"), ("overview", "0.7.0"), ("object-ops", "0.8.0"), ("columns", "0.9.0"), ("maintenance", "0.10.0"), ("export", "0.11.0"), ("sqlbatch", "0.12.0"), ("indexes", "0.13.0"), ("search", "0.14.0"), ("accounts", "0.15.0"), ("programs", "0.16.0"), ("reasons", "0.23.0")])
+        self.assertEqual([(c["family"], c["version"]) for c in lock["contracts"]][5:], [("create", "0.6.0"), ("overview", "0.7.0"), ("object-ops", "0.8.0"), ("columns", "0.9.0"), ("maintenance", "0.10.0"), ("export", "0.11.0"), ("sqlbatch", "0.12.0"), ("indexes", "0.13.0"), ("search", "0.14.0"), ("accounts", "0.15.0"), ("programs", "0.16.0"), ("serveradmin", "0.17.0"), ("import", "0.18.0"), ("bulk", "0.19.0"), ("monitor", "0.20.0"), ("exportext", "0.21.0"), ("partitions", "0.22.0"), ("reasons", "0.23.0")])
 
     def test_missing_or_empty_contract_list_is_rejected(self):
         for mutate in [lambda l: l.pop("contracts"), lambda l: l.update(contracts=[]), lambda l: l.update(contracts={})]:
@@ -162,8 +162,8 @@ class ArtifactTests(unittest.TestCase):
         lock = build_web.load_lock()
         source = build_web.manifest_source(lock)
         self.assertEqual(source["schema_version"], 2)
-        self.assertEqual([c["version"] for c in source["additional_contracts"]], ["0.6.0", "0.7.0", "0.8.0", "0.9.0", "0.10.0", "0.11.0", "0.12.0", "0.13.0", "0.14.0", "0.15.0", "0.16.0", "0.23.0"])
-        self.assertEqual(len(lock["contracts"]), 17)
+        self.assertEqual([c["version"] for c in source["additional_contracts"]], ["0.6.0", "0.7.0", "0.8.0", "0.9.0", "0.10.0", "0.11.0", "0.12.0", "0.13.0", "0.14.0", "0.15.0", "0.16.0", "0.17.0", "0.18.0", "0.19.0", "0.20.0", "0.21.0", "0.22.0", "0.23.0"])
+        self.assertEqual(len(lock["contracts"]), 23)
 
     def test_web_contract_paths_follow_the_vendored_layout(self):
         self.assertEqual(build_web.web_contract_path("0.1.0"), "src/lib/contract/api-v0.1.0.json")
