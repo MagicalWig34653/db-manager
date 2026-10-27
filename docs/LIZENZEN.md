@@ -63,7 +63,7 @@ für beliebige alte Datenbankversionen.
 ## Eingebettete Weboberfläche F2a/F2b/F3b
 
 Der unveränderte Webbuild stammt aus dem unabhängig geprüften öffentlichen Commit
-[f163862](https://github.com/MagicalWig34653/db-manager-web/tree/f163862cfe8c85c4982f4709ae4c973fac17dc9c).
+[3e422dd](https://github.com/MagicalWig34653/db-manager-web/tree/3e422ddd71bd32219f062c39adda468326c59584).
 Eigener Webcode ist AGPL-3.0-only; die originalen Drittanbieterhinweise bleiben unter
 [THIRD-PARTY-NOTICES.txt](../internal/webui/static/THIRD-PARTY-NOTICES.txt) vollständig
 erhalten und werden als `/THIRD-PARTY-NOTICES.txt` ausgeliefert. Der originale
@@ -93,7 +93,7 @@ Bibliothek im Laufzeitimage.
 ## Web-Editor W-P16 (CodeMirror 6, Vorabeintrag)
 
 Der Webcode auf dem Branch `feat/w-p16-codemirror` des Web-Repositories (Commit
-[f163862](https://github.com/MagicalWig34653/db-manager-web/tree/f163862cfe8c85c4982f4709ae4c973fac17dc9c), Pin Bündel 6; Erstfassung auf `feat/w-p16-codemirror` `b0d0429`)
+[3e422dd](https://github.com/MagicalWig34653/db-manager-web/tree/3e422ddd71bd32219f062c39adda468326c59584), Pin Bündel 6; Erstfassung auf `feat/w-p16-codemirror` `b0d0429`)
 bindet CodeMirror 6 als eigenen, lazy geladenen Chunk ein (Entscheidung E8, vorab freigegeben). Seit Pin Bündel 6 gepinnt und
 eingebettet; der Eintrag erfasste die Lizenzen vor dem Repin. Alle Pakete sind MIT-lizenziert; ihre Originaltexte
 stehen in der Web-Datei `THIRD-PARTY-NOTICES.txt` und werden mit dem Build ausgeliefert. Kein neues Go-Modul.

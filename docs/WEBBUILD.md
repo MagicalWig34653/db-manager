@@ -8,7 +8,7 @@ Prüfstand und unabhängige Abnahme: [F5b-Handoff](handoffs/F5b.md).
 ## Quelle, Vertrag und Reproduzierbarkeit
 
 [web-build.lock.json](../web-build.lock.json) pinnt das öffentliche Webrepository auf
-Commit [f163862](https://github.com/MagicalWig34653/db-manager-web/tree/f163862cfe8c85c4982f4709ae4c973fac17dc9c)
+Commit [3e422dd](https://github.com/MagicalWig34653/db-manager-web/tree/3e422ddd71bd32219f062c39adda468326c59584)
 (Pin Bündel 6, siehe Abschnitt am Ende; Vorgänger Bündel 5: `4b24e53`). Der folgende Text beschreibt den **historischen** Pin
 [8ef738d](https://github.com/MagicalWig34653/db-manager-web/tree/8ef738d22a1164291e2c8183d80e72d1f043c0f8):
 F5 einschließlich lesender Index-/Constraintmetadaten, F6-Ergebnisexport und bisheriger
@@ -20,7 +20,7 @@ Tabellenvertrag `0.2.0`, SHA256
 zusätzlich npm-Lockfile-SHA und exakte Node-/npm-Versionen sind im Lock festgehalten.
 Das Lock hat seit W-P04 `schema_version` 2 (siehe Abschnitt „Vertragsliste im Lock“).
 
-Neubau mit Python mindestens 3.9, Git, Node26.5.0 und npm11.17.0:
+Neubau mit Python mindestens 3.9, Git, Node26.12.1 und npm11.20.0:
 
 ```sh
 python3 scripts/build-web.py
@@ -257,7 +257,7 @@ erweiterte Exportformate, Partitionen/Präfix-Stapel) sind eingebettet.
 
 ## Pin Bündel 6 (27.10.2026)
 
-Das Lock pinnt Web-Branch `release/pin-bundle6` auf `f163862cfe8c85c4982f4709ae4c973fac17dc9c` (= `feat/w-p20-web`, enthält `review/w-p20-web` und Web-main `1145be4` mit CodeMirror W-P16).
+Das Lock pinnt Web-Branch `release/pin-bundle6` auf `3e422ddd71bd32219f062c39adda468326c59584` (= `feat/w-p20-web`, enthält `review/w-p20-web` und Web-main `1145be4` mit CodeMirror W-P16).
 `npm_lock_sha256` ist `970dd5d2...ff3` (gegen `package-lock.json` des Commits geprüft; geändert gegenüber Bündel 5 wegen CodeMirror). Das Lock führt nun 24 Verträge; neu ist
 `config-store` 0.24 (Webkopie `src/lib/contract/v24` byte-identisch zu `contracts/api-v0.24.0.json`), als letzter Eintrag nach `reasons` 0.23.
 

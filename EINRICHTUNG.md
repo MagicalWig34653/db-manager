@@ -38,7 +38,7 @@ prüft echte Netzwerkabfragen samt TLS-/Fehler-/Größenfällen und entfernt sei
 und Neustartpersistenz im eigenen Compose-Projekt; dessen Volume wird danach entfernt.
 Einzelne Netzwerk-Go-Tests ohne Fixture-Portvariablen werden ausdrücklich übersprungen.
 
-Echte Browserintegration mit Node26.5.0/npm, Chromium, Docker und OpenSSL:
+Echte Browserintegration mit Node26.12.1/npm, Chromium, Docker und OpenSSL:
 
 ```sh
 python3 scripts/test-web-integration.py

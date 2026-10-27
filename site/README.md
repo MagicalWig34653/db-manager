@@ -6,7 +6,7 @@ externen Fonts oder Tracker. Name bleibt DB Manager.
 
 ## Reproduzieren
 
-Buildtoolchain: CPython **3.13.14**, Node **26.5.0**, npm-Lockformat3.
+Buildtoolchain: CPython **3.13.14**, Node **26.12.1**, npm-Lockformat3.
 MkDocs **1.6.1** und vollständiger transitiver Pythonhashlock; npm ist ausschließlich
 für Browser-/Accessibilitytests erforderlich. Kein Einfluss auf Go-Build oder Runtime.
 

@@ -94,7 +94,7 @@ Registrierung; Root: Handler, CSP, Build-Inventar) und ist in W-P03 gebündelt.
 
 ### 1.4 Betriebs- und Prozessrahmen, der den Plan bestimmt
 
-- Jeder Pin des Webbuilds (`web-build.lock.json`: Commit, Vertrags-SHAs, npm-Lock-SHA, Node 26.5.0, npm 11.17.0) verlangt
+- Jeder Pin des Webbuilds (`web-build.lock.json`: Commit, Vertrags-SHAs, npm-Lock-SHA, Node 26.12.1, npm 11.20.0 (angehoben mit Pin Bündel 6)) verlangt
   neuen Clientreview und Neubau; `build-web.py` kennt heute fest die Verträge 0.1 bis 0.5. Jede neue API-Version
   bedeutet Änderungen an Lock, Skript, `test-build-web.py`, Web-`package.json` und `tests/generate-validators.mjs`.
   Das ist der Hauptkonfliktpunkt für parallele Pakete und wird in W-P04 durch eine generische Vertragsliste gelöst.
