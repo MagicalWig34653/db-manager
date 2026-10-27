@@ -66,7 +66,24 @@ def main():
             return f'[{label}]({REPO}/{kind}/{commit}/{quote(root_path, safe="/.")}{fragment})'
         # Markdown is rendered by MkDocs/Python-Markdown. Only repository link
         # destinations are adapted to the staged source layout here.
-        return re.sub(r'(?<!!)\[([^\]\n]+)\]\(([^\s)]+)\)', link, text)
+        text = re.sub(r'(?<!!)\[([^\]\n]+)\]\(([^\s)]+)\)', link, text)
+
+        # Embedded images (Markdown or HTML) that point at the site's own assets are served
+        # from the staged assets/ folder; the repository path site/assets/ does not exist there.
+        def asset(destination):
+            parts = urlsplit(destination)
+            if parts.scheme or parts.netloc or destination.startswith('#'):
+                return None
+            resolved = (source.parent / unquote(parts.path)).resolve()
+            try:
+                inside = resolved.relative_to((SITE / 'assets').resolve()).as_posix()
+            except ValueError:
+                return None
+            return quote(Path(os.path.relpath(Path('assets') / inside, target.parent)).as_posix(), safe='/.')
+        text = re.sub(r'(!\[[^\]\n]*\]\()([^\s)]+)(\))', lambda m: m.group(1) + (asset(m.group(2)) or m.group(2)) + m.group(3), text)
+        # MkDocs serves page.md as page/index.html, but does not rewrite raw HTML, so add one level.
+        prefix = '' if target.name == 'index.md' else '../'
+        return re.sub(r'(<img\b[^>]*?\bsrc=")([^"]+)(")', lambda m: m.group(1) + ((prefix + asset(m.group(2))) if asset(m.group(2)) else m.group(2)) + m.group(3), text)
 
     source_hashes = {}
     for source, target in mapping.items():

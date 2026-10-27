@@ -428,6 +428,7 @@ func (r w3Rig) replaceRun(req core.ReplaceRequest, p core.ReplacePlan) (core.Rep
 
 func w3Replace(t *testing.T, r w3Rig) {
 	d := r.c.Driver
+	dropTable(t, r.e, r.c, "r1")
 	r.exec("CREATE TABLE r1 (id INTEGER NOT NULL PRIMARY KEY, v VARCHAR(50) UNIQUE, w VARCHAR(50), n INTEGER)")
 	r.exec("INSERT INTO r1 VALUES (1,'a','keep',1),(2,'b','keep',2),(3,'ab',NULL,3),(4,'cd','x',4)")
 	state := func() string {

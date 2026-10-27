@@ -32,6 +32,7 @@ def main():
         ]
         environment = os.environ.copy()
         environment['DBM_TEST_CA_FILE'] = str(fixture/'ca.pem')
+        environment['DBM_TEST_PASSWORD'] = 'public-b1-fixture'
         try:
             for name, image, port, variables, command, user in specs:
                 container = prefix+'-'+name

@@ -174,7 +174,11 @@ func TestReviewExactCountBudget(t *testing.T) {
 			t.Fatal(err)
 		}
 		c := core.Connection{Driver: test.driver, Host: "localhost", Port: port, Database: "probe", Username: "postgres", Password: "public-b1-fixture"}
-		execute(t, e, c, test.fill)
+		// Filling 12M rows takes longer than the default statement timeout on slow runners.
+		if _, err = e.Query(context.Background(), core.QueryRequest{Connection: c, SQL: test.fill, TimeoutMS: 60000}); err != nil {
+			t.Fatalf("fill: %v", err)
+		}
+		defer execute(t, e, c, "DROP TABLE IF EXISTS rv_big")
 		start := time.Now()
 		r, err := e.Objects(context.Background(), core.ObjectsRequest{Connection: c, Schema: "public", ExactRows: true, TimeoutMS: 40})
 		elapsed := time.Since(start)

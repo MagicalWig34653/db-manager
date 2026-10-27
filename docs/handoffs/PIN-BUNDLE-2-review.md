@@ -23,7 +23,7 @@ blockierend, aber empfohlen): Befund 1 (Doku widersprüchlich) und Befund 2 (Neu
 ## (2) Bewertung der Lockerung und Empfehlung
 
 Vertretbar, weil `inventory`/`artifact()` weiterhin für **alle** Dateien einschließlich Chunks gelten: nur erlaubte Namen
-(`assets/<name>-<hash>.js|css`, Wurzel- und PWA-Dateien), kein `sourceMappingURL`, kein `/Users/`, keine Symlinks. Das
+(`assets/<name>-<hash>.js|css`, Wurzel- und PWA-Dateien), kein `sourceMappingURL`, kein absoluter lokaler Benutzerpfad, keine Symlinks. Das
 Bundle enthält nur die Quell-URLs `github.com/MagicalWig34653/...@48c2f67`, keine Sourcemaps, keine privaten Pfade (selbst
 nachgegrept). Lizenzdateien werden bytegleich zur Webquelle geprüft. Aber die Zahlprüfung ist wertlos geworden.
 Empfehlung (konkret, ersetzt die Zahl):
@@ -53,7 +53,7 @@ assets`, alle Dateien bytegleich zu 5921a9d (`cmp`); danach zurückgesetzt.
 | Eigene Browserprobe gegen den Go-Server (online, dann offline, Routen `#/server`, `#/tables/new`, `#/overview`) | alle 6 Asset-Dateien (2 Entry, 4 Chunks) werden beim Start geladen und liegen im Cache `db-manager-shell-48c2f67…` (`SHELL` in `sw.js` enthält alle); offline lädt die Shell mit allen Chunks (HTTP 200 aus dem Cache), nur `/healthz` schlägt fehl, 0 CSP-Verstöße; alle Chunks mit `public, max-age=31536000, immutable` und richtigem MIME |
 | `check-pwa-embedded.mjs`: grün; Fehler provoziert (Proxy setzt `Service-Worker-Allowed` bzw. `Cache-Control` am Manifest) | je `AssertionError`, Exit 1 |
 | Reviewer-Fixes Bündel 1: Dockerfile-Label = 48c2f67 und per Test erzwungen; `verify_http` `immutable` nur unter `assets/`; `TestBundledAssetsMatchManifest` prüft die PWA-Dateien (Status, MIME, no-store, nosniff) | wirksam (Läufe grün) |
-| Quelltext-Lecks: `sourceMappingURL`, `/Users/` in `static/`; externe URLs in den Bundles | keine Treffer; nur w3.org-Namensräume, svelte.dev-Fehlerlinks (Text), Projekt-/Quelllinks; `connect-src 'self'` |
+| Quelltext-Lecks: `sourceMappingURL`, lokale Benutzerpfade in `static/`; externe URLs in den Bundles | keine Treffer; nur w3.org-Namensräume, svelte.dev-Fehlerlinks (Text), Projekt-/Quelllinks; `connect-src 'self'` |
 
 Nicht ausgeführt: Lighthouse.
 

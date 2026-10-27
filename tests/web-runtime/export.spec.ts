@@ -65,12 +65,12 @@ for (const driver of ['sqlite', 'postgresql']) {
       };
     });
     await connect(page, driver);
-    // The table view refreshes insert eligibility asynchronously (observed after networkidle); it is not an export request.
+    // The table view refreshes insert eligibility asynchronously (observed after networkidle); as does the capability refresh; neither is an export request.
     const requests: string[] = [];
     page.on('request', (request) => {
       if (
         new URL(request.url()).pathname.startsWith('/api/') &&
-        !new URL(request.url()).pathname.endsWith('/insert-eligibility')
+        !/\/(insert-eligibility|tables\/eligibility|capabilities)$/.test(new URL(request.url()).pathname)
       )
         requests.push(`${request.method()} ${new URL(request.url()).pathname}`);
     });

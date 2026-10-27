@@ -138,6 +138,12 @@ func TestLiveMonitor(t *testing.T) {
 			if raw == "" {
 				t.Skip("disposable fixture port required")
 			}
+			// The required sources (performance schema, slow log table, binary log,
+			// pg_stat_statements preload) exist only on the specially started monitor
+			// fixtures of scripts/test-monitor.py; plain engine fixtures do not provide them.
+			if os.Getenv("DBM_TEST_MONITOR_FIXTURE") != "1" {
+				t.Skip("monitor-configured fixture required (scripts/test-monitor.py)")
+			}
 			port, err := strconv.Atoi(raw)
 			if err != nil {
 				t.Fatal(err)

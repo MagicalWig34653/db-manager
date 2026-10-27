@@ -42,6 +42,7 @@ def main():
             with Fixtures('w-p27', systems=(system,)) as fixture:
                 live_env = fixture.environment()
                 live_env['DBM_MONITOR_DUMP'] = scratch
+                live_env['DBM_TEST_MONITOR_FIXTURE'] = '1'
                 subprocess.run(['go', 'test', '-race', '-count=1', '-v', './internal/database', '-run', 'TestLiveMonitor/' + system + '$'], cwd=ROOT, env=live_env, check=True)
         paths = list(Path(scratch).glob('*.MonitorResult.json'))
         assert len(paths) >= 2

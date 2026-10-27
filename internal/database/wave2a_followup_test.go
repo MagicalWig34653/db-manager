@@ -119,8 +119,10 @@ func fuColumns(t *testing.T, r rvRig) {
 	if driver != "sqlite" {
 		pfk, _ := r.plan("fu_t", core.ColumnChange{Action: "rename", Column: "id", NewName: "id2"})
 		t.Logf("RENAME id warnings (%s): %s", driver, fuWarn(pfk))
-		if driver == "mysql" && !strings.Contains(fuWarn(pfk), "Fremdschlüssel") {
-			t.Fatalf("mysql FK rename warning missing: %s", fuWarn(pfk))
+		// InnoDB adjusts foreign keys on RENAME COLUMN (see columnDependencyWarnings), so a
+		// rename must not claim that a foreign key blocks it; drops are covered by the dependency tests.
+		if driver == "mysql" && strings.Contains(fuWarn(pfk), "Fremdschlüssel verhindert") {
+			t.Fatalf("mysql FK rename falsely warns that a foreign key blocks it: %s", fuWarn(pfk))
 		}
 	}
 	// (L2) NOT NULL planning with EXISTS.
