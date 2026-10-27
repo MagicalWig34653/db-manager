@@ -8,7 +8,7 @@ Prüfstand und unabhängige Abnahme: [F5b-Handoff](handoffs/F5b.md).
 ## Quelle, Vertrag und Reproduzierbarkeit
 
 [web-build.lock.json](../web-build.lock.json) pinnt das öffentliche Webrepository auf
-Commit [e38e9b5](https://github.com/MagicalWig34653/db-manager-web/tree/e38e9b547e6c569f30ff3751a8dcd412b98aef5e)
+Commit [4b24e53](https://github.com/MagicalWig34653/db-manager-web/tree/4b24e530af8f27700722379d4073a2edbbaa0d22)
 (Pin Bündel 5, siehe Abschnitt am Ende). Der folgende Text beschreibt den **historischen** Pin
 [8ef738d](https://github.com/MagicalWig34653/db-manager-web/tree/8ef738d22a1164291e2c8183d80e72d1f043c0f8):
 F5 einschließlich lesender Index-/Constraintmetadaten, F6-Ergebnisexport und bisheriger
@@ -244,13 +244,13 @@ kopiert und nicht gepinnt. Die Kontenrouten bleiben `/api/v15/...`; 0.23 ergänz
 
 ## Pin Bündel 5 (27.10.2026)
 
-Das Lock pinnt Web-Branch `release/pin-bundle5` auf `e38e9b547e6c569f30ff3751a8dcd412b98aef5e` (Web-Wellenstand 2 mit den Review-Fixes, Basis `integration/web-wave2-fixes`).
+Das Lock pinnt Web-Branch `release/pin-bundle5` auf `4b24e530af8f27700722379d4073a2edbbaa0d22` (Web-Wellenstand 2 mit den Review-Fixes, Basis `integration/web-wave2-fixes`).
 `npm_lock_sha256` ist unverändert (`bac4b32b...5c6`, gegen `package-lock.json` des Commits geprüft). Das Lock führt nun 23 Verträge; neu gegenüber Bündel 4 (alle Webkopien byte-identisch zu den
 Rootverträgen): `serveradmin` 0.17, `import` 0.18, `bulk` 0.19, `monitor` 0.20, `exportext` 0.21, `partitions` 0.22. Die Reihenfolge bleibt
 aufsteigend (`reasons` 0.23 zuletzt). Die neuen Oberflächen (Import, Mehrzeilen-/Dateiwert-Aktionen, Serveradministration, Überwachung,
 erweiterte Exportformate, Partitionen/Präfix-Stapel) sind eingebettet.
 
-- **Precache:** 4 530 471 Bytes (4,32 MiB) ohne `sw.js`, 49 Dateien, davon 4 360 535 Bytes unter `assets/` (39 Dateien). Grenze
+- **Precache:** 4 530 880 Bytes (4,32 MiB) ohne `sw.js`, 49 Dateien, davon 4 360 944 Bytes unter `assets/` (39 Dateien). Grenze
   `MAX_PRECACHE_BYTES` 8 MiB und `MAX_CHUNKS` 64 (39 von 64) eingehalten; keine Änderung der Service-Worker-Strategie.
 - Enthaltene Web-Fixes (WEB-WAVE2-FIXES): Schließsperre der Schreibdialoge während des Requests, SQL-Abschlussprüfung mit Lexer,
   Katalog-Texte de/en, Import-Upload-Race und wiederholbarer Abbruch.
