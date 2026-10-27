@@ -28,7 +28,7 @@ Stand 27.10.2026. Branch `release/pin-bundle5` (Basis Backend-`main` cf3d406, Ve
 - **Nachbesserung nach PIN-BUNDLE-5-review (bd7e97f), Web `4b24e53`:** (1) `tests/real/rows.spec.ts` wie die Laufzeit-Spec angepasst; (2) SQL-Lexer kennt
   SQLite-Klammerbezeichner (`[o'k]`), Dollar-Quotes bewusst nicht (Backend gibt keine aus); (3) Fremdschlüssel-Laden meldet Fehler sichtbar und versucht es beim
   nächsten Editor erneut; (4) Web-Spec für die späte Schreibantwort nach Sitzungswechsel (SQL-Stapel); (5) `DBM_EMBEDDED=1` für alle `scripts/test-real-*.py`
-  (siehe unten). Lock-Commit jetzt `4b24e530af8f27700722379d4073a2edbbaa0d22`, `npm_lock_sha256` unverändert.
+  (siehe unten). Beleg: `DBM_EMBEDDED=1 test-real-tables.py` gegen dieses Backend: 10 von 10. Lock-Commit jetzt `4b24e530af8f27700722379d4073a2edbbaa0d22`, `npm_lock_sha256` unverändert.
 - **`DBM_EMBEDDED=1`:** Die Web-Skripte `test-real-*.py` überspringen dann Build und Vite-Preview; `scripts/embedded-proxy.mjs` reicht einen freien Port
   an das Go-Backend durch, dessen eingebettete Oberfläche geprüft wird. Handoffs sollen künftig ausweisen, ob gegen Preview oder Einbettung gelaufen wurde.
 
