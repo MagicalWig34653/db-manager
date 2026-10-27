@@ -39,7 +39,13 @@ type envelope struct {
 // key hash and version, so rows cannot be swapped, moved or rolled back to an
 // older version of the same row unnoticed.
 func itemContext(owner string, kind configstore.Kind, id, scope, nkey string, version int64) []byte {
-	return []byte("cfg2|" + owner + "|" + string(kind) + "|" + id + "|" + scope + "|" + nkey + "|" + strconv.FormatInt(version, 10))
+	// Length-prefixed fields: injective by construction, whatever the field contents.
+	out := []byte("cfg2")
+	for _, field := range []string{owner, string(kind), id, scope, nkey, strconv.FormatInt(version, 10)} {
+		out = append(out, byte(len(field)>>8), byte(len(field)))
+		out = append(out, field...)
+	}
+	return out
 }
 
 // cfgErr maps any error to a configstore sentinel or a context error.
@@ -554,6 +560,15 @@ func (r *configRepo) IndexKey(ctx context.Context) ([]byte, error) {
 	}
 	if !errors.Is(err, sql.ErrNoRows) {
 		return nil, cfgErr(unwrapPublicClassify(err))
+	}
+	// Rows without their installation key are orphaned (config_meta was lost or
+	// deleted): never mint a new key then, that would silently hide them.
+	var existing int
+	if err := r.s.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM (SELECT 1 FROM config_items LIMIT 1) AS x").Scan(&existing); err != nil {
+		return nil, cfgErr(classify(err))
+	}
+	if existing > 0 {
+		return nil, configstore.RepoCorrupt
 	}
 	fresh := make([]byte, 32)
 	if _, err := rand.Read(fresh); err != nil {

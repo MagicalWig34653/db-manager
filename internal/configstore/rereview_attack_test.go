@@ -75,53 +75,44 @@ func TestRereviewHolds_ConfusableTableIsSane(t *testing.T) {
 	}
 }
 
-// Gap: NFKC runs before the table and rewrites U+03F2 (Greek lunate sigma) to a final sigma, so its
-// table entry ('c') is dead and "seϲret" is not rejected.
-func TestRereviewGap_DeadConfusableEntry(t *testing.T) {
-	if fold("ϲ") == "c" {
-		t.Fatal("U+03F2 is now folded to c: flip this gap test")
-	}
-	if LooksSecret("-- seϲret", ScanSQL) {
-		t.Fatal("seϲret is now rejected: flip this gap test")
+// Fixed (L-02): the table also runs before NFKC, so U+03F2 works.
+func TestRereviewHolds_FormerlyDeadConfusableEntry(t *testing.T) {
+	if fold("ϲ") != "c" || !LooksSecret("-- seϲret", ScanSQL) {
+		t.Fatal("U+03F2 is not folded")
 	}
 }
 
-// Gap: look-alikes outside the small table are not folded (UTS #39 skeleton is not implemented).
-func TestRereviewGap_ConfusablesOutsideTheTable(t *testing.T) {
-	for name, text := range map[string]string{
-		"small caps": "SET ᴘᴀꜱꜱᴡᴏʀᴅ = 'x'",
-		"armenian n": "-- tokeո abc",
-	} {
-		rejected := LooksSecret(text, ScanSQL)
-		t.Logf("%s: rejected=%v", name, rejected)
-	}
-	if LooksSecret("SET ᴘᴀꜱꜱᴡᴏʀᴅ = 'x'", ScanSQL) || LooksSecret("-- tokeո abc", ScanSQL) {
-		t.Fatal("small caps / Armenian look-alikes are now folded: flip this gap test and extend the table test")
+// Fixed (L-02): small caps and Armenian look-alikes are folded.
+func TestRereviewHolds_ConfusablesOutsideTheOldTable(t *testing.T) {
+	for _, text := range []string{"SET ᴘᴀꜱꜱᴡᴏʀᴅ = 'x'", "-- tokeո abc"} {
+		if !LooksSecret(text, ScanSQL) {
+			t.Errorf("%q accepted", text)
+		}
 	}
 }
 
-// Gap: structural misses (heuristic). redis URLs have an empty user name.
-func TestRereviewGap_StructuralMisses(t *testing.T) {
+// Fixed (L-03): redis URLs with an empty user and Go DSNs are rejected.
+func TestRereviewHolds_StructuralFormsRejected(t *testing.T) {
 	for _, text := range []string{"redis://:hunter2hunter2@cache:6379/0", "user:hunter2@tcp(db:3306)/app"} {
-		if LooksSecret(text, ScanStructural) {
-			t.Errorf("%q is now rejected: flip this gap test", text)
+		if !LooksSecret(text, ScanStructural) {
+			t.Errorf("%q accepted", text)
 		}
 	}
 }
 
 // Gap: a string under a nested object below a credential-named key is not rejected, nor are
 // short credential key names such as pw/auth, nor numeric values.
-func TestRereviewGap_DocumentKeyRuleBypasses(t *testing.T) {
+func TestRereviewHolds_DocumentKeyRules(t *testing.T) {
 	s, owner := rrService(), "rr_b"
 	for i, doc := range []string{
 		`{"password":{"value":"hunter2hunter"}}`,
 		`{"pw":"hunter2hunter"}`,
 		`{"auth":"hunter2hunter"}`,
-		`{"password":12345678}`,
+		`{"creds":{"token":{"a":["hunter2hunter"]}}}`,
 	} {
 		_, _, err := s.Create(context.Background(), owner, "layouts", CreateInput{Key: "k" + string(rune('a'+i)), Data: []byte(doc)})
-		if err != nil {
-			t.Errorf("%s now rejected (%v): flip this gap test", doc, rrCode(err))
+		if rrCode(err) != "secret_rejected" {
+			t.Errorf("%s: %s", doc, rrCode(err))
 		}
 	}
 	// Direct string, array and unicode-escaped key forms are rejected (must hold).
@@ -241,7 +232,7 @@ func TestRereviewHolds_OwnerGrammar(t *testing.T) {
 // Gap (memory repo only): a failed insert evicts rows before it reports the quota error,
 // whereas the MariaDB repository rolls the evictions back. Compared live in
 // internal/serverstate (TestRereviewLive_QuotaFailureIsAtomicOnlyOnMariaDB).
-func TestRereviewGap_MemoryRepoEvictsBeforeFailingQuota(t *testing.T) {
+func TestRereviewHolds_MemoryRepoQuotaFailureIsAtomic(t *testing.T) {
 	ctx := context.Background()
 	repo := NewMemoryRepo()
 	lim := Limits{PerScope: 2, PerOwner: 10, FIFO: true, OwnerBytes: 100}
@@ -262,10 +253,9 @@ func TestRereviewGap_MemoryRepoEvictsBeforeFailingQuota(t *testing.T) {
 		t.Fatal("expected a quota error")
 	}
 	rows, _ := repo.Export(ctx, "o")
-	if len(rows) == 3 {
-		t.Fatal("memory repo is now atomic: flip this gap test")
+	if len(rows) != 3 {
+		t.Fatalf("memory repo kept %d of 3 rows after the failed insert", len(rows))
 	}
-	t.Logf("memory repo kept %d of 3 rows after the failed insert", len(rows))
 }
 
 // Must hold (kills the "basic auth rule off" mutation): short Basic credentials and the curl/wget

@@ -97,3 +97,10 @@ Import der W-P16-Daten und Einstellungs-/Layout-Oberflächen (`UX-003/004`, `NEU
 `TestReviewGap_*`/`TestReviewLiveGap_*` sind zu `TestReviewHolds_*`/`TestReviewLiveHolds_*` umgedreht (F-08/F-09-Tests protokollieren nur).
 `contracts/api-v0.24.0.json` unverändert (SHA `e2f2e057…`), Fixtures neu aus dem Livelauf, Index in `contracts/README.md` ergänzt.
 Offen unverändert: Web-Anbindung, echte Nutzertrennung (W-P30), heuristische Geheimniserkennung.
+
+## Re-Review-Auflagen umgesetzt ([Re-Review](W-P20-backend-rereview.md), `review/w-p20-rereview` @ `0f68567` eingemerged)
+
+- **B-01 (Blocker):** `hasDuplicateKeys` bricht bei jedem Tokenfehler sofort ab, schaltet `json.Valid` vor und begrenzt die Tiefe auf 64 (→ 400). Test `RereviewHolds_DuplicateKeyWalkTerminates` läuft ohne Umgebungsvariable mit 3-s-Frist, dazu `HangingBodiesAnswer400` über die Route. Übrige Token-Schleifen im Repo geprüft: `configstore/validate.go` (Fehler beenden die Schleife, Tiefe/Knoten begrenzt) und `httpapi/server.go` (Schleife endet bei Fehler) sind sicher; die übrigen `json.NewDecoder`-Stellen (core, accounts, monitor) nutzen nur `Decode` ohne `More()`-Schleife.
+- **L-01:** Schlüssel werden case-insensitiv (Go-Matching) auf Duplikate geprüft. **L-02:** Tabelle läuft vor und nach NFKC, U+03F2 wirkt, Kapitälchen und armenische Look-alikes ergänzt. **L-03:** `redis://:pw@`, Go-DSN erkannt; Strings unter verschachtelten Objekten unter Passwortschlüsseln abgelehnt, `pw`/`auth` ergänzt. **L-04:** Migrationsprüfung vergleicht auch Spalten, Typen, Längen, Sortierung, Nullbarkeit, Vorzeichen, Zeitgenauigkeit. **L-05:** fehlt `config_meta` bei vorhandenen Zeilen: `state_unreadable` statt neuem Schlüssel (BETRIEB/ADR).
+- **Härtung:** AEAD-Kontext längenpräfixiert (injektiv), Memory-Repo rollt Verdrängung bei Quotenfehler zurück, die 8 ungültigen Mutationsproben sind aktualisiert.
+- Gap-Tests sind umgedreht; absichtlich bleiben Gap-Tests für das dokumentierte Restrisiko (paarweiser Rollback/Wiedereinspielen) und die Rotation des Installationsschlüssels (alter Schlüssel dauerhaft nötig).

@@ -2,7 +2,6 @@
 package httpapi
 
 import (
-	"os"
 	"strings"
 	"testing"
 	"time"
@@ -12,11 +11,11 @@ import (
 
 // Gap (F-13 incomplete): Go's struct decoding matches field names case-insensitively, so a
 // duplicate that differs only in case is not detected and the last one wins.
-func TestRereviewGap_CaseVariantDuplicateEnvelopeKeys(t *testing.T) {
+func TestRereviewHolds_CaseVariantDuplicateEnvelopeKeys(t *testing.T) {
 	handler, _, _ := configAPI(t)
 	for _, body := range []string{`{"scope":"a","Scope":"b","data":{"table":"x"}}`, `{"data":{"table":"x"},"DATA":{"table":"y"}}`} {
-		if got := do(handler, "POST", "/api/v24/config/favorites", body, nil).Code; got == 400 {
-			t.Errorf("%s now rejected: flip this gap test", body)
+		if got := do(handler, "POST", "/api/v24/config/favorites", body, nil).Code; got != 400 {
+			t.Errorf("%s: %d, want 400", body, got)
 		}
 	}
 	// Unicode-escaped and plain duplicates are caught (must hold).
@@ -38,21 +37,23 @@ func TestRereviewGap_CaseVariantDuplicateEnvelopeKeys(t *testing.T) {
 //	DBM_REVIEW_DEMO_HANG=1 go test ./internal/httpapi -run RereviewHang
 //
 // Expected after the fix: every case returns within the budget.
-func TestRereviewHang_DuplicateKeyWalkTerminates(t *testing.T) {
-	if os.Getenv("DBM_REVIEW_DEMO_HANG") == "" {
-		t.Skip("set DBM_REVIEW_DEMO_HANG=1 to demonstrate the infinite loop (leaks a spinning goroutine)")
-	}
+func TestRereviewHolds_DuplicateKeyWalkTerminates(t *testing.T) {
 	cases := map[string]string{
 		"unterminated array":  `{"data":[1,2`,
 		"missing comma":       `{"data":[1 2]}`,
 		"bare bracket":        `[`,
 		"valid but 100k deep": strings.Repeat("[", 100000) + strings.Repeat("]", 100000),
+		"65 deep":             strings.Repeat("[", 65) + strings.Repeat("]", 65),
+		"object deep":         strings.Repeat(`{"a":`, 70) + "1" + strings.Repeat("}", 70),
 	}
 	for name, raw := range cases {
 		done := make(chan bool, 1)
 		go func() { done <- hasDuplicateKeys([]byte(raw)) }()
 		select {
-		case <-done:
+		case bad := <-done:
+			if !bad {
+				t.Errorf("%s: accepted", name)
+			}
 		case <-time.After(3 * time.Second):
 			t.Errorf("%s: hasDuplicateKeys does not terminate", name)
 		}
@@ -79,6 +80,23 @@ func TestRereviewHolds_ResolverOwnerVariants(t *testing.T) {
 			if code != 400 {
 				t.Errorf("%q: %d, want 400", owner, code)
 			}
+		}
+	}
+}
+
+// The HTTP route answers 400 quickly for the hanging inputs.
+func TestRereviewHolds_HangingBodiesAnswer400(t *testing.T) {
+	handler, _, _ := configAPI(t)
+	for _, body := range []string{`{"data":[1,2`, `{"data":[1 2]}`, strings.Repeat("[", 20000)} {
+		done := make(chan int, 1)
+		go func() { done <- do(handler, "POST", "/api/v24/config/layouts", body, nil).Code }()
+		select {
+		case code := <-done:
+			if code != 400 {
+				t.Errorf("%.20s: %d", body, code)
+			}
+		case <-time.After(3 * time.Second):
+			t.Fatalf("%.20s: no answer", body)
 		}
 	}
 }

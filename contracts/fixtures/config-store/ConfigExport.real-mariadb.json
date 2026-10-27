@@ -1,5 +1,5 @@
 {
-  "exported_at": "2026-10-27T15:27:46.719Z",
+  "exported_at": "2026-10-27T16:06:19.866Z",
   "format": "dbm-config-export",
   "format_version": 1,
   "items": [
@@ -21,18 +21,18 @@
       "key": "",
       "kind": "history",
       "scope": "conn1",
-      "time": "2026-10-27T15:27:46.634Z"
+      "time": "2026-10-27T16:06:19.789Z"
     },
     {
       "client_ref": "bm-1",
       "data": {
         "name": "Offene Bestellungen",
-        "sql": "SELECT 1"
+        "sql": "SELECT 0"
       },
       "key": "",
       "kind": "bookmarks",
       "scope": "conn1",
-      "time": "2026-10-27T15:27:46.651Z"
+      "time": "2026-10-27T16:06:19.805Z"
     },
     {
       "client_ref": "bm-9",
@@ -43,7 +43,7 @@
       "key": "",
       "kind": "bookmarks",
       "scope": "conn2",
-      "time": "2026-10-27T15:27:46.717Z"
+      "time": "2026-10-27T16:06:19.864Z"
     },
     {
       "client_ref": "",
@@ -54,7 +54,7 @@
       "key": "",
       "kind": "favorites",
       "scope": "conn1",
-      "time": "2026-10-27T15:27:46.678Z"
+      "time": "2026-10-27T16:06:19.831Z"
     },
     {
       "client_ref": "",
@@ -65,7 +65,7 @@
       "key": "",
       "kind": "favorites",
       "scope": "conn1",
-      "time": "2026-10-27T15:27:46.685Z"
+      "time": "2026-10-27T16:06:19.837Z"
     },
     {
       "client_ref": "",
@@ -76,7 +76,7 @@
       "key": "",
       "kind": "favorites",
       "scope": "conn1",
-      "time": "2026-10-27T15:27:46.692Z"
+      "time": "2026-10-27T16:06:19.843Z"
     },
     {
       "client_ref": "",
@@ -86,7 +86,7 @@
       "key": "privacy",
       "kind": "settings",
       "scope": "",
-      "time": "2026-10-27T15:27:46.626Z"
+      "time": "2026-10-27T16:06:19.781Z"
     },
     {
       "client_ref": "",
@@ -103,7 +103,7 @@
       "key": "table:shop.orders",
       "kind": "layouts",
       "scope": "conn1",
-      "time": "2026-10-27T15:27:46.700Z"
+      "time": "2026-10-27T16:06:19.851Z"
     }
   ]
 }

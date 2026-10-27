@@ -245,11 +245,13 @@ db-manager state-migrate          # wendet sie an (Migrationsbenutzer erforderli
 ```
 
 **Schema 2 (W-P20, Konfigurationsspeicher):** Migration 2 legt `config_owners`, `config_items` und `config_meta` an und prüft danach
-Primär- und Eindeutigkeitsschlüssel; eine vorhandene, abweichend definierte Tabelle bricht die Migration ab (`Migration fehlgeschlagen`).
+Primär-/Eindeutigkeitsschlüssel sowie Spalten, Typen, Längen, Sortierung, Null-Zulässigkeit und Zeitgenauigkeit; eine vorhandene, abweichend definierte Tabelle bricht die Migration ab (`Migration fehlgeschlagen`).
 `state-migrate` muss **vor** dem Start der neuen Programmversion laufen: ohne Migration meldet der Dienst `Schema ist veraltet` und
 startet nicht. Umgekehrt startet ein Altprogramm (nur Schema 1) nicht gegen Schema 2 (`Schema passt nicht zu dieser Programmversion`);
 eine Programm-Rücknahme braucht daher eine Datenbankwiederherstellung. Der Serverschlüssel schützt auch den Index-Schlüssel in
-`config_meta` (Hashes von Scope und Schlüsseln); wird er verloren, sind Konfigurationsdaten unbrauchbar. Beim Rotieren bleibt der alte
+`config_meta` (Hashes von Scope und Schlüsseln); wird er verloren, sind Konfigurationsdaten unbrauchbar. Wird `config_meta` gelöscht, während `config_items` noch Zeilen enthält, erzeugt der Dienst **keinen** neuen Installationsschlüssel (das
+würde die Zeilen verwaisen lassen), sondern antwortet `state_unreadable`; `config_meta` ist aus der Sicherung wiederherzustellen. Ohne Zeilen
+entsteht ein neuer Schlüssel (der Verlauf bleibt dann bis zum erneuten Opt-in aus). Beim Rotieren bleibt der alte
 Schlüssel als zweiter Eintrag erforderlich. Gelöschte Einträge verschwinden in Datenbanksicherungen erst mit der nächsten Sicherung.
 
 Beispiel Compose: `docker compose -f compose.yaml -f compose.state.yaml -f compose.state-migrate.yaml run --rm --no-deps app state-migrate`

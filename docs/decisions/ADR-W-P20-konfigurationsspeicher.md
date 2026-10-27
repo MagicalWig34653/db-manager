@@ -96,7 +96,7 @@ Alle Kennungsspalten ASCII binär (groß-/kleinschreibungsempfindlich).
 - **Schlüssel-Hashes:** `scope_hash = HMAC(K, "scope" \0 Besitzer \0 Scope)` und `nkey = HMAC(K, Art \0 Sammlung \0 scope_hash \0 Schlüssel)`.
   `K` ist ein zufälliger Installationsschlüssel in `config_meta`, einmal erzeugt und **sealed** (unter dem Serverschlüssel) gespeichert, nie
   abgeleitet: Rotation des Verschlüsselungsschlüssels ändert keinen Hash, im Dump steht `K` nie im Klartext, ein Wörterbuchangriff auf
-  Verbindungs- oder Tabellennamen ist ohne `K` nicht möglich. Der Scope wird je Besitzer gesalzen.
+  Verbindungs- oder Tabellennamen ist ohne `K` nicht möglich. Der Scope wird je Besitzer gesalzen. Fehlt `config_meta`, obwohl `config_items` Zeilen enthält, wird **kein** neuer Schlüssel erzeugt (`state_unreadable`), damit Zeilen nicht lautlos verwaisen. Der AEAD-Kontext kodiert die Felder längenpräfixiert (injektiv).
 - **Natürliche Schlüssel:** `favorites`/`recents` je `(scope, Datenbank, Tabelle)`, `settings`/`layouts` je `(scope, key)`;
   doppeltes Anlegen ist bei Favoriten idempotent (200 mit bestehendem Eintrag), bei `recents` ein „Anfassen“
   (Version +1, ganz nach oben), bei `settings`/`layouts` `409 already_exists` (dann `PUT`). `history`, `bookmarks`,

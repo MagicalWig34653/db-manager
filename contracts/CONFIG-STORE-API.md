@@ -50,7 +50,7 @@ Felder werden mit `422 invalid_data` abgelehnt):
 | `POST /api/v24/config/clear/plan` | Vorschau: `{"kinds":[...],"scope"?}` → Anzahl/Bytes je Sammlung, `plan_hash`, `confirmation` (`LÖSCHEN <n>`) |
 | `POST /api/v24/config/clear/execute` | `{"kinds","scope"?,"plan_hash","confirmation"}`; `409 plan_stale` bei Änderung, `422 confirmation_invalid`; sonst Transaktion |
 
-Der Besitzer jeder Anfrage kommt aus dem Besitzerauflöser des Servers (`single`), nie aus Anfrageinhalten; ein Auflöser kann `single` nicht liefern. Doppelte Schlüssel irgendwo im Anfragekörper ergeben `400 invalid_request`.
+Der Besitzer jeder Anfrage kommt aus dem Besitzerauflöser des Servers (`single`), nie aus Anfrageinhalten; ein Auflöser kann `single` nicht liefern. Doppelte Schlüssel irgendwo im Anfragekörper (auch nur in der Schreibung verschieden), ungültiges JSON und Verschachtelung über 64 Ebenen ergeben `400 invalid_request`.
 
 ## Verbindliche Eigenschaften
 

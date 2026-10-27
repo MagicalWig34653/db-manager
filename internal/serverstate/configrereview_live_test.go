@@ -144,49 +144,36 @@ func TestRereviewLiveHolds_IndexKeyTamperFailsClosed(t *testing.T) {
 	}
 }
 
-// (2) Gap: deleting config_meta makes the next start generate a new key. Nothing is misattributed
-// (rows stay bound by their AEAD context) but the old rows are orphaned: invisible to lists and
-// duplicate-detection, still counted against the quota, still exported.
-func TestRereviewLiveGap_DeletedIndexKeyOrphansRows(t *testing.T) {
+// (2) Fixed (L-05): deleting config_meta while rows exist never mints a new key; the store answers
+// state_unreadable instead of silently orphaning the rows. With no rows a fresh key is created.
+func TestRereviewLiveHolds_DeletedIndexKeyFailsClosed(t *testing.T) {
 	f := newFixture(t)
 	cfg := f.migrated(t)
 	ctx := context.Background()
 	owner := repotest.Owner()
 	scope := strings.Repeat("d", 64)
 	first := configstore.NewService(openStore(t, cfg).ConfigRepo())
-	item, _, err := first.Create(ctx, owner, "favorites", configstore.CreateInput{Scope: scope, Data: []byte(`{"table":"t"}`)})
-	if err != nil {
+	if _, _, err := first.Create(ctx, owner, "favorites", configstore.CreateInput{Scope: scope, Data: []byte(`{"table":"t"}`)}); err != nil {
 		t.Fatal(err)
 	}
-	var oldScope string
-	_ = f.root.QueryRow("SELECT scope FROM "+cfg.Database+".config_items WHERE item_id = ?", item.ID).Scan(&oldScope)
 	f.exec(t, "DELETE FROM "+cfg.Database+".config_meta")
 	second := configstore.NewService(openStore(t, cfg).ConfigRepo())
-	page, err := second.List(ctx, owner, "favorites", configstore.Filter{Scope: &scope})
-	if err != nil {
-		t.Fatal(err)
+	if _, err := second.List(ctx, owner, "favorites", configstore.Filter{Scope: &scope}); reviewPublic(err) != "state_unreadable" {
+		t.Fatalf("list after key loss: %v", reviewPublic(err))
 	}
-	if len(page.Items) != 0 {
-		t.Fatalf("old row still listed after key loss: the orphaning gap is fixed, flip this test")
+	if _, _, err := second.Create(ctx, owner, "favorites", configstore.CreateInput{Scope: scope, Data: []byte(`{"table":"t"}`)}); reviewPublic(err) != "state_unreadable" {
+		t.Fatalf("create after key loss: %v", reviewPublic(err))
 	}
-	if got, err := second.Get(ctx, owner, "favorites", item.ID); err != nil || got.ID != item.ID {
-		t.Fatalf("orphan not readable by id: %v", reviewPublic(err))
+	var metaRows int
+	_ = f.root.QueryRow("SELECT COUNT(*) FROM " + cfg.Database + ".config_meta").Scan(&metaRows)
+	if metaRows != 0 {
+		t.Fatal("a new installation key was minted next to existing rows")
 	}
-	if _, created, err := second.Create(ctx, owner, "favorites", configstore.CreateInput{Scope: scope, Data: []byte(`{"table":"t"}`)}); err != nil || !created {
-		t.Fatalf("duplicate not created after key loss: %v %v", created, err)
-	}
-	var newScope string
-	_ = f.root.QueryRow("SELECT scope FROM "+cfg.Database+".config_items WHERE item_id <> ?", item.ID).Scan(&newScope)
-	if newScope == oldScope {
-		t.Fatal("scope hash unchanged by a new key")
-	}
-	exported, err := second.Export(ctx, owner)
-	if err != nil || len(exported) != 2 {
-		t.Fatalf("export of orphan and new row: %d %v", len(exported), err)
-	}
-	// The history opt-in lives under the old hashes: history fails closed instead of silently recording.
-	if _, _, err := second.Create(ctx, owner, "history", configstore.CreateInput{Data: []byte(`{"sql":"SELECT 1"}`)}); reviewPublic(err) != "history_disabled" {
-		t.Errorf("history after key loss: %v", reviewPublic(err))
+	// An empty installation (no rows) just starts again with a new key.
+	f.exec(t, "DELETE FROM "+cfg.Database+".config_items")
+	third := configstore.NewService(openStore(t, cfg).ConfigRepo())
+	if _, _, err := third.Create(ctx, owner, "favorites", configstore.CreateInput{Scope: scope, Data: []byte(`{"table":"t"}`)}); err != nil {
+		t.Fatalf("empty store after meta loss: %v", err)
 	}
 }
 
@@ -310,44 +297,33 @@ func TestRereviewLiveGap_PairwiseRollbackAndResurrection(t *testing.T) {
 	}
 }
 
-// (1) AEAD context: injective over the valid field domain; the '|' separator makes it ambiguous
-// only if validation were bypassed (owner/kind/id/scope/nkey/version are validated upstream).
+// (1) AEAD context: injective by construction (length-prefixed fields), also for fields that
+// contain the old separator.
 func TestRereviewLive_ItemContextInjectivity(t *testing.T) {
 	rng := mrand.New(mrand.NewSource(7))
 	kinds := []configstore.Kind{"history", "bookmarks", "searches", "favorites", "recents", "settings", "layouts"}
-	const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"
-	owner := func() string {
-		b := make([]byte, 1+rng.Intn(64))
+	const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-|"
+	str := func(n int) string {
+		b := make([]byte, 1+rng.Intn(n))
 		for i := range b {
 			b[i] = alphabet[rng.Intn(len(alphabet))]
 		}
 		return string(b)
 	}
-	hexs := func(n int) string {
-		const digits = "0123456789abcdef"
-		b := make([]byte, n)
-		for i := range b {
-			b[i] = digits[rng.Intn(16)]
-		}
-		return string(b)
-	}
 	seen := map[string]string{}
 	for i := 0; i < 50000; i++ {
-		o, k, id, sc, nk, v := owner(), kinds[rng.Intn(len(kinds))], hexs(32), hexs(64), hexs(64), int64(1+rng.Intn(5))
+		o, k, id, sc, nk, v := str(64), kinds[rng.Intn(len(kinds))], str(32), str(64), str(64), int64(1+rng.Intn(5))
 		ctx := string(itemContext(o, k, id, sc, nk, v))
-		tuple := fmt.Sprint(o, k, id, sc, nk, v)
+		tuple := fmt.Sprintf("%q", []any{o, k, id, sc, nk, v})
 		if prev, ok := seen[ctx]; ok && prev != tuple {
 			t.Fatalf("context collision: %q vs %q", prev, tuple)
 		}
 		seen[ctx] = tuple
 	}
-	// With a '|' in the owner two different tuples share one context: validation is the only guard.
 	a := itemContext("x|settings", "layouts", strings.Repeat("1", 32), "s", "n", 1)
 	b := itemContext("x", "settings", "layouts|"+strings.Repeat("1", 32), "s", "n", 1)
-	if !bytes.Equal(a, b) {
-		t.Log("context became unambiguous even for '|' fields (length-prefixed encoding)")
-	} else {
-		t.Log("context is ambiguous for '|' in free-form fields; safe only because owner/scope/nkey/id are validated upstream")
+	if bytes.Equal(a, b) {
+		t.Fatal("separator ambiguity")
 	}
 	if bytes.Equal(itemContext("o", "settings", "i", "s", "n", 1), []byte("cfg2|meta|index_key")) {
 		t.Fatal("item context equals the index key context")
@@ -414,9 +390,8 @@ func TestRereviewLiveHolds_QuotaDifferentialMemoryVsMariaDB(t *testing.T) {
 	}
 }
 
-// (5) Gap (test repository only): after a quota failure the MariaDB transaction is rolled back; the
-// memory repository has already evicted. Production uses MariaDB; the shared suite does not pin this.
-func TestRereviewLive_QuotaFailureIsAtomicOnlyOnMariaDB(t *testing.T) {
+// (5) Fixed: after a quota failure both repositories keep all rows.
+func TestRereviewLive_QuotaFailureIsAtomicOnBothRepos(t *testing.T) {
 	f := newFixture(t)
 	cfg := f.migrated(t)
 	ctx := context.Background()
@@ -438,17 +413,12 @@ func TestRereviewLive_QuotaFailureIsAtomicOnlyOnMariaDB(t *testing.T) {
 		if _, err := repo.Insert(ctx, owner, rrRow("history", 4, 50, base.Add(3*time.Second)), fifo); !errors.Is(err, configstore.RepoQuota) {
 			t.Fatalf("%s: want quota error, got %v", name, err)
 		}
-		left := len(rrIDs(t, repo, owner))
-		if name == "mariadb" && left != 3 {
-			t.Errorf("mariadb lost rows on a failed insert: %d of 3", left)
-		}
-		if name == "memory" && left == 3 {
-			t.Errorf("memory repo is now atomic: flip this gap")
+		if left := len(rrIDs(t, repo, owner)); left != 3 {
+			t.Errorf("%s lost rows on a failed insert: %d of 3", name, left)
 		}
 	}
 }
 
-// (5) Quota under concurrency across replicas stays exact for the byte quota too.
 func TestRereviewLiveHolds_ByteQuotaConcurrentWriters(t *testing.T) {
 	f := newFixture(t)
 	cfg := f.migrated(t)
@@ -480,9 +450,9 @@ func TestRereviewLiveHolds_ByteQuotaConcurrentWriters(t *testing.T) {
 	t.Logf("kept %d rows, %d bytes", usage.Counts["bookmarks"], usage.Bytes["bookmarks"])
 }
 
-// (5, F-12) Gap: the migration check compares keys only. A pre-existing config_meta/config_items with
-// the right keys but different columns, types or collation is accepted and recorded as version 2.
-func TestRereviewLiveGap_MigrationVerifyChecksKeysOnly(t *testing.T) {
+// (5, F-12) Fixed (L-04): pre-existing tables with the right keys but different columns, types or
+// collation are refused and not recorded as version 2.
+func TestRereviewLiveHolds_MigrationVerifyChecksColumns(t *testing.T) {
 	f := newFixture(t)
 	cfg := f.cfg
 	ctx := context.Background()
@@ -493,16 +463,14 @@ func TestRereviewLiveGap_MigrationVerifyChecksKeysOnly(t *testing.T) {
 		t.Fatal(err)
 	}
 	migrations = full
-	f.exec(t, "CREATE TABLE "+cfg.Database+".config_meta (name VARCHAR(32) NOT NULL PRIMARY KEY) ENGINE=InnoDB")
-	f.exec(t, "CREATE TABLE "+cfg.Database+".config_owners (owner_id VARCHAR(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL PRIMARY KEY) ENGINE=InnoDB")
-	if _, err := Migrate(ctx, cfg, MigrateOptions{}); err != nil {
-		t.Logf("weak pre-existing tables are now refused (%v): flip this test", err)
-		return
+	f.exec(t, "CREATE TABLE "+cfg.Database+".config_owners (owner_id VARCHAR(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL PRIMARY KEY, created_at DATETIME(6) NOT NULL) ENGINE=InnoDB")
+	if _, err := Migrate(ctx, cfg, MigrateOptions{}); !errors.Is(err, ErrMigrationFailed) {
+		t.Fatalf("weak pre-existing tables accepted: %v", err)
 	}
-	// The consequence shows at runtime: the installation key cannot be stored and the store answers 503, not a crash.
-	store := openStore(t, cfg)
-	if _, err := store.ConfigRepo().IndexKey(ctx); !errors.Is(err, configstore.RepoUnavailable) {
-		t.Fatalf("index key on a foreign config_meta: %v", err)
+	var recorded int
+	_ = f.root.QueryRow("SELECT COUNT(*) FROM " + cfg.Database + ".schema_migrations WHERE version = 2").Scan(&recorded)
+	if recorded != 0 {
+		t.Fatal("version 2 recorded")
 	}
 }
 

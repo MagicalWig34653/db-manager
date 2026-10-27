@@ -7,10 +7,12 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"mime"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/MagicalWig34653/db-manager/internal/configstore"
@@ -57,6 +59,9 @@ func (a *API) owner(w http.ResponseWriter, r *http.Request) (string, bool) {
 // decodeConfig is decode plus rejection of duplicate object keys anywhere in the
 // request, so a repeated envelope field cannot hide a different value.
 func decodeConfig(w http.ResponseWriter, r *http.Request, target any) bool {
+	if mediaType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type")); err != nil || mediaType != "application/json" {
+		return decode(w, r, target) // answers 415
+	}
 	r.Body = http.MaxBytesReader(w, r.Body, requestBodyLimit(r))
 	raw, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -71,42 +76,57 @@ func decodeConfig(w http.ResponseWriter, r *http.Request, target any) bool {
 	return decode(w, r, target)
 }
 
+const maxRequestDepth = 64
+
+// foldKey makes keys equal when Go's struct decoding would match them
+// (case-insensitively, including the special folding of K and s).
+func foldKey(key string) string { return strings.ToLower(strings.ToUpper(key)) }
+
+// hasDuplicateKeys reports whether raw is not valid JSON, nests deeper than
+// maxRequestDepth, or repeats an object key (also differing only in case) at
+// any level. Every decoder error ends the walk at once.
 func hasDuplicateKeys(raw []byte) bool {
+	if !json.Valid(raw) {
+		return true
+	}
 	dec := json.NewDecoder(bytes.NewReader(raw))
-	var walk func() bool
-	walk = func() bool {
+	var walk func(depth int) bool
+	walk = func(depth int) bool {
 		tok, err := dec.Token()
 		if err != nil {
-			return false
+			return true
 		}
 		delim, ok := tok.(json.Delim)
 		if !ok {
 			return false
 		}
+		if depth >= maxRequestDepth {
+			return true
+		}
 		if delim == '{' {
 			seen := map[string]bool{}
 			for dec.More() {
 				keyTok, err := dec.Token()
-				key, _ := keyTok.(string)
-				if err != nil || seen[key] {
+				key, isString := keyTok.(string)
+				if err != nil || !isString || seen[foldKey(key)] {
 					return true
 				}
-				seen[key] = true
-				if walk() {
+				seen[foldKey(key)] = true
+				if walk(depth + 1) {
 					return true
 				}
 			}
 		} else {
 			for dec.More() {
-				if walk() {
+				if walk(depth + 1) {
 					return true
 				}
 			}
 		}
-		_, _ = dec.Token()
-		return false
+		_, err = dec.Token()
+		return err != nil
 	}
-	return walk()
+	return walk(0)
 }
 
 func configFail(w http.ResponseWriter, err error) {

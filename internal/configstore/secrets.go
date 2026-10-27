@@ -41,7 +41,9 @@ var wordRules = []*regexp.Regexp{
 
 var structuralRules = []*regexp.Regexp{
 	// scheme://user:password@host
-	regexp.MustCompile(`(?i)[a-z][a-z0-9+.\-]*://[^/\s:@]+:[^/\s@]+@`),
+	regexp.MustCompile(`(?i)[a-z][a-z0-9+.\-]*://[^/\s:@]*:[^/\s@]+@`),
+	// Go/MySQL DSN user:password@tcp(host:port)/db
+	regexp.MustCompile(`(?i)[^\s:@/]+:[^\s@/]+@(?:tcp|unix|tcp4|tcp6)\(`),
 	regexp.MustCompile(`(?i)-----BEGIN[ A-Z]*(?:PRIVATE KEY|ENCRYPTED)`),
 	regexp.MustCompile(`\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]*`),
 	regexp.MustCompile(`(?i)\bbearer\s+[A-Za-z0-9._~+/=-]{16,}`),
@@ -60,6 +62,8 @@ var confusables = map[rune]rune{
 	'а': 'a', 'в': 'b', 'с': 'c', 'ԁ': 'd', 'е': 'e', 'ꜰ': 'f', 'һ': 'h', 'і': 'i', 'ј': 'j', 'к': 'k', 'ӏ': 'l', 'м': 'm', 'н': 'h',
 	'о': 'o', 'р': 'p', 'ԛ': 'q', 'ѕ': 's', 'т': 't', 'υ': 'u', 'ѵ': 'v', 'ԝ': 'w', 'х': 'x', 'у': 'y', 'ᴢ': 'z',
 	'А': 'A', 'В': 'B', 'С': 'C', 'Е': 'E', 'Н': 'H', 'І': 'I', 'Ј': 'J', 'К': 'K', 'М': 'M', 'О': 'O', 'Р': 'P', 'Ѕ': 'S', 'Т': 'T', 'Х': 'X', 'Υ': 'Y', 'Ζ': 'Z',
+	'ᴘ': 'p', 'ᴀ': 'a', 'ꜱ': 's', 'ᴡ': 'w', 'ᴏ': 'o', 'ʀ': 'r', 'ᴅ': 'd', 'ᴇ': 'e', 'ᴋ': 'k', 'ᴛ': 't', 'ɴ': 'n', 'ɪ': 'i', 'ʟ': 'l', 'ᴍ': 'm', 'ᴄ': 'c', 'ᴜ': 'u', 'ᴠ': 'v', 'ʏ': 'y', 'ɢ': 'g', 'ʙ': 'b', 'ᴊ': 'j', 'ʜ': 'h',
+	'ո': 'n', 'օ': 'o', 'ս': 'u',
 	'α': 'a', 'ο': 'o', 'ρ': 'p', 'ν': 'v', 'ι': 'i', 'κ': 'k', 'ϲ': 'c', 'Α': 'A', 'Β': 'B', 'Ε': 'E', 'Η': 'H', 'Ι': 'I', 'Κ': 'K', 'Μ': 'M', 'Ν': 'N', 'Ο': 'O', 'Ρ': 'P', 'Τ': 'T', 'Χ': 'X',
 }
 
@@ -68,14 +72,23 @@ var confusables = map[rune]rune{
 // variation selectors) and Hangul fillers, and maps common homoglyphs to ASCII,
 // so keywords cannot be split or disguised.
 func fold(text string) string {
+	// The table runs before NFKC (which rewrites some entries, e.g. U+03F2) and after it.
+	text = mapConfusables(text)
 	text = norm.NFKC.String(text)
-	return strings.Map(func(r rune) rune {
+	text = strings.Map(func(r rune) rune {
 		switch {
 		case unicode.Is(unicode.Cf, r), unicode.Is(unicode.Mn, r), unicode.Is(unicode.Me, r):
 			return -1
 		case r == 0x115F || r == 0x1160 || r == 0x3164 || r == 0xFFA0:
 			return -1
 		}
+		return r
+	}, text)
+	return mapConfusables(text)
+}
+
+func mapConfusables(text string) string {
+	return strings.Map(func(r rune) rune {
 		if ascii, ok := confusables[r]; ok {
 			return ascii
 		}
@@ -136,7 +149,7 @@ func LooksSecret(text string, mode ScanMode) bool {
 	return false
 }
 
-var sensitiveKey = regexp.MustCompile(`(?i)pass|secret|token|pwd|credential|api[_-]?key|private[_-]?key|(?:^|[_.-])pin$`)
+var sensitiveKey = regexp.MustCompile(`(?i)pass|secret|token|pwd|credential|api[_-]?key|private[_-]?key|(?:^|[_.-])(?:pin|pw|auth)$`)
 
 // sensitiveValues rejects documents that store a string under a key whose name
 // says "credential" (password, token, key, ...). Booleans, numbers and nested
@@ -147,27 +160,27 @@ func sensitiveValues(raw []byte) error {
 	if json.Unmarshal(raw, &doc) != nil {
 		return nil
 	}
-	var walk func(v any, key string) bool
-	walk = func(v any, key string) bool {
+	var walk func(v any, sensitive bool) bool
+	walk = func(v any, sensitive bool) bool {
 		switch t := v.(type) {
 		case map[string]any:
 			for k, child := range t {
-				if walk(child, k) {
+				if walk(child, sensitive || sensitiveKey.MatchString(fold(k))) {
 					return true
 				}
 			}
 		case []any:
 			for _, child := range t {
-				if walk(child, key) {
+				if walk(child, sensitive) {
 					return true
 				}
 			}
 		case string:
-			return key != "" && len(t) > 1 && sensitiveKey.MatchString(fold(key))
+			return sensitive && len(t) > 1
 		}
 		return false
 	}
-	if walk(doc, "") {
+	if walk(doc, false) {
 		return ErrSecretRejected
 	}
 	return nil

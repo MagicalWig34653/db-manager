@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -319,10 +320,56 @@ func verifyIndexes(ctx context.Context, q queryer, want map[string][]string, uni
 	if err := rows.Err(); err != nil {
 		return err
 	}
+	if err := verifyColumns(ctx, q); err != nil {
+		return err
+	}
 	for key, columns := range want {
 		if strings.Join(got[key], ",") != strings.Join(columns, ",") || (unique[key] || strings.HasSuffix(key, ":PRIMARY")) && nonUnique[key] {
 			return ErrMigrationFailed
 		}
 	}
 	return nil
+}
+
+// verifyColumns compares column definitions (type, length, collation, nullability, signedness,
+// time precision) of the three W-P20 tables with the expected schema.
+func verifyColumns(ctx context.Context, q queryer) error {
+	rows, err := q.QueryContext(ctx, "SELECT table_name, column_name, data_type, IFNULL(character_maximum_length, 0), IFNULL(collation_name, ''), is_nullable, column_type LIKE '%unsigned%', IFNULL(datetime_precision, 0) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name IN ('config_owners','config_meta','config_items') ORDER BY table_name, column_name")
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	got := map[string]bool{}
+	for rows.Next() {
+		var table, column, dataType, collation, nullable string
+		var length int64
+		var unsigned bool
+		var precision int
+		if err := rows.Scan(&table, &column, &dataType, &length, &collation, &nullable, &unsigned, &precision); err != nil {
+			return err
+		}
+		got[fmt.Sprintf("%s.%s:%s:%d:%s:%s:%t:%d", table, column, dataType, length, collation, nullable, unsigned, precision)] = true
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+	if len(got) != len(expectedColumns) {
+		return ErrMigrationFailed
+	}
+	for _, want := range expectedColumns {
+		if !got[want] {
+			return ErrMigrationFailed
+		}
+	}
+	return nil
+}
+
+// expectedColumns: table.column:type:length:collation:nullable:unsigned:precision.
+var expectedColumns = []string{
+	"config_owners.owner_id:varchar:64:ascii_bin:NO:false:0", "config_owners.created_at:datetime:0::NO:false:6",
+	"config_meta.name:varchar:32:ascii_bin:NO:false:0", "config_meta.key_id:varchar:40:ascii_bin:NO:false:0", "config_meta.sealed:varbinary:512::NO:false:0",
+	"config_items.owner_id:varchar:64:ascii_bin:NO:false:0", "config_items.kind:varchar:16:ascii_bin:NO:false:0", "config_items.item_id:char:32:ascii_bin:NO:false:0",
+	"config_items.scope:varchar:128:ascii_bin:NO:false:0", "config_items.nkey:char:64:ascii_bin:NO:false:0", "config_items.key_id:varchar:40:ascii_bin:NO:false:0",
+	"config_items.sealed:mediumblob:16777215::NO:false:0", "config_items.plain_size:int:0::NO:true:0", "config_items.version:bigint:0::NO:true:0",
+	"config_items.created_at:datetime:0::NO:false:6", "config_items.updated_at:datetime:0::NO:false:6",
 }

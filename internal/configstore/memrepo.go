@@ -126,19 +126,26 @@ func (m *MemoryRepo) Insert(ctx context.Context, owner string, row Row, lim Limi
 	if size > lim.OwnerBytes {
 		return Row{}, RepoQuota
 	}
+	// Evictions happen before the quota is known to be satisfiable; like the
+	// database transaction, restore them when the insert fails.
+	snapshot := append([]*Row(nil), m.rows[owner]...)
+	restore := func() { m.rows[owner] = snapshot }
 	for m.count(owner, row.Kind, row.Scope, true) >= lim.PerScope {
 		if !lim.FIFO || !m.evict(owner, row.Kind, row.Scope, true) {
+			restore()
 			return Row{}, RepoQuota
 		}
 	}
 	for m.count(owner, row.Kind, "", false) >= lim.PerOwner {
 		if !lim.FIFO || !m.evict(owner, row.Kind, "", false) {
+			restore()
 			return Row{}, RepoQuota
 		}
 	}
 	for m.ownerBytes(owner)+size > lim.OwnerBytes {
 		// The byte quota gives way to history first, then to recents, whatever the kind of the new item.
 		if !m.evict(owner, KindHistory, "", false) && !m.evict(owner, KindRecents, "", false) {
+			restore()
 			return Row{}, RepoQuota
 		}
 	}
