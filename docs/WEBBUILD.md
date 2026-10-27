@@ -8,8 +8,8 @@ Prüfstand und unabhängige Abnahme: [F5b-Handoff](handoffs/F5b.md).
 ## Quelle, Vertrag und Reproduzierbarkeit
 
 [web-build.lock.json](../web-build.lock.json) pinnt das öffentliche Webrepository auf
-Commit [4b24e53](https://github.com/MagicalWig34653/db-manager-web/tree/4b24e530af8f27700722379d4073a2edbbaa0d22)
-(Pin Bündel 5, siehe Abschnitt am Ende). Der folgende Text beschreibt den **historischen** Pin
+Commit [f163862](https://github.com/MagicalWig34653/db-manager-web/tree/f163862cfe8c85c4982f4709ae4c973fac17dc9c)
+(Pin Bündel 6, siehe Abschnitt am Ende; Vorgänger Bündel 5: `4b24e53`). Der folgende Text beschreibt den **historischen** Pin
 [8ef738d](https://github.com/MagicalWig34653/db-manager-web/tree/8ef738d22a1164291e2c8183d80e72d1f043c0f8):
 F5 einschließlich lesender Index-/Constraintmetadaten, F6-Ergebnisexport und bisheriger
 Einzelzeilenaktionen wurde unabhängig
@@ -254,3 +254,12 @@ erweiterte Exportformate, Partitionen/Präfix-Stapel) sind eingebettet.
   `MAX_PRECACHE_BYTES` 8 MiB und `MAX_CHUNKS` 64 (39 von 64) eingehalten; keine Änderung der Service-Worker-Strategie.
 - Enthaltene Web-Fixes (WEB-WAVE2-FIXES): Schließsperre der Schreibdialoge während des Requests, SQL-Abschlussprüfung mit Lexer,
   Katalog-Texte de/en, Import-Upload-Race und wiederholbarer Abbruch.
+
+## Pin Bündel 6 (27.10.2026)
+
+Das Lock pinnt Web-Branch `release/pin-bundle6` auf `f163862cfe8c85c4982f4709ae4c973fac17dc9c` (= `feat/w-p20-web`, enthält `review/w-p20-web` und Web-main `1145be4` mit CodeMirror W-P16).
+`npm_lock_sha256` ist `970dd5d2...ff3` (gegen `package-lock.json` des Commits geprüft; geändert gegenüber Bündel 5 wegen CodeMirror). Das Lock führt nun 24 Verträge; neu ist
+`config-store` 0.24 (Webkopie `src/lib/contract/v24` byte-identisch zu `contracts/api-v0.24.0.json`), als letzter Eintrag nach `reasons` 0.23.
+
+- **Precache:** 5 143 647 Bytes (4,91 MiB) ohne `sw.js`, 52 Dateien, davon 4 954 724 Bytes unter `assets/` (42 Chunks). Grenzen `MAX_PRECACHE_BYTES` 8 MiB und `MAX_CHUNKS` 64 eingehalten.
+- Neu eingebettet: CodeMirror-SQL-Editor (W-P16, eigener lazy Chunk) und Config-Store-Oberfläche (W-P20). Details und Prüfungen: [PIN-BUNDLE-6](handoffs/PIN-BUNDLE-6.md).
