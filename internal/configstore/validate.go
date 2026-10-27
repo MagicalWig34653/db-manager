@@ -3,6 +3,7 @@ package configstore
 
 import (
 	"bytes"
+	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -144,8 +145,9 @@ func checkJSON(raw []byte, maxString int) ([]byte, []string, error) {
 	return compact.Bytes(), check.strs, nil
 }
 
-func hashKey(parts ...string) string {
-	sum := sha256.New()
+// macHex is HMAC-SHA-256 over the NUL-separated parts, hex encoded.
+func macHex(key []byte, parts ...string) string {
+	sum := hmac.New(sha256.New, key)
 	for _, part := range parts {
 		sum.Write([]byte(part))
 		sum.Write([]byte{0})

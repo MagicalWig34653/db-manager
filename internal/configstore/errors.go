@@ -48,6 +48,8 @@ var (
 	RepoQuota = errors.New("configstore: quota")
 	// RepoStale reports that a clear digest no longer matches.
 	RepoStale = errors.New("configstore: stale")
+	// RepoPrecondition reports a failed insert precondition (history opt-in).
+	RepoPrecondition = errors.New("configstore: precondition")
 	// RepoUnavailable reports an unreachable or misconfigured store.
 	RepoUnavailable = errors.New("configstore: unavailable")
 	// RepoCorrupt reports data that cannot be decrypted or decoded.
@@ -69,6 +71,8 @@ func mapRepo(err error) error {
 		return ErrQuota
 	case errors.Is(err, RepoStale):
 		return ErrPlanStale
+	case errors.Is(err, RepoPrecondition):
+		return ErrHistoryDisabled
 	case errors.Is(err, RepoCorrupt):
 		return ErrCorrupt
 	default:

@@ -80,18 +80,14 @@ func TestReviewHolds_ErrorsNeverEchoInput(t *testing.T) {
 	}
 }
 
-// F-13: duplicate keys at the top level of the request envelope are accepted
-// (last one wins). Document values are protected separately by checkJSON.
-func TestReviewGap_DuplicateEnvelopeKeys(t *testing.T) {
+// F-13 (fixed): duplicate keys anywhere in a request are rejected.
+func TestReviewHolds_DuplicateEnvelopeKeys(t *testing.T) {
 	handler, _, _ := configAPI(t)
-	response := reviewJSON(handler, "POST", "/api/v24/config/favorites", `{"scope":"a","scope":"b","data":{"table":"x"}}`, nil)
-	if response.Code == 201 {
-		if got := decodeBody(t, response)["scope"]; got != "b" {
-			t.Errorf("scope = %v", got)
+	for _, body := range []string{`{"scope":"a","scope":"b","data":{"table":"x"}}`, `{"data":{"table":"x"},"data":{"table":"y"}}`} {
+		if got := reviewJSON(handler, "POST", "/api/v24/config/favorites", body, nil).Code; got != 400 {
+			t.Errorf("%s: %d, want 400", body, got)
 		}
-		return
 	}
-	t.Logf("duplicate envelope keys now rejected (%d); F-13 fixed, flip", response.Code)
 }
 
 // Must hold: a duplicate key inside the document is rejected even when the
@@ -99,7 +95,7 @@ func TestReviewGap_DuplicateEnvelopeKeys(t *testing.T) {
 func TestReviewHolds_DuplicateKeyInsideData(t *testing.T) {
 	handler, _, _ := configAPI(t)
 	response := reviewJSON(handler, "POST", "/api/v24/config/layouts", `{"key":"k","data":{"a":1,"a":2}}`, nil)
-	if response.Code != 422 {
+	if response.Code != 400 && response.Code != 422 {
 		t.Errorf("duplicate key in data: %d", response.Code)
 	}
 	response = reviewJSON(handler, "POST", "/api/v24/config/layouts", `{"key":"k","data":{"a":1},"data":{"a":null}}`, nil)
@@ -177,21 +173,17 @@ func TestReviewHolds_DeletePlanProtocolOverHTTP(t *testing.T) {
 	}
 }
 
-// F-03: a custom OwnerResolver may return the reserved legacy owner "single".
-func TestReviewGap_ResolverCanCollideWithLegacyOwner(t *testing.T) {
-	resolver := func(r *http.Request) (string, bool) {
-		return r.Header.Get("X-Test-User"), r.Header.Get("X-Test-User") != ""
+// F-03 (fixed): a resolver can never reach the reserved legacy owner "single",
+// and only receives the request context. Invalid owners never reach the store.
+func TestReviewHolds_ResolverCannotCollideWithLegacyOwner(t *testing.T) {
+	handler := ownerResolverAPI(t, "X-Test-User")
+	// The legacy owner's data (written without a resolver) is unreachable through "single".
+	if got := reviewJSON(handler, "GET", "/api/v24/config/favorites", "", map[string]string{"X-Test-User": "single"}).Code; got != 401 {
+		t.Errorf("resolver value 'single': %d, want 401", got)
 	}
-	handler, _, _ := configAPI(t, WithOwnerResolver(resolver, "account"))
-	reviewJSON(handler, "POST", "/api/v24/config/favorites", `{"data":{"table":"secret_table"}}`, map[string]string{"X-Test-User": "single"})
-	// Another account with the id "single" (for example a user name) reads the legacy data.
-	list := decodeBody(t, reviewJSON(handler, "GET", "/api/v24/config/favorites", "", map[string]string{"X-Test-User": "single"}))
-	if len(list["items"].([]any)) != 1 {
-		t.Errorf("resolver value 'single' is now refused or isolated; F-03 fixed, flip")
-	}
-	// Distinct accounts are isolated; invalid owner strings never reach the store.
-	if other := decodeBody(t, reviewJSON(handler, "GET", "/api/v24/config/favorites", "", map[string]string{"X-Test-User": "alice"})); len(other["items"].([]any)) != 0 {
-		t.Error("alice sees single's rows")
+	reviewJSON(handler, "POST", "/api/v24/config/favorites", `{"data":{"table":"t"}}`, map[string]string{"X-Test-User": "alice"})
+	if other := decodeBody(t, reviewJSON(handler, "GET", "/api/v24/config/favorites", "", map[string]string{"X-Test-User": "bob"})); len(other["items"].([]any)) != 0 {
+		t.Error("bob sees alice's rows")
 	}
 	for _, bad := range []string{"a b", "a|b", "../x", strings.Repeat("a", 65), "aé"} {
 		if got := reviewJSON(handler, "GET", "/api/v24/config/favorites", "", map[string]string{"X-Test-User": bad}).Code; got != 400 {

@@ -37,10 +37,8 @@ func reviewHistory(t *testing.T, s *configstore.Service, owner string) {
 	}
 }
 
-// F-04: invisible or confusable characters outside Unicode category Cf survive
-// the NFKC fold, so keyword rules can be split. Only deliberate evasion (such
-// text is not valid SQL), hence Low.
-func TestReviewGap_InvisibleNonCfCharactersSplitKeywords(t *testing.T) {
+// F-04 (fixed): invisible, combining and look-alike characters no longer split keywords.
+func TestReviewHolds_InvisibleAndConfusableCharactersFolded(t *testing.T) {
 	s, owner := reviewService(), "rev_a"
 	reviewHistory(t, s, owner)
 	for name, sql := range map[string]string{
@@ -50,8 +48,8 @@ func TestReviewGap_InvisibleNonCfCharactersSplitKeywords(t *testing.T) {
 		"cyrillic a":                       "SET pаssword = 'x'",
 	} {
 		_, _, err := s.Create(context.Background(), owner, "history", configstore.CreateInput{Data: []byte(`{"sql":"` + sql + `"}`)})
-		if err != nil {
-			t.Errorf("%s: now rejected (%v); finding F-04 fixed, flip this test", name, reviewCode(err))
+		if reviewCode(err) != "secret_rejected" {
+			t.Errorf("%s accepted: %v", name, reviewCode(err))
 		}
 	}
 }
@@ -68,48 +66,52 @@ func TestReviewHolds_FoldedKeywordsRejected(t *testing.T) {
 	}
 }
 
-// F-05: scope and client_ref are never scanned for secrets. The scope is stored
-// in plaintext in config_items (readable by every database administrator).
-func TestReviewGap_ScopeAndClientRefCarryUnscannedSecrets(t *testing.T) {
+// F-05 (fixed): scope and client_ref are scanned like keys.
+func TestReviewHolds_ScopeAndClientRefScanned(t *testing.T) {
 	s, owner := reviewService(), "rev_c"
 	token := "ghp_ABCDEFGHIJKLMNOPQRSTUVWX1234567890"
-	if _, _, err := s.Create(context.Background(), owner, "favorites", configstore.CreateInput{Scope: token, Data: []byte(`{"table":"t"}`)}); err != nil {
-		t.Errorf("scope with token format now rejected (%v); F-05 fixed, flip", reviewCode(err))
+	if _, _, err := s.Create(context.Background(), owner, "favorites", configstore.CreateInput{Scope: token, Data: []byte(`{"table":"t"}`)}); reviewCode(err) != "secret_rejected" {
+		t.Errorf("scope with token format: %v", reviewCode(err))
 	}
-	if _, _, err := s.Create(context.Background(), owner, "bookmarks", configstore.CreateInput{ClientRef: "AKIAABCDEFGHIJKLMNOP", Data: []byte(`{"name":"n","sql":"SELECT 1"}`)}); err != nil {
-		t.Errorf("client_ref with token format now rejected (%v); F-05 fixed, flip", reviewCode(err))
+	if _, _, err := s.Create(context.Background(), owner, "bookmarks", configstore.CreateInput{ClientRef: "AKIAABCDEFGHIJKLMNOP", Data: []byte(`{"name":"n","sql":"SELECT 1"}`)}); reviewCode(err) != "secret_rejected" {
+		t.Errorf("client_ref with token format: %v", reviewCode(err))
+	}
+	// A SHA-256 scope and a UUID client reference stay storable.
+	if _, _, err := s.Create(context.Background(), owner, "bookmarks", configstore.CreateInput{Scope: strings.Repeat("ab12", 16), ClientRef: "0b6a7c3e-1f2d-4a5b-9c8d-7e6f5a4b3c2d", Data: []byte(`{"name":"n","sql":"SELECT 1"}`)}); err != nil {
+		t.Errorf("hash scope / uuid ref rejected: %v", err)
 	}
 }
 
-// F-06: documents (settings, layouts) only get structural rules, so a plain
-// credential under a benign or telling key is stored. By design (ADR 7) but
-// the document is free-form, so the "never passwords" promise is weaker there.
-func TestReviewGap_DocumentsAcceptPlainCredentials(t *testing.T) {
+// F-06 (fixed): documents no longer take credentials under telling keys or as pairs/commands.
+func TestReviewHolds_DocumentsRejectPlainCredentials(t *testing.T) {
 	s, owner := reviewService(), "rev_d"
-	for _, doc := range []string{
+	for i, doc := range []string{
 		`{"password":"hunter2"}`,
 		`{"dsn":"host=db user=app password=hunter2"}`,
 		`{"cmd":"curl -u admin:hunter2 http://db"}`,
-		`{"pin":"4711","hex32":"0123456789abcdef0123456789abcdef"}`,
+		`{"pin":"4711"}`,
+		`{"hex32":"0123456789abcdef0123456789abcdef"}`,
+		`{"a":{"api_key":"abcd"}}`,
 	} {
-		if _, _, err := s.Create(context.Background(), owner, "layouts", configstore.CreateInput{Key: "k" + doc[2:6], Data: []byte(doc)}); err != nil {
-			t.Errorf("%s now rejected (%v); F-06 changed", doc, reviewCode(err))
+		if _, _, err := s.Create(context.Background(), owner, "layouts", configstore.CreateInput{Key: "k" + string(rune('a'+i)), Data: []byte(doc)}); reviewCode(err) != "secret_rejected" {
+			t.Errorf("%s accepted: %v", doc, reviewCode(err))
+		}
+	}
+	// Legitimate documents stay storable.
+	for i, doc := range []string{`{"columns":["id","password_hash","token"],"sort_key":"id"}`, `{"enabled":true,"password_visible":false}`, `{"author":"x"}`} {
+		if _, _, err := s.Create(context.Background(), owner, "layouts", configstore.CreateInput{Key: "ok" + string(rune('a'+i)), Data: []byte(doc)}); err != nil {
+			t.Errorf("%s rejected: %v", doc, reviewCode(err))
 		}
 	}
 }
 
-// F-07: the registered API token is compared against the raw string only; a
-// zero-width split or full-width form is not recognised (documents have no
-// word rules to catch it either).
-func TestReviewGap_ForbiddenLiteralNotFolded(t *testing.T) {
+// F-07 (fixed): the registered API token is compared after folding.
+func TestReviewHolds_ForbiddenLiteralFolded(t *testing.T) {
 	s, owner := reviewService(), "rev_e"
 	s.AddForbidden("tokenvalue-0123456789")
-	if _, _, err := s.Create(context.Background(), owner, "layouts", configstore.CreateInput{Key: "k1", Data: []byte(`{"n":"tokenvalue-0123456789"}`)}); reviewCode(err) != "secret_rejected" {
-		t.Fatalf("plain literal must be rejected: %v", reviewCode(err))
-	}
-	for name, text := range map[string]string{"zero width": "tokenvalue​-0123456789", "full width": "ｔｏｋｅｎｖａｌｕｅ-0123456789"} {
-		if _, _, err := s.Create(context.Background(), owner, "layouts", configstore.CreateInput{Key: "k2" + name[:2], Data: []byte(`{"n":"` + text + `"}`)}); err != nil {
-			t.Errorf("%s variant now rejected (%v); F-07 fixed, flip", name, reviewCode(err))
+	for i, text := range []string{"tokenvalue-0123456789", "tokenvalue​-0123456789", "ｔｏｋｅｎｖａｌｕｅ-0123456789"} {
+		if _, _, err := s.Create(context.Background(), owner, "layouts", configstore.CreateInput{Key: "k" + string(rune('a'+i)), Data: []byte(`{"n":"` + text + `"}`)}); reviewCode(err) != "secret_rejected" {
+			t.Errorf("variant %d accepted: %v", i, reviewCode(err))
 		}
 	}
 }
@@ -172,9 +174,8 @@ func TestReviewHolds_StructuralSecretsInDocuments(t *testing.T) {
 	}
 }
 
-// F-10: ADR 6 promises "history is evicted first" when the owner byte quota is
-// reached. Eviction only happens when the NEW item is itself a FIFO kind.
-func TestReviewGap_OwnerByteQuotaDoesNotEvictHistoryForOtherKinds(t *testing.T) {
+// F-10 (fixed): the owner byte quota gives way to history before rejecting another kind.
+func TestReviewHolds_OwnerByteQuotaEvictsHistory(t *testing.T) {
 	saved := configstore.MaxOwnerBytes
 	configstore.MaxOwnerBytes = 600
 	t.Cleanup(func() { configstore.MaxOwnerBytes = saved })
@@ -186,23 +187,17 @@ func TestReviewGap_OwnerByteQuotaDoesNotEvictHistoryForOtherKinds(t *testing.T) 
 			t.Fatalf("history %d: %v", i, err)
 		}
 	}
-	_, _, err := s.Create(context.Background(), owner, "bookmarks", configstore.CreateInput{Data: []byte(`{"name":"b","sql":"SELECT '` + strings.Repeat("b", 150) + `'"}`)})
+	if _, _, err := s.Create(context.Background(), owner, "bookmarks", configstore.CreateInput{Data: []byte(`{"name":"b","sql":"SELECT '` + strings.Repeat("b", 150) + `'"}`)}); err != nil {
+		t.Errorf("bookmark with full history: %v", reviewCode(err))
+	}
+	// Non-history data is never evicted: with no history left the quota rejects.
+	_, _, err := s.Create(context.Background(), owner, "bookmarks", configstore.CreateInput{Data: []byte(`{"name":"c","sql":"SELECT '` + strings.Repeat("c", 400) + `'"}`)})
 	if reviewCode(err) != "quota_exceeded" {
-		t.Errorf("bookmark with full history now %q; ADR 6 behaviour implemented, flip F-10", reviewCode(err))
+		t.Errorf("expected quota_exceeded, got %q", reviewCode(err))
 	}
 }
 
-// F-11: nkey/scope are unsalted SHA-256. Recovering a table name from a row
-// needs only a dictionary and the (equally unsalted) scope; this documents the
-// computation a database administrator would run.
-func TestReviewGap_NKeyIsADictionaryTarget(t *testing.T) {
-	s := reviewService()
-	item, _, err := s.Create(context.Background(), "rev_j", "favorites", configstore.CreateInput{Scope: "sc", Data: []byte(`{"database":"shop","table":"customers"}`)})
-	if err != nil || item.ID == "" {
-		t.Fatal(err)
-	}
-	// The nkey is not exposed by the API; the live test (serverstate) recovers it from the dump.
-}
+// F-11 (fixed): nkey and scope are keyed hashes; the dictionary attack is covered by the live test.
 
 // Must hold: an owner can neither read, change nor delete another owner's rows,
 // and cursors cannot be used to step into foreign rows.

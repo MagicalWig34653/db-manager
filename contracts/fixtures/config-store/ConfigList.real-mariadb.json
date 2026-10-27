@@ -1,33 +1,33 @@
 {
   "items": [
     {
-      "id": "7da7df65a26d3add31a295d207b11c02",
+      "id": "3292bb145cb95239317732937e43c278",
       "kind": "favorites",
       "scope": "conn1",
       "key": "shop\u001fitems",
       "client_ref": "",
       "version": 1,
-      "created_at": "2026-10-27T11:27:33.106Z",
-      "updated_at": "2026-10-27T11:27:33.106Z",
+      "created_at": "2026-10-27T15:27:46.692Z",
+      "updated_at": "2026-10-27T15:27:46.692Z",
       "data": {
         "database": "shop",
         "table": "items"
       }
     },
     {
-      "id": "fc338f69d8b70832cb3ee8803da8c98c",
+      "id": "d2b8813d3cdeae8d7c89e8f1a8c3bba4",
       "kind": "favorites",
       "scope": "conn1",
       "key": "shop\u001fcustomers",
       "client_ref": "",
       "version": 1,
-      "created_at": "2026-10-27T11:27:33.099Z",
-      "updated_at": "2026-10-27T11:27:33.099Z",
+      "created_at": "2026-10-27T15:27:46.685Z",
+      "updated_at": "2026-10-27T15:27:46.685Z",
       "data": {
         "database": "shop",
         "table": "customers"
       }
     }
   ],
-  "next_cursor": "MTc5MzEwMDQ1MzA5OTY2MC5mYzMzOGY2OWQ4YjcwODMyY2IzZWU4ODAzZGE4Yzk4Yw"
+  "next_cursor": "MTc5MzExNDg2NjY4NTQwMS5kMmI4ODEzZDNjZGVhZThkN2M4OWU4ZjFhOGMzYmJhNA"
 }

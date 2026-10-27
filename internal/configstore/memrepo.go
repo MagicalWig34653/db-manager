@@ -3,6 +3,7 @@ package configstore
 
 import (
 	"context"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"sort"
@@ -20,6 +21,7 @@ type MemoryRepo struct {
 	// Down makes every call fail like an unreachable store.
 	Down bool
 	last time.Time
+	key  []byte
 }
 
 // NewMemoryRepo returns an empty repository.
@@ -109,6 +111,17 @@ func (m *MemoryRepo) Insert(ctx context.Context, owner string, row Row, lim Limi
 			return *existing, RepoExists
 		}
 	}
+	if lim.Require != nil {
+		ok := false
+		for _, existing := range m.rows[owner] {
+			if existing.Kind == lim.Require.Kind && existing.Scope == lim.Require.Scope && existing.NKey == lim.Require.NKey {
+				ok = lim.Require.Check(existing.Data)
+			}
+		}
+		if !ok {
+			return Row{}, RepoPrecondition
+		}
+	}
 	size := PlainSize(row.Key, row.ClientRef, row.Data)
 	if size > lim.OwnerBytes {
 		return Row{}, RepoQuota
@@ -124,7 +137,8 @@ func (m *MemoryRepo) Insert(ctx context.Context, owner string, row Row, lim Limi
 		}
 	}
 	for m.ownerBytes(owner)+size > lim.OwnerBytes {
-		if !lim.FIFO || !m.evict(owner, row.Kind, "", false) {
+		// The byte quota gives way to history first, then to recents, whatever the kind of the new item.
+		if !m.evict(owner, KindHistory, "", false) && !m.evict(owner, KindRecents, "", false) {
 			return Row{}, RepoQuota
 		}
 	}
@@ -333,4 +347,18 @@ func (m *MemoryRepo) Usage(ctx context.Context, owner string) (Usage, error) {
 		u.Bytes[row.Kind] += sizeOf(row)
 	}
 	return u, nil
+}
+
+// IndexKey implements Repo.
+func (m *MemoryRepo) IndexKey(ctx context.Context) ([]byte, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.Down {
+		return nil, RepoUnavailable
+	}
+	if m.key == nil {
+		m.key = make([]byte, 32)
+		_, _ = rand.Read(m.key)
+	}
+	return m.key, nil
 }

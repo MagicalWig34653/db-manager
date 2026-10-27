@@ -2,6 +2,7 @@
 package serverstate
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -75,7 +76,7 @@ func TestReviewLiveHolds_RowSwapAndKindChange(t *testing.T) {
 // F-02: the AEAD context does not contain the version. An older sealed blob put
 // back by a database writer decrypts, and so does a deleted row restored from a
 // backup or from a copy. The plaintext columns version/updated_at are not authenticated.
-func TestReviewLiveGap_RollbackAndResurrection(t *testing.T) {
+func TestReviewLiveHolds_RollbackRejected(t *testing.T) {
 	f := newFixture(t)
 	cfg := f.migrated(t)
 	service := configstore.NewService(openStore(t, cfg).ConfigRepo())
@@ -96,100 +97,93 @@ func TestReviewLiveGap_RollbackAndResurrection(t *testing.T) {
 	if _, err = f.root.Exec("UPDATE "+db+" SET sealed = ? WHERE item_id = ?", oldSealed, item.ID); err != nil {
 		t.Fatal(err)
 	}
-	got, err := service.Get(ctx, owner, "settings", item.ID)
-	if err != nil || !strings.Contains(string(got.Data), "old") || got.Version != 2 {
-		t.Errorf("rollback no longer succeeds (%v, %+v); F-02 fixed, flip", reviewPublic(err), got)
+	if _, err = service.Get(ctx, owner, "settings", item.ID); reviewPublic(err) != "state_unreadable" {
+		t.Errorf("rolled-back blob accepted: %v", reviewPublic(err))
 	}
-	// Resurrection: copy the row, delete it through the API, put the copy back.
-	f.exec(t, "CREATE TABLE "+cfg.Database+".bak AS SELECT * FROM "+db+" WHERE item_id = '"+item.ID+"'")
-	if err = service.Delete(ctx, owner, "settings", item.ID, configstore.AnyVersion); err != nil {
+	// Setting the version column back as well is an undetectable full rollback of that row
+	// (documented residual risk, ADR 9): the row reads as its old consistent state.
+	if _, err = f.root.Exec("UPDATE "+db+" SET version = 1 WHERE item_id = ?", item.ID); err != nil {
 		t.Fatal(err)
 	}
-	f.exec(t, "INSERT INTO "+db+" SELECT * FROM "+cfg.Database+".bak")
-	if _, err = service.Get(ctx, owner, "settings", item.ID); err != nil {
-		t.Errorf("resurrected row no longer readable (%v); F-02 fixed, flip", reviewPublic(err))
+	if got, err := service.Get(ctx, owner, "settings", item.ID); err != nil || got.Version != 1 {
+		t.Logf("full row rollback is now detected (%v)", reviewPublic(err))
 	}
 }
 
-// F-11: nkey and scope are unsalted SHA-256 over low-entropy names. A database
-// reader recovers favorite/table names and layout keys with a dictionary.
-func TestReviewLiveGap_NKeyDictionaryRecoversTableNames(t *testing.T) {
+// F-11 (fixed): nkey and scope are keyed (HMAC) hashes with an installation key that is only stored
+// sealed. The dictionary attack of the review no longer recovers anything, the scope is not the
+// plain SHA-256 of the identity, and the hashes survive a rotation of the encryption key.
+func TestReviewLiveHolds_NKeyDictionaryAttackFails(t *testing.T) {
 	f := newFixture(t)
 	cfg := f.migrated(t)
-	service := configstore.NewService(openStore(t, cfg).ConfigRepo())
+	store := openStore(t, cfg)
+	service := configstore.NewService(store.ConfigRepo())
 	ctx := context.Background()
 	owner := repotest.Owner()
-	scopeIdentity := "mariadb://root@localhost:3306/shop"
-	scopeSum := sha256.Sum256([]byte(scopeIdentity)) // what the web client uses as scope
+	scopeSum := sha256.Sum256([]byte("mariadb://root@localhost:3306/shop"))
 	scope := hex.EncodeToString(scopeSum[:])
-	if _, _, err := service.Create(ctx, owner, "favorites", configstore.CreateInput{Scope: scope, Data: []byte(`{"database":"shop","table":"customers"}`)}); err != nil {
+	item, _, err := service.Create(ctx, owner, "favorites", configstore.CreateInput{Scope: scope, Data: []byte(`{"database":"shop","table":"customers"}`)})
+	if err != nil {
 		t.Fatal(err)
 	}
 	if _, _, err := service.Create(ctx, owner, "layouts", configstore.CreateInput{Scope: scope, Key: "table:shop.salaries", Data: []byte(`{"w":1}`)}); err != nil {
 		t.Fatal(err)
 	}
-	rows, err := f.root.Query("SELECT kind, scope, nkey FROM "+cfg.Database+".config_items WHERE owner_id = ?", owner)
+	var dbScope, nkey string
+	if err := f.root.QueryRow("SELECT scope, nkey FROM "+cfg.Database+".config_items WHERE item_id = ?", item.ID).Scan(&dbScope, &nkey); err != nil {
+		t.Fatal(err)
+	}
+	h := func(parts ...string) string {
+		x := sha256.New()
+		for _, p := range parts {
+			x.Write([]byte(p))
+			x.Write([]byte{0})
+		}
+		return hex.EncodeToString(x.Sum(nil))
+	}
+	if dbScope == scope || dbScope == "" {
+		t.Fatalf("scope stored as the client value or its plain hash")
+	}
+	for _, guess := range []string{scope, h("scope", owner, scope), h("key", "favorites", scope, "shop\x1fcustomers"), h("key", "favorites", dbScope, "shop\x1fcustomers")} {
+		if guess == dbScope || guess == nkey {
+			t.Fatalf("dictionary attack recovers a stored hash")
+		}
+	}
+	// Read path still works, and the same installation key serves a second replica and a rotated cipher.
+	rotated := cfg
+	rotated.ServerKey = bytes.Repeat([]byte{9}, KeySize)
+	rs := openStore(t, rotated)
+	rs.cipher, err = NewCipher(rotated.ServerKey, cfg.ServerKey)
 	if err != nil {
 		t.Fatal(err)
 	}
-	type dumped struct{ kind, scope, nkey string }
-	var dump []dumped
-	for rows.Next() {
-		var d dumped
-		if err = rows.Scan(&d.kind, &d.scope, &d.nkey); err != nil {
-			t.Fatal(err)
-		}
-		dump = append(dump, d)
+	rotatedService := configstore.NewService(rs.ConfigRepo())
+	page, err := rotatedService.List(ctx, owner, "favorites", configstore.Filter{Scope: &scope})
+	if err != nil || len(page.Items) != 1 || page.Items[0].Scope != scope {
+		t.Fatalf("hashes changed with key rotation: %v %+v", err, page)
 	}
-	_ = rows.Close()
-	hash := func(parts ...string) string {
-		h := sha256.New()
-		for _, p := range parts {
-			h.Write([]byte(p))
-			h.Write([]byte{0})
-		}
-		return hex.EncodeToString(h.Sum(nil))
-	}
-	// Attacker side: only the dump and wordlists. Step 1: the scope from known connection strings.
-	guessedScope := ""
-	for _, guess := range []string{"mariadb://root@localhost:3306/mysql", "mariadb://root@localhost:3306/shop"} {
-		sum := sha256.Sum256([]byte(guess))
-		if hex.EncodeToString(sum[:]) == dump[0].scope {
-			guessedScope = hex.EncodeToString(sum[:])
-		}
-	}
-	recovered := map[string]string{}
-	for _, d := range dump {
-		for _, table := range []string{"users", "orders", "customers", "payments"} {
-			if d.kind == "favorites" && hash("key", "favorites", d.scope, "shop\x1f"+table) == d.nkey {
-				recovered["favorite"] = table
-			}
-		}
-		for _, table := range []string{"table:shop.users", "table:shop.salaries"} {
-			if d.kind == "layouts" && hash("key", "layouts", d.scope, table) == d.nkey {
-				recovered["layout"] = table
-			}
-		}
-	}
-	if recovered["favorite"] != "customers" || recovered["layout"] != "table:shop.salaries" || guessedScope == "" {
-		t.Errorf("dictionary attack no longer works (%v, scope %q); F-11 fixed, flip", recovered, guessedScope)
+	// The index key is not in the dump in clear.
+	var sealed []byte
+	if err := f.root.QueryRow("SELECT sealed FROM " + cfg.Database + ".config_meta WHERE name = 'index_key'").Scan(&sealed); err != nil || len(sealed) < 32+28 {
+		t.Fatalf("index key row: %v", err)
 	}
 }
 
-// F-05: a secret placed in scope is stored in plaintext in the scope column.
-func TestReviewLiveGap_ScopeIsPlaintextInTheDump(t *testing.T) {
+// F-05 (fixed): a secret in scope is rejected, and the stored scope is a hash anyway.
+func TestReviewLiveHolds_ScopeNeverPlaintextInTheDump(t *testing.T) {
 	f := newFixture(t)
 	cfg := f.migrated(t)
 	service := configstore.NewService(openStore(t, cfg).ConfigRepo())
 	owner := repotest.Owner()
-	marker := "ghp_ABCDEFGHIJKLMNOPQRSTUVWX1234567890"
-	if _, _, err := service.Create(context.Background(), owner, "favorites", configstore.CreateInput{Scope: marker, Data: []byte(`{"table":"t"}`)}); err != nil {
-		t.Logf("scope secret rejected (%v); F-05 fixed, flip", reviewPublic(err))
-		return
+	if _, _, err := service.Create(context.Background(), owner, "favorites", configstore.CreateInput{Scope: "ghp_ABCDEFGHIJKLMNOPQRSTUVWX1234567890", Data: []byte(`{"table":"t"}`)}); reviewPublic(err) != "secret_rejected" {
+		t.Fatalf("scope secret: %v", reviewPublic(err))
+	}
+	if _, _, err := service.Create(context.Background(), owner, "favorites", configstore.CreateInput{Scope: "myconnection", Data: []byte(`{"table":"t"}`)}); err != nil {
+		t.Fatal(err)
 	}
 	var scope string
-	if err := f.root.QueryRow("SELECT scope FROM "+cfg.Database+".config_items WHERE owner_id = ?", owner).Scan(&scope); err != nil || scope != marker {
-		t.Errorf("scope not plaintext: %q %v", scope, err)
+	if err := f.root.QueryRow("SELECT scope FROM "+cfg.Database+".config_items WHERE owner_id = ?", owner).Scan(&scope); err != nil || strings.Contains(scope, "myconnection") || len(scope) != 64 {
+		t.Errorf("scope column: %q %v", scope, err)
 	}
 }
 
@@ -243,10 +237,8 @@ func TestReviewLiveMigration2(t *testing.T) {
 	}
 }
 
-// F-12: a pre-existing, wrong config_items table is accepted by IF NOT EXISTS
-// and recorded as migrated; the checksum covers the statement text, not the
-// resulting schema.
-func TestReviewLiveGap_ForeignTableAcceptedByMigration(t *testing.T) {
+// F-12 (fixed): a pre-existing, wrongly defined config_items table is not recorded as migrated.
+func TestReviewLiveHolds_ForeignTableRefusedByMigration(t *testing.T) {
 	f := newFixture(t)
 	cfg := f.cfg
 	ctx := context.Background()
@@ -258,19 +250,14 @@ func TestReviewLiveGap_ForeignTableAcceptedByMigration(t *testing.T) {
 	}
 	migrations = full
 	f.exec(t, "CREATE TABLE "+cfg.Database+".config_items (owner_id VARCHAR(64) NOT NULL, kind VARCHAR(16) NOT NULL, item_id CHAR(32) NOT NULL, scope VARCHAR(128) NOT NULL, nkey CHAR(64) NOT NULL, key_id VARCHAR(40) NOT NULL, sealed MEDIUMBLOB NOT NULL, plain_size INT UNSIGNED NOT NULL, version BIGINT UNSIGNED NOT NULL, created_at DATETIME(6) NOT NULL, updated_at DATETIME(6) NOT NULL) ENGINE=InnoDB")
-	if _, err := Migrate(ctx, cfg, MigrateOptions{}); err != nil {
-		t.Logf("foreign table now detected (%v); F-12 fixed, flip", err)
-		return
+	if _, err := Migrate(ctx, cfg, MigrateOptions{}); !errors.Is(err, ErrMigrationFailed) {
+		t.Fatalf("foreign table accepted: %v", err)
 	}
-	// No PK / unique key: duplicate natural keys and duplicate ids are now possible; the quota/idempotency logic relies on the lock only.
-	service := configstore.NewService(openStore(t, cfg).ConfigRepo())
-	owner := repotest.Owner()
-	item, _, err := service.Create(context.Background(), owner, "settings", configstore.CreateInput{Key: "navigation", Data: []byte(`{"a":1}`)})
-	if err != nil {
-		t.Fatal(err)
+	var recorded int
+	_ = f.root.QueryRow("SELECT COUNT(*) FROM " + cfg.Database + ".schema_migrations WHERE version = 2").Scan(&recorded)
+	if recorded != 0 {
+		t.Fatal("version 2 recorded despite the wrong schema")
 	}
-	f.exec(t, "INSERT INTO "+cfg.Database+".config_items SELECT * FROM "+cfg.Database+".config_items WHERE item_id = '"+item.ID+"'")
-	t.Logf("duplicate primary key accepted by the foreign table (migration recorded as applied)")
 }
 
 // Eight instances start at once on an empty database: exactly one applies each version.

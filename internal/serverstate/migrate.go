@@ -20,6 +20,9 @@ type Migration struct {
 	Version    int
 	Name       string
 	Statements []string
+	// Verify runs after the statements and must confirm the resulting schema
+	// (a pre-existing, differently defined table is not silently accepted).
+	Verify func(ctx context.Context, q queryer) error
 }
 
 // Checksum fingerprints the statements so edited history is detected.
@@ -69,6 +72,19 @@ var migrations = []Migration{
 				"UNIQUE KEY config_items_nkey (owner_id, kind, scope, nkey), " +
 				"KEY config_items_order (owner_id, kind, scope, updated_at, item_id)" +
 				") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+			"CREATE TABLE IF NOT EXISTS config_meta (" +
+				"name VARCHAR(32) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY, " +
+				"key_id VARCHAR(40) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, " +
+				"sealed VARBINARY(512) NOT NULL" +
+				") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+		},
+		Verify: func(ctx context.Context, q queryer) error {
+			return verifyIndexes(ctx, q, map[string][]string{
+				"config_owners:PRIMARY":          {"owner_id"},
+				"config_meta:PRIMARY":            {"name"},
+				"config_items:PRIMARY":           {"owner_id", "kind", "item_id"},
+				"config_items:config_items_nkey": {"owner_id", "kind", "scope", "nkey"},
+			}, map[string]bool{"config_items:config_items_nkey": true})
 		},
 	},
 }
@@ -244,6 +260,11 @@ func Migrate(ctx context.Context, cfg Config, opts MigrateOptions) (Report, erro
 				return report, ErrMigrationFailed
 			}
 		}
+		if m.Verify != nil {
+			if err := m.Verify(ctx, conn); err != nil {
+				return report, ErrMigrationFailed
+			}
+		}
 		if _, err := conn.ExecContext(ctx, "INSERT INTO schema_migrations (version, name, checksum) VALUES (?, ?, ?)", m.Version, m.Name, m.Checksum()); err != nil {
 			return report, classify(err)
 		}
@@ -274,3 +295,34 @@ func (s *Store) VerifySchema(ctx context.Context) error {
 
 // lockSeconds converts to whole seconds, rounding up so a sub-second wait is not 0.
 func lockSeconds(d time.Duration) int { return int((d + time.Second - 1) / time.Second) }
+
+// verifyIndexes checks "table:index" -> ordered column list (and uniqueness)
+// in the current database via information_schema.
+func verifyIndexes(ctx context.Context, q queryer, want map[string][]string, unique map[string]bool) error {
+	rows, err := q.QueryContext(ctx, "SELECT table_name, index_name, non_unique, seq_in_index, column_name FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name IN ('config_owners','config_meta','config_items') ORDER BY table_name, index_name, seq_in_index")
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	got := map[string][]string{}
+	nonUnique := map[string]bool{}
+	for rows.Next() {
+		var table, index, column string
+		var non, seq int
+		if err := rows.Scan(&table, &index, &non, &seq, &column); err != nil {
+			return err
+		}
+		key := table + ":" + index
+		got[key] = append(got[key], column)
+		nonUnique[key] = non != 0
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+	for key, columns := range want {
+		if strings.Join(got[key], ",") != strings.Join(columns, ",") || (unique[key] || strings.HasSuffix(key, ":PRIMARY")) && nonUnique[key] {
+			return ErrMigrationFailed
+		}
+	}
+	return nil
+}

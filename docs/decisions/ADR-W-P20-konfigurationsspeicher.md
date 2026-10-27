@@ -37,7 +37,7 @@ Löschen geben. Ohne Serverzustand muss der W-P16-Lokalmodus weiterlaufen und da
    konstanten Besitzer `single`; die Fähigkeitsroute meldet `owner_model: "single"`, also **keine** Nutzertrennung.
    W-P30 setzt einen Resolver ein, der die Konto-ID der Sitzung liefert (Zeichen `[A-Za-z0-9_-]`, bis 64), meldet
    `owner_model: "account"` und überführt die Zeilen des Besitzers `single` per einmaligem `UPDATE` auf das
-   Administratorkonto. Ein Resolver, der keinen Besitzer findet, ergibt 401. Das Paket nimmt W-P30 nicht vorweg:
+   Administratorkonto. Der Resolver erhält nur den Anfragekontext (nie Kopfzeilen, Query oder Körper): der Besitzer stammt aus serverseitig geprüftem Zustand, nicht aus Daten, die der Client wählt. Der Rückgabewert muss `[A-Za-z0-9_-]{1,64}` entsprechen; der reservierte Besitzer `single` wird abgelehnt (401), damit ein Konto nie die Altdaten des Bearer-Besitzers erreicht. Ein Resolver, der keinen Besitzer findet, ergibt 401. Das Paket nimmt W-P30 nicht vorweg:
    keine Konten, Sitzungen, Rollen oder Freigaben; der Besitzerbegriff ist nur der Schlüssel der Mandantentrennung.
 3. **Sammlungen (Kinds):** `history`, `bookmarks`, `searches` (gespeicherte Suchen), `favorites`, `recents`
    (zuletzt benutzt), `settings` (benannte Dokumente, z. B. `navigation`, `table_view`, `privacy`), `layouts`
@@ -60,7 +60,7 @@ Löschen geben. Ohne Serverzustand muss der W-P16-Lokalmodus weiterlaufen und da
    „gespeichert“ melden, solange ein Schreibaufruf nicht mit 2xx beantwortet wurde (`UX-011`).
 7. **Verlauf nur mit Opt-in, serverseitig erzwungen:** `history` wird nur angenommen, wenn das Dokument
    `settings/privacy` des Besitzers `{"history_enabled": true}` enthält; sonst `409 history_disabled`. Standard ist aus
-   (E1). Das Opt-in ist je Besitzer, nicht je Scope.
+   (E1). Das Opt-in ist je Besitzer, nicht je Scope. Die Prüfung läuft im Repository **unter der Besitzersperre** unmittelbar vor dem Einfügen, ein gleichzeitiges Abschalten lässt also keinen Eintrag mehr durch.
 
 ## 4. Alternativen
 
@@ -86,13 +86,17 @@ PK `(owner_id, kind, item_id)`, eindeutig `(owner_id, kind, scope, nkey)`, Index
 Alle Kennungsspalten ASCII binär (groß-/kleinschreibungsempfindlich).
 
 - **Klartext in der Datenbank** (bewusst, für Abfragen/Quoten): Besitzer, Sammlung, Eintrags-ID (128 Bit zufällig),
-  Scope (Hash/Opaque-ID), `nkey` (SHA-256 über Sammlung, Scope und natürlichen Schlüssel), Version, Zeiten, Größe,
-  Schlüsselkennung. **Nicht** im Klartext: SQL, Namen, Variablen, Tabellennamen, Schlüssel, Dokumentinhalt, `client_ref`.
+  `scope` und `nkey` als **Schlüssel-Hashes** (HMAC-SHA-256, siehe unten), Version, Zeiten, Größe,
+  Schlüsselkennung. **Nicht** im Klartext: SQL, Namen, Variablen, Tabellennamen, Schlüssel, Dokumentinhalt, `client_ref` und der Klartext-Scope des Clients (liegt nur im Siegel).
 - **`sealed`:** AEAD (AES-256-GCM, `serverstate.Cipher`) über `{"k":<Schlüssel>,"r":<client_ref>,"d":<Daten>}`.
-  Zusätzliche authentifizierte Daten `cfg1|owner|kind|id|scope|nkey`: eine in einen anderen Besitzer, eine andere ID
-  oder einen anderen Scope kopierte Zeile ist **nicht entschlüsselbar** (`state_unreadable`, kein Klartext). Falscher
+  Zusätzliche authentifizierte Daten `cfg2|owner|kind|id|scope-hash|nkey-hash|version`: eine in einen anderen Besitzer, eine andere ID
+  oder einen anderen Scope kopierte Zeile ist **nicht entschlüsselbar**, ebenso ein auf eine ältere Version derselben Zeile zurückgesetzter Siegel-Blob (Rollback). Es gibt kein Altformat (`cfg1` wurde nie veröffentlicht) (`state_unreadable`, kein Klartext). Falscher
   Serverschlüssel führt ebenfalls zu `state_unreadable`; Rotation (alter Schlüssel als zweiter Eintrag) liest alte
   Zeilen und schreibt bei Änderung mit dem neuen Schlüssel.
+- **Schlüssel-Hashes:** `scope_hash = HMAC(K, "scope" \0 Besitzer \0 Scope)` und `nkey = HMAC(K, Art \0 Sammlung \0 scope_hash \0 Schlüssel)`.
+  `K` ist ein zufälliger Installationsschlüssel in `config_meta`, einmal erzeugt und **sealed** (unter dem Serverschlüssel) gespeichert, nie
+  abgeleitet: Rotation des Verschlüsselungsschlüssels ändert keinen Hash, im Dump steht `K` nie im Klartext, ein Wörterbuchangriff auf
+  Verbindungs- oder Tabellennamen ist ohne `K` nicht möglich. Der Scope wird je Besitzer gesalzen.
 - **Natürliche Schlüssel:** `favorites`/`recents` je `(scope, Datenbank, Tabelle)`, `settings`/`layouts` je `(scope, key)`;
   doppeltes Anlegen ist bei Favoriten idempotent (200 mit bestehendem Eintrag), bei `recents` ein „Anfassen“
   (Version +1, ganz nach oben), bei `settings`/`layouts` `409 already_exists` (dann `PUT`). `history`, `bookmarks`,
@@ -127,8 +131,7 @@ Alle Grenzen erzwingt der Server atomar unter der Besitzersperre; die Fähigkeit
 | `settings` | 100 | 200 | `409 quota_exceeded` | 32 KiB |
 | `layouts` | 1.000 | 2.000 | `409 quota_exceeded` | 64 KiB |
 
-Weitere Grenzen: **32 MiB Klartext je Besitzer** über alle Sammlungen (Verlauf wird zuerst verdrängt, sonst
-`quota_exceeded`); SQL höchstens 100.000 Zeichen **und** 256 KiB; Namen höchstens 100 Zeichen ohne führende/folgende
+Weitere Grenzen: **32 MiB Klartext je Besitzer** über alle Sammlungen (bei Erreichen verdrängt jede Einfügung zuerst den ältesten Verlauf, dann `recents`, gleich welche Sammlung eingefügt wird; reicht das nicht, `quota_exceeded`; Änderungen, die einen Eintrag vergrößern, verdrängen nichts und werden abgelehnt); SQL höchstens 100.000 Zeichen **und** 256 KiB; Namen höchstens 100 Zeichen ohne führende/folgende
 Leerzeichen; Dokumente höchstens 5 Ebenen tief, 2.000 Knoten, 64 Schlüssel je Objekt, 256 Elemente je Feld, 4 KiB je
 Text, nur endliche Zahlen; Anfragekörper 1 MiB (bestehende Standardklasse); Seiten höchstens 100 Einträge und 4 MiB;
 Import höchstens 100 Einträge je Aufruf; `client_ref` und Scope nur `[A-Za-z0-9._:~-]`. Text enthält weder
@@ -142,16 +145,19 @@ Normalisierung der Nutzdaten), für die Geheimniserkennung aber NFKC-gefaltet (A
 - **Secret-Ablehnung wie im Web:** SQL, Namen und alle mit ihnen gespeicherten Texte durchlaufen dieselben
   Wortregeln wie `SECRET_PATTERNS` in W-P16 (PASSWORD/PASSWD/PASSPHRASE, IDENTIFIED, secret/token/credential/api_key/
   bearer/private key, `PRAGMA key`/`KEY '...'`, Dollar-Quotes, USER MAPPING/CREATE SERVER/dblink, `uid=`/`pwd=`) und
-  zusätzlich **strukturelle** Regeln: URLs mit `user:passwort@`, PEM-Privatschlüssel, JWT, `Bearer <Wert>`, bekannte
-  Tokenformate (GitHub, AWS, Slack, `sk-`, Google), lange undurchsichtige Base64-/Hex-Läufe (40+ Zeichen mit Ziffern
-  und Buchstaben). Der Text wird vor der Prüfung NFKC-gefaltet und von unsichtbaren Formatzeichen befreit, damit
+  zusätzlich **strukturelle** Regeln (auch Basic-Auth-Header, `curl -u`, `password=`/`token=`-Paare): URLs mit `user:passwort@`, PEM-Privatschlüssel, JWT, `Bearer <Wert>`, bekannte
+  Tokenformate (GitHub, AWS, Slack, `sk-`, Google), lange undurchsichtige Base64-/Hex-Läufe (32+ Zeichen mit Ziffern
+  und Buchstaben). Der Text wird vor der Prüfung NFKC-gefaltet, von unsichtbaren Formatzeichen, kombinierenden Zeichen (U+034F, Variation Selectors) und Hangul-Füllern befreit, und die häufigsten Look-alikes (Kyrillisch/Griechisch) werden auf ASCII abgebildet (kleine Tabelle, kein vollständiges UTS-#39-Skeleton), damit
   `ＰＡＳＳＷＯＲＤ` oder `PASS<ZWSP>WORD` nicht durchrutschen. Treffer ergeben `422 secret_rejected` **ohne** den Treffer zu
   nennen oder zu protokollieren.
-- **Dokumente** (`settings`, `layouts`, `searches`) prüfen nur die strukturellen Regeln, damit legitime Spaltennamen wie
-  `password_hash` in einem Layout speicherbar bleiben. Bezeichner (Scope, Schlüssel, `client_ref`) lassen kurze
+- **Dokumente** (`settings`, `layouts`, `searches`, Tabellenverweise) prüfen die strukturellen Regeln und lehnen zusätzlich **Zeichenketten unter
+  Schlüsselnamen** wie `password`, `secret`, `token`, `pwd`, `api_key`, `credential` oder `pin` ab; Spaltenlisten (`"columns":["password_hash"]`)
+  und boolesche Optionen bleiben speicherbar. Scope, Schlüssel und `client_ref` werden mit den Bezeichnerregeln geprüft. Bezeichner (Scope, Schlüssel, `client_ref`) lassen kurze
   Hex-Hashes zu (der Scope ist ein SHA-256).
-- **Das Bearer-Token des laufenden Servers** wird beim Start als verbotener Literalwert registriert und in keinem Text
-  gespeichert (`secret_rejected`).
+- **Das Bearer-Token des laufenden Servers** wird beim Start als verbotener Literalwert registriert; verglichen wird nach derselben Faltung
+  (Vollbreite, Zero-Width). Es wird in keinem Text gespeichert (`secret_rejected`).
+- **Falsch-Positive (akzeptiert, dokumentiert):** SQL mit einem SHA-256/MD5-Literal im `WHERE`, eine Tabelle namens `tokens`/`secretary`, Spalten wie
+  `access_token`, `uid = 0` und Bezeichner ab 32 Zeichen mit gemischten Ziffern/Groß-/Kleinbuchstaben kosten einen Eintrag.
 - **Grenze der Erkennung (bewusst offen):** beliebige Geheimnisse in SQL-Zeichenketten (zum Beispiel
   `WHERE pin = '4711'`) sind nicht erkennbar. Die Weboberfläche weist beim Opt-in darauf hin; der Verlauf ist standardmäßig
   aus. Die Erkennung ist konservativ: Fehlalarme kosten einen Eintrag, ein Fehlschlag würde Klartext speichern.
@@ -184,11 +190,12 @@ Normalisierung der Nutzdaten), für die Geheimniserkennung aber NFKC-gefaltet (A
 - **Opt-out:** Verlauf ausschalten stoppt das Schreiben sofort (409); vorhandene Einträge löscht der Nutzer über
   die Löschvorschau. Beim Löschen des Besitzers (künftig Konto, W-P30) sind dessen Zeilen mit Plan/Bestätigung zu entfernen.
 - **Backups:** Löschen wirkt erst in neuen Datenbanksicherungen vollständig; das ist im Betriebshandbuch zu nennen.
-- **Sichtbarkeit für Betreiber:** Datenbankadministratoren sehen Besitzer-, Scope- und Zeitmetadaten sowie Größen und
-  können mit Wörterbuchangriffen prüfen, ob ein bestimmter Tabellenname in `nkey`/`scope` vorkommt (ungesalzene
-  SHA-256 über niedrige Entropie). Inhalte sind ohne Serverschlüssel nicht lesbar. Das ist als Restrisiko
-  akzeptiert und im Bedrohungsmodell nachzutragen; ein serverseitiger Schlüssel für `nkey` würde die Schlüsselrotation
-  erschweren und bleibt eine offene Entscheidung.
+- **Sichtbarkeit für Betreiber:** Datenbankadministratoren sehen Besitzer-, Zeit- und Größenmetadaten sowie Anzahl und Art der Einträge je
+  (gesalzenem) Scope. Scope, Schlüssel und Inhalte sind ohne Serverschlüssel nicht lesbar oder erratbar (Abschnitt 5).
+- **Integrität gegen einen Datenbank-Schreiber ohne Schlüssel:** Zeilentausch, Besitzer-/Scope-/Sammlungswechsel und das Zurücksetzen eines
+  Siegels auf eine ältere Version sind erkennbar (`state_unreadable`). **Nicht** erkennbar sind das Löschen von Zeilen, das Wiedereinspielen
+  einer gelöschten Zeile samt Versionsspalte und das vollständige Zurücksetzen einer Zeile (Siegel + Version) oder der Datenbank auf eine alte
+  Sicherung; Löschmarken würden unbegrenzt wachsen und ein Schreiber könnte sie ebenfalls entfernen. Restrisiko, ins Bedrohungsmodell einzutragen.
 
 ## 10. Fehlerklassen (nie Rohfehler)
 

@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -19,6 +20,9 @@ type Service struct {
 	repo      Repo
 	forbidden []string
 	now       func() time.Time
+
+	keyMu    sync.Mutex
+	indexKey []byte
 }
 
 // NewService returns a service on repo.
@@ -29,7 +33,7 @@ func NewService(repo Repo) *Service { return &Service{repo: repo, now: time.Now}
 func (s *Service) AddForbidden(values ...string) {
 	for _, value := range values {
 		if len(value) >= 8 {
-			s.forbidden = append(s.forbidden, value)
+			s.forbidden = append(s.forbidden, fold(value))
 		}
 	}
 }
@@ -48,7 +52,7 @@ type Item struct {
 }
 
 func itemOf(row Row) Item {
-	return Item{ID: row.ID, Kind: row.Kind, Scope: row.Scope, Key: row.Key, ClientRef: row.ClientRef,
+	return Item{ID: row.ID, Kind: row.Kind, Scope: row.ScopeName, Key: row.Key, ClientRef: row.ClientRef,
 		Version: row.Version, CreatedAt: row.CreatedAt, UpdatedAt: row.UpdatedAt, Data: json.RawMessage(row.Data)}
 }
 
@@ -91,8 +95,9 @@ func (s *Service) rejectSecret(strs []string, spec Spec) error {
 		if LooksSecret(text, mode) {
 			return ErrSecretRejected
 		}
+		folded := fold(text)
 		for _, value := range s.forbidden {
-			if strings.Contains(text, value) {
+			if strings.Contains(folded, value) {
 				return ErrSecretRejected
 			}
 		}
@@ -101,12 +106,20 @@ func (s *Service) rejectSecret(strs []string, spec Spec) error {
 }
 
 // prepare validates an input completely and builds the row to store.
-func (s *Service) prepare(spec Spec, in CreateInput) (Row, error) {
+func (s *Service) prepare(ctx context.Context, owner string, spec Spec, in CreateInput) (Row, error) {
 	if !scopePattern.MatchString(in.Scope) {
 		return Row{}, ErrInvalid
 	}
 	if in.ClientRef != "" && (!spec.UsesRef || !refPattern.MatchString(in.ClientRef)) {
 		return Row{}, ErrInvalid
+	}
+	// Scope and client reference are identifiers: never allowed to carry secrets.
+	if LooksSecret(in.Scope, ScanIdentifier) || LooksSecret(in.ClientRef, ScanIdentifier) {
+		return Row{}, ErrSecretRejected
+	}
+	index, err := s.index(ctx)
+	if err != nil {
+		return Row{}, err
 	}
 	switch {
 	case spec.Keyed && !spec.Derived:
@@ -130,6 +143,11 @@ func (s *Service) prepare(spec Spec, in CreateInput) (Row, error) {
 	if err != nil {
 		return Row{}, err
 	}
+	if !spec.SQL {
+		if err := sensitiveValues(in.Data); err != nil {
+			return Row{}, err
+		}
+	}
 	derived, err := validateData(spec, in.Key, data)
 	if err != nil {
 		return Row{}, err
@@ -144,7 +162,7 @@ func (s *Service) prepare(spec Spec, in CreateInput) (Row, error) {
 	if spec.Derived {
 		key = derived
 	}
-	row := Row{Kind: spec.Kind, Scope: in.Scope, Key: key, ClientRef: in.ClientRef, Data: data}
+	row := Row{Kind: spec.Kind, Scope: scopeHash(index, owner, in.Scope), ScopeName: in.Scope, Key: key, ClientRef: in.ClientRef, Data: data}
 	if in.Time != nil {
 		t := in.Time.UTC()
 		if t.Year() < 2000 || t.After(s.now().Add(24*time.Hour)) {
@@ -159,38 +177,53 @@ func (s *Service) prepare(spec Spec, in CreateInput) (Row, error) {
 	row.ID = id
 	switch {
 	case spec.Keyed:
-		row.NKey = hashKey("key", string(spec.Kind), row.Scope, key)
+		row.NKey = nkeyHash(index, "key", string(spec.Kind), row.Scope, key)
 	case row.ClientRef != "":
-		row.NKey = hashKey("ref", string(spec.Kind), row.Scope, row.ClientRef)
+		row.NKey = nkeyHash(index, "ref", string(spec.Kind), row.Scope, row.ClientRef)
 	default:
-		row.NKey = hashKey("id", string(spec.Kind), row.Scope, id)
+		row.NKey = nkeyHash(index, "id", string(spec.Kind), row.Scope, id)
 	}
 	return row, nil
 }
 
-func (s *Service) historyEnabled(ctx context.Context, owner string) (bool, error) {
-	row, err := s.privacyRow(ctx, owner)
-	if err != nil || row == nil {
-		return false, err
+// index returns the installation key for keyed hashes, loading it once.
+func (s *Service) index(ctx context.Context) ([]byte, error) {
+	s.keyMu.Lock()
+	defer s.keyMu.Unlock()
+	if s.indexKey == nil {
+		key, err := s.repo.IndexKey(ctx)
+		if err != nil {
+			return nil, mapRepo(err)
+		}
+		s.indexKey = key
 	}
-	var v struct {
-		On bool `json:"history_enabled"`
-	}
-	if json.Unmarshal(row.Data, &v) != nil {
-		return false, nil
-	}
-	return v.On, nil
+	return s.indexKey, nil
 }
 
-func (s *Service) privacyRow(ctx context.Context, owner string) (*Row, error) {
-	rows, err := s.repo.List(ctx, owner, ListQuery{Kind: KindSettings, Scope: "", NKey: hashKey("key", string(KindSettings), "", privacyKey), Limit: 1})
-	if err != nil {
-		return nil, mapRepo(err)
+func scopeHash(index []byte, owner, scope string) string {
+	return macHex(index, "scope", owner, scope)
+}
+
+func nkeyHash(index []byte, parts ...string) string { return macHex(index, parts...) }
+
+// limitsFor adds the history opt-in as a precondition the repository checks
+// under the owner lock (so a concurrent opt-out cannot let an entry through).
+func (s *Service) limitsFor(ctx context.Context, owner string, spec Spec) (Limits, error) {
+	lim := limitsOf(spec)
+	if spec.Kind == KindHistory {
+		index, err := s.index(ctx)
+		if err != nil {
+			return lim, err
+		}
+		scope := scopeHash(index, owner, "")
+		lim.Require = &Requirement{Kind: KindSettings, Scope: scope, NKey: nkeyHash(index, "key", string(KindSettings), scope, privacyKey), Check: func(data []byte) bool {
+			var v struct {
+				On bool `json:"history_enabled"`
+			}
+			return json.Unmarshal(data, &v) == nil && v.On
+		}}
 	}
-	if len(rows) == 0 {
-		return nil, nil
-	}
-	return &rows[0], nil
+	return lim, nil
 }
 
 // Create stores one item. The bool is true when a new entry was created; for
@@ -203,24 +236,19 @@ func (s *Service) Create(ctx context.Context, owner, kind string, in CreateInput
 	if err != nil {
 		return Item{}, false, err
 	}
-	row, err := s.prepare(spec, in)
+	row, err := s.prepare(ctx, owner, spec, in)
 	if err != nil {
 		return Item{}, false, err
 	}
-	if spec.Kind == KindHistory {
-		on, err := s.historyEnabled(ctx, owner)
-		if err != nil {
-			return Item{}, false, err
-		}
-		if !on {
-			return Item{}, false, ErrHistoryDisabled
-		}
+	lim, err := s.limitsFor(ctx, owner, spec)
+	if err != nil {
+		return Item{}, false, err
 	}
-	stored, err := s.repo.Insert(ctx, owner, row, limitsOf(spec))
+	stored, err := s.repo.Insert(ctx, owner, row, lim)
 	if errors.Is(err, RepoExists) {
 		switch {
 		case spec.Touch:
-			bumped, err := s.repo.Update(ctx, owner, spec.Kind, stored.ID, stored.Data, AnyVersion, limitsOf(spec))
+			bumped, err := s.repo.Update(ctx, owner, spec.Kind, stored.ID, stored.Data, AnyVersion, lim)
 			if err != nil {
 				return Item{}, false, mapRepo(err)
 			}
@@ -291,7 +319,11 @@ func (s *Service) List(ctx context.Context, owner, kind string, f Filter) (Page,
 		if !scopePattern.MatchString(*f.Scope) {
 			return Page{}, ErrInvalid
 		}
-		q.Scope = *f.Scope
+		index, err := s.index(ctx)
+		if err != nil {
+			return Page{}, err
+		}
+		q.Scope = scopeHash(index, owner, *f.Scope)
 	}
 	if q.Limit == 0 {
 		q.Limit = DefaultPage
@@ -303,7 +335,7 @@ func (s *Service) List(ctx context.Context, owner, kind string, f Filter) (Page,
 		if !spec.Keyed || spec.Derived || f.Scope == nil {
 			return Page{}, ErrInvalid
 		}
-		q.NKey = hashKey("key", string(spec.Kind), q.Scope, f.Key)
+		q.NKey = nkeyHash(s.indexKey, "key", string(spec.Kind), q.Scope, f.Key)
 	}
 	if f.Cursor != "" {
 		cursor, ok := decodeCursor(f.Cursor)
@@ -362,7 +394,7 @@ func (s *Service) Update(ctx context.Context, owner, kind, id string, data json.
 	if err != nil {
 		return Item{}, mapRepo(err)
 	}
-	row, err := s.prepare(spec, CreateInput{Scope: current.Scope, Key: current.Key, ClientRef: current.ClientRef, Data: data})
+	row, err := s.prepare(ctx, owner, spec, CreateInput{Scope: current.ScopeName, Key: current.Key, ClientRef: current.ClientRef, Data: data})
 	if err != nil {
 		return Item{}, err
 	}
@@ -407,7 +439,6 @@ func (s *Service) Import(ctx context.Context, owner string, items []ImportItem, 
 		return nil, ErrInvalid
 	}
 	results := make([]ImportResult, len(items))
-	historyOn, historyChecked := false, false
 	for i, item := range items {
 		result := ImportResult{Index: i, Status: "rejected"}
 		reject := func(err error) {
@@ -424,35 +455,24 @@ func (s *Service) Import(ctx context.Context, owner string, items []ImportItem, 
 			results[i] = result
 			continue
 		}
-		row, err := s.prepare(spec, item.CreateInput)
+		row, err := s.prepare(ctx, owner, spec, item.CreateInput)
 		if err != nil {
 			reject(err)
 			results[i] = result
 			continue
 		}
-		if spec.Kind == KindHistory {
-			if !historyChecked {
-				var herr error
-				historyOn, herr = s.historyEnabled(ctx, owner)
-				if herr != nil {
-					return nil, herr
-				}
-				historyChecked = true
-			}
-			if !historyOn {
-				reject(ErrHistoryDisabled)
-				results[i] = result
-				continue
-			}
+		lim, lerr := s.limitsFor(ctx, owner, spec)
+		if lerr != nil {
+			return nil, lerr
 		}
-		stored, err := s.repo.Insert(ctx, owner, row, limitsOf(spec))
+		stored, err := s.repo.Insert(ctx, owner, row, lim)
 		switch {
 		case err == nil:
 			result.Status, result.ID = "created", stored.ID
 		case errors.Is(err, RepoExists):
 			result.ID = stored.ID
 			if overwrite && spec.Keyed && !spec.Derived {
-				if _, uerr := s.repo.Update(ctx, owner, spec.Kind, stored.ID, row.Data, AnyVersion, limitsOf(spec)); uerr != nil {
+				if _, uerr := s.repo.Update(ctx, owner, spec.Kind, stored.ID, row.Data, AnyVersion, lim); uerr != nil {
 					reject(mapRepo(uerr))
 					break
 				}
@@ -493,7 +513,7 @@ func (s *Service) Export(ctx context.Context, owner string) ([]ExportItem, error
 	items := make([]ExportItem, 0, len(rows))
 	for _, row := range rows {
 		spec, _ := SpecFor(string(row.Kind))
-		item := ExportItem{Kind: row.Kind, Scope: row.Scope, Time: row.UpdatedAt, Data: json.RawMessage(row.Data)}
+		item := ExportItem{Kind: row.Kind, Scope: row.ScopeName, Time: row.UpdatedAt, Data: json.RawMessage(row.Data)}
 		if spec.Keyed && !spec.Derived {
 			item.Key = row.Key
 		}
@@ -524,7 +544,7 @@ type ClearPlan struct {
 	Confirmation string
 }
 
-func (s *Service) clearScope(kinds []string, scope *string) (ClearScope, error) {
+func (s *Service) clearScope(ctx context.Context, owner string, kinds []string, scope *string) (ClearScope, error) {
 	if len(kinds) == 0 || len(kinds) > MaxClearKinds {
 		return ClearScope{}, ErrInvalid
 	}
@@ -533,7 +553,11 @@ func (s *Service) clearScope(kinds []string, scope *string) (ClearScope, error) 
 		if !scopePattern.MatchString(*scope) {
 			return ClearScope{}, ErrInvalid
 		}
-		out.Scope = *scope
+		index, err := s.index(ctx)
+		if err != nil {
+			return ClearScope{}, err
+		}
+		out.Scope = scopeHash(index, owner, *scope)
 	}
 	seen := map[string]bool{}
 	for _, name := range kinds {
@@ -554,7 +578,7 @@ func (s *Service) PlanClear(ctx context.Context, owner string, kinds []string, s
 	if !validOwner(owner) {
 		return ClearPlan{}, ErrInvalid
 	}
-	cs, err := s.clearScope(kinds, scope)
+	cs, err := s.clearScope(ctx, owner, kinds, scope)
 	if err != nil {
 		return ClearPlan{}, err
 	}
@@ -578,7 +602,7 @@ func (s *Service) ExecuteClear(ctx context.Context, owner string, kinds []string
 	if !validOwner(owner) {
 		return nil, ErrInvalid
 	}
-	cs, err := s.clearScope(kinds, scope)
+	cs, err := s.clearScope(ctx, owner, kinds, scope)
 	if err != nil {
 		return nil, err
 	}

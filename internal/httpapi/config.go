@@ -2,8 +2,11 @@
 package httpapi
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -17,7 +20,12 @@ import (
 // It is the single seam between the configuration store and whatever identity
 // the server has: today every request belongs to one constant owner; W-P30 will
 // return the account identifier of the session instead.
-type OwnerResolver func(r *http.Request) (owner string, ok bool)
+//
+// It receives only the request context, never headers, query or body: the owner
+// must come from server-verified state (a session an authentication middleware
+// put into the context), never from data the client chooses. The returned owner
+// must match [A-Za-z0-9_-]{1,64} and must not be the reserved SingleOwner.
+type OwnerResolver func(ctx context.Context) (owner string, ok bool)
 
 // SingleOwner is the identity model of the shared Bearer token: one owner.
 const SingleOwner = "single"
@@ -37,11 +45,68 @@ func (a *API) owner(w http.ResponseWriter, r *http.Request) (string, bool) {
 	if a.owners == nil {
 		return SingleOwner, true
 	}
-	owner, ok := a.owners(r)
-	if !ok {
+	owner, ok := a.owners(r.Context())
+	if !ok || owner == SingleOwner {
+		// "single" belongs to the legacy Bearer-token owner; a resolver must never reach it.
 		fail(w, http.StatusUnauthorized, "unauthorized", "Anmeldung erforderlich.")
+		return "", false
 	}
-	return owner, ok
+	return owner, true
+}
+
+// decodeConfig is decode plus rejection of duplicate object keys anywhere in the
+// request, so a repeated envelope field cannot hide a different value.
+func decodeConfig(w http.ResponseWriter, r *http.Request, target any) bool {
+	r.Body = http.MaxBytesReader(w, r.Body, requestBodyLimit(r))
+	raw, err := io.ReadAll(r.Body)
+	if err != nil {
+		fail(w, http.StatusRequestEntityTooLarge, "request_too_large", "Anfrage ist zu groß.")
+		return false
+	}
+	if hasDuplicateKeys(raw) {
+		fail(w, http.StatusBadRequest, "invalid_request", "Doppelte Schlüssel sind nicht zulässig.")
+		return false
+	}
+	r.Body = io.NopCloser(bytes.NewReader(raw))
+	return decode(w, r, target)
+}
+
+func hasDuplicateKeys(raw []byte) bool {
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	var walk func() bool
+	walk = func() bool {
+		tok, err := dec.Token()
+		if err != nil {
+			return false
+		}
+		delim, ok := tok.(json.Delim)
+		if !ok {
+			return false
+		}
+		if delim == '{' {
+			seen := map[string]bool{}
+			for dec.More() {
+				keyTok, err := dec.Token()
+				key, _ := keyTok.(string)
+				if err != nil || seen[key] {
+					return true
+				}
+				seen[key] = true
+				if walk() {
+					return true
+				}
+			}
+		} else {
+			for dec.More() {
+				if walk() {
+					return true
+				}
+			}
+		}
+		_, _ = dec.Token()
+		return false
+	}
+	return walk()
 }
 
 func configFail(w http.ResponseWriter, err error) {
@@ -250,7 +315,7 @@ func (a *API) configCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var body configCreateBody
-	if !decode(w, r, &body) {
+	if !decodeConfig(w, r, &body) {
 		return
 	}
 	item, created, err := a.config.Create(r.Context(), owner, r.PathValue("kind"), configstore.CreateInput{Scope: body.Scope, Key: body.Key, ClientRef: body.ClientRef, Data: body.Data})
@@ -290,7 +355,7 @@ func (a *API) configUpdate(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Data json.RawMessage `json:"data"`
 	}
-	if !decode(w, r, &body) {
+	if !decodeConfig(w, r, &body) {
 		return
 	}
 	item, err := a.config.Update(r.Context(), owner, r.PathValue("kind"), r.PathValue("id"), body.Data, expect)
@@ -335,7 +400,7 @@ func (a *API) configImport(w http.ResponseWriter, r *http.Request) {
 		Items              []configImportItem `json:"items"`
 		OverwriteDocuments bool               `json:"overwrite_documents"`
 	}
-	if !decode(w, r, &body) {
+	if !decodeConfig(w, r, &body) {
 		return
 	}
 	if len(body.Items) == 0 || len(body.Items) > configstore.MaxImportItems {
@@ -400,7 +465,7 @@ func (a *API) configClearPlan(w http.ResponseWriter, r *http.Request) {
 		Kinds []string `json:"kinds"`
 		Scope *string  `json:"scope"`
 	}
-	if !decode(w, r, &body) {
+	if !decodeConfig(w, r, &body) {
 		return
 	}
 	plan, err := a.config.PlanClear(r.Context(), owner, body.Kinds, body.Scope)
@@ -426,7 +491,7 @@ func (a *API) configClearExecute(w http.ResponseWriter, r *http.Request) {
 		PlanHash     string   `json:"plan_hash"`
 		Confirmation string   `json:"confirmation"`
 	}
-	if !decode(w, r, &body) {
+	if !decodeConfig(w, r, &body) {
 		return
 	}
 	deleted, err := a.config.ExecuteClear(r.Context(), owner, body.Kinds, body.Scope, body.PlanHash, body.Confirmation)

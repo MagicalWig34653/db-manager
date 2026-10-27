@@ -50,20 +50,22 @@ Felder werden mit `422 invalid_data` abgelehnt):
 | `POST /api/v24/config/clear/plan` | Vorschau: `{"kinds":[...],"scope"?}` → Anzahl/Bytes je Sammlung, `plan_hash`, `confirmation` (`LÖSCHEN <n>`) |
 | `POST /api/v24/config/clear/execute` | `{"kinds","scope"?,"plan_hash","confirmation"}`; `409 plan_stale` bei Änderung, `422 confirmation_invalid`; sonst Transaktion |
 
-Der Besitzer jeder Anfrage kommt aus dem Besitzerauflöser des Servers (`single`), nie aus Anfrageinhalten.
+Der Besitzer jeder Anfrage kommt aus dem Besitzerauflöser des Servers (`single`), nie aus Anfrageinhalten; ein Auflöser kann `single` nicht liefern. Doppelte Schlüssel irgendwo im Anfragekörper ergeben `400 invalid_request`.
 
 ## Verbindliche Eigenschaften
 
 - **Optimistic Concurrency:** Version je Eintrag; gleichzeitige Schreiber mit derselben Version: genau einer gewinnt.
 - **Grenzen** erzwingt der Server atomar (auch über Replikate): je Scope/Besitzer/Bytes laut ADR; `history` und `recents`
-  verdrängen den ältesten Eintrag (FIFO), alle anderen Sammlungen antworten `409 quota_exceeded`.
+  verdrängen bei der Anzahlgrenze den ältesten Eintrag (FIFO), alle anderen Sammlungen antworten `409 quota_exceeded`. Die Byte-Grenze je Besitzer
+  verdrängt bei jeder Einfügung zuerst Verlauf, dann `recents`; reicht das nicht: `409 quota_exceeded`.
 - **Verlauf nur mit Opt-in:** ohne `settings/privacy` = `{"history_enabled":true}` antwortet `history` mit `409 history_disabled`.
 - **Geheimnisse:** SQL, Namen und Dokumentwerte mit Passwort-/Token-/Schlüsselmustern, URLs mit Zugangsdaten, PEM, JWT,
   bekannten Tokenformaten, langen undurchsichtigen Läufen oder dem Bearer-Token des Servers: `422 secret_rejected`
-  (ohne Treffernennung). Die Erkennung ist konservativ, aber nicht vollständig (siehe ADR).
+  (ohne Treffernennung); gilt auch für `scope`, `key` und `client_ref`. Dokumente lehnen zusätzlich Zeichenketten unter Schlüsseln wie `password`/`token`/`secret` ab. Die Erkennung ist konservativ mit Falsch-Positiven (SHA-256-Literal im `WHERE`, Tabelle `tokens`, Bezeichner ab 32 gemischten Zeichen) und Lücken (siehe ADR).
 - **Text:** gültiges UTF-8 ohne NUL/Steuerzeichen/U+FFFD; kein JSON-Null, keine doppelten Schlüssel, höchstens 5 Ebenen.
 - **Verschlüsselung:** Nutzdaten liegen mit dem Serverschlüssel per AEAD verschlüsselt in der Datenbank, gebunden an
-  Besitzer, Sammlung, ID und Scope.
+  Besitzer, Sammlung, ID, Scope und Version; Scope und Schlüssel stehen nur als Schlüssel-Hash (HMAC) in der Datenbank.
+- **Verlauf-Opt-in** wird unter der Besitzersperre unmittelbar vor dem Schreiben geprüft.
 
 ## Fehlercodes
 

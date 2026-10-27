@@ -81,6 +81,34 @@ def main():
     types = (ROOT / 'internal/configstore/types.go').read_text()
     assert 'ContractVersion = "0.24.0"' in types
     assert 'var MaxOwnerBytes int64 = 32 << 20' in types
+    # Pin the per-collection limits (ADR section 6 and the capability route).
+    pinned = {
+        'KindHistory': (200, 5000, 263168), 'KindBookmarks': (200, 2000, 266240), 'KindSearches': (100, 1000, 32768),
+        'KindFavorites': (500, 5000, 2048), 'KindRecents': (100, 500, 2048), 'KindSettings': (100, 200, 32768), 'KindLayouts': (1000, 2000, 65536),
+    }
+    consts = {'MaxSQLBytes': 256 << 10, 'MaxRecentsPerScope': 100}
+    for line in types.splitlines():
+        m = re.search(r'\{Kind: (Kind\w+).*PerScope: (\w+), PerOwner: (\d+), MaxItemLen: ([^}]+)\}', line)
+        if not m:
+            continue
+        def num(text):
+            text = text.strip()
+            if text in consts:
+                return consts[text]
+            total = 0
+            for part in text.split('+'):
+                part = part.strip()
+                if part in consts:
+                    total += consts[part]
+                elif '<<' in part:
+                    a, b = part.split('<<')
+                    total += int(a) << int(b)
+                else:
+                    total += int(part)
+            return total
+        got = (num(m.group(2)), int(m.group(3)), num(m.group(4)))
+        assert got == pinned.pop(m.group(1)), (m.group(1), got)
+    assert not pinned, pinned
     fixtures = sorted(FIXTURES.glob('*.json'))
     for path in fixtures:
         component = path.name.split('.')[0]

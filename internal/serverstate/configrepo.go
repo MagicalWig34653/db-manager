@@ -3,6 +3,7 @@ package serverstate
 
 import (
 	"context"
+	"crypto/rand"
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
@@ -29,12 +30,16 @@ type configRepo struct{ s *Store }
 // envelope is the sealed plaintext of one item.
 type envelope struct {
 	Key       string          `json:"k,omitempty"`
+	ScopeName string          `json:"s,omitempty"`
 	ClientRef string          `json:"r,omitempty"`
 	Data      json.RawMessage `json:"d"`
 }
 
-func itemContext(owner string, kind configstore.Kind, id, scope, nkey string) []byte {
-	return []byte("cfg1|" + owner + "|" + string(kind) + "|" + id + "|" + scope + "|" + nkey)
+// itemContext binds a sealed payload to its owner, kind, id, hashed scope, natural
+// key hash and version, so rows cannot be swapped, moved or rolled back to an
+// older version of the same row unnoticed.
+func itemContext(owner string, kind configstore.Kind, id, scope, nkey string, version int64) []byte {
+	return []byte("cfg2|" + owner + "|" + string(kind) + "|" + id + "|" + scope + "|" + nkey + "|" + strconv.FormatInt(version, 10))
 }
 
 // cfgErr maps any error to a configstore sentinel or a context error.
@@ -43,7 +48,7 @@ func cfgErr(err error) error {
 	case err == nil:
 		return nil
 	case errors.Is(err, configstore.RepoExists), errors.Is(err, configstore.RepoNotFound), errors.Is(err, configstore.RepoVersion),
-		errors.Is(err, configstore.RepoQuota), errors.Is(err, configstore.RepoStale), errors.Is(err, configstore.RepoCorrupt):
+		errors.Is(err, configstore.RepoQuota), errors.Is(err, configstore.RepoStale), errors.Is(err, configstore.RepoCorrupt), errors.Is(err, configstore.RepoPrecondition):
 		return err
 	case errors.Is(err, ErrDecrypt), errors.Is(err, ErrUnknownKey), errors.Is(err, ErrMalformed), errors.Is(err, ErrNoKey):
 		return configstore.RepoCorrupt
@@ -55,15 +60,15 @@ func cfgErr(err error) error {
 }
 
 func (r *configRepo) seal(owner string, row configstore.Row) ([]byte, error) {
-	plain, err := json.Marshal(envelope{Key: row.Key, ClientRef: row.ClientRef, Data: row.Data})
+	plain, err := json.Marshal(envelope{Key: row.Key, ScopeName: row.ScopeName, ClientRef: row.ClientRef, Data: row.Data})
 	if err != nil {
 		return nil, configstore.RepoCorrupt
 	}
-	return r.s.cipher.Seal(plain, itemContext(owner, row.Kind, row.ID, row.Scope, row.NKey))
+	return r.s.cipher.Seal(plain, itemContext(owner, row.Kind, row.ID, row.Scope, row.NKey, row.Version))
 }
 
 func (r *configRepo) open(owner string, row configstore.Row, sealed []byte) (configstore.Row, error) {
-	plain, err := r.s.cipher.Open(sealed, itemContext(owner, row.Kind, row.ID, row.Scope, row.NKey))
+	plain, err := r.s.cipher.Open(sealed, itemContext(owner, row.Kind, row.ID, row.Scope, row.NKey, row.Version))
 	if err != nil {
 		return row, err
 	}
@@ -71,7 +76,7 @@ func (r *configRepo) open(owner string, row configstore.Row, sealed []byte) (con
 	if err := json.Unmarshal(plain, &env); err != nil {
 		return row, configstore.RepoCorrupt
 	}
-	row.Key, row.ClientRef, row.Data = env.Key, env.ClientRef, []byte(env.Data)
+	row.Key, row.ScopeName, row.ClientRef, row.Data = env.Key, env.ScopeName, env.ClientRef, []byte(env.Data)
 	return row, nil
 }
 
@@ -111,7 +116,7 @@ func (r *configRepo) withTx(ctx context.Context, owner string, fn func(ctx conte
 			continue
 		}
 		if errors.Is(err, configstore.RepoExists) || errors.Is(err, configstore.RepoNotFound) || errors.Is(err, configstore.RepoVersion) ||
-			errors.Is(err, configstore.RepoQuota) || errors.Is(err, configstore.RepoStale) || errors.Is(err, configstore.RepoCorrupt) {
+			errors.Is(err, configstore.RepoQuota) || errors.Is(err, configstore.RepoStale) || errors.Is(err, configstore.RepoCorrupt) || errors.Is(err, configstore.RepoPrecondition) {
 			return err
 		}
 		return cfgErr(classify(unwrapPublic(err)))
@@ -151,12 +156,23 @@ func (r *configRepo) Insert(ctx context.Context, owner string, row configstore.R
 	if size > lim.OwnerBytes {
 		return configstore.Row{}, configstore.RepoQuota
 	}
+	row.Version = 1
 	sealed, err := r.seal(owner, row)
 	if err != nil {
 		return configstore.Row{}, cfgErr(err)
 	}
 	var out configstore.Row
 	err = r.withTx(ctx, owner, func(ctx context.Context, tx *sql.Tx) error {
+		if lim.Require != nil {
+			need := tx.QueryRowContext(ctx, "SELECT "+itemColumns+" FROM config_items WHERE owner_id = ? AND kind = ? AND scope = ? AND nkey = ?", owner, string(lim.Require.Kind), lim.Require.Scope, lim.Require.NKey)
+			req, err := r.scan(owner, lim.Require.Kind, need)
+			if errors.Is(err, sql.ErrNoRows) || (err == nil && !lim.Require.Check(req.Data)) {
+				return configstore.RepoPrecondition
+			}
+			if err != nil {
+				return err
+			}
+		}
 		existing := tx.QueryRowContext(ctx, "SELECT "+itemColumns+" FROM config_items WHERE owner_id = ? AND kind = ? AND scope = ? AND nkey = ?", owner, string(row.Kind), row.Scope, row.NKey)
 		found, err := r.scan(owner, row.Kind, existing)
 		if err == nil {
@@ -226,22 +242,20 @@ func (r *configRepo) makeRoom(ctx context.Context, tx *sql.Tx, owner string, row
 	if need <= 0 {
 		return nil
 	}
-	if !lim.FIFO {
-		return configstore.RepoQuota
-	}
-	rows, err := tx.QueryContext(ctx, "SELECT item_id, plain_size FROM config_items WHERE owner_id = ? AND kind = ? ORDER BY updated_at, item_id", owner, kind)
+	// The byte quota gives way to history first, then to recents, whatever the kind of the new item.
+	rows, err := tx.QueryContext(ctx, "SELECT kind, item_id, plain_size FROM config_items WHERE owner_id = ? AND kind IN ('history', 'recents') ORDER BY kind = 'history' DESC, updated_at, item_id", owner)
 	if err != nil {
 		return err
 	}
-	var victims []any
+	var victims [][2]string
 	for rows.Next() && need > 0 {
-		var id string
+		var k, id string
 		var freed int64
-		if err := rows.Scan(&id, &freed); err != nil {
+		if err := rows.Scan(&k, &id, &freed); err != nil {
 			_ = rows.Close()
 			return err
 		}
-		victims = append(victims, id)
+		victims = append(victims, [2]string{k, id})
 		need -= freed
 	}
 	if err := rows.Close(); err != nil {
@@ -250,9 +264,12 @@ func (r *configRepo) makeRoom(ctx context.Context, tx *sql.Tx, owner string, row
 	if need > 0 {
 		return configstore.RepoQuota
 	}
-	marks := strings.TrimSuffix(strings.Repeat("?,", len(victims)), ",")
-	_, err = tx.ExecContext(ctx, "DELETE FROM config_items WHERE owner_id = ? AND kind = ? AND item_id IN ("+marks+")", append([]any{owner, kind}, victims...)...)
-	return err
+	for _, victim := range victims {
+		if _, err := tx.ExecContext(ctx, "DELETE FROM config_items WHERE owner_id = ? AND kind = ? AND item_id = ?", owner, victim[0], victim[1]); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Get implements configstore.Repo.
@@ -344,6 +361,7 @@ func (r *configRepo) Update(ctx context.Context, owner string, kind configstore.
 		}
 		oldSize := configstore.PlainSize(row.Key, row.ClientRef, row.Data)
 		row.Data = data
+		row.Version++
 		size := configstore.PlainSize(row.Key, row.ClientRef, row.Data)
 		var used int64
 		if err := tx.QueryRowContext(ctx, "SELECT COALESCE(SUM(plain_size), 0) FROM config_items WHERE owner_id = ?", owner).Scan(&used); err != nil {
@@ -514,4 +532,40 @@ func (r *configRepo) Usage(ctx context.Context, owner string) (configstore.Usage
 		u.Counts[configstore.Kind(kind)], u.Bytes[configstore.Kind(kind)] = n, size
 	}
 	return u, cfgErr(classify(rows.Err()))
+}
+
+// IndexKey implements configstore.Repo. The key is random, created once and
+// stored sealed (so it never appears in a dump) under the active server key;
+// it is independent of key rotation because it is only ever read, not derived.
+func (r *configRepo) IndexKey(ctx context.Context) ([]byte, error) {
+	ctx, cancel := context.WithTimeout(ctx, configOpTimeout)
+	defer cancel()
+	load := func() ([]byte, error) {
+		var sealed []byte
+		err := r.s.db.QueryRowContext(ctx, "SELECT sealed FROM config_meta WHERE name = 'index_key'").Scan(&sealed)
+		if err != nil {
+			return nil, err
+		}
+		return r.s.cipher.Open(sealed, []byte("cfg2|meta|index_key"))
+	}
+	key, err := load()
+	if err == nil {
+		return key, nil
+	}
+	if !errors.Is(err, sql.ErrNoRows) {
+		return nil, cfgErr(unwrapPublicClassify(err))
+	}
+	fresh := make([]byte, 32)
+	if _, err := rand.Read(fresh); err != nil {
+		return nil, configstore.RepoUnavailable
+	}
+	sealed, err := r.s.cipher.Seal(fresh, []byte("cfg2|meta|index_key"))
+	if err != nil {
+		return nil, cfgErr(err)
+	}
+	if _, err := r.s.db.ExecContext(ctx, "INSERT IGNORE INTO config_meta (name, key_id, sealed) VALUES ('index_key', ?, ?)", r.s.cipher.ActiveKeyID(), sealed); err != nil {
+		return nil, cfgErr(classify(err))
+	}
+	key, err = load() // another replica may have won the race
+	return key, cfgErr(unwrapPublicClassify(err))
 }

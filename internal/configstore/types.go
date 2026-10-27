@@ -108,8 +108,9 @@ func SpecFor(kind string) (Spec, bool) {
 type Row struct {
 	Kind      Kind
 	ID        string
-	Scope     string
-	NKey      string // hex SHA-256 natural key, set by the service
+	Scope     string // keyed hash of the client scope (what the database stores)
+	ScopeName string // the client's scope; only ever stored inside the sealed payload
+	NKey      string // keyed hash of the natural key, set by the service
 	Key       string
 	ClientRef string
 	Data      []byte
@@ -118,8 +119,19 @@ type Row struct {
 	UpdatedAt time.Time
 }
 
+// Requirement is a precondition the repository checks under the owner lock
+// before an insert (the history opt-in): the row identified by Kind/Scope/NKey
+// must exist and Check must accept its data.
+type Requirement struct {
+	Kind  Kind
+	Scope string
+	NKey  string
+	Check func(data []byte) bool
+}
+
 // Limits is what a Repo enforces atomically on insert and update.
 type Limits struct {
+	Require    *Requirement
 	PerScope   int
 	PerOwner   int
 	FIFO       bool
@@ -186,6 +198,10 @@ type Repo interface {
 	// Clear deletes the selected rows only if their digest still equals hash.
 	Clear(ctx context.Context, owner string, scope ClearScope, hash string) (map[Kind]int, error)
 	Usage(ctx context.Context, owner string) (Usage, error)
+	// IndexKey returns the installation-wide key for hashing scopes and natural
+	// keys. It is created once, stored sealed and never changes, so rotating the
+	// encryption key does not change any stored hash.
+	IndexKey(ctx context.Context) ([]byte, error)
 }
 
 // PlainSize is the quota weight of an item: the bytes of its data, key and

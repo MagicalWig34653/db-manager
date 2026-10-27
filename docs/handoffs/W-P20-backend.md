@@ -76,3 +76,24 @@ Keine neuen Abhängigkeiten (`golang.org/x/text` ist bereits direkt eingebunden 
 
 Review (Sicherheit: Geheimnisregeln, AEAD-Bindung, Besitzersperre; Vertrag: Additivität), danach Web-Paket für `capabilities`,
 Import der W-P16-Daten und Einstellungs-/Layout-Oberflächen (`UX-003/004`, `NEU-NAV-*`, `NEU-DATA-003`).
+
+## Review-Auflagen umgesetzt (27.10.2026, nach [Review](W-P20-backend-review.md), `review/w-p20` @ `1413e8f` und `main` @ `daceabb` eingemerged)
+
+| Befund | Umsetzung |
+| --- | --- |
+| F-02 | AEAD-Kontext `cfg2|Besitzer|Sammlung|ID|scope-hash|nkey-hash|Version`; Insert sealt Version 1, Update `alt+1` unter der Sperre. Kein Altformat (nie veröffentlicht). Rollback des Siegels → `state_unreadable` (Live-Test `TestReviewLiveHolds_RollbackRejected`). **Bewusst nicht gelöst:** Wiedereinspielen einer gelöschten Zeile samt Versionsspalte und vollständiges Zurücksetzen auf eine alte Sicherung (Löschmarken wüchsen unbegrenzt und wären für einen Schreiber ebenso löschbar); als Restrisiko in ADR Abschnitt 9 |
+| F-03 | `OwnerResolver func(ctx) (owner, ok)`: nur Kontext, nie Request; Rückgabe `single` → 401, Format wird im Service geprüft (sonst 400) |
+| F-05 | Scope und `client_ref` mit Bezeichnerregeln auf Geheimnisse geprüft |
+| F-01/F-11 | `scope` und `nkey` als HMAC-SHA-256 mit zufälligem Installationsschlüssel (`config_meta`, sealed gespeichert, von Rotation unabhängig, nie im Dump); Scope je Besitzer gesalzen, Klartext-Scope nur im Siegel. Wörterbuchangriff scheitert (`TestReviewLiveHolds_NKeyDictionaryAttackFails`, inkl. Rotation) |
+| F-06/F-07/F-04 | Dokumentwerte unter Schlüsseln wie `password/token/secret/pwd/api_key/pin` abgelehnt, Strukturregeln um `password=`/`token=`-Paare, `curl -u`, Basic-Auth erweitert; Bearer-Literal nach Faltung verglichen; Faltung entfernt Mn/Me (U+034F, Variation Selectors) und Hangul-Füller und bildet ~60 Kyrillisch/Griechisch-Look-alikes auf ASCII ab (**keine** vollständige UTS-#39-Skeleton-Tabelle, dokumentiert) |
+| F-08/F-09 | 32-Hex-Läufe, `curl -u`, Basic-Auth erkannt; Falsch-Positive (SHA-256-Literal im WHERE, Tabelle `tokens`, Bezeichner ab 32 gemischten Zeichen) in ADR und API-Doku dokumentiert, nicht reduziert; Base32 bleibt unerkannt |
+| F-10 | Verhalten umgesetzt: Byte-Quote verdrängt bei jeder Einfügung zuerst Verlauf, dann recents (Memory und MariaDB); ADR/Vertrag angepasst |
+| F-12 | Migration 2 hat `Verify` (Primär-/Eindeutigkeitsschlüssel aus `information_schema`), vor dem Verbuchen; Abbruch mit `Migration fehlgeschlagen`. Migration 2 enthält jetzt auch `config_meta` (noch nicht veröffentlicht, Text geändert) |
+| F-13 | Doppelte Schlüssel in der gesamten Anfrage → 400 (`decodeConfig`), der gemeinsame `decode` blieb unverändert |
+| F-14 | `docs/BETRIEB.md`: Migration vor Start, Altprogramm gegen Schema 2, Schlüsselverlust/Rotation, Sicherungen |
+| F-15 | v24- und v23-Fälle in `TestAllKnownRoutesRegisteredAndAuthenticated` (v23 hat keine Pfade: 404); Wächter pinnt Quoten und Größen je Sammlung |
+| F-16 | Opt-in-Prüfung als `Requirement` im Repository unter der Besitzersperre (Memory und MariaDB), auch für Import |
+
+`TestReviewGap_*`/`TestReviewLiveGap_*` sind zu `TestReviewHolds_*`/`TestReviewLiveHolds_*` umgedreht (F-08/F-09-Tests protokollieren nur).
+`contracts/api-v0.24.0.json` unverändert (SHA `e2f2e057…`), Fixtures neu aus dem Livelauf, Index in `contracts/README.md` ergänzt.
+Offen unverändert: Web-Anbindung, echte Nutzertrennung (W-P30), heuristische Geheimniserkennung.

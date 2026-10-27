@@ -2,6 +2,7 @@
 package configstore
 
 import (
+	"encoding/json"
 	"regexp"
 	"strings"
 	"unicode"
@@ -44,18 +45,39 @@ var structuralRules = []*regexp.Regexp{
 	regexp.MustCompile(`(?i)-----BEGIN[ A-Z]*(?:PRIVATE KEY|ENCRYPTED)`),
 	regexp.MustCompile(`\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]*`),
 	regexp.MustCompile(`(?i)\bbearer\s+[A-Za-z0-9._~+/=-]{16,}`),
+	// Basic auth header, curl/wget -u user:password, password=value pairs in connection strings.
+	regexp.MustCompile(`(?i)\bbasic\s+[A-Za-z0-9+/=]{8,}`),
+	regexp.MustCompile(`(?i)\b(?:curl|wget|http)\b[^\n]*\s(?:-u|--user|--password|--http-password)[ =]\S*:\S+`),
+	regexp.MustCompile(`(?i)\b(?:pass(?:word|wd|phrase)?|pwd|secret|token)\s*[=:]\s*[^\s,;'"]{2,}`),
 	regexp.MustCompile(`\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|xox[abprs]-[A-Za-z0-9-]{10,}|sk-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{30,})`),
 }
 
-var longRun = regexp.MustCompile(`[A-Za-z0-9+/=_-]{40,}`)
+var longRun = regexp.MustCompile(`[A-Za-z0-9+/=_-]{32,}`)
 
-// fold maps compatibility forms (full-width letters, ligatures) to plain text and
-// removes invisible format characters, so keywords cannot be split or disguised.
+// confusables maps the most common look-alike letters (Cyrillic, Greek) to
+// ASCII for scanning. It is a small table, not the full UTS #39 skeleton.
+var confusables = map[rune]rune{
+	'а': 'a', 'в': 'b', 'с': 'c', 'ԁ': 'd', 'е': 'e', 'ꜰ': 'f', 'һ': 'h', 'і': 'i', 'ј': 'j', 'к': 'k', 'ӏ': 'l', 'м': 'm', 'н': 'h',
+	'о': 'o', 'р': 'p', 'ԛ': 'q', 'ѕ': 's', 'т': 't', 'υ': 'u', 'ѵ': 'v', 'ԝ': 'w', 'х': 'x', 'у': 'y', 'ᴢ': 'z',
+	'А': 'A', 'В': 'B', 'С': 'C', 'Е': 'E', 'Н': 'H', 'І': 'I', 'Ј': 'J', 'К': 'K', 'М': 'M', 'О': 'O', 'Р': 'P', 'Ѕ': 'S', 'Т': 'T', 'Х': 'X', 'Υ': 'Y', 'Ζ': 'Z',
+	'α': 'a', 'ο': 'o', 'ρ': 'p', 'ν': 'v', 'ι': 'i', 'κ': 'k', 'ϲ': 'c', 'Α': 'A', 'Β': 'B', 'Ε': 'E', 'Η': 'H', 'Ι': 'I', 'Κ': 'K', 'Μ': 'M', 'Ν': 'N', 'Ο': 'O', 'Ρ': 'P', 'Τ': 'T', 'Χ': 'X',
+}
+
+// fold maps compatibility forms (full-width letters, ligatures) to plain text,
+// removes invisible format characters, combining marks (incl. U+034F and the
+// variation selectors) and Hangul fillers, and maps common homoglyphs to ASCII,
+// so keywords cannot be split or disguised.
 func fold(text string) string {
 	text = norm.NFKC.String(text)
 	return strings.Map(func(r rune) rune {
-		if unicode.Is(unicode.Cf, r) {
+		switch {
+		case unicode.Is(unicode.Cf, r), unicode.Is(unicode.Mn, r), unicode.Is(unicode.Me, r):
 			return -1
+		case r == 0x115F || r == 0x1160 || r == 0x3164 || r == 0xFFA0:
+			return -1
+		}
+		if ascii, ok := confusables[r]; ok {
+			return ascii
 		}
 		return r
 	}, text)
@@ -82,7 +104,7 @@ func opaqueRun(run string) bool {
 			hexOnly = false
 		}
 	}
-	return (digit && upper && lower) || (hexOnly && digit && (upper || lower))
+	return (digit && upper && lower) || (hexOnly && digit && (upper || lower) && len(run) >= 32)
 }
 
 // LooksSecret reports whether text must not be stored in the given mode.
@@ -112,4 +134,41 @@ func LooksSecret(text string, mode ScanMode) bool {
 		}
 	}
 	return false
+}
+
+var sensitiveKey = regexp.MustCompile(`(?i)pass|secret|token|pwd|credential|api[_-]?key|private[_-]?key|(?:^|[_.-])pin$`)
+
+// sensitiveValues rejects documents that store a string under a key whose name
+// says "credential" (password, token, key, ...). Booleans, numbers and nested
+// objects pass; a one-character value is allowed (for example a separator).
+// Arrays of names under neutral keys (column lists) are unaffected.
+func sensitiveValues(raw []byte) error {
+	var doc any
+	if json.Unmarshal(raw, &doc) != nil {
+		return nil
+	}
+	var walk func(v any, key string) bool
+	walk = func(v any, key string) bool {
+		switch t := v.(type) {
+		case map[string]any:
+			for k, child := range t {
+				if walk(child, k) {
+					return true
+				}
+			}
+		case []any:
+			for _, child := range t {
+				if walk(child, key) {
+					return true
+				}
+			}
+		case string:
+			return key != "" && len(t) > 1 && sensitiveKey.MatchString(fold(key))
+		}
+		return false
+	}
+	if walk(doc, "") {
+		return ErrSecretRejected
+	}
+	return nil
 }

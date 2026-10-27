@@ -2,6 +2,7 @@
 package httpapi
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -219,12 +220,27 @@ func TestConfigListPagingAndFilters(t *testing.T) {
 	}
 }
 
-func TestConfigOwnerResolverSeparatesData(t *testing.T) {
-	resolve := func(r *http.Request) (string, bool) {
-		owner := r.Header.Get("X-Test-Owner")
-		return owner, owner != ""
+type testOwnerKey struct{}
+
+// ownerResolverAPI simulates an authentication middleware that puts a verified
+// owner (here taken from a test header) into the request context.
+func ownerResolverAPI(t *testing.T, header string) http.Handler {
+	t.Helper()
+	resolve := func(ctx context.Context) (string, bool) {
+		owner, ok := ctx.Value(testOwnerKey{}).(string)
+		return owner, ok && owner != ""
 	}
-	handler, _, _ := configAPI(t, WithOwnerResolver(resolve, "account"))
+	inner, _, _ := configAPI(t, WithOwnerResolver(resolve, "account"))
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if owner := r.Header.Get(header); owner != "" {
+			r = r.WithContext(context.WithValue(r.Context(), testOwnerKey{}, owner))
+		}
+		inner.ServeHTTP(w, r)
+	})
+}
+
+func TestConfigOwnerResolverSeparatesData(t *testing.T) {
+	handler := ownerResolverAPI(t, "X-Test-Owner")
 	created := do(handler, "POST", "/api/v24/config/bookmarks", `{"data":{"name":"mine","sql":"SELECT 1"}}`, map[string]string{"X-Test-Owner": "alice"})
 	id := decodeBody(t, created)["id"].(string)
 	if response := do(handler, "GET", "/api/v24/config/bookmarks/"+id, "", map[string]string{"X-Test-Owner": "bob"}); response.Code != 404 {
