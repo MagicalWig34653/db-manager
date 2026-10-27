@@ -61,7 +61,7 @@ for (const driver of ['sqlite', 'postgres']) {
     await expect(page.getByRole('region', { name: 'Tabellenarbeitsplatz', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'integer: 9223372036854775807' })).toBeVisible();
     await page.getByRole('button', { name: 'SQL', exact: true }).click();
-    await expect(page.getByRole('textbox', { name: 'SQL-Abfrage', exact: true })).toHaveValue('');
+    await expect(page.getByRole('textbox', { name: 'SQL-Abfrage', exact: true })).toHaveText(/^(-- Schreibe hier deine SQL-Abfrage\.[\s\S]*)?$/);
     expect(queryCount).toBe(0);
     await query(page, 'SELECT id, precise, optional, empty_text, payload FROM f2b_values');
     await expect(page.getByText('9223372036854775807', { exact: true })).toBeVisible();
@@ -91,7 +91,7 @@ for (const driver of ['sqlite', 'postgres']) {
     await setToken(page, settings.invalidToken);
     await expect.poll(() => databaseActive(page, driver), { timeout: 10000 }).toBe(false);
     await expect(page.getByText('Nicht verbunden', { exact: true })).toBeVisible();
-    await expect(page.getByRole('textbox', { name: 'SQL-Abfrage', exact: true })).toHaveValue('');
+    await expect(page.getByRole('textbox', { name: 'SQL-Abfrage', exact: true })).toHaveText(/^(-- Schreibe hier deine SQL-Abfrage\.[\s\S]*)?$/);
     await expect(page.getByRole('button', { name: 'f2b_values' })).not.toBeVisible();
     await expect(page.getByRole('button', { name: 'integer: 42' })).not.toBeVisible();
     await expect(page.getByText('Platz für deine Ergebnisse', { exact: true })).toBeVisible();

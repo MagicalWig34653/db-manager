@@ -176,7 +176,7 @@ for (const driver of ['sqlite', 'postgresql']) {
     await page.getByRole('button', { name: 'Übernehmen' }).click();
     await expect(workspace).not.toBeVisible();
     await expect(page.getByText('Nicht verbunden', { exact: true })).toBeVisible();
-    await expect(page.getByRole('textbox', { name: 'SQL-Abfrage', exact: true })).toHaveValue('');
+    await expect(page.getByRole('textbox', { name: 'SQL-Abfrage', exact: true })).toHaveText(/^(-- Schreibe hier deine SQL-Abfrage\.[\s\S]*)?$/);
     await expect(page.getByRole('button', { name: /odd"name$/ })).not.toBeVisible();
     expect(sqlRequests).toBe(0);
     expect(requests.every((request) => !('sql' in request))).toBe(true);
