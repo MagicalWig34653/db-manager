@@ -63,7 +63,7 @@ für beliebige alte Datenbankversionen.
 ## Eingebettete Weboberfläche F2a/F2b/F3b
 
 Der unveränderte Webbuild stammt aus dem unabhängig geprüften öffentlichen Commit
-[4b24e53](https://github.com/MagicalWig34653/db-manager-web/tree/4b24e530af8f27700722379d4073a2edbbaa0d22).
+[3e422dd](https://github.com/MagicalWig34653/db-manager-web/tree/3e422ddd71bd32219f062c39adda468326c59584).
 Eigener Webcode ist AGPL-3.0-only; die originalen Drittanbieterhinweise bleiben unter
 [THIRD-PARTY-NOTICES.txt](../internal/webui/static/THIRD-PARTY-NOTICES.txt) vollständig
 erhalten und werden als `/THIRD-PARTY-NOTICES.txt` ausgeliefert. Der originale
@@ -93,9 +93,9 @@ Bibliothek im Laufzeitimage.
 ## Web-Editor W-P16 (CodeMirror 6, Vorabeintrag)
 
 Der Webcode auf dem Branch `feat/w-p16-codemirror` des Web-Repositories (Commit
-[b0d0429](https://github.com/MagicalWig34653/db-manager-web/tree/b0d04291933079370d1138780f5d7a9798aa801c))
-bindet CodeMirror 6 als eigenen, lazy geladenen Chunk ein (Entscheidung E8, vorab freigegeben). Noch **nicht** gepinnt oder
-eingebettet; dieser Eintrag erfasst die Lizenzen vor dem Repin. Alle Pakete sind MIT-lizenziert; ihre Originaltexte
+[3e422dd](https://github.com/MagicalWig34653/db-manager-web/tree/3e422ddd71bd32219f062c39adda468326c59584), Pin Bündel 6; Erstfassung auf `feat/w-p16-codemirror` `b0d0429`)
+bindet CodeMirror 6 als eigenen, lazy geladenen Chunk ein (Entscheidung E8, vorab freigegeben). Seit Pin Bündel 6 gepinnt und
+eingebettet; der Eintrag erfasste die Lizenzen vor dem Repin. Alle Pakete sind MIT-lizenziert; ihre Originaltexte
 stehen in der Web-Datei `THIRD-PARTY-NOTICES.txt` und werden mit dem Build ausgeliefert. Kein neues Go-Modul.
 
 | Paket | Version | Lizenz | Verwendung |
@@ -118,4 +118,4 @@ stehen in der Web-Datei `THIRD-PARTY-NOTICES.txt` und werden mit dem Build ausge
 
 Der SQL-Formatierer ist eigener Webcode (AGPL-3.0-only); `sql-formatter` (MIT, 3,1 MB entpackt) wurde bewusst nicht aufgenommen.
 Gemessener Zuwachs des Precache-Budgets: +0,427 MiB (4,321 auf 4,748 MiB), 39 auf 40 Chunks (Grenzen 8 MiB und 64 Chunks).
-Beim Repin sind `WEBBUILD.md`, Manifest und dieses Inventar auf den dann gepinnten Commit zu aktualisieren.
+Mit Pin Bündel 6 gemessen: Precache 4,91 MiB (Config-Store-Oberfläche eingeschlossen), 42 Chunks. `WEBBUILD.md`, Manifest und dieses Inventar stehen auf `f163862`.
