@@ -88,3 +88,34 @@ fünf unveränderten Artefakten und denselben Originalnotices. API1–5 sind im 
 gebunden; weder Go- noch npm-Produktabhängigkeiten ändern sich. Neue Runtimeproben
 verwenden die bereits inventarisierten Playwrightwerkzeuge, keine zusätzliche
 Bibliothek im Laufzeitimage.
+
+
+## Web-Editor W-P16 (CodeMirror 6, Vorabeintrag)
+
+Der Webcode auf dem Branch `feat/w-p16-codemirror` des Web-Repositories (Commit
+[b0d0429](https://github.com/MagicalWig34653/db-manager-web/tree/b0d04291933079370d1138780f5d7a9798aa801c))
+bindet CodeMirror 6 als eigenen, lazy geladenen Chunk ein (Entscheidung E8, vorab freigegeben). Noch **nicht** gepinnt oder
+eingebettet; dieser Eintrag erfasst die Lizenzen vor dem Repin. Alle Pakete sind MIT-lizenziert; ihre Originaltexte
+stehen in der Web-Datei `THIRD-PARTY-NOTICES.txt` und werden mit dem Build ausgeliefert. Kein neues Go-Modul.
+
+| Paket | Version | Lizenz | Verwendung |
+| --- | --- | --- | --- |
+| `@codemirror/state` | `6.7.6` | MIT | direkt, Editorzustand |
+| `@codemirror/view` | `6.43.15` | MIT | direkt, Editoransicht |
+| `@codemirror/language` | `6.13.1` | MIT | direkt, Sprach- und Hervorhebungsinfrastruktur |
+| `@codemirror/commands` | `6.11.1` | MIT | direkt, Tastaturbefehle, Verlauf |
+| `@codemirror/search` | `6.7.2` | MIT | direkt, Suchen und Ersetzen |
+| `@codemirror/autocomplete` | `6.20.4` | MIT | direkt, Vervollständigung |
+| `@codemirror/lang-sql` | `6.10.0` | MIT | direkt, SQL-Dialekte (SQLite, PostgreSQL, MariaDB/MySQL) |
+| `@lezer/highlight` | `1.2.5` | MIT | direkt, Hervorhebungs-Tags |
+| `@codemirror/streamparser` | `6.0.0` | MIT | transitiv |
+| `@lezer/common` | `1.5.4` | MIT | transitiv |
+| `@lezer/lr` | `1.4.11` | MIT | transitiv |
+| `@marijn/find-cluster-break` | `1.0.4` | MIT | transitiv |
+| `crelt` | `1.0.7` | MIT | transitiv |
+| `style-mod` | `4.1.4` | MIT | transitiv |
+| `w3c-keyname` | `2.2.8` | MIT | transitiv |
+
+Der SQL-Formatierer ist eigener Webcode (AGPL-3.0-only); `sql-formatter` (MIT, 3,1 MB entpackt) wurde bewusst nicht aufgenommen.
+Gemessener Zuwachs des Precache-Budgets: +0,427 MiB (4,321 auf 4,748 MiB), 39 auf 40 Chunks (Grenzen 8 MiB und 64 Chunks).
+Beim Repin sind `WEBBUILD.md`, Manifest und dieses Inventar auf den dann gepinnten Commit zu aktualisieren.
