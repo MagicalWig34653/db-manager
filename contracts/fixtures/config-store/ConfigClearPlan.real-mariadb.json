@@ -1,0 +1,18 @@
+{
+  "confirmation": "LÖSCHEN 2",
+  "kinds": [
+    {
+      "bytes": 25,
+      "count": 1,
+      "kind": "history"
+    },
+    {
+      "bytes": 38,
+      "count": 1,
+      "kind": "bookmarks"
+    }
+  ],
+  "plan_hash": "24e5d723404c3e08d5ce1608b49b682381ab26c28d9d61851ffa4ee67748173a",
+  "total_bytes": 63,
+  "total_items": 2
+}

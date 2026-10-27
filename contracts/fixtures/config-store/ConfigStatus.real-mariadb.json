@@ -1,0 +1,49 @@
+{
+  "max_owner_bytes": 33554432,
+  "schema_version": 2,
+  "total_bytes": 356,
+  "usage": [
+    {
+      "bytes": 51,
+      "count": 1,
+      "kind": "history",
+      "max_items": 5000
+    },
+    {
+      "bytes": 51,
+      "count": 1,
+      "kind": "bookmarks",
+      "max_items": 2000
+    },
+    {
+      "bytes": 0,
+      "count": 0,
+      "kind": "searches",
+      "max_items": 1000
+    },
+    {
+      "bytes": 145,
+      "count": 3,
+      "kind": "favorites",
+      "max_items": 5000
+    },
+    {
+      "bytes": 0,
+      "count": 0,
+      "kind": "recents",
+      "max_items": 500
+    },
+    {
+      "bytes": 31,
+      "count": 1,
+      "kind": "settings",
+      "max_items": 200
+    },
+    {
+      "bytes": 78,
+      "count": 1,
+      "kind": "layouts",
+      "max_items": 2000
+    }
+  ]
+}

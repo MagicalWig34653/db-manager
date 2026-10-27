@@ -1,0 +1,6 @@
+{
+  "scope": "conn1",
+  "data": {
+    "sql": "SELECT 1"
+  }
+}

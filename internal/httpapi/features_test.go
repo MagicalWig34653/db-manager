@@ -9,7 +9,7 @@ import (
 )
 
 func TestFeatureListKeepsRegistrationOrder(t *testing.T) {
-	if len(featureList) != 22 {
+	if len(featureList) != 23 {
 		t.Fatalf("feature count changed: %d", len(featureList))
 	}
 }

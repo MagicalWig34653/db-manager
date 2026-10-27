@@ -1,0 +1,14 @@
+{
+  "items": [
+    {
+      "kind": "history",
+      "scope": "conn1",
+      "client_ref": "local-1",
+      "time": "2026-03-01T10:00:00Z",
+      "data": {
+        "sql": "SELECT 1"
+      }
+    }
+  ],
+  "overwrite_documents": false
+}

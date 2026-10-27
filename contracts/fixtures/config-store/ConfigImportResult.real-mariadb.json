@@ -1,0 +1,26 @@
+{
+  "created": 2,
+  "exists": 0,
+  "rejected": 1,
+  "results": [
+    {
+      "id": "e41cafd3ea24c57705b221626452ef93",
+      "index": 0,
+      "reason": "",
+      "status": "created"
+    },
+    {
+      "id": "2f1163a9124c4e8b366e7650ea208a50",
+      "index": 1,
+      "reason": "",
+      "status": "created"
+    },
+    {
+      "id": "",
+      "index": 2,
+      "reason": "secret_rejected",
+      "status": "rejected"
+    }
+  ],
+  "updated": 0
+}

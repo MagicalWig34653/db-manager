@@ -1,0 +1,6 @@
+{
+  "data": {
+    "name": "Offene Bestellungen",
+    "sql": "SELECT 2"
+  }
+}

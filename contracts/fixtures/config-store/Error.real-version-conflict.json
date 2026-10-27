@@ -1,0 +1,6 @@
+{
+  "error": {
+    "code": "version_conflict",
+    "message": "Der Eintrag wurde zwischenzeitlich geändert. Neu laden und erneut versuchen."
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "error": {
+    "code": "state_unavailable",
+    "message": "Serverzustand ist nicht erreichbar."
+  }
+}

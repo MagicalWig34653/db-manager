@@ -43,6 +43,34 @@ var migrations = []Migration{
 				") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
 		},
 	},
+	{
+		Version: 2,
+		Name:    "config_store",
+		Statements: []string{
+			// W-P20 comfort data. The owner row is the per-owner write lock; ASCII
+			// binary collation keeps ids and scopes case sensitive.
+			"CREATE TABLE IF NOT EXISTS config_owners (" +
+				"owner_id VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY, " +
+				"created_at DATETIME(6) NOT NULL DEFAULT UTC_TIMESTAMP(6)" +
+				") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+			"CREATE TABLE IF NOT EXISTS config_items (" +
+				"owner_id VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, " +
+				"kind VARCHAR(16) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, " +
+				"item_id CHAR(32) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, " +
+				"scope VARCHAR(128) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, " +
+				"nkey CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, " +
+				"key_id VARCHAR(40) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, " +
+				"sealed MEDIUMBLOB NOT NULL, " +
+				"plain_size INT UNSIGNED NOT NULL, " +
+				"version BIGINT UNSIGNED NOT NULL, " +
+				"created_at DATETIME(6) NOT NULL, " +
+				"updated_at DATETIME(6) NOT NULL, " +
+				"PRIMARY KEY (owner_id, kind, item_id), " +
+				"UNIQUE KEY config_items_nkey (owner_id, kind, scope, nkey), " +
+				"KEY config_items_order (owner_id, kind, scope, updated_at, item_id)" +
+				") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+		},
+	},
 }
 
 // LatestVersion is the schema version this program expects.

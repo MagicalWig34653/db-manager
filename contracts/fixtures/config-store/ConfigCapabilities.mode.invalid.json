@@ -1,0 +1,15 @@
+{
+  "contract_version": "0.24.0",
+  "available": true,
+  "mode": "remote",
+  "reason": "ok",
+  "owner_model": "single",
+  "history_requires_opt_in": true,
+  "secrets_policy": "reject",
+  "kinds": [],
+  "max_owner_bytes": 1,
+  "max_page": 1,
+  "default_page": 1,
+  "max_import_items": 1,
+  "max_request_bytes": 1
+}

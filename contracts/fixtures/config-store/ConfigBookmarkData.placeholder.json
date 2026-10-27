@@ -1,0 +1,8 @@
+{
+  "name": "B",
+  "sql": "SELECT 1",
+  "variables": [
+    "a",
+    "b"
+  ]
+}

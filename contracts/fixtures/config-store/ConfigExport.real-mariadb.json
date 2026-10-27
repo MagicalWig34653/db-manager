@@ -1,0 +1,109 @@
+{
+  "exported_at": "2026-10-27T11:27:33.129Z",
+  "format": "dbm-config-export",
+  "format_version": 1,
+  "items": [
+    {
+      "client_ref": "local-1",
+      "data": {
+        "sql": "SELECT 1"
+      },
+      "key": "",
+      "kind": "history",
+      "scope": "conn2",
+      "time": "2026-03-01T10:00:00.000Z"
+    },
+    {
+      "client_ref": "local-1",
+      "data": {
+        "sql": "SELECT * FROM orders WHERE id = 42"
+      },
+      "key": "",
+      "kind": "history",
+      "scope": "conn1",
+      "time": "2026-10-27T11:27:33.053Z"
+    },
+    {
+      "client_ref": "bm-1",
+      "data": {
+        "name": "Offene Bestellungen",
+        "sql": "SELECT 1"
+      },
+      "key": "",
+      "kind": "bookmarks",
+      "scope": "conn1",
+      "time": "2026-10-27T11:27:33.072Z"
+    },
+    {
+      "client_ref": "bm-9",
+      "data": {
+        "name": "Import",
+        "sql": "SELECT 2"
+      },
+      "key": "",
+      "kind": "bookmarks",
+      "scope": "conn2",
+      "time": "2026-10-27T11:27:33.131Z"
+    },
+    {
+      "client_ref": "",
+      "data": {
+        "database": "shop",
+        "table": "orders"
+      },
+      "key": "",
+      "kind": "favorites",
+      "scope": "conn1",
+      "time": "2026-10-27T11:27:33.092Z"
+    },
+    {
+      "client_ref": "",
+      "data": {
+        "database": "shop",
+        "table": "customers"
+      },
+      "key": "",
+      "kind": "favorites",
+      "scope": "conn1",
+      "time": "2026-10-27T11:27:33.099Z"
+    },
+    {
+      "client_ref": "",
+      "data": {
+        "database": "shop",
+        "table": "items"
+      },
+      "key": "",
+      "kind": "favorites",
+      "scope": "conn1",
+      "time": "2026-10-27T11:27:33.106Z"
+    },
+    {
+      "client_ref": "",
+      "data": {
+        "history_enabled": true
+      },
+      "key": "privacy",
+      "kind": "settings",
+      "scope": "",
+      "time": "2026-10-27T11:27:33.045Z"
+    },
+    {
+      "client_ref": "",
+      "data": {
+        "columns": [
+          "id",
+          "total",
+          "password_hash"
+        ],
+        "widths": {
+          "id": 80
+        }
+      },
+      "key": "table:shop.orders",
+      "kind": "layouts",
+      "scope": "conn1",
+      "time": "2026-10-27T11:27:33.115Z"
+    }
+  ]
+}

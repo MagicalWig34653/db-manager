@@ -1,0 +1,72 @@
+{
+  "available": false,
+  "contract_version": "0.24.0",
+  "default_page": 50,
+  "history_requires_opt_in": true,
+  "kinds": [
+    {
+      "fifo": true,
+      "keyed": false,
+      "kind": "history",
+      "max_item_bytes": 263168,
+      "max_per_owner": 5000,
+      "max_per_scope": 200
+    },
+    {
+      "fifo": false,
+      "keyed": false,
+      "kind": "bookmarks",
+      "max_item_bytes": 266240,
+      "max_per_owner": 2000,
+      "max_per_scope": 200
+    },
+    {
+      "fifo": false,
+      "keyed": false,
+      "kind": "searches",
+      "max_item_bytes": 32768,
+      "max_per_owner": 1000,
+      "max_per_scope": 100
+    },
+    {
+      "fifo": false,
+      "keyed": false,
+      "kind": "favorites",
+      "max_item_bytes": 2048,
+      "max_per_owner": 5000,
+      "max_per_scope": 500
+    },
+    {
+      "fifo": true,
+      "keyed": false,
+      "kind": "recents",
+      "max_item_bytes": 2048,
+      "max_per_owner": 500,
+      "max_per_scope": 100
+    },
+    {
+      "fifo": false,
+      "keyed": true,
+      "kind": "settings",
+      "max_item_bytes": 32768,
+      "max_per_owner": 200,
+      "max_per_scope": 100
+    },
+    {
+      "fifo": false,
+      "keyed": true,
+      "kind": "layouts",
+      "max_item_bytes": 65536,
+      "max_per_owner": 2000,
+      "max_per_scope": 1000
+    }
+  ],
+  "max_import_items": 100,
+  "max_owner_bytes": 33554432,
+  "max_page": 100,
+  "max_request_bytes": 1048576,
+  "mode": "local_only",
+  "owner_model": "single",
+  "reason": "not_configured",
+  "secrets_policy": "reject"
+}

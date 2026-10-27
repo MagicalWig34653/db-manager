@@ -1,0 +1,13 @@
+{
+  "scope": "conn1",
+  "key": "table:shop.orders",
+  "data": {
+    "columns": [
+      "id",
+      "total"
+    ],
+    "widths": {
+      "id": 80
+    }
+  }
+}
