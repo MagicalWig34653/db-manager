@@ -1,7 +1,7 @@
 # phpMyAdmin-Paritätsmatrix
 
 Referenzrecherche: 20.10.2026, Paket P1a unabhängig geprüft und integriert.
-Implementierungscheckpoint: 21.10.2026, siehe Teilnachweise unten.
+Implementierungscheckpoint: 21.10.2026, siehe Teilnachweise unten; PWA-Linie nachgeführt am 27.10.2026 (letzter Abschnitt).
 **Keine erreichte Parität und keine freigegebene Implementierungsreihenfolge.**
 
 ## Referenz und Geltung
@@ -436,3 +436,43 @@ Web-/Betriebsnachweise: [F2b](handoffs/F2b.md), [F3b](handoffs/F3b.md),
 [unabhängiger F3b-Review](handoffs/F3b-backend-review.md).
 Native Nachweise im öffentlichen Apple-Repo: docs/handoffs/A1.md und A2.md.
 Kein fertiges Paritätsprozent aus Teilnachweisen ableiten.
+
+## Teilnachweise der PWA-Linie (Wellen 1 bis 4, Stand 27.10.2026)
+
+Zuordnung der umgesetzten PWA-Pakete (Backend-`main` `84a5e2e`, Web-`main` `4b24e53`) zu Soll-IDs. Wie oben ändert sie **keine Matrixzeile in
+bestanden**: Alle Zeilen bleiben `O`, weil die gemeinsame Abnahme (Referenzvergleich mit laufendem phpMyAdmin, alle zugesagten DB-Versionen, macOS/iPadOS)
+nicht erfolgt ist. Die Soll-IDs der mittleren Spalte stammen aus der Paketzuordnung im [PWA-PLAN](PWA-PLAN.md); wo ein Paket-Handoff einzelne IDs
+ausdrücklich als nicht oder nur eingeschränkt umgesetzt nennt, steht das in der letzten Spalte. Eine ID gilt hier als „abgedeckt“ nur im Sinn
+„Funktion im Backend/Web vorhanden, vom Paket unabhängig reviewt, Grenzen siehe rechts“. Ein Handoff, der IDs nicht einzeln aufführt, belegt die
+Zuordnung nur auf Paketebene. Die Backendpakete wurden live gegen SQLite, MySQL 8.4, MariaDB 12.3 und PostgreSQL 18.6 geprüft; Browserläufe sind enger (siehe [STATUS](STATUS.md#offene-punkte-ehrliche-liste-stand-27102026)).
+
+| Paket (API) | Soll-IDs laut Paketzuordnung | Ausdrücklich nicht oder nur eingeschränkt abgedeckt |
+| --- | --- | --- |
+| W-P02/W-P03 Shell, Routing, PWA-Basis | PMA-UX-007 (Grundlage), PMA-NEU-NAV-006, PMA-NEU-NAV-007 | Touch-/Tastaturnachweis (UX-007) nicht geführt; PWA-Installation nur eingeschränkt belegt (Review W-P03: niedrige Befunde) |
+| W-P05 Tabelle anlegen (0.6) | PMA-OBJ-007, PMA-NEU-DDL-001 (nur Hinweis), PMA-DDL-005 (Teil) | feste Typen und konstante Defaults, konservative PK-Auswahl |
+| W-P06 Übersicht (0.7) | PMA-OBJ-001, PMA-OBJ-006, PMA-OBJ-014, PMA-ADMIN-001, PMA-ADMIN-008, PMA-ADMIN-009, PMA-CON-001 (Serverkontext), PMA-CON-004 (Zeichensatz anzeigen), PMA-NEU-NAV-007, PMA-NEU-DDL-003 | SQLite ohne Datenbankgröße; MySQL/MariaDB-Statistiken sind Schätzwerte; PostgreSQL-Definition rekonstruiert (ohne Rechte, Kommentare, Trigger, Partitionen) |
+| W-P07 Objektoperationen (0.8) | PMA-OBJ-002, -003, -005 (Teil), -008 bis -012, PMA-NEU-OBJ-001 | **PMA-OBJ-004** (Datenbank kopieren/umbenennen) und der Teil von OBJ-005, der bestehende Tabellen mitumstellt, nicht umgesetzt; SQLite ohne Datenbankaktionen und Tabellenoptionen; MySQL-Mehrschrittfolgen nicht atomar |
+| W-P08 Spalten (0.9) | PMA-DDL-001 bis -006, PMA-NEU-DDL-002 | ENUM/SET-Editorlisten der Zeilenansicht nicht (siehe W-P13) |
+| W-P09 Indizes, Schlüssel (0.13) | PMA-DDL-007 bis -011, PMA-REL-001, PMA-NEU-REL-001 | Ausdrucksindizes nur `lower`/`upper` auf Textspalten (ADR-W-P09); Abhängigkeitserkennung teils textuell |
+| W-P10 Wartung (0.10) | PMA-MAINT-001 bis -006 | kein Browser-Echtlaufskript im Repo |
+| W-P11 Export, SQL-Dump (0.11), W-P28 Formate (0.21) | PMA-EXP-001, -002 (Vorgaben), -004, -006 bis -009, PMA-DUMP-002, -004, -005, PMA-NEU-EXP-001, -002, -004, PMA-NEU-ADMIN-007, PMA-NEU-DUMP-001; durch W-P28 zusätzlich PMA-EXP-010 und -015 bis -020 (eigene Textprofile), PMA-DUMP-003 (INSERT/IGNORE/REPLACE; PostgreSQL nur INSERT), PMA-DUMP-006/-007 (begrenzt) | **PMA-DUMP-001** nur reguläre Tabellen (Trigger, Routinen, Events im Dump offen); PMA-EXP-003, -005, -011 bis -014 (ODS/ODT/Word/PDF, Serververzeichnisse) und PMA-NEU-EXP-003 offen; keine Bytekompatibilität zu phpMyAdmin-Plugins; LaTeX/MediaWiki/Texy nicht mit Renderern gegengeprüft; Cross-Dialekt-Dump abgewiesen; DEFINER nur durch Auslassung; freie CSV-Einfassungs-/NULL-Profile offen |
+| W-P12 Import (0.18) | PMA-IMP-001, -002, -004 (nur GZip), -005 (Same-Dialekt-SQL), -006, -007 (ohne Tabellenanlage), -013, -014, PMA-NEU-IMP-001 bis -004 | **PMA-IMP-003, PMA-IMP-008** bewusst ausgeschlossen (Serververzeichnis, LOAD DATA LOCAL); ZIP/BZip2 abgewiesen; PMA-IMP-009 bis -012 (ODS/XML/MediaWiki/Shapefile) offen; PMA-NEU-ADMIN-008 (Mehrdatenbankimport) nicht; SQL-Import ohne Plan; Review-Blocker B1 nicht erneut geprüft, N1 Speicher |
+| W-P13 Mehrzeilen, Dateiwerte (0.19) | PMA-DATA-002 (Spaltenwahl, Web), PMA-DATA-006 bis -009, PMA-REL-003, PMA-NEU-DATA-001, PMA-NEU-DATA-006 | nur BLOB-Dateiwerte bis 512 KiB; TEXT-Upload und ENUM/SET-Listen nicht; Fremdschlüssel-Nachschlagen ohne gemeinsamen Schemasnapshot |
+| W-P14 Suche (0.14) | PMA-DATA-010 (Rest), PMA-DATA-011, PMA-DATA-012 | Regex-/Ersetzungssemantik je Engine unterschiedlich; Ersetzen nie in PK-/generierten Spalten |
+| W-P15 SQL-Stapel (0.12) | PMA-SQL-002, PMA-SQL-003, PMA-SQL-004 (Teil), PMA-SQL-006, PMA-SQL-013, PMA-NEU-SQL-003, PMA-NEU-NAV-003 (Handoff nennt SQL-002, NEU-SQL-003, NEU-NAV-003 namentlich) | SQL-004: Warnungen/Servercodes offen; DML-Simulation nur SQLite; `BEGIN ... END` ohne `DELIMITER` fail-closed |
+| W-P16 SQL-Verlauf (nur Web) | PMA-SQL-005, -008 bis -012, PMA-NEU-SQL-001, -002, -004, -005, PMA-CON-006 (Handoff belegt Verlauf und Lesezeichen, lokal, Verlauf standardmäßig aus) | kein CodeMirror/Syntaxfarben (keine zusätzliche Abhängigkeit); Teilen entfällt bis Konten; Einzelnachweis je ID nicht geführt |
+| W-P17 Serververwaltung (0.17, lesend) | PMA-ADMIN-002 bis -005, PMA-NEU-ADMIN-001 (Handoff); PMA-NEU-ADMIN-005 laut Plan | Variablen setzen, Prozesse beenden und andere Eingriffe nicht umgesetzt |
+| W-P18 Konten (0.15) | PMA-PRIV-001 bis -007, -009, -010, PMA-NEU-PRIV-001 bis -003 | **PMA-PRIV-008** offen; PostgreSQL-Passwörter, die unter NFKC abweichen, nur mit libpq-konformen Clients nutzbar (pgx wendet kein SASLprep an); kein Browser-Echtlauf; Produktkonten entfallen bis W-P30 |
+| W-P19 Programmobjekte (0.16) | PMA-PROG-001 bis -005, PMA-OBJ-014, PMA-NEU-PROG-002, -003 (Handoff); PMA-PROG-006/-007 und PMA-NEU-PROG-001 laut Plan, nicht einzeln belegt | kein Routinenaufruf, kein Eventlauf; MySQL-Teilabschluss nicht atomar (Wiederherstellung bei CREATE-Fehler, N4 offen) |
+| W-P27 Monitor (0.20, lesend) | PMA-ADMIN-006, -007, -010, -011, PMA-SQL-007, PMA-NEU-ADMIN-002, -003, -006, -012 (lesend, laut Plan) | **PMA-ADMIN-012, PMA-PRIV-008, PMA-NEU-ADMIN-010/-011** (schreibend) offen; Replikation nur Einzelserver, keine Steuerung, nie mit konfiguriertem Replikationspaar getestet; kein General-Log-Rohtext; SQLite nur Version |
+| W-P29 Partitionen (0.22) | PMA-DDL-012 bis -014, PMA-OBJ-013 | nur MySQL/MariaDB/PostgreSQL; eine Katalogspalte und skalare Werte, keine Subpartitionen; REPAIR bei MariaDB nicht live belegt; Teilzustand je Tabelle gemeldet, `observation=null` ohne Nachlesen |
+| W-P26 Einstellungen (nur Web) | PMA-UX-005, PMA-UX-006, PMA-UX-007 (Teil), PMA-NEU-UX-004, PMA-NEU-NAV-006 | nur Deutsch/Englisch, RTL-Mechanik vorbereitet aber nicht ausgeliefert; browserlokal statt Serverspeicher (W-P20 fehlt); Tastaturbelegung nur angezeigt |
+
+Nicht begonnen (keine Handoffs, keine Commits): W-P20 (Konfigurationsspeicher), W-P21 (Beziehungen, Designer, QBE), W-P22 (Transformationen),
+W-P23 (Tracking, Zentralspalten, Normalisierung), W-P24 (Diagramme), W-P25 (Geodaten), W-P30 (Anmeldeverfahren, Teams), W-P31 (Produktinfo, Setup-Ersatz),
+W-P32 (Paritätsaudit). Damit bleiben insbesondere die Bereiche Beziehungen/Designer, Transformationen, Tracking/Zentralspalten/Normalisierung,
+Diagramme, Geodaten und Teile von Authentifizierung/Einstellungen vollständig offen.
+
+Nachweise: [Paketstatus](PWA-PLAN.md#paketstatus-stand-27102026), [Vertragsindex](../contracts/README.md), Integrationshandoffs
+[Welle 2](handoffs/WAVE2-INTEGRATION.md), [Welle 3](handoffs/WAVE3-INTEGRATION.md), [Welle 4](handoffs/WAVE4-INTEGRATION.md), Reviews
+[Welle 3](handoffs/WAVE3-REREVIEW.md), [Welle 4](handoffs/WAVE4-REREVIEW.md), Pins [Bündel 5](handoffs/PIN-BUNDLE-5.md). Kein fertiges Paritätsprozent ableiten.

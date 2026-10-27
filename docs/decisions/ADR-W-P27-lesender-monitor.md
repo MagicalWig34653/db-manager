@@ -1,7 +1,7 @@
 # ADR W-P27: Lesende, zustandslose Monitordaten
 
-Datum: 25.10.2026. Status: Implementierungsvorschlag auf `feat/w-p27-backend`;
-unabhängiger Review und Leadintegration offen.
+Datum: 25.10.2026. Status: angenommen am 27.10.2026. Beleg: [Review B](../handoffs/WAVE4-REVIEW-B.md) (Freigabe mit Auflage F2) und
+[Re-Review](../handoffs/WAVE4-REREVIEW.md) (Fehlerklassen live auf MySQL, MariaDB, PostgreSQL bestätigt). Integriert als API 0.20, nur lesend.
 
 ## Kontext
 

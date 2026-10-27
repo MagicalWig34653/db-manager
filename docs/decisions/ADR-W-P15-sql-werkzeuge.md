@@ -1,7 +1,7 @@
 # ADR W-P15: Nutzer-SQL und ehrliche Simulation
 
-Datum: 24.10.2026. Status: Implementierungsvorschlag für W-P15, Leadfreigabe und
-Integration offen. Keine zentrale ADR-Nummer vorweggenommen.
+Datum: 24.10.2026. Status: angenommen am 27.10.2026. Beleg: unabhängiges [Backend-Review](../handoffs/W-P15-backend-review.md) mit Nachprüfung
+(Freigabe, keine Blocker), integriert als API 0.12 ([Welle 2](../handoffs/WAVE2-INTEGRATION.md)). Die Simulation bleibt auf SQLite begrenzt.
 
 ## Kontext
 

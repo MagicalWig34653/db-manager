@@ -1,6 +1,7 @@
 # ADR-W-P09: Strukturierte Indexausdrücke und Schlüsselersetzung
 
-Status: Implementierungsentscheidung im Reviewkandidaten, Leadannahme offen.
+Status: angenommen am 27.10.2026. Beleg: unabhängiges [Backend-Review](../handoffs/W-P09-backend-review.md) (Freigabe, niedrige Auflagen L1 bis L3) und
+[Welle-3-Re-Review](../handoffs/WAVE3-REREVIEW.md); Auflagen umgesetzt. Integriert als API 0.13.
 Datum: 25.10.2026. Geltungsbereich: W-P09 / API 0.13.
 
 Der Auftrag verlangt PostgreSQL-Ausdrucks- und Teilindizes. Die Leitplanken erlauben

@@ -2,9 +2,9 @@
 
 # ADR-W-P17: Lesende Serververwaltung
 
-Datum: 26.10.2026. Status: gemäß ausdrücklichem Paketauftrag implementiert;
-unabhängige Abnahme offen. Die ursprüngliche W-P17-Gesamtplanung wird dadurch
-nicht als vollständig umgesetzt ausgewiesen.
+Datum: 26.10.2026. Status: angenommen am 27.10.2026 für die **lesende** Stufe. Beleg: [Review B](../handoffs/WAVE4-REVIEW-B.md) (Freigabe) und
+[Re-Review](../handoffs/WAVE4-REREVIEW.md) (Befund F3 behoben, keine Secrets geöffnet). Integriert als API 0.17. Die ursprüngliche
+W-P17-Gesamtplanung (schreibende Eingriffe) wird dadurch nicht als umgesetzt ausgewiesen.
 
 ## Entscheidung
 

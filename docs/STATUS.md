@@ -1,22 +1,67 @@
 # Tatsächlicher Projektstand
 
-Stand: 23.10.2026, kombinierter F5b-/W1-Integrationscheckpoint. Der Nutzer hat den
-aktuellen Abschluss ausdrücklich festgelegt: erster Build auf TestFlight, Pages live,
-anschließend vollständige Dokumentationspflege und Claude-Code-Übergabe. Root
-koordiniert ausschließlich; Agents übernehmen die freigegebenen Schritte.
-Dies ist keine Behauptung vollständig umgesetzter Produktparität.
+Stand: 27.10.2026, Dokumentationsnachführung nach Bündel 5 (Backend-`main` `84a5e2e`, Web-`main` `4b24e53`). Die PWA-Paritätslinie
+(Nutzerfreigabe 24.10.2026, [PWA-PLAN](PWA-PLAN.md)) hat die Wellen 1 bis 4 und vier Pakete der Welle 5 umgesetzt; siehe
+[PWA-Linie](#pwa-paritätslinie-stand-27102026) und die [ehrliche Liste offener Punkte](#offene-punkte-ehrliche-liste-stand-27102026).
+Die Abschnitte „Veröffentlichte Hauptstände“ (Zeile Apple), „Abgenommene Inkremente“ und alles unter „Aktuelle Reviewkandidaten“ bis
+„B4a-/F5b-/W1-Releasecheckpoint“ sind **historische Stände vom 23.10.2026** und wurden hier nicht neu geprüft; das gilt auch für die
+Aussagen zu Pages-Live-Veröffentlichung und TestFlight-Verarbeitung. Dies ist keine Behauptung vollständig umgesetzter Produktparität.
 Docker Compose und Docker Swarm bleiben verbindliche Betriebsziele (ADR-0003).
 
 ## Veröffentlichte Hauptstände
 
 | Repository | Geprüfter Hauptstand | Tatsächlicher Umfang |
 | --- | --- | --- |
-| [db-manager](https://github.com/MagicalWig34653/db-manager) | F5b-/W1-Release ab `1b02ea3`; geprüfte Quellen `0dc9557`/`08021c1` | Go mit SQLite/MySQL/MariaDB/PostgreSQL, SQL, Tabellenansicht, bestätigten Einzelzeilen-Inserts/Updates/Deletes, lesender Index-/Constraint-API0.5 und bestätigter neuer Tabellenanlage über API0.6. Auf `main` weiterhin Webstand F5/F6 (Quelle `8ef738d`); Branch `release/pin-bundle5` bettet Web-Branch `release/pin-bundle5` (`4b24e53`, nicht Web-main; Vorgänger Bündel 4: `f830326`, Bündel 3: Web-main `c14271e`) (Shell, PWA, Tabelle anlegen, Katalog, Objektoperationen, Spalten, Export) ein, Review ausstehend, nicht in main; Sitequellen integriert, Live-Veröffentlichung wird separat geprüft. |
-| [db-manager-web](https://github.com/MagicalWig34653/db-manager-web) | `f75bfa1` (Web-main bis W-P11: `c14271e`) | F5-Strukturansicht und F6-Ergebnisexport nach unabhängiger QA integriert; typisiertes JSON und klar getrennte CSVprofile. Derselbe akzeptierte Webpin8ef738d ist nun im geprüften F5b-Go-/Dockerpaket enthalten. |
-| [db-manager-apple](https://github.com/MagicalWig34653/db-manager-apple) | `359666f` | Eigenständige SwiftUI-App mit SQLite/PostgreSQL ohne Go, isolierter Vault-Core und geprüfte TestFlight-/Iconvorbereitung. Bundle-IDde.linolaske.dbmanager,0.1.0Build1; signierte Exporte privat gesichert. Kein produktiver Anchor/App-Geheimnisspeicher. Erstupload wird separat vom Delivery-Agent nachgewiesen. |
+| [db-manager](https://github.com/MagicalWig34653/db-manager) | `main` `84a5e2e` (Merge Bündel 5) | Go mit SQLite/MySQL/MariaDB/PostgreSQL und API 0.1 bis 0.23 (Tabellen, Einzelzeilen, Struktur, Objekt- und Spaltenoperationen, Indizes, Wartung, Export/Dump, SQL-Stapel, Suche/Ersetzen, Konten, Programmobjekte, Import, Mehrzeilenaktionen, lesende Serververwaltung/Monitor, Exportformate, Partitionen). Eingebettet ist die PWA aus Web-`main` `4b24e53` (Bündel 5: 50 Dateien, Precache 4,32 MiB, Grenzen 8 MiB und 64 Chunks eingehalten). Der Pin-Merge wurde lokal geprüft (siehe [PIN-BUNDLE-5](handoffs/PIN-BUNDLE-5.md)); die GitHub-Actions-Läufe für `84a5e2e` wurden in dieser Nachführung nicht abgefragt. |
+| [db-manager-web](https://github.com/MagicalWig34653/db-manager-web) | `main` `4b24e53` | Svelte-PWA mit Shell/Routing, Tabelle anlegen, Katalog/Übersicht, Objekt- und Spaltenoperationen, Indizes, Wartung, Export (lokal und serverseitig inkl. SQL-Dump), SQL-Stapel/Editor mit lokalem Verlauf, Suche/Ersetzen, Konten, Programme, Import, Mehrzeilenaktionen, Serveradministration und Überwachung (lesend), erweiterte Exportformate, Partitionen, Themen und Deutsch/Englisch. Letzter dokumentierter Prüfstand ([WEB-WAVE2-FIXES](https://github.com/MagicalWig34653/db-manager-web/blob/4b24e53/docs/handoffs/WEB-WAVE2-FIXES.md)): 970 Vitest-Tests, 118 Playwright-Specs, CSP 2, PWA 6. |
+| [db-manager-apple](https://github.com/MagicalWig34653/db-manager-apple) | `359666f` (Stand 23.10.2026, hier nicht neu geprüft) | Eigenständige SwiftUI-App mit SQLite/PostgreSQL ohne Go, isolierter Vault-Core und geprüfte TestFlight-/Iconvorbereitung. Bundle-IDde.linolaske.dbmanager,0.1.0Build1; signierte Exporte privat gesichert. Kein produktiver Anchor/App-Geheimnisspeicher. Erstupload wird separat vom Delivery-Agent nachgewiesen. |
 
 Branch-/Handoffstände sind von Integration und Veröffentlichung getrennt. Eine grüne
 CI ersetzt keine unabhängige Abnahme oder einen tatsächlichen Geräte-/Uploadnachweis.
+
+## PWA-Paritätslinie (Stand 27.10.2026)
+
+Auftrag: alle phpMyAdmin-Funktionen in der PWA verfügbar machen ([ARBEITSPLAN](ARBEITSPLAN.md#prio-pwa-parität-nutzerfreigabe-24102026)).
+Umgesetzt und gemergt sind Backend und Weboberfläche der Pakete W-P01 bis W-P19 (ohne die schreibenden Teile von W-P17) sowie
+W-P26 (Web), W-P27, W-P28 und W-P29; Paketliste, Vertragsnummern und Review je Paket in [PWA-PLAN](PWA-PLAN.md#paketstatus-stand-27102026),
+abgedeckte Feature-IDs in [PARITAET](PARITAET.md#teilnachweise-der-pwa-linie-wellen-1-bis-4-stand-27102026).
+
+| Welle | Backend (API) | Unabhängige Reviews | Web-Pin |
+| --- | --- | --- | --- |
+| 1 | 0.7 (W-P06), Registry/Harness, Build-Lock | W-P01, W-P03, W-P04, W-P06 (Backend, Web) | Bündel 1 (abgelehnt), Bündel 2 (`48c2f67`, [Review](handoffs/PIN-BUNDLE-2-review.md)) |
+| 2 | 0.8 bis 0.12 ([Integration](handoffs/WAVE2-INTEGRATION.md)) | W-P07, W-P08, W-P10, W-P11, W-P15 mit Nachprüfungen: Freigaben | Bündel 3 (`c14271e`, [Review](handoffs/PIN-BUNDLE-3-review.md)) |
+| 3 | 0.13 bis 0.16 ([Integration](handoffs/WAVE3-INTEGRATION.md)) | W-P09, W-P14, W-P18, W-P19 und [Re-Review](handoffs/WAVE3-REREVIEW.md): Freigabe mit Auflagen, keine Blocker | Bündel 4 (`f830326`, [Review](handoffs/PIN-BUNDLE-4-review.md): Freigabe) |
+| 4 | 0.17 bis 0.23 ([Integration](handoffs/WAVE4-INTEGRATION.md)) | [Review A](handoffs/WAVE4-REVIEW-A.md), [Review B](handoffs/WAVE4-REVIEW-B.md), [Re-Review](handoffs/WAVE4-REREVIEW.md): **nicht freigegeben (B1)** | Bündel 5 (`4b24e53`, [Pin](handoffs/PIN-BUNDLE-5.md); Review `bd7e97f`: Freigabe mit drei Auflagen, kein Pin-Blocker; Auflagen vom Autor nachgezogen, ohne erneutes Review) |
+
+Web-Wellen: Die erste Webwelle (W-P09/10/14/15/16/18/19/26) und die zweite (W-P12/13/17/27/28/29) wurden je unabhängig geprüft (WEB-WAVE-REVIEW und
+WEB-WAVE2-REVIEW im Web-Repo); die Befunde (Programme-Meldungen, `grant_without_effect`, SQL-Verlauf-Geheimnisse, SQL-Editor als Writer;
+Schließsperre der Schreibdialoge, SQL-Abschlusslexer, Katalog-Texte, Import-Upload-Race) sind laut WEB-WAVE-FIXES und WEB-WAVE2-FIXES behoben.
+
+## Offene Punkte (ehrliche Liste, Stand 27.10.2026)
+
+- **B1-Fix ungeprüft:** Das Welle-4-Re-Review fand, dass ein bestätigter CSV-Import über HTTP wiederholbar war. Der Autorenfix `9f73efa`
+  (Plan wird bei der Vorabprüfung nicht mehr freigeschaltet, PostgreSQL-Abbruch einheitlich `rejected`) ist auf `main`, wurde aber nicht
+  erneut unabhängig geprüft. ADR-W-P12 bleibt deshalb „Vorschlag“.
+- **N1 Importspeicher:** Ausführung etwa 500 MiB bei zwei Slots (Plan etwa 320 MiB); kein Streaming; Containerlimit mindestens 1 GiB empfohlen,
+  im Repo ist keines gesetzt.
+- **Einmal-Plan-Ledger** nur für CSV-Import und Mehrzeilen-Kopieren, nur im Speicher, 1 h und 4096 Einträge; nach Neustart und über Instanzen wirkungslos.
+  Alle anderen Planfunktionen (Struktur, Konten, Programme, Indizes, Suche/Ersetzen, Wartung, Partitionen) sind ohne Einmal-Plan.
+- **SQL-Import ohne Plan by design** (Dumps sind nicht planbar). Schutz: Klassenzählungs-Warnung und ausdrückliche Bestätigung in der Oberfläche.
+- **MySQL/MariaDB im Browser:** Echtläufe Browser→Backend für Import, Mehrzeilenaktionen, Exportformate und Partitionen laufen nur gegen SQLite und
+  PostgreSQL; Indizes, Suche und Programme nur SQLite (Echtläufe der ersten Webwelle); Konten haben keinen Browser-Echtlauf (nur Mock-Spec und Backend-Fixtures),
+  die Wartung nur einen reviewerlokalen Lauf. Die Backend-Pakete selbst wurden auf allen vier Systemen live geprüft.
+- **Serveradministration:** nur lesend (Status, Variablen, Prozesse); Variablen setzen, Prozesse beenden und andere Eingriffe sind nicht umgesetzt.
+  **Monitor:** nur lesend; Replikation nur Einzelserver ohne Steuerung (kein Replikationspaar getestet); kein General-Log-Rohtext, nur eingeschränktes EXPLAIN.
+- **Exportformate:** XML, YAML, PHP, LaTeX (tabular/longtable), MediaWiki, Texy, CodeGen-Text sind eigene dokumentierte Profile ohne Bytekompatibilität zu
+  phpMyAdmin und ohne Gegenprüfung mit einem LaTeX-/MediaWiki-/Texy-Renderer. ODS/ODT/Word/PDF, Importformate ODS/XML/MediaWiki, Serververzeichnisse fehlen.
+  **PMA-DUMP-001** (Trigger, Routinen, Events im Dump) ist offen; Cross-Dialekt-Dumps werden abgewiesen.
+- **Weitere nicht umgesetzte Pakete:** Konfigurationsspeicher (W-P20), Designer/QBE, Transformationen, Tracking/Zentralspalten/Normalisierung, Diagramme,
+  Geodaten, Produktkonten/Teams/Passkeys, Produktinfo/Setup-Ersatz und der Paritätsaudit (W-P32). Datenbank kopieren/umbenennen (PMA-OBJ-004) fehlt.
+  Einstellungen, Verlauf und Lesezeichen sind browserlokal (kein Serverspeicher); weitere Sprachen außer Deutsch/Englisch, RTL und Touch-Nachweis fehlen.
+- **Weitere bekannte Grenzen:** SQL-Simulation nur SQLite; kein serverweiter Snapshot über Seiten oder Tabellen; DDL ist nicht pauschal transaktional,
+  unbekannte Commitausgänge werden nicht automatisch wiederholt. Wellen-3-Re-Review N4/N5 (niedrig) offen. Keine Lighthouse-, Unterpfad-, Screenreader- oder
+  Safari/Firefox-Prüfung; Bytegleichheit des Builds nur auf der lokalen Plattform nachgewiesen.
+- **Nicht in dieser Nachführung geprüft:** GitHub-Actions-Läufe auf `84a5e2e`, Pages-Livestand, TestFlight-Verarbeitung, Apple-Stand.
 
 ## Abgenommene Inkremente und historische Nachweise
 
@@ -59,6 +104,9 @@ API0.6 bestätigt ausschließlich die neue Tabellenanlage; bestätigter Abschlus
 Strukturbeobachtung bleiben getrennt, keine bestehenden Objekte ändern und keine
 universelle DDL-Rollback-/Zustandsnach-Antwortgarantie ableiten.
 API- und Tresorversionen haben getrennte Versionsräume. [Vertragsindex](../contracts/README.md).
+API0.7 bis API0.23 sind seit 24.10. bis 27.10.2026 hinzugekommen, mit SHA256, Verhaltensverträgen, Reviewergebnissen und Grenzen im
+[Vertragsindex](../contracts/README.md). Die Tabelle oben ist nicht fortgeschrieben, weil der Index maßgeblich ist. Wellen 3 und 4 sind
+Freigaben mit Auflagen; Welle 4 ist wegen eines nicht erneut geprüften Blockerfixes (B1) nicht uneingeschränkt freigegeben.
 
 ## Aktuelle Reviewkandidaten und Nutzeraufträge
 
@@ -122,7 +170,7 @@ Wegwerfressourcen verwenden; fremde Container und Host-Swarm nicht verändern.
 Git-Refanomalie wurde reversibel ohne Änderung gültiger Refs quarantänisiert;
 [Nachweis](handoffs/Git-Refs-2026-10-23.md), keine belegte Aussage zur Ursache.
 
-Nächste Schritte: kombinierten Rootstand und Pages-Liveveröffentlichung prüfen,
+Nächste Schritte (Stand 23.10.2026, historisch; aktuell gelten PWA-Linie und offene Punkte oben): kombinierten Rootstand und Pages-Liveveröffentlichung prüfen,
 dedizierten TestFlight-Erstupload/Verarbeitung nachweisen, danach Dokumentation
 vollständig nachziehen und Claude-Code-Übergabe fertigstellen. Keine weiteren
 neuen Featureintegrationen für diesen Abschluss. Offene Produktfunktionen bleiben

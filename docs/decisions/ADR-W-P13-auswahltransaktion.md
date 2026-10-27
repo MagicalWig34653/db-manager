@@ -1,7 +1,8 @@
 # ADR W-P13: Auswahltransaktion und begrenzte Dateiwerte
 
-Status: Vorschlag, im W-P13-Reviewkandidaten implementiert; Annahme und endgültige
-Nummer durch Lead/Review offen. Datum: 25.10.2026.
+Status: angenommen am 27.10.2026. Beleg: [Review A](../handoffs/WAVE4-REVIEW-A.md) (Freigabe unter Auflagen, kein Blocker); im
+[Re-Review](../handoffs/WAVE4-REREVIEW.md) bestätigt: Dateiersetzen-Budget (F4) auf allen vier Systemen und Replay-Schutz des
+Mehrzeilen-Kopierens über HTTP. Grenze: Einmal-Plan nur im Speicher (1 h, 4096 Einträge). Integriert als API 0.19. Datum: 25.10.2026.
 
 ## Kontext
 
