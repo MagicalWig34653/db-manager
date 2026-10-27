@@ -160,8 +160,15 @@ func TestLiveServerAdmin(t *testing.T) {
 			}
 			first := read("processes", "process-page1", core.ServerAdminReadRequest{Filter: c.Username, Limit: 1})
 			second := read("processes", "process-page2", core.ServerAdminReadRequest{Filter: c.Username, Limit: 1, Offset: 1})
-			if !first.HasMore || len(first.Processes) != 1 || len(second.Processes) != 1 || first.Processes[0].ID == second.Processes[0].ID {
-				t.Fatal("process paging failed")
+			if !first.HasMore || len(first.Processes) != 1 || len(second.Processes) != 1 {
+				t.Fatalf("process paging failed: hasMore=%v first=%d second=%d", first.HasMore, len(first.Processes), len(second.Processes))
+			}
+			// Every read runs on its own session, so the listed set differs between the two
+			// calls (the reader itself is part of it, ordered by a recycled pid or id). Two
+			// snapshots may therefore legitimately both rank the long-lived control session
+			// at their requested offset; equal ids only prove a defect when neither is it.
+			if a, b := first.Processes[0].ID, second.Processes[0].ID; a == b && a != id {
+				t.Fatalf("process paging returned the same foreign session twice: %s", a)
 			}
 			empty := read("processes", "no-match", core.ServerAdminReadRequest{Filter: "no-such-fixture-user"})
 			if len(empty.Processes) != 0 || empty.HasMore {

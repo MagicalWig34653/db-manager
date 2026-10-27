@@ -237,7 +237,8 @@ func TestLiveSQLBatch(t *testing.T) {
 				sleep = "SELECT pg_sleep(5)"
 			}
 			cancelRequest := batchRequest(c, sleep+";INSERT INTO p15_rows VALUES(99,'canceled')")
-			cancelRequest.TimeoutMS = 30
+			// The budget includes connecting (TLS handshake); 30 ms is below that on loaded runners.
+			cancelRequest.TimeoutMS = 1000
 			cancelResult, err := e.SQLBatch(context.Background(), cancelRequest)
 			if err != nil || cancelResult.Statements[0].ErrorCode != "query_canceled" || cancelResult.Statements[1].Outcome != "not_executed" {
 				t.Fatalf("deadline %#v %v", cancelResult, err)

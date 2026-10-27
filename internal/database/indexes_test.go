@@ -33,6 +33,7 @@ func indexCases(t *testing.T, e *Engine, c core.Connection) {
 	t.Helper()
 	ctx := context.Background()
 	q := func(n string) string { return columnQuote(c.Driver, n) }
+	dropTable(t, e, c, "neighbor")
 	execute(t, e, c, "CREATE TABLE neighbor (id BIGINT)")
 	execute(t, e, c, "INSERT INTO neighbor VALUES (7)")
 	name := "keys \"` ;DROP TABLE neighbor"

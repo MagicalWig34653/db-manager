@@ -30,6 +30,16 @@ func execute(t *testing.T, e *Engine, c core.Connection, sql string) core.QueryR
 	}
 	return r
 }
+
+// dropTable removes a table left behind by another live test that shares the fixture database.
+func dropTable(t *testing.T, e *Engine, c core.Connection, name string) {
+	t.Helper()
+	statement := "DROP TABLE IF EXISTS " + quoteIdentifier(c.Driver, name)
+	if c.Driver == "postgres" {
+		statement += " CASCADE"
+	}
+	execute(t, e, c, statement)
+}
 func TestSQLiteRoundTripAndCatalog(t *testing.T) {
 	e := testEngine(t)
 	c := sqliteConnection()

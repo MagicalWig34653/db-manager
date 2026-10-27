@@ -28,7 +28,7 @@ Abweichung), alle Echtläufe gegen die **eingebetteten** Assets bestehen, Precac
 
 - `--check`: 42 Dateien. `build-web.py` zweimal frisch (Node 26.5.0, npm 11.17.0, Fetch von GitHub): `diff -r` der beiden `static/`-Kopien und der Manifeste leer, `git status` jeweils sauber (bytegleich). `test-build-web.py` OK.
 - Mutationsproben (Kopie von `static/`, `verify_build`): Baseline besteht; verwaiste Datei: "Unreferenced asset chunks"; Chunk fehlt in `SHELL`: "service worker shell list differs"; Quelllink falsch: "exact built source link is missing"; 91 Chunks (> 64): "Too many asset chunks"; Precache 13 MB (> 8 MiB): "precache too large". Jede Probe: `ValueError`.
-- Keine `*.map`, kein `sourceMappingURL`, kein `/Users/` oder `/home/` in `static/` (`grep`); Lizenztexte im Build.
+- Keine `*.map`, kein `sourceMappingURL`, keine absoluten lokalen Benutzerpfade (macOS-/Linux-Heimatverzeichnisse) in `static/` (`grep`); Lizenztexte im Build.
 
 ### (3) Validator-Slimming
 

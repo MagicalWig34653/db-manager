@@ -33,6 +33,12 @@ func exportFixture(t *testing.T, e *Engine, c core.Connection) core.TableRef {
 		binary, large, decimal = "BYTEA", "BIGINT", "NUMERIC(40,20)"
 		timestamp = "TIMESTAMPTZ"
 	}
+	// Several live tests share one fixture database; start from a clean table each time.
+	drop := "DROP TABLE IF EXISTS " + q
+	if c.Driver == "postgres" {
+		drop += " CASCADE" // other live tests attach dependent views
+	}
+	execute(t, e, c, drop)
 	execute(t, e, c, "CREATE TABLE "+q+" (id "+large+", text_value TEXT, empty_value TEXT, nil_value TEXT, bytes_value "+binary+", exact_value "+decimal+", utc_value "+timestamp+")")
 	bin := "X'00ff27225c'"
 	if c.Driver == "postgres" {
