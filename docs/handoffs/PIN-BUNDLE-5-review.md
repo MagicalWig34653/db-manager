@@ -42,7 +42,7 @@ Backend-Spec (Auflage 3, behoben durch eigene Probe, nur Spec-Nachzug).
 - **23 Verträge:** Root-Dateien `contracts/api-v*.json` und Webkopien (`src/lib/contract/...` im Lock-Commit) sind **bytegleich** zum Lock-SHA (0 Abweichungen, alle 23 einzeln geprüft).
 - **Zwei frische Neubauten** von `build-web.py` (Node 26.5.0): `diff -r` der beiden `static/`-Kopien leer, Manifeste bytegleich, beide bytegleich zu den eingecheckten Assets, `git status` nach beiden Läufen leer. `--check`: 50 Dateien, bestanden. `test-build-web.py`: 26 Tests OK.
 - **Mutationsproben** `verify_build` (Kopie von `static/`): Baseline besteht; verwaiste Datei: "Unreferenced asset chunks"; Chunk fehlt in `SHELL`: "service worker shell list differs"; Quelllink falsch: "exact built source link is missing"; 69 Chunks (> 64): "Too many asset chunks"; Precache 9,3 MiB (> 8 MiB): "precache too large". Jede Probe `ValueError`.
-- Keine `*.map`, kein `sourceMappingURL`, keine Benutzerpfade (`/Users/`, `/home/`, `C:\Users`) in `static/`; Treffer des Secret-Greps sind nur Oberflächenbegriffe ("Passwort"). **Precache 4 530 471 Bytes (4,32 MiB)** ohne `sw.js` (49 Dateien, 39 Chunks), 54 % Reserve zu 8 MiB, 39 von 64 Chunks.
+- Keine `*.map`, kein `sourceMappingURL`, keine Benutzerpfade (macOS-, Linux- und Windows-Home-Pfade) in `static/`; Treffer des Secret-Greps sind nur Oberflächenbegriffe ("Passwort"). **Precache 4 530 471 Bytes (4,32 MiB)** ohne `sw.js` (49 Dateien, 39 Chunks), 54 % Reserve zu 8 MiB, 39 von 64 Chunks.
 
 ### (3) Echtläufe gegen die eingebetteten Assets (Quellbackend = Review-Worktree, Rev 44293d7)
 

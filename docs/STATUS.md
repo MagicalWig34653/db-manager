@@ -2,7 +2,7 @@
 
 Stand: 27.10.2026, Dokumentationsnachführung nach Bündel 5 (Backend-`main` `84a5e2e`, Web-`main` `4b24e53`). Die PWA-Paritätslinie
 (Nutzerfreigabe 24.10.2026, [PWA-PLAN](PWA-PLAN.md)) hat die Wellen 1 bis 4 und vier Pakete der Welle 5 umgesetzt; siehe
-[PWA-Linie](#pwa-paritätslinie-stand-27102026) und die [ehrliche Liste offener Punkte](#offene-punkte-ehrliche-liste-stand-27102026).
+[PWA-Linie](#pwa-paritatslinie-stand-27102026) und die [ehrliche Liste offener Punkte](#offene-punkte-ehrliche-liste-stand-27102026).
 Die Abschnitte „Veröffentlichte Hauptstände“ (Zeile Apple), „Abgenommene Inkremente“ und alles unter „Aktuelle Reviewkandidaten“ bis
 „B4a-/F5b-/W1-Releasecheckpoint“ sind **historische Stände vom 23.10.2026** und wurden hier nicht neu geprüft; das gilt auch für die
 Aussagen zu Pages-Live-Veröffentlichung und TestFlight-Verarbeitung. Dies ist keine Behauptung vollständig umgesetzter Produktparität.
@@ -21,7 +21,7 @@ CI ersetzt keine unabhängige Abnahme oder einen tatsächlichen Geräte-/Uploadn
 
 ## PWA-Paritätslinie (Stand 27.10.2026)
 
-Auftrag: alle phpMyAdmin-Funktionen in der PWA verfügbar machen ([ARBEITSPLAN](ARBEITSPLAN.md#prio-pwa-parität-nutzerfreigabe-24102026)).
+Auftrag: alle phpMyAdmin-Funktionen in der PWA verfügbar machen ([ARBEITSPLAN](ARBEITSPLAN.md#prio-pwa-paritat-nutzerfreigabe-24102026)).
 Umgesetzt und gemergt sind Backend und Weboberfläche der Pakete W-P01 bis W-P19 (ohne die schreibenden Teile von W-P17) sowie
 W-P26 (Web), W-P27, W-P28 und W-P29; Paketliste, Vertragsnummern und Review je Paket in [PWA-PLAN](PWA-PLAN.md#paketstatus-stand-27102026),
 abgedeckte Feature-IDs in [PARITAET](PARITAET.md#teilnachweise-der-pwa-linie-wellen-1-bis-4-stand-27102026).
