@@ -26,3 +26,11 @@ Alte Einträge „in Arbeit“ anhand von Dateien, Branches und Jobs verifiziere
 Abnahmekriterien erfüllt, angemessene Prüfungen ausgeführt, relevante Befunde gelöst,
 Lizenzen und öffentliche Daten geprüft, Dokumentation und Status aktualisiert.
 Nicht ausgeführte Plattformtests bleiben offen. Eine frische Session muss fortsetzen können.
+
+## Dokumentationsregeln für die Site
+
+`python3 scripts/check-docs.py` muss vor jedem Merge fehlerfrei laufen. Es spiegelt den Pages-Check:
+In `docs/**/*.md` keine privaten Pfade oder Build-Marker wörtlich schreiben (Liste in `site/check.py`
+und `scripts/check-docs.py`: macOS-/Runner-Home-Pfade, temporäre Ordner, Capture-Konfigurationsvariable),
+sondern umschreiben (z. B. „Home-Pfade“). Anker-Links nur ASCII und auf vorhandene Überschriften: Der Site-Slug
+entfernt Umlaute ohne Ersatz („Parität“ wird `paritat`, nicht `paritaet`).
