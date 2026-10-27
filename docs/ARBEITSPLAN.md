@@ -1,6 +1,6 @@
 # Arbeitsplan
 
-Stand: 23.10.2026. Neuer ausdrücklicher Arbeitsabschluss: erster Build auf
+Stand: 23.10.2026 für den Abschluss-Block (historisch); Abschnitt „Prio PWA-Parität“ nachgeführt am 27.10.2026. Neuer ausdrücklicher Arbeitsabschluss: erster Build auf
 TestFlight, Pages online, danach vollständige Doku- und Claude-Code-Übergabe.
 Root koordiniert ausschließlich; Agents übernehmen die freigegebenen Schritte.
 Offene Gesamtproduktfunktionen werden in der Übergabe festgehalten, nicht als fertig
@@ -29,8 +29,24 @@ behauptet. Tatsächlicher Stand: [STATUS](STATUS.md).
 Der Nutzer hat am 24.10.2026 als höchste Priorität freigegeben, alle phpMyAdmin-Funktionen in der PWA (Svelte-Weboberfläche über den
 Go-Server) verfügbar zu machen, und autonomes Weiterarbeiten erlaubt. Für diese Linie ist die Zwischenregel „keine weitere neue
 Featureintegration“ (Punkt 4 oben) aufgehoben; die Apple-Linie ist nachrangig. Plan, Wellen, Pakete, Ablauf und Entscheidungsbedarf:
-[PWA-PLAN](PWA-PLAN.md) (Entwurf, bis zur Leadfreigabe kein Beschluss). Pakete verwenden eigene Worktrees und Dateibesitz wie dort
+[PWA-PLAN](PWA-PLAN.md) (Plan; Paketstatus 27.10.2026 dort nachgeführt). Pakete verwenden eigene Worktrees und Dateibesitz wie dort
 beschrieben; Veröffentlichung (Images, Pages) bleibt ohne ausdrückliche Freigabe ausgeschlossen. Vollständige Parität bleibt offen.
+
+Stand 27.10.2026 (Backend-`main` `84a5e2e`, Web-`main` `4b24e53`): Wellen 1 bis 4 sowie W-P26 (Web), W-P27, W-P28 und W-P29 sind umgesetzt, gereviewt und mit den
+Web-Pins Bündel 1 bis 5 gemergt; API 0.7 bis 0.23 ([Vertragsindex](../contracts/README.md)). Nachweise je Paket: [Paketstatus](PWA-PLAN.md#paketstatus-stand-27102026),
+Feature-IDs: [PARITAET](PARITAET.md#teilnachweise-der-pwa-linie-wellen-1-bis-4-stand-27102026), offene Punkte: [STATUS](STATUS.md#offene-punkte-ehrliche-liste-stand-27102026).
+
+Nächste konkrete Schritte der PWA-Linie (Reihenfolge nicht bindend, nichts davon ist begonnen oder freigegeben):
+
+1. Unabhängige Nachprüfung des B1-Fixes `9f73efa` und der Re-Review-Punkte N1 (Importspeicher: Streaming oder dokumentiertes Containerlimit), N2, N3;
+   danach Entscheidung über ADR-W-P12 (derzeit Vorschlag).
+2. Echtläufe Browser gegen MySQL und MariaDB für Import, Mehrzeilenaktionen, Exportformate und Partitionen; Echtläufe für Konten und Wartung;
+   gegen die eingebetteten Assets (`DBM_EMBEDDED=1`) statt gegen die Vite-Vorschau.
+3. PMA-DUMP-001 (Trigger, Routinen, Events im Dump) mit W-P19-Objekten schließen; ODS/ODT/Word/PDF-Export und ODS/XML/MediaWiki-Import nach Bibliotheksentscheidung (E8).
+4. Offene Pakete: W-P20 Konfigurationsspeicher, W-P21 bis W-P25, W-P30, W-P31, anschließend W-P32 Paritätsaudit; schreibende Serververwaltung und
+   Replikationssteuerung nur mit Plan/Bestätigung und isoliertem Testpaar (E9).
+5. Niedrige Reviewreste der Welle 3 (N4, N5) und Web-Auflagen (axe-Label am SQL-Knopf) einplanen.
+
 
 ## Integrationsstand und Dateibesitz
 

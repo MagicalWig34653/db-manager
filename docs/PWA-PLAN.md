@@ -1,6 +1,7 @@
 # PWA-Parität: Umsetzungsplan
 
-Stand: 24.10.2026. Status: **Plan, kein Beschluss und keine Implementierung.** Auftrag: Der Nutzer hat am
+Stand: 24.10.2026 (Plan); Paketstatus und API-Nummern nachgeführt am 27.10.2026, siehe „Paketstatus“ in Abschnitt 3.
+Status des Plans: **Plan und Vorschlag, die Pakete der Wellen 1 bis 4 und vier Pakete der Welle 5 sind umgesetzt (Nachweise im Paketstatus), keine vollständige Parität.** Auftrag: Der Nutzer hat am
 24.10.2026 als höchste Priorität freigegeben, alle phpMyAdmin-Funktionen in der PWA (Svelte-Weboberfläche,
 ausgeliefert vom Go-Server) verfügbar zu machen, und autonomes Weiterarbeiten erlaubt. Das hebt für diese Linie
 die Zwischenregel „keine weitere neue Featureintegration“ aus [ARBEITSPLAN](ARBEITSPLAN.md) Punkt 4 auf. Die
@@ -184,6 +185,47 @@ Integrationsreihenfolge ohne Lücken: 0.8 Datenbank-/Tabellenoperationen (W-P07)
 0.11 Export und SQL-Dump (W-P11), 0.12 SQL-Stapel/EXPLAIN/Simulation (W-P15). Spätere Pakete (zum Beispiel W-P09 Indizes) erhalten die
 nächste freie Nummer bei ihrer Integration; Pfade `/api/vN/`, Vertragsdatei und Wächter folgen dieser Nummer. Siehe
 [WAVE2-INTEGRATION](handoffs/WAVE2-INTEGRATION.md). Welle 3: 0.13 Indizes/Schlüssel (W-P09), 0.14 Suche/Ersetzen (W-P14), 0.15 Benutzer/Rechte (W-P18), 0.16 Views/Routinen/Trigger/Events (W-P19); W-P17 (Serververwaltung) ist noch nicht integriert und erhält die nächste freie Nummer. Siehe [WAVE3-INTEGRATION](handoffs/WAVE3-INTEGRATION.md).
+Welle 4: 0.17 Serververwaltung nur lesend (W-P17), 0.18 Import (W-P12), 0.19 Mehrzeilen/Dateiwerte/FK-Nachschlagen (W-P13), 0.20 Monitor lesend (W-P27),
+0.21 erweiterte Exportformate (W-P28), 0.22 Partitionen/Präfix-Stapel (W-P29), Zusatz 0.23 (`AccountResult.reason` + `grant_without_effect`, keine neuen Pfade).
+Siehe [WAVE4-INTEGRATION](handoffs/WAVE4-INTEGRATION.md). Die Nummern in den Paketüberschriften unten (zum Beispiel „W-P09 API 0.10“, „W-P12 API 0.13“)
+sind die ursprünglichen Vorschläge und gelten nicht mehr; maßgeblich ist diese Liste und der [Vertragsindex](../contracts/README.md).
+
+#### Paketstatus (Stand 27.10.2026)
+
+Quellen: Backend-`main` `84a5e2e` (Verträge v1 bis v23), Web-`main` `4b24e53` (Pin [Bündel 5](handoffs/PIN-BUNDLE-5.md)), die genannten Handoffs.
+„Review“ bedeutet unabhängiges Review mit schriftlichem Bericht; die Spalte nennt dessen Ergebnis, nicht eine Paritätsabnahme.
+
+| Paket | Backend (API) | Web | Review und offene Punkte |
+| --- | --- | --- | --- |
+| W-P01 Registry, Fixture-Harness | umgesetzt | – | [Review](handoffs/W-P01-review.md): Freigabe |
+| W-P02 Web-Shell, Routing | – | umgesetzt | Review im Web-Repo (W-P02-review) |
+| W-P03 PWA-Basis | – / Go-Handler | umgesetzt | [Review](handoffs/W-P03-review.md): Freigabe, niedrige Befunde |
+| W-P04 Build-Lock | umgesetzt | umgesetzt | [Review](handoffs/W-P04-review.md): Freigabe |
+| W-P05 Tabelle anlegen (UI zu 0.6) | 0.6 (B4a) | umgesetzt | Web-Review W-P05 im Web-Repo |
+| W-P06 Übersicht, Definition, Serverinfo | 0.7 | umgesetzt | [Backend-Review](handoffs/W-P06-backend-review.md): Freigabe; Web-Review im Web-Repo |
+| W-P07 Datenbank-/Tabellenoperationen | 0.8 | umgesetzt | [Backend-Review](handoffs/W-P07-backend-review.md); Datenbank kopieren/umbenennen (OBJ-004) nicht umgesetzt |
+| W-P08 Spalten ändern | 0.9 | umgesetzt | [Backend-Review](handoffs/W-P08-backend-review.md) |
+| W-P09 Indizes, Schlüssel | 0.13 | umgesetzt | [Backend-Review](handoffs/W-P09-backend-review.md), [Re-Review](handoffs/WAVE3-REREVIEW.md); Web-Welle unabhängig geprüft (WEB-WAVE-REVIEW) |
+| W-P10 Tabellenwartung | 0.10 | umgesetzt | [Backend-Review](handoffs/W-P10-backend-review.md); kein Echtlaufskript im Repo, nur ein reviewerlokaler Lauf gegen die Einbettung (SQLite, PostgreSQL) im [Bündel-4-Review](handoffs/PIN-BUNDLE-4-review.md) |
+| W-P11 Export, SQL-Dump | 0.11 | umgesetzt | [Backend-Review](handoffs/W-P11-backend-review.md); Web-Review im Web-Repo |
+| W-P12 Import SQL/CSV | 0.18 | umgesetzt | Review A, [Re-Review](handoffs/WAVE4-REREVIEW.md): Blocker B1, Fix nicht erneut unabhängig geprüft; N1 Speicher offen; SQL-Import ohne Plan by design |
+| W-P13 Mehrzeilen, Dateiwerte, FK-Nachschlagen | 0.19 | umgesetzt | [Review A](handoffs/WAVE4-REVIEW-A.md); nur BLOB-Dateiwerte, kein TEXT-Upload, keine ENUM/SET-Listen |
+| W-P14 Suche, Suchen und Ersetzen | 0.14 | umgesetzt | [Backend-Review](handoffs/W-P14-backend-review.md), Re-Review |
+| W-P15 SQL-Stapel, EXPLAIN, Simulation | 0.12 | umgesetzt | [Backend-Review](handoffs/W-P15-backend-review.md); Simulation nur SQLite |
+| W-P16 SQL-Verlauf, Lesezeichen | – (nur Web) | umgesetzt, browserlokal, Verlauf standardmäßig aus | WEB-WAVE-REVIEW im Web-Repo |
+| W-P17 Serverstatus, Variablen, Prozesse | 0.17 nur lesend | umgesetzt (lesend) | [Review B](handoffs/WAVE4-REVIEW-B.md); schreibende Eingriffe (Variablen setzen, KILL) nicht umgesetzt |
+| W-P18 Benutzer und Rechte | 0.15 | umgesetzt | [Backend-Review](handoffs/W-P18-backend-review.md), Re-Review; kein Browser-Echtlauf |
+| W-P19 Views, Routinen, Trigger, Events | 0.16 | umgesetzt | [Backend-Review](handoffs/W-P19-backend-review.md), Re-Review |
+| W-P26 Einstellungen, Themen, Sprachen | – (nur Web) | Themen, Deutsch und Englisch, Kürzelübersicht, browserlokal | WEB-WAVE-REVIEW; weitere Sprachen, RTL und Touch-Nachweis nicht umgesetzt |
+| W-P27 Monitor, Advisor, Replikation, Binlog | 0.20 nur lesend | umgesetzt (lesend) | Review B; Replikation nur Einzelserver, keine Steuerung |
+| W-P28 erweiterte Formate, Dump-Details | 0.21 | umgesetzt | Review B; XML, YAML, PHP, LaTeX, MediaWiki, Texy, CodeGen-Text; ODS/ODT/Word/PDF, Importformate ODS/XML/MediaWiki und Serververzeichnisse fehlen; DUMP-001 offen |
+| W-P29 Partitionen, Präfix-Stapel | 0.22 | umgesetzt | Review B; nur MySQL/MariaDB/PostgreSQL |
+| W-P20 Konfigurationsspeicher, W-P21 Designer/QBE, W-P22 Transformationen, W-P23 Tracking/Zentralspalten/Normalisierung, W-P24 Diagramme, W-P25 Geodaten, W-P30 Teams/Anmeldeverfahren, W-P31 Produktinfo/Setup-Ersatz | nicht begonnen (kein Handoff, kein Commit) | nicht begonnen | – |
+| W-P32 Paritätsaudit | nicht begonnen | – | – |
+
+Die Web-Pins (Bündel 1 bis 5) sind in `main` gemergt: Bündel 1 (Shell/PWA, ersetzt durch Bündel 2 nach abgelehntem Review), 2 (Web `48c2f67`, API bis 0.7),
+3 (Web `c14271e`, API 0.8/0.9/0.11), 4 (Web `f830326`, 17 Verträge, schlanke Validatoren) und 5 (Web `4b24e53`, 23 Verträge, Precache 4,32 MiB).
+Offene Querschnittspunkte stehen in [STATUS](STATUS.md#offene-punkte-ehrliche-liste-stand-27102026).
 
 Reihenfolge innerhalb einer Welle ist Vorschlag; Abhängigkeiten stehen je Paket. Wellen sind keine Gates: ein Paket
 startet, sobald seine Abhängigkeiten abgenommen sind (Abschnitt 4.3).

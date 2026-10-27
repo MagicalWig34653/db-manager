@@ -1,6 +1,7 @@
 # ADR-0008: Begrenzter vollständiger Konfliktvergleich beim Ersetzen
 
-Status: **Paketentscheidung W-P14, unabhängig noch zu prüfen**. Datum: 24.10.2026.
+Status: **angenommen am 27.10.2026** (Paketentscheidung W-P14). Beleg: unabhängiges [Backend-Review](../handoffs/W-P14-backend-review.md) (Freigabe mit
+Auflagen M1, M2) und [Welle-3-Re-Review](../handoffs/WAVE3-REREVIEW.md) (M1 mit echter Assertion bestätigt). Datum: 24.10.2026.
 
 ## Kontext
 

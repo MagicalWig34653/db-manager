@@ -1,7 +1,7 @@
 # ADR W-P29: Strukturierte Partitionen und gemeinsame Präfixpläne
 
-Datum: 25.10.2026. Status: implementierter Paketvorschlag; unabhängiges Review und
-Leadintegration offen. API 0.22 ist durch den Auftrag festgelegt.
+Datum: 25.10.2026. Status: angenommen am 27.10.2026. Beleg: [Review B](../handoffs/WAVE4-REVIEW-B.md) (Freigabe, nur Testlücken) und
+[Re-Review](../handoffs/WAVE4-REREVIEW.md). Integriert als API 0.22. Kein MySQL/MariaDB-Echtlauf der Weboberfläche.
 
 ## Kontext und Entscheidung im Paket
 

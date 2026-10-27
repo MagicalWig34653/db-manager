@@ -1,7 +1,7 @@
 # ADR W-P11: Begrenzter Exportstream mit Formatabschluss
 
-Status: Vorschlag, im W-P11-Reviewkandidaten implementiert; endgültige ADR-Nummer und
-Annahme durch Lead/Review offen. Datum: 24.10.2026.
+Status: angenommen am 27.10.2026. Beleg: unabhängiges [Backend-Review](../handoffs/W-P11-backend-review.md) mit Nachprüfung (Freigabe, keine Blocker),
+integriert als API 0.11 ([Welle 2](../handoffs/WAVE2-INTEGRATION.md)). Die ADR behält ihren paketbezogenen Namen. Datum: 24.10.2026.
 
 ## Kontext
 

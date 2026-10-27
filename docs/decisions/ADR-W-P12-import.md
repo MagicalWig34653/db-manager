@@ -1,7 +1,9 @@
 # ADR W-P12: Begrenzte Browserimporte und bestätigte CSV-Pläne
 
-Datum: 25.10.2026. Status: Implementierungsvorschlag, unabhängiger Sicherheitsreview
-und Leadfreigabe offen. API 0.18 ist ausdrücklich für dieses Paket vergeben.
+Datum: 25.10.2026. Status: **Vorschlag, nicht angenommen** (Stand 27.10.2026). Review A ([WAVE4-REVIEW-A](../handoffs/WAVE4-REVIEW-A.md)) gab unter Auflagen
+frei, das [Re-Review](../handoffs/WAVE4-REREVIEW.md) endete jedoch mit „Nicht freigegeben“ (Blocker B1: bestätigter CSV-Import über HTTP
+wiederholbar). Der Autorenfix `9f73efa` wurde nicht erneut unabhängig geprüft; Befund N1 (Speicher etwa 500 MiB bei zwei Slots) bleibt
+offen. Annahme erst nach unabhängiger Nachprüfung. API 0.18 ist für dieses Paket vergeben.
 
 ## Kontext
 
