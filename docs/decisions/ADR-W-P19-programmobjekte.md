@@ -1,8 +1,8 @@
 # ADR W-P19: Bestätigte Programmdefinitionen ohne Client-Splitting
 
-Datum: 25.10.2026. Status: Umsetzung des ausdrücklich begrenzten W-P19-Auftrags
-und von E5; unabhängige Laufzeitabnahme und Integration durch den Lead offen.
-Keine zentrale ADR-Nummer vorweggenommen.
+Datum: 25.10.2026. Status: angenommen am 27.10.2026. Beleg: unabhängiges [Backend-Review](../handoffs/W-P19-backend-review.md) (Freigabe mit Auflagen)
+und [Welle-3-Re-Review](../handoffs/WAVE3-REREVIEW.md); offen niedrig: N4 (Wiederherstellung bei unbestimmtem CREATE-Ausgang).
+Die Integration vergab API 0.16 (nicht 0.17).
 
 ## Kontext
 

@@ -1,6 +1,8 @@
 # ADR W-P28: Begrenzte Textformate und Katalogziele
 
-Status: Vorschlag als implementierter Reviewkandidat; Annahme durch Lead offen.
+Status: angenommen am 27.10.2026. Beleg: [Review B](../handoffs/WAVE4-REVIEW-B.md) (Freigabe mit Auflage F1, YAML) und
+[Re-Review](../handoffs/WAVE4-REREVIEW.md) (YAML mit PyYAML, CSafeLoader, Psych verlustfrei). Integriert als API 0.21. Die Ausgaben wurden mit
+keinem LaTeX-, MediaWiki- oder Texy-Renderer gegengeprüft; DUMP-001 (Trigger/Routinen/Events) bleibt offen.
 
 ## Kontext
 
