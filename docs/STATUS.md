@@ -1,6 +1,6 @@
 # Tatsächlicher Projektstand
 
-Stand: 27.10.2026, Dokumentationsnachführung nach Bündel 5 (Backend-`main` `84a5e2e`, Web-`main` `4b24e53`). Die PWA-Paritätslinie
+Stand: 31.10.2026, Sitzungsabschluss nach Bündel 6 (Backend-`main` `93e0bc1`, Web-`main` `3e422dd`); Einzelheiten und Fortsetzung in [SESSION-2026-10-31](handoffs/SESSION-2026-10-31.md). Die Tabellen und Listen darunter stammen teils noch vom 27.10.2026 (Bündel 5) und sind dort markiert. Die PWA-Paritätslinie
 (Nutzerfreigabe 24.10.2026, [PWA-PLAN](PWA-PLAN.md)) hat die Wellen 1 bis 4 und vier Pakete der Welle 5 umgesetzt; siehe
 [PWA-Linie](#pwa-paritatslinie-stand-27102026) und die [ehrliche Liste offener Punkte](#offene-punkte-ehrliche-liste-stand-27102026).
 Die Abschnitte „Veröffentlichte Hauptstände“ (Zeile Apple), „Abgenommene Inkremente“ und alles unter „Aktuelle Reviewkandidaten“ bis
@@ -12,8 +12,8 @@ Docker Compose und Docker Swarm bleiben verbindliche Betriebsziele (ADR-0003).
 
 | Repository | Geprüfter Hauptstand | Tatsächlicher Umfang |
 | --- | --- | --- |
-| [db-manager](https://github.com/MagicalWig34653/db-manager) | `main` `84a5e2e` (Merge Bündel 5) | Go mit SQLite/MySQL/MariaDB/PostgreSQL und API 0.1 bis 0.23 (Tabellen, Einzelzeilen, Struktur, Objekt- und Spaltenoperationen, Indizes, Wartung, Export/Dump, SQL-Stapel, Suche/Ersetzen, Konten, Programmobjekte, Import, Mehrzeilenaktionen, lesende Serververwaltung/Monitor, Exportformate, Partitionen). Eingebettet ist die PWA aus Web-`main` `4b24e53` (Bündel 5: 50 Dateien, Precache 4,32 MiB, Grenzen 8 MiB und 64 Chunks eingehalten). Der Pin-Merge wurde lokal geprüft (siehe [PIN-BUNDLE-5](handoffs/PIN-BUNDLE-5.md)); die GitHub-Actions-Läufe für `84a5e2e` wurden in dieser Nachführung nicht abgefragt. |
-| [db-manager-web](https://github.com/MagicalWig34653/db-manager-web) | `main` `4b24e53` | Svelte-PWA mit Shell/Routing, Tabelle anlegen, Katalog/Übersicht, Objekt- und Spaltenoperationen, Indizes, Wartung, Export (lokal und serverseitig inkl. SQL-Dump), SQL-Stapel/Editor mit lokalem Verlauf, Suche/Ersetzen, Konten, Programme, Import, Mehrzeilenaktionen, Serveradministration und Überwachung (lesend), erweiterte Exportformate, Partitionen, Themen und Deutsch/Englisch. Letzter dokumentierter Prüfstand ([WEB-WAVE2-FIXES](https://github.com/MagicalWig34653/db-manager-web/blob/4b24e53/docs/handoffs/WEB-WAVE2-FIXES.md)): 970 Vitest-Tests, 118 Playwright-Specs, CSP 2, PWA 6. |
+| [db-manager](https://github.com/MagicalWig34653/db-manager) | `main` `93e0bc1` (Stand 31.10.2026: Bündel 6, API bis 0.24, Pages-Fix; CI auf diesem Stand grün; Tabelle unten beschreibt den Umfang bis 0.23 vom 27.10.) | Go mit SQLite/MySQL/MariaDB/PostgreSQL und API 0.1 bis 0.23 (Tabellen, Einzelzeilen, Struktur, Objekt- und Spaltenoperationen, Indizes, Wartung, Export/Dump, SQL-Stapel, Suche/Ersetzen, Konten, Programmobjekte, Import, Mehrzeilenaktionen, lesende Serververwaltung/Monitor, Exportformate, Partitionen). Eingebettet ist die PWA aus Web-`main` `4b24e53` (Bündel 5: 50 Dateien, Precache 4,32 MiB, Grenzen 8 MiB und 64 Chunks eingehalten). Der Pin-Merge wurde lokal geprüft (siehe [PIN-BUNDLE-5](handoffs/PIN-BUNDLE-5.md)); die GitHub-Actions-Läufe für `84a5e2e` wurden in dieser Nachführung nicht abgefragt. |
+| [db-manager-web](https://github.com/MagicalWig34653/db-manager-web) | `main` `3e422dd` (31.10.2026: zusätzlich CodeMirror-Editor und Konfigurationsspeicher-Oberfläche) | Svelte-PWA mit Shell/Routing, Tabelle anlegen, Katalog/Übersicht, Objekt- und Spaltenoperationen, Indizes, Wartung, Export (lokal und serverseitig inkl. SQL-Dump), SQL-Stapel/Editor mit lokalem Verlauf, Suche/Ersetzen, Konten, Programme, Import, Mehrzeilenaktionen, Serveradministration und Überwachung (lesend), erweiterte Exportformate, Partitionen, Themen und Deutsch/Englisch. Letzter dokumentierter Prüfstand ([WEB-WAVE2-FIXES](https://github.com/MagicalWig34653/db-manager-web/blob/4b24e53/docs/handoffs/WEB-WAVE2-FIXES.md)): 970 Vitest-Tests, 118 Playwright-Specs, CSP 2, PWA 6. |
 | [db-manager-apple](https://github.com/MagicalWig34653/db-manager-apple) | `359666f` (Stand 23.10.2026, hier nicht neu geprüft) | Eigenständige SwiftUI-App mit SQLite/PostgreSQL ohne Go, isolierter Vault-Core und geprüfte TestFlight-/Iconvorbereitung. Bundle-IDde.linolaske.dbmanager,0.1.0Build1; signierte Exporte privat gesichert. Kein produktiver Anchor/App-Geheimnisspeicher. Erstupload wird separat vom Delivery-Agent nachgewiesen. |
 
 Branch-/Handoffstände sind von Integration und Veröffentlichung getrennt. Eine grüne
@@ -36,6 +36,15 @@ abgedeckte Feature-IDs in [PARITAET](PARITAET.md#teilnachweise-der-pwa-linie-wel
 Web-Wellen: Die erste Webwelle (W-P09/10/14/15/16/18/19/26) und die zweite (W-P12/13/17/27/28/29) wurden je unabhängig geprüft (WEB-WAVE-REVIEW und
 WEB-WAVE2-REVIEW im Web-Repo); die Befunde (Programme-Meldungen, `grant_without_effect`, SQL-Verlauf-Geheimnisse, SQL-Editor als Writer;
 Schließsperre der Schreibdialoge, SQL-Abschlusslexer, Katalog-Texte, Import-Upload-Race) sind laut WEB-WAVE-FIXES und WEB-WAVE2-FIXES behoben.
+
+## Nachtrag 31.10.2026 (Sitzungsende)
+
+- Gemergt seit dem 27.10.: W-P20 Konfigurationsspeicher (API 0.24, Backend mit Review und Re-Review, Blocker B-01 behoben), W-P16 CodeMirror-Editor
+  (drei Reviews), W-P20-Weboberfläche, Pin Bündel 6 ([PIN-BUNDLE-6](handoffs/PIN-BUNDLE-6.md), Toolchain Node 26.12.1), Pages- und Workflow-Reparaturen.
+- ADR-W-P12 bleibt „Vorschlag“ (B1-Fix nur vom Lead über HTTP-Replay-Tests bestätigt); ADR-W-P20 steht auf „vorgeschlagen“.
+- Unfertig und ungeprüft als WIP-Branches gesichert: DUMP-001 (`feat/dump-objects`), OBJ-004 (`feat/obj-004-db-copy`), W-P22 (Web `feat/w-p22-web`).
+- Die Liste „Weitere nicht umgesetzte Pakete“ unten gilt unverändert, mit Ausnahme von W-P20 (umgesetzt, Layouts und gespeicherte Suchen nicht verdrahtet).
+- Arbeit pausiert bis 2.11.2026 (Wochenlimit des Kontos).
 
 ## Offene Punkte (ehrliche Liste, Stand 27.10.2026)
 
