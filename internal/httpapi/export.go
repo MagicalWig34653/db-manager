@@ -78,7 +78,7 @@ func (w *downloadWriter) Write(p []byte) (int, error) {
 		w.response.Header().Set("Content-Type", media)
 		w.response.Header().Set("Content-Disposition", `attachment; filename="`+filename+`"`)
 		snapshot := "per-database"
-		if w.request.Scope == "query" || w.request.ViewsAsTables {
+		if w.request.Scope == "query" || w.request.ViewsAsTables || len(w.request.Objects) > 0 && w.request.Connection.Driver == "mysql" {
 			snapshot = "read-only-best-effort"
 		}
 		w.response.Header().Set("X-Export-Snapshot", snapshot)

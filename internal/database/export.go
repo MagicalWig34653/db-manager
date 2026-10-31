@@ -130,6 +130,10 @@ func (e *Engine) exportDatabase(ctx context.Context, c core.Connection, r core.E
 	if (r.Format == "csv" || r.Format == "excel-csv") && len(tables) != 1 {
 		return invalidExport()
 	}
+	objects, err := listExportObjects(ctx, conn, c, r)
+	if err != nil {
+		return err
+	}
 	if !*started {
 		if err = f.start(); err != nil {
 			return err
@@ -143,6 +147,11 @@ func (e *Engine) exportDatabase(ctx context.Context, c core.Connection, r core.E
 			}
 		} else {
 			return public("unsupported_export", "SQL-Serverexport ist nur für MySQL/MariaDB verfügbar; JSON unterstützt getrennte Datenbanken.")
+		}
+	}
+	if r.Drop && len(objects) > 0 {
+		if err = f.objectDrops(c, objects); err != nil {
+			return err
 		}
 	}
 	// Structure precedes data. DDL is bounded metadata, never table contents.
@@ -175,6 +184,20 @@ func (e *Engine) exportDatabase(ctx context.Context, c core.Connection, r core.E
 			if err = f.endTable(); err != nil {
 				return err
 			}
+		}
+	}
+	// Views, routines, triggers and events follow the tables and their data, so
+	// that restoring the rows never fires triggers or events.
+	if err = f.writeObjects(ctx, conn, c, objects); err != nil {
+		return err
+	}
+	if len(objects) > 0 {
+		again, listErr := listExportObjects(ctx, conn, c, r)
+		if listErr != nil {
+			return listErr
+		}
+		if !objectNamesEqual(objects, again) {
+			return public("export_objects_changed", "Datenbankobjekte haben sich während des Exports geändert; Export ist unvollständig.")
 		}
 	}
 	return nil

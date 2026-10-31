@@ -18,6 +18,15 @@ const ExportMaxTimeoutMS = 300000
 const ExportDefaultTimeoutMS = 60000
 const ExportMaxTables = 100
 
+// ExportMaxObjects bounds the object list (views, routines, triggers, events) per database.
+const ExportMaxObjects = 5000
+
+// ExportMaxObjectBytes bounds one object definition; larger ones abort the dump.
+const ExportMaxObjectBytes = 4 << 20
+
+// ExportObjectClasses are the optional SQL dump object classes in dependency order.
+func ExportObjectClasses() []string { return []string{"views", "routines", "triggers", "events"} }
+
 // ExportRequest contains download options, never a server-side destination.
 type ExportAlias struct {
 	Source TableRef `json:"source"`
@@ -32,6 +41,7 @@ type ExportRequest struct {
 	Comments               bool          `json:"comments,omitempty"`
 	Aliases                []ExportAlias `json:"aliases,omitempty"`
 	DataStatement          string        `json:"data_statement,omitempty"`
+	Objects                []string      `json:"objects,omitempty"`
 	Connection             Connection    `json:"connection"`
 	Format                 string        `json:"format,omitempty"`
 	Scope                  string        `json:"scope,omitempty"`
@@ -147,6 +157,9 @@ func NormalizeExtendedExport(r ExportRequest) (ExportRequest, error) {
 	}
 	if !*r.Structure && !*r.Data {
 		return r, invalidExportOptions()
+	}
+	if err := normalizeExportObjects(&r); err != nil {
+		return r, err
 	}
 	if r.Format != "sql" && (*r.Structure || r.Drop || r.IfNotExists || r.Extended || r.Transaction || r.DisableFK) {
 		return r, invalidExportOptions()
