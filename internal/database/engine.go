@@ -32,6 +32,8 @@ type Engine struct {
 	exports chan struct{} // bounds long-running exports (MaxConcurrentExports)
 	roots   *x509.CertPool
 	plans   planLedger // single-use ledger for confirmed import/bulk plans
+	copying dbCopyBusy // databases currently written by a database copy (OBJ-004)
+	dcHooks *dbCopyHooks
 }
 
 func New(dataDir string, allowedHosts []string, options ...Option) (*Engine, error) {
