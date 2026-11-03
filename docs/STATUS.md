@@ -46,6 +46,13 @@ Schließsperre der Schreibdialoge, SQL-Abschlusslexer, Katalog-Texte, Import-Upl
 - Die Liste „Weitere nicht umgesetzte Pakete“ unten gilt unverändert, mit Ausnahme von W-P20 (umgesetzt, Layouts und gespeicherte Suchen nicht verdrahtet).
 - Arbeit pausiert bis 2.11.2026 (Wochenlimit des Kontos).
 
+## Nachtrag 03.11.2026
+
+- DUMP-001 (API 0.25), OBJ-004 (API 0.26, auf 0.24 gebaut) und W-P22 (Web) sind fertiggestellt und unabhängig geprüft, aber **nicht gemergt**; Hauptstände
+  unverändert (Backend `5ee57fd`, Web `3e422dd`). Die Nachbesserung N-1 von OBJ-004 (`6f04366`) ist noch ohne erneute unabhängige Prüfung.
+- Integrationsreihenfolge, Grenzen und Worktree-Aufräumen: [SESSION-2026-11-03](handoffs/SESSION-2026-11-03.md).
+- Die Aussage „unfertig und ungeprüft“ im Nachtrag vom 31.10.2026 gilt für diese drei Pakete nicht mehr.
+
 ## Offene Punkte (ehrliche Liste, Stand 27.10.2026)
 
 - **B1-Fix ungeprüft:** Das Welle-4-Re-Review fand, dass ein bestätigter CSV-Import über HTTP wiederholbar war. Der Autorenfix `9f73efa`
