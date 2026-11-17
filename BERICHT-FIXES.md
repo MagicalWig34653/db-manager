@@ -132,9 +132,50 @@ durch die Testhelfer angelegt:
 go test ./internal/database -run '^TestSQLiteImportSQLAutomaticRollback$' -count=1 -v -timeout 2m
 ```
 
-## Offene Abnahme
+## Nachbesserung: Routinen-OIDs (17.11.2026)
 
-Alle genannten Befehle sind **noch auszuführen**. Sie setzen die Go-Toolchain aus
+Der Aufrufer meldet echte Fixture-Läufe über `scripts/dbfix.py` mit MySQL 8.4,
+MariaDB 12.3 und PostgreSQL 18.6: alle Prüfungen grün außer dem letzten Schritt
+von `TestLivePostgresRevokeWithoutAuthority`. Diese externen Ergebnisse wurden
+hier nicht erneut ausgeführt. Der bisherige Fix kanonisierte nur den ACL-Vergleich;
+Plan und GRANT-Nachprüfung übergaben weiterhin die rohe Kennung an `::oid`.
+
+Jetzt verwenden Katalogauflösung, GRANT-Nachprüfung und REVOKE-ACL-Vergleich
+denselben Helfer: dezimal als vorzeichenlose 32-Bit-Zahl validieren und vor jeder
+OID-Parameterübergabe als kanonischen Dezimaltext formatieren. Führende Nullen
+bleiben als Eingabe erlaubt; ungültige oder zu große Werte werden abgewiesen.
+Keine Änderung am Planformat oder an der erwarteten REVOKE-Abweisung.
+
+Der Unterschied zwischen Einzel- und Vollsuite ist statisch durch die je nach
+Katalogzustand andere OID erklärbar: PostgreSQL kann Text mit führender Null oktal
+auswerten. Ziffern 8/9 ergeben dann `invalid_value`, ausschließlich oktale Ziffern
+können eine andere OID und damit ein fehlendes oder falsches Ziel ergeben. Das
+spricht für den gemeinsamen Parserfehler; ein zusätzlicher Isolationsfehler ist
+aus dem Testcode nicht belegt. Der Test verwendet eigene Objekt-/Rollennamen und
+räumt Funktion und Tabelle vor den Rollen auf. Keine spekulative Änderung an der
+Isolation; der ursprüngliche Schritt mit `"000" + oid` und die exakte Erwartung
+`rejected/revoke_without_effect` bleiben erhalten.
+
+Regression ergänzt: derselbe Live-Test verlangt nun auch einen erfolgreichen
+GRANT samt Nachprüfung mit der nichtkanonischen OID. Der neue Unit-Test
+`TestCanonicalPostgresRoutineOID` deckt Dezimalwerte mit 8/9 sowie nur oktalen
+Ziffern, Null, die 32-Bit-Grenze und ungültige Eingaben ab.
+
+Eigene Prüfung: nur Quelltextprüfung, `gofmt` und `git diff --check`;
+keine Builds, Tests, Docker- oder Netzaufrufe. Erneute Live-Abnahme im Einzel- und
+Gesamtlauf sowie der neue Unit-Test bleiben offen. Unabhängiges, ausschließlich
+lesendes Agent-Review der Nachbesserung: keine blockierenden Befunde, keine
+konkrete Isolationslücke. Ergänzender Aufruferbefehl:
+
+```bash
+go test ./internal/database -run '^TestCanonicalPostgresRoutineOID$' -count=1 -v
+```
+
+## Ursprünglich offene Abnahme
+
+Die oben dokumentierte ursprüngliche Abnahme wurde inzwischen vom Aufrufer mit dem
+im Nachtrag genannten Restfehler gemeldet. Die Nachbesserung ist **noch zu prüfen**.
+Die Befehle setzen die Go-Toolchain aus
 `go.mod` und verfügbare Modulabhängigkeiten voraus. Bestehende Live-Harness-Skripte
 verwenden feste Testnamensfilter und starten die neuen Tests nicht automatisch;
 deshalb sind die oben genannten direkten Aufrufe maßgeblich. Die Live-Tests
@@ -142,6 +183,6 @@ deshalb sind die oben genannten direkten Aufrufe maßgeblich. Die Live-Tests
 
 Unabhängiges statisches Review durchgeführt; dabei gefundene OID-Vergleichslücke
 mit zusätzlicher Regression korrigiert. Praktische Datenbank- und Testabnahme durch
-den Aufrufer bleibt offen. Keine Merge-/Releasefreigabe und keine laufenden
+den Aufrufer bleibt für die Nachbesserung offen. Keine Merge-/Releasefreigabe und keine laufenden
 Build-, Test-, Container- oder Netzjobs aus dieser Bearbeitung.
 Dateien und Fortsetzung: [Paketübergabe](docs/handoffs/REVIEW-FIXES.md).

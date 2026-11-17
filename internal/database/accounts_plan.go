@@ -370,11 +370,12 @@ func accountGrantSQL(ctx context.Context, env *opEnv, subject string, g core.Acc
 			if privilege != "EXECUTE" {
 				return "", accountUnsupported()
 			}
-			if _, err := strconv.ParseUint(g.RoutineID, 10, 32); err != nil {
-				return "", accountInvalid()
+			oid, err := canonicalPostgresRoutineOID(g.RoutineID)
+			if err != nil {
+				return "", err
 			}
 			query := `SELECT n.nspname,p.proname,CASE WHEN p.prokind='p' THEN 'procedure' ELSE 'function' END,pg_catalog.pg_get_function_identity_arguments(p.oid) FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace WHERE p.oid=$1::oid AND p.prokind IN ('f','p') AND current_database()=$2`
-			if err := env.sess.QueryRowContext(ctx, query, g.RoutineID, g.Database).Scan(&schema, &name, &kind, &signature); err != nil {
+			if err := env.sess.QueryRowContext(ctx, query, oid, g.Database).Scan(&schema, &name, &kind, &signature); err != nil {
 				return "", accountSafe(ctx, err)
 			}
 			if schema != g.Schema || name != g.Object || kind != g.RoutineKind {
@@ -413,6 +414,16 @@ func accountGrantSQL(ctx context.Context, env *opEnv, subject string, g core.Acc
 		suffix = " WITH GRANT OPTION"
 	}
 	return "GRANT " + privilege + " ON " + target + " TO " + subject + suffix, nil
+}
+
+// canonicalPostgresRoutineOID keeps PostgreSQL from interpreting leading zeroes
+// as an octal prefix. All routine OID parameters and ACL comparisons use decimal.
+func canonicalPostgresRoutineOID(raw string) (string, error) {
+	oid, err := strconv.ParseUint(raw, 10, 32)
+	if err != nil {
+		return "", accountInvalid()
+	}
+	return strconv.FormatUint(oid, 10), nil
 }
 
 // accountPowerful lists global privileges that allow privilege changes, impersonation or definer abuse.

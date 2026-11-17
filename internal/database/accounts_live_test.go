@@ -561,7 +561,15 @@ func TestLivePostgresRevokeWithoutAuthority(t *testing.T) {
 		t.Fatal(err)
 	}
 	grant = core.AccountGrant{Scope: "routine", Database: "probe", Schema: "public", Object: "review_revoke_fn", RoutineKind: "function", RoutineID: "000" + oid, Privilege: "EXECUTE"}
+	// Exercise the GRANT verification path with the same noncanonical OID, too.
+	plan, err := e.AccountPlan(ctx, "grant", r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := e.AccountExecute(ctx, "grant", core.AccountExecuteRequest{AccountRequest: r, ExpectedPlanSHA256: plan.SHA256, Confirm: plan.Confirmation})
+	if err != nil || result.Outcome != "completed" {
+		t.Fatalf("routine grant: %#v, %v", result, err)
+	}
 	r.Connection = login
 	apply("rejected")
-
 }

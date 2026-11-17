@@ -11,6 +11,11 @@ Dies ist kein geprüfter Main-/Releasezustand. Auf Nutzeranweisung keine Builds,
 Tests, Docker- oder Netzaufrufe ausgeführt; Laufzeitabnahme durch den Aufrufer offen.
 Paket und Dateibesitz: [Review-Reparaturen](handoffs/REVIEW-FIXES.md).
 
+Nachtrag: Der Aufrufer meldet Fixture-Abnahme mit einem Restfehler bei führenden
+Nullen in PostgreSQL-Routinen-OIDs. Plan, GRANT-Nachprüfung und REVOKE-Vergleich
+verwenden jetzt dieselbe dezimale Kanonisierung; Regressionen erweitert.
+Nachbesserung nur statisch geprüft, erneute Laufzeitabnahme offen. Details im Fixbericht.
+
 Stand: 31.10.2026, Sitzungsabschluss nach Bündel 6 (Backend-`main` `93e0bc1`, Web-`main` `3e422dd`); Einzelheiten und Fortsetzung in [SESSION-2026-10-31](handoffs/SESSION-2026-10-31.md). Die Tabellen und Listen darunter stammen teils noch vom 27.10.2026 (Bündel 5) und sind dort markiert. Die PWA-Paritätslinie
 (Nutzerfreigabe 24.10.2026, [PWA-PLAN](PWA-PLAN.md)) hat die Wellen 1 bis 4 und vier Pakete der Welle 5 umgesetzt; siehe
 [PWA-Linie](#pwa-paritatslinie-stand-27102026) und die [ehrliche Liste offener Punkte](#offene-punkte-ehrliche-liste-stand-27102026).

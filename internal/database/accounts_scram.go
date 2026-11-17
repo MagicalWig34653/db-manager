@@ -60,7 +60,11 @@ func verifyPostgresGrant(ctx context.Context, env *opEnv, role string, g core.Ac
 	case "column":
 		err = env.sess.QueryRowContext(ctx, "SELECT has_column_privilege($1, (quote_ident($2)||'.'||quote_ident($3))::regclass, $4, $5)", role, g.Schema, g.Object, g.Column, privilege).Scan(&ok)
 	case "routine":
-		err = env.sess.QueryRowContext(ctx, "SELECT has_function_privilege($1, $2::oid, $3)", role, g.RoutineID, privilege).Scan(&ok)
+		oid, oidErr := canonicalPostgresRoutineOID(g.RoutineID)
+		if oidErr != nil {
+			return oidErr
+		}
+		err = env.sess.QueryRowContext(ctx, "SELECT has_function_privilege($1, $2::oid, $3)", role, oid, privilege).Scan(&ok)
 	default:
 		return nil
 	}
@@ -96,11 +100,11 @@ func saslPrep(password string) string {
 // PUBLIC, ownership and inherited roles may still provide access after a valid revoke.
 func verifyPostgresRevoke(ctx context.Context, env *opEnv, role core.AccountRef, requested core.AccountGrant) error {
 	if requested.Scope == "routine" {
-		oid, err := strconv.ParseUint(requested.RoutineID, 10, 32)
+		oid, err := canonicalPostgresRoutineOID(requested.RoutineID)
 		if err != nil {
 			return public("revoke_verification_failed", "Die Routinenkennung konnte nicht geprüft werden. Die Transaktion wird zurückgerollt.")
 		}
-		requested.RoutineID = strconv.FormatUint(oid, 10)
+		requested.RoutineID = oid
 	}
 	var details core.AccountDetails
 	if err := readPostgresAccountGrants(ctx, env, role, &details); err != nil {

@@ -11,6 +11,23 @@ import (
 	"testing"
 )
 
+func TestCanonicalPostgresRoutineOID(t *testing.T) {
+	for _, tc := range []struct{ raw, want string }{
+		{"1259", "1259"}, {"0001259", "1259"}, {"0001234", "1234"},
+		{"0", "0"}, {"000", "0"}, {"0004294967295", "4294967295"},
+	} {
+		got, err := canonicalPostgresRoutineOID(tc.raw)
+		if err != nil || got != tc.want {
+			t.Errorf("OID %q: got %q, %v; want %q", tc.raw, got, err, tc.want)
+		}
+	}
+	for _, raw := range []string{"", "-1", "+1", " 1259", "1259 ", "0x4eb", "1.0", "4294967296"} {
+		if _, err := canonicalPostgresRoutineOID(raw); err == nil {
+			t.Errorf("accepted invalid OID %q", raw)
+		}
+	}
+}
+
 func TestAccountsValidation(t *testing.T) {
 	account := &core.AccountRef{Name: "test'` ; DROP USER innocent", Host: "%"}
 	base := core.AccountRequest{Connection: core.Connection{Driver: "mysql"}, Account: account}

@@ -12,6 +12,11 @@ Testbefehle mit reservierten Fixtures aus. Tests, Builds, Docker und Netz waren
 für diese Bearbeitung ausdrücklich untersagt; keine Prüfung als bestanden behauptet.
 Keine Integration, kein Push und keine Veröffentlichung vorgenommen.
 
+Nachbesserung nach externer Fixture-Abnahme: OID-Kanonisierung in Plan und beiden
+Nachprüfungen vereinheitlicht, Regression nicht abgeschwächt. Nächster Schritt:
+OID-Unit-Test und PostgreSQL-Regression einzeln und in der Vollsuite erneut durch
+den Aufrufer prüfen. Hier weiterhin keine Builds, Tests, Docker- oder Netzaufrufe.
+
 Stand: 23.10.2026 für den Abschluss-Block (historisch); Abschnitt „Prio PWA-Parität“ nachgeführt am 27.10.2026. Neuer ausdrücklicher Arbeitsabschluss: erster Build auf
 TestFlight, Pages online, danach vollständige Doku- und Claude-Code-Übergabe.
 Root koordiniert ausschließlich; Agents übernehmen die freigegebenen Schritte.

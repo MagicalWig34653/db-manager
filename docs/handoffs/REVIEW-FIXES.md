@@ -36,6 +36,19 @@ Test zuerst geschrieben; keine Tests, Builds, Docker- oder Netzaufrufe ausgefüh
 
 ## Übergabe und Fortsetzung
 
+Nachbesserung 17.11.2026 auf Basis `786aba0`: externer Fixture-Lauf laut Aufrufer
+bis auf Routinen-OID mit führenden Nullen grün. Dateibesitz dieses Nachtrags:
+`accounts_plan.go`, `accounts_scram.go`, `accounts_test.go`, `accounts_live_test.go`
+und die vier Paket-/Statusdokumente. Gemeinsame dezimale 32-Bit-Kanonisierung vor
+beiden OID-SQL-Parametern und beim ACL-Vergleich; Unit-Regression und Live-GRANT
+mit führenden Nullen ergänzt, REVOKE-Erwartung unverändert. Die wechselnde OID
+erklärt statisch die unterschiedlichen Parserfehler; keine zusätzliche
+Isolationsänderung begründet. Einzelheiten im Fixbericht.
+Nur `gofmt`, Quelltext- und Git-Diffprüfung; neue Tests nicht ausgeführt.
+Unabhängiges lesendes Agent-Review: keine blockierenden Befunde.
+Keine eigenen laufenden Jobs, kein Push, keine Integration. Nächster Schritt:
+Aufrufer prüft die Nachbesserung einzeln und in der Vollsuite mit reservierter Fixture.
+
 Vier Befund-Commits und exakte noch nicht ausgeführte Regressionstestbefehle stehen im
 [Fixbericht](../../BERICHT-FIXES.md). Eigenständiges statisches Review ohne Schreibzugriff
 durch einen zweiten Agent durchgeführt; dessen OID-Vergleichsbefund wurde mit zuerst
