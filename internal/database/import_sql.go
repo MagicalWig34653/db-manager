@@ -10,6 +10,7 @@ import (
 	"github.com/MagicalWig34653/db-manager/internal/core"
 	"github.com/MagicalWig34653/db-manager/internal/dbplan"
 	"github.com/MagicalWig34653/db-manager/internal/sqlsplit"
+	sqliteDriver "github.com/ncruces/go-sqlite3/driver"
 )
 
 // Fixed export session headers are allowed on this request's dedicated connection.
@@ -130,6 +131,23 @@ func (e *Engine) importSQL(ctx context.Context, r core.ImportRequest, text strin
 				stopped = r.Mode == "stop" || ctx.Err() != nil || item.ErrorCode == "result_too_large"
 				if inTx {
 					txFailed = true
+				}
+				if inTx && r.Connection.Driver == "sqlite" {
+					// ON CONFLICT ROLLBACK and some engine errors end the native
+					// transaction themselves. A later ROLLBACK then cannot succeed.
+					var autocommit bool
+					stateErr := conn.Raw(func(raw any) error {
+						driver, ok := raw.(sqliteDriver.Conn)
+						if !ok {
+							return fmt.Errorf("unexpected SQLite connection")
+						}
+						autocommit = driver.Raw().GetAutocommit()
+						return nil
+					})
+					if stateErr == nil && autocommit {
+						markRolledBack(txStart, len(out.Statements)-1)
+						inTx, txFailed = false, false
+					}
 				}
 			} else if r.Connection.Driver == "mysql" {
 				warnings := sqlBatchWarnings(ctx, conn)

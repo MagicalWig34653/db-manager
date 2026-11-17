@@ -25,3 +25,11 @@ Bestätigt: Vor DROP wurden nur Definition und Sitzungseinstellungen gesichert. 
 Fix: vor jedem zweistufigen Routinenersatz die vollständigen lokalen Rechte aus `mysql.procs_priv` sichern (bei fehlender Katalogberechtigung vor DROP abweisen). Nach Wiederherstellung Rechte einschließlich Grant Option abgleichen, zusätzliche automatische Rechte entfernen und den Katalog erneut vergleichen. Nur bestätigte Wiederherstellung erlaubt `rejected/restored`; sonst `outcome_unknown/restore_failed`. Keine direkte Systemtabellenänderung, nur GRANT/REVOKE. Globale und schemaweite Rechte werden nicht verändert. Parallele fremde DDL-/ACL-Änderungen sind weiterhin nicht atomar abgesichert.
 
 Test zuerst geschrieben, nicht ausgeführt. Benötigt Wegwerf-MySQL bzw. -MariaDB mit `automatic_sp_privileges=1`, TLS-Fixture und administrativem Katalog-/Rechtezugriff. Erfolgreicher regulärer Ersatz bleibt im bisherigen Umfang; dieser Fix betrifft die Wiederherstellung nach fehlgeschlagenem CREATE. Keine laufenden Jobs.
+
+## Befund 4: Automatischer SQLite-Rollback (niedrig)
+
+Bestätigt und wegen kleinen Fixes übernommen: Die Statuskorrektur hing ausschließlich vom Erfolg des abschließenden expliziten ROLLBACK ab. Zuerst `TestSQLiteImportSQLAutomaticRollback` ergänzt: ON CONFLICT ROLLBACK in stop/continue, bereits früher bestätigter Autocommit und spätere Autocommit-Anweisung getrennt prüfen.
+
+Fix: Nach Ausführungsfehler in einer expliziten SQLite-Transaktion den nativen Autocommit-Zustand auf der gepinnten Verbindung lesen. Ist die Transaktion bereits beendet, frühere Anweisungen genau dieser Transaktion als `rolled_back` markieren, Änderungszahlen entfernen und die Transaktionszuordnung beenden. Unbekannter Gesamtfehler bleibt konservativ bestehen. Keine Interpretation von Fehlermeldungstexten.
+
+Test zuerst geschrieben; keine Tests, Builds, Docker- oder Netzaufrufe ausgeführt. Keine laufenden Jobs. Die Regression verlangt im alten Code `rolled_back`, erhält statisch hergeleitet jedoch `completed`.

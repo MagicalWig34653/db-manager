@@ -425,3 +425,37 @@ func TestSQLiteImportQuotedTargetsAndBoundValues(t *testing.T) {
 		t.Fatal("neighbor changed", count)
 	}
 }
+
+func TestSQLiteImportSQLAutomaticRollback(t *testing.T) {
+	for _, mode := range []string{"stop", "continue"} {
+		t.Run(mode, func(t *testing.T) {
+			e := testEngine(t)
+			c := sqliteConnection()
+			execute(t, e, c, "CREATE TABLE review_rollback(id INTEGER PRIMARY KEY ON CONFLICT ROLLBACK)")
+			r := core.ImportRequest{Connection: c, Format: "sql", Mode: mode, Confirm: &dbplan.Confirmation{Action: "import_sql"}}
+			// A prior commit must stay completed; continue mode's later autocommit
+			// insert must not be attributed to the transaction SQLite rolled back.
+			file := []byte("INSERT INTO review_rollback VALUES(9); BEGIN; INSERT INTO review_rollback VALUES(1); INSERT INTO review_rollback VALUES(1); INSERT INTO review_rollback VALUES(2); COMMIT;")
+			got, err := e.ExecuteImport(context.Background(), r, file, nil)
+			if err != nil || got.Outcome != "outcome_unknown" || len(got.Statements) != 6 {
+				t.Fatalf("import: %#v, %v", got, err)
+			}
+			if got.Statements[0].Outcome != "completed" || got.Statements[2].Outcome != "rolled_back" || got.Statements[2].RowsAffected != nil {
+				t.Fatalf("incorrect rollback attribution: %#v", got.Statements)
+			}
+			wantLater, wantCount := "not_executed", "1"
+			if mode == "continue" {
+				wantLater, wantCount = "completed", "2"
+			}
+			if got.Statements[4].Outcome != wantLater {
+				t.Fatalf("later statement: %#v", got.Statements[4])
+			}
+			if count := execute(t, e, c, "SELECT count(*) FROM review_rollback").Results[0].Rows[0][0].Value; count != wantCount {
+				t.Fatalf("persisted rows=%s, want %s", count, wantCount)
+			}
+			if count := execute(t, e, c, "SELECT count(*) FROM review_rollback WHERE id=1").Results[0].Rows[0][0].Value; count != "0" {
+				t.Fatal("failed transaction retained rows")
+			}
+		})
+	}
+}
