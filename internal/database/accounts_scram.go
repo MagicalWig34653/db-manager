@@ -104,3 +104,31 @@ func saslPrep(password string) string {
 	}
 	return string(out)
 }
+
+// verifyPostgresRevoke checks stored, direct ACLs, not effective privileges:
+// PUBLIC, ownership and inherited roles may still provide access after a valid revoke.
+func verifyPostgresRevoke(ctx context.Context, env *opEnv, role core.AccountRef, requested core.AccountGrant) error {
+	if requested.Scope == "routine" {
+		oid, err := strconv.ParseUint(requested.RoutineID, 10, 32)
+		if err != nil {
+			return public("revoke_verification_failed", "Die Routinenkennung konnte nicht geprüft werden. Die Transaktion wird zurückgerollt.")
+		}
+		requested.RoutineID = strconv.FormatUint(oid, 10)
+	}
+	var details core.AccountDetails
+	if err := readPostgresAccountGrants(ctx, env, role, &details); err != nil {
+		return public("revoke_verification_failed", "Der Rechteentzug konnte nicht geprüft werden. Die Transaktion wird zurückgerollt.")
+	}
+	for _, actual := range details.Grants {
+		// GrantOption describes only the option for REVOKE GRANT OPTION FOR;
+		// ordinary REVOKE must remove both forms of the direct privilege.
+		if requested.GrantOption && !actual.GrantOption {
+			continue
+		}
+		actual.GrantOption = requested.GrantOption
+		if actual == requested {
+			return public("revoke_without_effect", "Das direkte Recht wurde nicht entzogen. Die Transaktion wird zurückgerollt; es wurde nichts geändert.")
+		}
+	}
+	return nil
+}

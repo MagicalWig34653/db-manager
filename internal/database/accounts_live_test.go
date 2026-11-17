@@ -477,3 +477,91 @@ func TestLiveAccounts(t *testing.T) {
 		})
 	}
 }
+
+// TestLivePostgresRevokeWithoutAuthority exercises PostgreSQL's warning-only REVOKE.
+func TestLivePostgresRevokeWithoutAuthority(t *testing.T) {
+	raw := os.Getenv("DBM_TEST_POSTGRES_PORT")
+	if raw == "" {
+		t.Skip("disposable PostgreSQL fixture required")
+	}
+	port, err := strconv.Atoi(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	e, err := New(t.TempDir(), nil, WithCAFile(os.Getenv("DBM_TEST_CA_FILE")))
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx := context.Background()
+	admin := core.Connection{Driver: "postgres", Host: "localhost", Port: port, Database: "probe", Username: "postgres", Password: os.Getenv("DBM_TEST_PASSWORD"), TLSMode: "verify-full"}
+	db, closeDB, err := e.open(ctx, admin)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer closeDB()
+	exec := func(statement string) {
+		t.Helper()
+		if _, err := db.ExecContext(ctx, statement); err != nil {
+			t.Fatal(err)
+		}
+	}
+	operator := core.AccountRef{Name: "review_revoke_operator"}
+	victim := core.AccountRef{Name: "review_revoke_victim"}
+	secret := "disposable-review-password"
+	exec("CREATE ROLE review_revoke_operator LOGIN PASSWORD " + accountLiteral(secret))
+	defer db.ExecContext(ctx, "DROP ROLE review_revoke_operator")
+	exec("CREATE ROLE review_revoke_victim")
+	defer db.ExecContext(ctx, "DROP ROLE review_revoke_victim")
+	exec("CREATE TABLE public.review_revoke (id integer)")
+	defer db.ExecContext(ctx, "DROP TABLE public.review_revoke")
+	exec("GRANT SELECT ON public.review_revoke TO review_revoke_operator, review_revoke_victim")
+	login := admin
+	login.Username, login.Password = operator.Name, secret
+	grant := core.AccountGrant{Scope: "table", Database: "probe", Schema: "public", Object: "review_revoke", Privilege: "SELECT"}
+	r := core.AccountRequest{Connection: login, Account: &victim, Grant: &grant}
+	apply := func(want string) {
+		t.Helper()
+		plan, err := e.AccountPlan(ctx, "revoke", r)
+		if err != nil {
+			t.Fatal(err)
+		}
+		confirm := plan.Confirmation
+		confirm.AcknowledgeSelf = true
+		result, err := e.AccountExecute(ctx, "revoke", core.AccountExecuteRequest{AccountRequest: r, ExpectedPlanSHA256: plan.SHA256, Confirm: confirm})
+		if err != nil || result.Outcome != want {
+			t.Fatalf("revoke: %#v, %v; want %s", result, err, want)
+		}
+		if want == "rejected" && result.Reason != "revoke_without_effect" {
+			t.Fatalf("missing revoke-specific reason: %#v", result)
+		}
+	}
+	apply("rejected")
+	var has bool
+	if err := db.QueryRowContext(ctx, "SELECT has_table_privilege('review_revoke_victim', 'public.review_revoke', 'SELECT')").Scan(&has); err != nil || !has {
+		t.Fatalf("original direct privilege changed: %v, %v", has, err)
+	}
+	// Removing a direct grant succeeds even when PUBLIC still provides access.
+	r.Connection = admin
+	exec("GRANT SELECT ON public.review_revoke TO PUBLIC")
+	apply("completed")
+	// GRANT OPTION FOR must leave the ordinary direct privilege intact.
+	exec("GRANT SELECT ON public.review_revoke TO review_revoke_victim WITH GRANT OPTION")
+	grant.GrantOption = true
+	apply("completed")
+	var direct, grantable bool
+	if err := db.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM pg_class c, LATERAL aclexplode(c.relacl) a WHERE c.oid='public.review_revoke'::regclass AND a.grantee='review_revoke_victim'::regrole AND a.privilege_type='SELECT'), has_table_privilege('review_revoke_victim','public.review_revoke','SELECT WITH GRANT OPTION')`).Scan(&direct, &grantable); err != nil || !direct || grantable {
+		t.Fatalf("grant option revoke: direct=%v grantable=%v err=%v", direct, grantable, err)
+	}
+	// The API accepts OIDs with leading zeroes; the catalog returns canonical text.
+	exec("CREATE FUNCTION public.review_revoke_fn() RETURNS integer LANGUAGE SQL AS 'SELECT 1'")
+	defer db.ExecContext(ctx, "DROP FUNCTION public.review_revoke_fn()")
+	exec("GRANT EXECUTE ON FUNCTION public.review_revoke_fn() TO review_revoke_operator, review_revoke_victim")
+	var oid string
+	if err := db.QueryRowContext(ctx, "SELECT 'public.review_revoke_fn()'::regprocedure::oid::text").Scan(&oid); err != nil {
+		t.Fatal(err)
+	}
+	grant = core.AccountGrant{Scope: "routine", Database: "probe", Schema: "public", Object: "review_revoke_fn", RoutineKind: "function", RoutineID: "000" + oid, Privilege: "EXECUTE"}
+	r.Connection = login
+	apply("rejected")
+
+}

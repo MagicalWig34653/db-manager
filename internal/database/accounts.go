@@ -217,8 +217,13 @@ func (e *Engine) AccountExecute(parent context.Context, action string, r core.Ac
 		statements[0] = statement
 	}
 	var verify func(context.Context) error
-	if action == "grant" && env.c.Driver == "postgres" && r.Grant != nil && r.Account != nil {
-		verify = func(vctx context.Context) error { return verifyPostgresGrant(vctx, env, r.Account.Name, *r.Grant) }
+	if env.c.Driver == "postgres" && r.Grant != nil && r.Account != nil {
+		switch action {
+		case "grant":
+			verify = func(vctx context.Context) error { return verifyPostgresGrant(vctx, env, r.Account.Name, *r.Grant) }
+		case "revoke":
+			verify = func(vctx context.Context) error { return verifyPostgresRevoke(vctx, env, *r.Account, *r.Grant) }
+		}
 	}
 	return executeAccounts(ctx, env, statements, verify), nil
 }
@@ -251,6 +256,10 @@ func executeAccounts(ctx context.Context, env *opEnv, statements []string, verif
 	if verify != nil {
 		if err := verify(ctx); err != nil {
 			env.sess.rollback()
+			var publicErr *core.Error
+			if errors.As(err, &publicErr) {
+				return core.AccountResult{Outcome: "rejected", Reason: publicErr.Code, Message: publicErr.Message}
+			}
 			return core.AccountResult{Outcome: "rejected", Reason: "grant_without_effect", Message: "Das Recht wurde nicht wirksam gewährt (der Server meldet bei fehlender Grant-Berechtigung nur eine Warnung). Es wurde nichts geändert."}
 		}
 	}
