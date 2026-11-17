@@ -33,3 +33,16 @@ Bestätigt und wegen kleinen Fixes übernommen: Die Statuskorrektur hing ausschl
 Fix: Nach Ausführungsfehler in einer expliziten SQLite-Transaktion den nativen Autocommit-Zustand auf der gepinnten Verbindung lesen. Ist die Transaktion bereits beendet, frühere Anweisungen genau dieser Transaktion als `rolled_back` markieren, Änderungszahlen entfernen und die Transaktionszuordnung beenden. Unbekannter Gesamtfehler bleibt konservativ bestehen. Keine Interpretation von Fehlermeldungstexten.
 
 Test zuerst geschrieben; keine Tests, Builds, Docker- oder Netzaufrufe ausgeführt. Keine laufenden Jobs. Die Regression verlangt im alten Code `rolled_back`, erhält statisch hergeleitet jedoch `completed`.
+
+## Übergabe und Fortsetzung
+
+Vier Befund-Commits und exakte noch nicht ausgeführte Regressionstestbefehle stehen im
+[Fixbericht](../../BERICHT-FIXES.md). Eigenständiges statisches Review ohne Schreibzugriff
+durch einen zweiten Agent durchgeführt; dessen OID-Vergleichsbefund wurde mit zuerst
+erweiterter Regression behoben. Praktische Abnahme bleibt beim Aufrufer.
+
+Keine fremden Änderungen vorhanden, kein Push/Merge, keine laufenden eigenen Jobs.
+Nächster konkreter Schritt: neue Regressionen gemäß Fixbericht mit reservierten
+Fixtures ausführen; danach gegebenenfalls vorhandene Konten-/Programm-/Import-Suiten.
+Dateibesitz bleibt bis zur Übergabe bei diesem Paket. Bestehende Git-Autoridentität
+beibehalten; keine echten Zugangsdaten oder privaten Pfade in den neuen Dokumenten.

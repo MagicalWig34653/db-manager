@@ -1,5 +1,17 @@
 # Arbeitsplan
 
+## Reparaturpaket 17.11.2026
+
+Die vier externen Reviewbefunde sind auf `codex/review-fixes` am Code bestätigt und
+mit je einem zuvor geschriebenen Regressionstest repariert. Hohe/mittlere Befunde
+vollständig bearbeitet, niedrigen SQLite-Befund wegen kleinen Fixes eingeschlossen.
+Dateibesitz beim Lead: betroffene Konten-/Programm-/Importdateien samt Tests,
+Lizenzinventar und Paketdokumentation. Keine parallelen schreibenden Worker.
+Nächster Schritt: Aufrufer führt die im [Fixbericht](../BERICHT-FIXES.md) dokumentierten
+Testbefehle mit reservierten Fixtures aus. Tests, Builds, Docker und Netz waren
+für diese Bearbeitung ausdrücklich untersagt; keine Prüfung als bestanden behauptet.
+Keine Integration, kein Push und keine Veröffentlichung vorgenommen.
+
 Stand: 23.10.2026 für den Abschluss-Block (historisch); Abschnitt „Prio PWA-Parität“ nachgeführt am 27.10.2026. Neuer ausdrücklicher Arbeitsabschluss: erster Build auf
 TestFlight, Pages online, danach vollständige Doku- und Claude-Code-Übergabe.
 Root koordiniert ausschließlich; Agents übernehmen die freigegebenen Schritte.
