@@ -5,6 +5,7 @@ go 1.26.0
 require (
 	github.com/go-sql-driver/mysql v1.10.1
 	github.com/jackc/pgx/v5 v5.11.0
+	github.com/xdg/stringprep v1.0.3
 	github.com/ncruces/go-sqlite3 v0.35.6
 	golang.org/x/sys v0.48.0
 	golang.org/x/text v0.42.0

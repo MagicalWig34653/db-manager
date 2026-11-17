@@ -71,3 +71,32 @@ func TestSASLPrepNormalizesLikePostgres(t *testing.T) {
 		}
 	}
 }
+
+func TestSASLPrepPostgresFallbackAndMapping(t *testing.T) {
+	for _, tc := range []struct{ name, input, want string }{
+		{"mixed bidi", "\u0627\u00aa", "\u0627\u00aa"},
+		{"bidi end", "\u0627\u00a0", "\u0627\u00a0"},
+		{"valid bidi", "\u0627\u00ad\u0628", "\u0627\u0628"},
+		{"mapping before normalization", "a\u034f\u0308", "\u00e4"},
+		{"non ASCII control", "\u00aa\u2028", "\u00aa\u2028"},
+		{"directional mark", "\u00aa\u200e", "\u00aa\u200e"},
+		{"unassigned in Unicode 3.2", "\u00aa\u0221", "\u00aa\u0221"},
+		{"private use", "\u00aa\ue000", "\u00aa\ue000"},
+		{"noncharacter", "\u00aa\ufdd0", "\u00aa\ufdd0"},
+		{"tag", "\u00aa\U000e0001", "\u00aa\U000e0001"},
+		{"space mapping precedence", "a\u200bb", "a b"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := saslPrep(tc.input); got != tc.want {
+				t.Fatalf("saslPrep(%q) = %q, want %q", tc.input, got, tc.want)
+			}
+			// The prepared bytes, including the raw fallback, must reach PBKDF2 unchanged.
+			salt := []byte("0123456789abcdef")
+			got, err := scramVerifierWithSalt(saslPrep(tc.input), salt, 4096)
+			want, wantErr := scramVerifierWithSalt(tc.want, salt, 4096)
+			if err != nil || wantErr != nil || got != want {
+				t.Fatalf("password verifier mismatch: %v, %v", err, wantErr)
+			}
+		})
+	}
+}

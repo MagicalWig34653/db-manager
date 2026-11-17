@@ -36,6 +36,7 @@ Originaltexte stehen unter `licenses/`; eigener Adaptercode bleibt AGPL-3.0-only
 | `github.com/ncruces/go-sqlite3` | `v0.35.6` | [MIT](../licenses/github.com-ncruces-go-sqlite3.txt) |
 | `github.com/ncruces/go-sqlite3-wasm/v6` | `v6.3.35304` | [MIT-0](../licenses/github.com-ncruces-go-sqlite3-wasm-v6.txt) |
 | `github.com/ncruces/julianday` | `v1.0.0` | [MIT](../licenses/github.com-ncruces-julianday.txt) |
+| `github.com/xdg/stringprep` | `v1.0.3` | [Apache-2.0](../licenses/github.com-xdg-stringprep.txt) |
 | `golang.org/x/sync` | `v0.23.0` | [BSD-3-Clause](../licenses/golang.org-x-sync.txt) |
 | `golang.org/x/sys` | `v0.48.0` | [BSD-3-Clause](../licenses/golang.org-x-sys.txt) |
 | `golang.org/x/text` | `v0.42.0` | [BSD-3-Clause](../licenses/golang.org-x-text.txt) |
@@ -119,3 +120,12 @@ stehen in der Web-Datei `THIRD-PARTY-NOTICES.txt` und werden mit dem Build ausge
 Der SQL-Formatierer ist eigener Webcode (AGPL-3.0-only); `sql-formatter` (MIT, 3,1 MB entpackt) wurde bewusst nicht aufgenommen.
 Gemessener Zuwachs des Precache-Budgets: +0,427 MiB (4,321 auf 4,748 MiB), 39 auf 40 Chunks (Grenzen 8 MiB und 64 Chunks).
 Mit Pin Bündel 6 gemessen: Precache 4,91 MiB (Config-Store-Oberfläche eingeschlossen), 42 Chunks. `WEBBUILD.md`, Manifest und dieses Inventar stehen auf `f163862`.
+
+## Ergänzung Review-Reparatur: SASLprep
+
+`github.com/xdg/stringprep` v1.0.3 (Herkunft: gleichnamiges Go-Modul) wird als
+unveränderte Bibliothek für die PostgreSQL-Passwortnormalisierung eingebunden.
+Apache-2.0 ist mit AGPL-3.0-only kompatibel; der Originaltext liegt unter `licenses/`.
+Copyright: David A. Golden (2018). Das lokal vorhandene Modul enthält keine NOTICE-Datei.
+Version und beide Prüfsummen wurden aus dem vorhandenen Modulcache übernommen,
+ohne Download. Release-SBOM und Distributionsprüfung bleiben separat erforderlich.

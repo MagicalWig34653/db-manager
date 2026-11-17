@@ -10,17 +10,15 @@ import (
 	"encoding/base64"
 	"errors"
 	"strconv"
-	"unicode"
 
-	"golang.org/x/text/unicode/norm"
+	"github.com/xdg/stringprep"
 
 	"github.com/MagicalWig34653/db-manager/internal/core"
 )
 
 // scramVerifier derives a PostgreSQL SCRAM-SHA-256 verifier (4096 iterations, 16-byte
 // random salt). Passing the verifier instead of the clear text keeps the password out of
-// server logs. The password is used as raw UTF-8 bytes (SASLprep is not applied; it only
-// differs for unusual Unicode input).
+// server logs. The caller applies PostgreSQL-compatible SASLprep before deriving it.
 func scramVerifier(password string) (string, error) {
 	salt := make([]byte, 16)
 	if _, err := rand.Read(salt); err != nil {
@@ -75,34 +73,23 @@ func verifyPostgresGrant(ctx context.Context, env *opEnv, role string, g core.Ac
 	return nil
 }
 
-// saslPrep approximates RFC 4013 SASLprep the way PostgreSQL applies it to passwords: NFKC
-// normalization, "mapped to nothing" characters removed and non-ASCII spaces mapped to a space.
-// If the result contains prohibited characters PostgreSQL uses the raw password, and so do we.
+// postgresSASLprep uses RFC 3454's Unicode 3.2 tables, including unassigned,
+// prohibited and bidi checks. PostgreSQL maps non-ASCII spaces before B.1
+// removal (U+200B belongs to both tables).
+var postgresSASLprep = func() stringprep.Profile {
+	profile := stringprep.SASLprep
+	profile.Mappings = []stringprep.Mapping{profile.Mappings[1], profile.Mappings[0]}
+	return profile
+}()
+
+// saslPrep falls back to the original UTF-8 bytes if preparation fails, as
+// PostgreSQL does for passwords that do not satisfy RFC 4013.
 func saslPrep(password string) string {
-	ascii := true
-	for i := 0; i < len(password); i++ {
-		if password[i] >= 0x80 {
-			ascii = false
-			break
-		}
-	}
-	if ascii {
+	prepared, err := postgresSASLprep.Prepare(password)
+	if err != nil {
 		return password
 	}
-	var out []rune
-	for _, r := range norm.NFKC.String(password) {
-		switch {
-		case r == 0x00AD || r == 0x034F || r == 0x1806 || r >= 0x180B && r <= 0x180D || r >= 0x200B && r <= 0x200D || r == 0x2060 || r >= 0xFE00 && r <= 0xFE0F || r == 0xFEFF:
-			continue
-		case unicode.Is(unicode.Zs, r) && r != ' ':
-			out = append(out, ' ')
-		case unicode.IsControl(r) || unicode.Is(unicode.Co, r) || unicode.Is(unicode.Cs, r) || r == 0xFFFD || r >= 0xFDD0 && r <= 0xFDEF || r&0xFFFE == 0xFFFE || r >= 0x2FF0 && r <= 0x2FFB || r >= 0xE0001 && r <= 0xE007F:
-			return password
-		default:
-			out = append(out, r)
-		}
-	}
-	return string(out)
+	return prepared
 }
 
 // verifyPostgresRevoke checks stored, direct ACLs, not effective privileges:
