@@ -414,12 +414,21 @@ func (e *Engine) ProgramExecute(ctx context.Context, r core.ProgramExecuteReques
 	}
 	// MySQL/MariaDB replace is DROP + CREATE: secure the old definition so a failing CREATE can be undone.
 	oldDefinition, oldSettings := "", map[string]string(nil)
+	var oldRoutineACL mysqlRoutineACL
 	if env.c.Driver == "mysql" && r.Action == "replace" && len(plan.Statements) == 2 {
 		oldDefinition, oldSettings, err = mysqlShowCreateMode(ctx, env, plan.Object)
 		if err != nil || oldDefinition == "" {
 			result.Outcome = "rejected"
 			result.Message = "Die bisherige Definition ist nicht lesbar; das Ersetzen wurde nicht begonnen. Es wurde nichts geändert."
 			return result, nil
+		}
+		if plan.Object.Kind == "function" || plan.Object.Kind == "procedure" {
+			oldRoutineACL, err = readMySQLRoutineACL(ctx, env, plan.Object)
+			if err != nil {
+				result.Outcome = "rejected"
+				result.Message = "Die bisherigen Routinenrechte sind nicht vollständig lesbar; das Ersetzen wurde nicht begonnen. Es wurde nichts geändert."
+				return result, nil
+			}
 		}
 	}
 	for _, statement := range plan.Statements {
@@ -483,12 +492,15 @@ func (e *Engine) ProgramExecute(ctx context.Context, r core.ProgramExecuteReques
 				for variable, value := range previous {
 					_, _ = env.sess.conn.ExecContext(rctx, "SET SESSION "+variable+" = "+accountLiteral(value))
 				}
+				if rerr == nil && oldRoutineACL != nil {
+					rerr = restoreMySQLRoutineACL(rctx, env, plan.Object, oldRoutineACL)
+				}
 				if rerr == nil {
 					result.Outcome = "rejected"
-					result.Message = "Die neue Definition wurde vom Server abgelehnt; die bisherige Definition wurde automatisch wiederhergestellt (restored)."
+					result.Message = "Die neue Definition wurde vom Server abgelehnt; die bisherige Definition und gegebenenfalls die Routinenrechte wurden automatisch wiederhergestellt (restored)."
 				} else {
 					result.Outcome = "outcome_unknown"
-					result.Message = "Die neue Definition wurde abgelehnt und die Wiederherstellung schlug fehl (restore_failed). Das Objekt fehlt möglicherweise. Bisherige Definition zur manuellen Wiederherstellung: " + oldDefinition
+					result.Message = "Die neue Definition wurde abgelehnt und die vollständige Wiederherstellung von Definition oder Routinenrechten schlug fehl (restore_failed). Objekt und Rechte prüfen. Bisherige Definition zur manuellen Wiederherstellung: " + oldDefinition
 				}
 			}
 			return result, nil

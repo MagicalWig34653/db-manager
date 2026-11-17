@@ -4,6 +4,7 @@ package database
 import (
 	"context"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 	"testing"
@@ -307,6 +308,99 @@ func TestLivePrograms(t *testing.T) {
 			}
 			_, err = e.Programs(ctx, core.ProgramsRequest{Connection: c, Object: &request.Object})
 			programCode(t, err, "object_not_found")
+		})
+	}
+}
+
+func TestLiveMySQLRoutineRestorePrivileges(t *testing.T) {
+	for _, fixture := range []struct{ name, port string }{{"mysql", "DBM_TEST_MYSQL_PORT"}, {"maria", "DBM_TEST_MARIA_PORT"}} {
+		t.Run(fixture.name, func(t *testing.T) {
+			raw := os.Getenv(fixture.port)
+			if raw == "" {
+				t.Skip("disposable MySQL/MariaDB fixture required")
+			}
+			port, err := strconv.Atoi(raw)
+			if err != nil {
+				t.Fatal(err)
+			}
+			e, err := New(t.TempDir(), nil, WithCAFile(os.Getenv("DBM_TEST_CA_FILE")))
+			if err != nil {
+				t.Fatal(err)
+			}
+			ctx := context.Background()
+			admin := core.Connection{Driver: "mysql", Host: "localhost", Port: port, Database: "probe", Username: "root", Password: os.Getenv("DBM_TEST_PASSWORD"), TLSMode: "verify-full"}
+			db, closeDB, err := e.open(ctx, admin)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer closeDB()
+			exec := func(statement string) {
+				t.Helper()
+				if _, err := db.ExecContext(ctx, statement); err != nil {
+					t.Fatal(err)
+				}
+			}
+			var automatic bool
+			if err := db.QueryRowContext(ctx, "SELECT @@GLOBAL.automatic_sp_privileges").Scan(&automatic); err != nil || !automatic {
+				t.Fatalf("fixture needs automatic_sp_privileges=1: %v", err)
+			}
+			secret := "disposable-routine-password"
+			exec("CREATE USER 'review_routine_app'@'%' IDENTIFIED BY " + accountLiteral(secret))
+			defer db.ExecContext(ctx, "DROP USER 'review_routine_app'@'%'")
+			exec("GRANT CREATE ROUTINE ON probe.* TO 'review_routine_app'@'%'")
+			app := admin
+			app.Username, app.Password = "review_routine_app", secret
+			appDB, closeApp, err := e.open(ctx, app)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer closeApp()
+			if _, err := appDB.ExecContext(ctx, "CREATE PROCEDURE probe.review_restore() BEGIN SELECT 1; END"); err != nil {
+				t.Fatal(err)
+			}
+			defer db.ExecContext(ctx, "DROP PROCEDURE IF EXISTS probe.review_restore")
+			// Include an explicit grant option and another account to check the full ACL.
+			exec("CREATE USER 'review_routine_reader'@'%' IDENTIFIED BY " + accountLiteral(secret))
+			defer db.ExecContext(ctx, "DROP USER 'review_routine_reader'@'%'")
+			exec("GRANT EXECUTE ON PROCEDURE probe.review_restore TO 'review_routine_reader'@'%' WITH GRANT OPTION")
+			readACL := func() map[string]string {
+				t.Helper()
+				rows, err := db.QueryContext(ctx, "SELECT User, Host, Proc_priv FROM mysql.procs_priv WHERE Db='probe' AND Routine_name='review_restore' AND Routine_type='PROCEDURE'")
+				if err != nil {
+					t.Fatal(err)
+				}
+				defer rows.Close()
+				acl := map[string]string{}
+				for rows.Next() {
+					var user, host, privileges string
+					if err := rows.Scan(&user, &host, &privileges); err != nil {
+						t.Fatal(err)
+					}
+					acl[user+"@"+host] = privileges
+				}
+				if err := rows.Err(); err != nil {
+					t.Fatal(err)
+				}
+				return acl
+			}
+			before := readACL()
+			if !strings.Contains(before["review_routine_app@%"], "Execute") || !strings.Contains(before["review_routine_app@%"], "Alter Routine") {
+				t.Fatalf("missing automatic creator privileges: %v", before)
+			}
+			r := core.ProgramChangeRequest{Connection: admin, Action: "replace", Object: core.ProgramRef{Schema: "probe", Name: "review_restore", Kind: "procedure"}, Input: &core.ProgramInput{Body: "BEGIN INVALID SQL; END", Security: "invoker"}}
+			plan, err := e.ProgramPlan(ctx, r)
+			if err != nil {
+				t.Fatal(err)
+			}
+			result, err := e.ProgramExecute(ctx, core.ProgramExecuteRequest{ProgramChangeRequest: r, ExpectedPlanSHA256: plan.SHA256, Confirm: dbplan.Confirmation{Action: "replace", TargetName: "review_restore"}})
+			if err != nil || result.Outcome != "rejected" || !strings.Contains(result.Message, "restored") {
+				t.Fatalf("restore: %#v, %v", result, err)
+			}
+			after := readACL()
+			if !reflect.DeepEqual(before, after) {
+				t.Fatalf("routine privileges changed: before=%v after=%v", before, after)
+			}
+			programReadOne(t, e, admin, r.Object)
 		})
 	}
 }

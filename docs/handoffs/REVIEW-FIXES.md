@@ -17,3 +17,11 @@ Prüfstand: Test vor Produktänderung geschrieben, absichtlich nicht ausgeführt
 Bestätigt: Die bisherige SASLprep-Näherung ignorierte Bidi- und mehrere Verbotsregeln und normalisierte vor dem Mapping. Regression `TestSASLPrepPostgresFallbackAndMapping` wurde zuerst ergänzt: arabischer Buchstabe plus feminines Ordinalzeichen muss die Originalbytes behalten; außerdem Mappingreihenfolge, gültiges Bidi, Verbots- und Unicode-3.2-Tabellen sowie deterministische SCRAM-Ableitung.
 
 Fix: vollständiges RFC-4013-Profil von `github.com/xdg/stringprep` v1.0.3 mit PostgreSQLs Vorrang der Leerzeichenabbildung und Rückfall auf unveränderte Originalbytes bei Fehlern. Lizenztext und Inventar ergänzt, Modul und Summen ausschließlich aus lokalem Cache. Keine Netzaufrufe, keine ausgeführten Tests; das vorherige Fehlverhalten ist statisch nachgewiesen. Keine API-Änderung.
+
+## Befund 3: Routinenrechte bei Wiederherstellung (mittel)
+
+Bestätigt: Vor DROP wurden nur Definition und Sitzungseinstellungen gesichert. DROP entfernt lokale Routinenrechte, die automatische Neuanlage vergibt Rechte an den aktuellen Ersteller. Zuerst Regression `TestLiveMySQLRoutineRestorePrivileges` geschrieben: anderes Erstellerkonto, automatische EXECUTE-/ALTER-ROUTINE-Rechte, zusätzlich explizite EXECUTE-Grant-Option für ein zweites Konto, danach fehlerhafter Ersatz und unabhängiger Vergleich aller lokalen ACLs.
+
+Fix: vor jedem zweistufigen Routinenersatz die vollständigen lokalen Rechte aus `mysql.procs_priv` sichern (bei fehlender Katalogberechtigung vor DROP abweisen). Nach Wiederherstellung Rechte einschließlich Grant Option abgleichen, zusätzliche automatische Rechte entfernen und den Katalog erneut vergleichen. Nur bestätigte Wiederherstellung erlaubt `rejected/restored`; sonst `outcome_unknown/restore_failed`. Keine direkte Systemtabellenänderung, nur GRANT/REVOKE. Globale und schemaweite Rechte werden nicht verändert. Parallele fremde DDL-/ACL-Änderungen sind weiterhin nicht atomar abgesichert.
+
+Test zuerst geschrieben, nicht ausgeführt. Benötigt Wegwerf-MySQL bzw. -MariaDB mit `automatic_sp_privileges=1`, TLS-Fixture und administrativem Katalog-/Rechtezugriff. Erfolgreicher regulärer Ersatz bleibt im bisherigen Umfang; dieser Fix betrifft die Wiederherstellung nach fehlgeschlagenem CREATE. Keine laufenden Jobs.
