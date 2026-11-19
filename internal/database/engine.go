@@ -132,7 +132,19 @@ func (e *Engine) openMode(ctx context.Context, c core.Connection, maintenance bo
 	}
 	db.SetMaxOpenConns(1)
 	db.SetMaxIdleConns(1)
-	return db, func() { db.Close(); cleanup(); release() }, nil
+	if c.Driver != "sqlite" {
+		return db, func() { db.Close(); cleanup(); release() }, nil
+	}
+	return db, func() { db.Close(); awaitSQLiteClosed(db); cleanup(); release() }, nil
+}
+
+// awaitSQLiteClosed waits until the connection is really closed. After a context ends,
+// database/sql rolls back and closes the connection in a background goroutine that
+// db.Close does not wait for; until then the SQLite file keeps its exclusive lock.
+func awaitSQLiteClosed(db *sql.DB) {
+	for deadline := time.Now().Add(5 * time.Second); db.Stats().OpenConnections > 0 && time.Now().Before(deadline); {
+		time.Sleep(time.Millisecond)
+	}
 }
 func (e *Engine) Test(ctx context.Context, c core.Connection) error {
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
