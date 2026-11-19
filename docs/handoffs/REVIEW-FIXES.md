@@ -44,18 +44,12 @@ beiden OID-SQL-Parametern und beim ACL-Vergleich; Unit-Regression und Live-GRANT
 mit führenden Nullen ergänzt, REVOKE-Erwartung unverändert. Die wechselnde OID
 erklärt statisch die unterschiedlichen Parserfehler; keine zusätzliche
 Isolationsänderung begründet. Einzelheiten im Fixbericht.
-Nur `gofmt`, Quelltext- und Git-Diffprüfung; neue Tests nicht ausgeführt.
 Unabhängiges lesendes Agent-Review: keine blockierenden Befunde.
-Keine eigenen laufenden Jobs, kein Push, keine Integration. Nächster Schritt:
-Aufrufer prüft die Nachbesserung einzeln und in der Vollsuite mit reservierter Fixture.
 
-Vier Befund-Commits und exakte noch nicht ausgeführte Regressionstestbefehle stehen im
-[Fixbericht](../../BERICHT-FIXES.md). Eigenständiges statisches Review ohne Schreibzugriff
-durch einen zweiten Agent durchgeführt; dessen OID-Vergleichsbefund wurde mit zuerst
-erweiterter Regression behoben. Praktische Abnahme bleibt beim Aufrufer.
-
-Keine fremden Änderungen vorhanden, kein Push/Merge, keine laufenden eigenen Jobs.
-Nächster konkreter Schritt: neue Regressionen gemäß Fixbericht mit reservierten
-Fixtures ausführen; danach gegebenenfalls vorhandene Konten-/Programm-/Import-Suiten.
-Dateibesitz bleibt bis zur Übergabe bei diesem Paket. Bestehende Git-Autoridentität
-beibehalten; keine echten Zugangsdaten oder privaten Pfade in den neuen Dokumenten.
+Stand 19.11.2026: abgenommen. `e135469` ist auf `main` integriert. Gegen eine
+Wegwerf-PostgreSQL 18.6 mit TLS sind im Gesamtlauf (CI
+[Lauf 44093186734](https://github.com/MagicalWig34653/db-manager/actions/runs/44093186734))
+und im lokalen Einzellauf beide Tests ausgeführt und grün:
+`TestLivePostgresRevokeWithoutAuthority` und `TestCanonicalPostgresRoutineOID`.
+Einzelheiten im [Fixbericht](../../BERICHT-FIXES.md). Paket abgeschlossen, keine
+offenen Schritte und keine laufenden Jobs.

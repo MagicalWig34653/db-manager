@@ -162,8 +162,8 @@ GRANT samt Nachprüfung mit der nichtkanonischen OID. Der neue Unit-Test
 Ziffern, Null, die 32-Bit-Grenze und ungültige Eingaben ab.
 
 Eigene Prüfung: nur Quelltextprüfung, `gofmt` und `git diff --check`;
-keine Builds, Tests, Docker- oder Netzaufrufe. Erneute Live-Abnahme im Einzel- und
-Gesamtlauf sowie der neue Unit-Test bleiben offen. Unabhängiges, ausschließlich
+keine Builds, Tests, Docker- oder Netzaufrufe. Die Live-Abnahme im Einzel- und
+Gesamtlauf ist inzwischen erledigt (siehe Abnahme unten). Unabhängiges, ausschließlich
 lesendes Agent-Review der Nachbesserung: keine blockierenden Befunde, keine
 konkrete Isolationslücke. Ergänzender Aufruferbefehl:
 
@@ -171,18 +171,22 @@ konkrete Isolationslücke. Ergänzender Aufruferbefehl:
 go test ./internal/database -run '^TestCanonicalPostgresRoutineOID$' -count=1 -v
 ```
 
-## Ursprünglich offene Abnahme
+## Abnahme (19.11.2026)
 
-Die oben dokumentierte ursprüngliche Abnahme wurde inzwischen vom Aufrufer mit dem
-im Nachtrag genannten Restfehler gemeldet. Die Nachbesserung ist **noch zu prüfen**.
-Die Befehle setzen die Go-Toolchain aus
-`go.mod` und verfügbare Modulabhängigkeiten voraus. Bestehende Live-Harness-Skripte
-verwenden feste Testnamensfilter und starten die neuen Tests nicht automatisch;
-deshalb sind die oben genannten direkten Aufrufe maßgeblich. Die Live-Tests
-überspringen ohne Portvariable ihren jeweiligen Fixture-Fall.
+Der Fix `e135469665f838c3c384d855ead2f60223f2cd33` ist praktisch abgenommen. Beide
+Testläufe liefen gegen eine Wegwerf-Fixture mit PostgreSQL 18.6
+(`postgres:18.6-alpine`), Datenbank `probe`, TLS mit eigener Test-CA. Beide Tests
+wurden ausgeführt und nicht übersprungen:
 
-Unabhängiges statisches Review durchgeführt; dabei gefundene OID-Vergleichslücke
-mit zusätzlicher Regression korrigiert. Praktische Datenbank- und Testabnahme durch
-den Aufrufer bleibt für die Nachbesserung offen. Keine Merge-/Releasefreigabe und keine laufenden
-Build-, Test-, Container- oder Netzjobs aus dieser Bearbeitung.
+- Gesamtlauf: CI „Datenbankengine“,
+  [Lauf 44093186734](https://github.com/MagicalWig34653/db-manager/actions/runs/44093186734).
+  `scripts/test-engine.py` startet die Fixtures und führt `go test -v ./internal/database`
+  ohne Testfilter aus. Ergebnis: `TestLivePostgresRevokeWithoutAuthority` PASS und
+  `TestCanonicalPostgresRoutineOID` PASS.
+- Einzellauf, lokal auf derselben Art Fixture mit den beiden Befehlen oben:
+  `TestLivePostgresRevokeWithoutAuthority` PASS und `TestCanonicalPostgresRoutineOID` PASS.
+
+Die Live-Tests werden ohne Port-Variable übersprungen. Als Beleg gilt deshalb nur
+die Zeile `--- PASS` des konkreten Testnamens im Log, nicht ein grüner Workflow.
+Keine Produktivverbindung, kein Deploy.
 Dateien und Fortsetzung: [Paketübergabe](docs/handoffs/REVIEW-FIXES.md).
